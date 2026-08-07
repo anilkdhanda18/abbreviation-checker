@@ -122,7 +122,7 @@
   <header class="masthead">
     <p class="eyebrow">Manuscript Proofing</p>
     <h1>Abbreviation Check<span class="rule"></span></h1>
-    <p class="lede">Paste or upload a manuscript and it is examined against the standard rules for defining and using abbreviations in a research paper. </p>
+    <p class="lede">Paste or upload a manuscript and it is examined against the standard rules for defining and using abbreviations in a research paper. Everything runs in your browser and nothing is uploaded to a server.</p>
   </header>
 
   <section class="card" id="input-card">
@@ -214,7 +214,7 @@
         <a href="https://www.linkedin.com/in/ani018/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </p>
     </div>
-    <p class="credit-tag"></p>
+    <p class="credit-tag">Runs entirely in your browser · No text leaves this page</p>
   </footer>
 </div>
 
@@ -312,16 +312,39 @@ function collectDefs(sent,si,add){
 /* Remove the references / bibliography section */
 function excludeReferences(text,enabled){
   if(!enabled) return {text,excluded:false};
+
+  // A. "References" heading on its own line
   const lines=text.split(/\n/);
   const headRe=/^\s*(\d+\.?\s*)?(references|reference list|bibliography|literature cited|works cited)\s*:?\s*$/i;
-  for(let i=0;i<lines.length;i++){
-    if(headRe.test(lines[i]) && i>lines.length*0.25){
-      return {text:lines.slice(0,i).join("\n"),excluded:true};
+  for(let i=Math.floor(lines.length*0.25);i<lines.length;i++){
+    if(headRe.test(lines[i])) return {text:lines.slice(0,i).join("\n"),excluded:true};
+  }
+
+  // B. "References" word in the latter part, immediately followed by the first entry
+  const reHead=/\b(references|bibliography|literature cited|reference list)\b\s*:?\s*/ig;
+  let hm,lastHead=null;
+  while((hm=reHead.exec(text))!==null){ if(hm.index>text.length*0.35) lastHead=hm; }
+  if(lastHead){
+    const after=text.slice(lastHead.index+lastHead[0].length, lastHead.index+lastHead[0].length+30);
+    if(/^\s*(\[\s*\d|\d{1,3}\.\s+[A-Z]|[A-Z][a-z]+,?\s+[A-Z])/.test(after))
+      return {text:text.slice(0,lastHead.index),excluded:true};
+  }
+
+  // C. Dense block of bracketed citation numbers ([1], [22], ...) running to the end
+  const marks=[...text.matchAll(/\[\d{1,3}\]/g)];
+  if(marks.length>=4){
+    let start=marks[marks.length-1].index;
+    for(let k=marks.length-1;k>0;k--){
+      if(marks[k].index-marks[k-1].index<=700) start=marks[k-1].index; else break;
+    }
+    const region=text.slice(start);
+    const size=marks.filter(x=>x.index>=start).length;
+    const looksRef=/doi\.org|\bdoi\b|et al\.?|\(\d{4}\)|\b(19|20)\d{2}\b/i.test(region);
+    if(size>=4 && looksRef && start>text.length*0.30 && marks[marks.length-1].index>text.length*0.70){
+      return {text:text.slice(0,start),excluded:true};
     }
   }
-  const half=Math.floor(text.length*0.5);
-  const m=/(references|bibliography|literature cited)\b[\s:]*\n?\s*(\[\s*1\s*\]|1\.\s|\[\d)/i.exec(text.slice(half));
-  if(m) return {text:text.slice(0,half+m.index),excluded:true};
+
   return {text,excluded:false};
 }
 
@@ -619,7 +642,12 @@ async function readFile(file){
     const box=document.createElement("div");
     box.innerHTML=res.value;
     box.querySelectorAll("table").forEach(t=>t.remove());   // drop Word tables entirely
-    box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>h.remove()); // drop styled headings
+    box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>{  // drop styled headings
+      const t=(h.textContent||"").trim();
+      if(/^(references|reference list|bibliography|literature cited|works cited)\s*:?\s*$/i.test(t))
+        h.replaceWith(document.createTextNode("\nReferences\n"));  // keep as a reference-cut marker
+      else h.remove();
+    });
     box.querySelectorAll("p").forEach(p=>{                   // drop bold-only short headings
       const txt=(p.textContent||"").trim(); if(!txt) return;
       const bold=[...p.querySelectorAll("strong,b")].map(s=>s.textContent||"").join(" ").replace(/\s+/g,"").length;
