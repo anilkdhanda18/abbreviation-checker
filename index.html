@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Abbreviation Check — Manuscript Proofing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
+<style>
+  :root{
+    --paper:#F6F7F9;--card:#FFFFFF;--ink:#14161A;--muted:#5B6470;--faint:#8A929C;
+    --hair:#DCE0E7;--hair-strong:#C6CCD5;--pencil:#2A4A8B;--pencil-soft:#EAF0FA;
+    --err:#B3261E;--err-soft:#FBECEB;--warn:#8A5A00;--warn-soft:#FBF2E2;--ok:#1E7A46;--ok-soft:#E7F3EC;
+    --serif:'Charter','Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
+    --sans:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  }
+  *{box-sizing:border-box}html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;font-size:16px}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 24px 96px}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pencil);font-weight:700;margin:0 0 10px}
+  .masthead h1{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.05;margin:0 0 8px;letter-spacing:-.01em}
+  .masthead h1 .rule{display:block;height:3px;width:64px;background:var(--pencil);margin-top:14px;border-radius:2px}
+  .lede{color:var(--muted);max-width:62ch;margin:8px 0 0;font-size:15px}
+  .card{background:var(--card);border:1px solid var(--hair);border-radius:12px;padding:24px;margin-top:28px;box-shadow:0 1px 2px rgba(20,22,26,.03),0 8px 24px -18px rgba(20,22,26,.18)}
+  .card h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:0 0 4px}
+  .card .sub{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+  .tabs{display:flex;gap:4px;background:var(--paper);border:1px solid var(--hair);border-radius:9px;padding:4px;width:fit-content;margin-bottom:18px}
+  .tab{appearance:none;border:0;background:transparent;color:var(--muted);font-family:var(--sans);font-size:13.5px;font-weight:600;cursor:pointer;padding:7px 16px;border-radius:6px;transition:background .15s,color .15s}
+  .tab[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(20,22,26,.08)}
+  .tab:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+  .panel[hidden]{display:none}
+  .drop{border:1.5px dashed var(--hair-strong);border-radius:10px;padding:38px 20px;text-align:center;background:var(--paper);transition:border-color .15s,background .15s;cursor:pointer}
+  .drop.drag{border-color:var(--pencil);background:var(--pencil-soft)}
+  .drop:focus-visible{outline:2px solid var(--pencil);outline-offset:3px}
+  .drop .big{font-family:var(--serif);font-size:17px;margin:0 0 4px}
+  .drop .small{color:var(--muted);font-size:13px;margin:0}
+  .drop .formats{color:var(--faint);font-size:12px;margin-top:12px;letter-spacing:.02em}
+  .filechip{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:var(--pencil-soft);color:var(--pencil);font-weight:600;font-size:13px;padding:6px 12px;border-radius:20px}
+  textarea{width:100%;min-height:220px;resize:vertical;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:10px;padding:14px}
+  textarea:focus{outline:2px solid var(--pencil);outline-offset:1px;border-color:var(--pencil)}
+  label.fld{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:20px 0 7px}
+  input.text{width:100%;font-family:var(--sans);font-size:14.5px;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:9px;padding:11px 13px}
+  input.text:focus{outline:2px solid var(--pencil);outline-offset:1px;border-color:var(--pencil)}
+  .opts{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--ink);cursor:pointer}
+  .opt input{width:16px;height:16px;accent-color:var(--pencil)}
+  details.adv{margin-top:18px;border-top:1px solid var(--hair);padding-top:16px}
+  details.adv summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--pencil);list-style:none}
+  details.adv summary::-webkit-details-marker{display:none}
+  details.adv summary::before{content:"+ ";font-family:var(--mono)}
+  details.adv[open] summary::before{content:"– "}
+  details.adv .hint{color:var(--muted);font-size:12.5px;margin:8px 0 8px}
+  .actions{display:flex;gap:12px;align-items:center;margin-top:24px;flex-wrap:wrap}
+  .btn{appearance:none;border:0;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:14.5px;padding:12px 22px;border-radius:9px;transition:transform .06s,background .15s,box-shadow .15s}
+  .btn-primary{background:var(--pencil);color:#fff;box-shadow:0 1px 2px rgba(42,74,139,.35)}
+  .btn-primary:hover{background:#22407c}.btn-primary:active{transform:translateY(1px)}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--hair)}
+  .btn-ghost:hover{color:var(--ink);border-color:var(--hair-strong)}
+  .btn:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+  .statusline{color:var(--muted);font-size:13px}.statusline.error{color:var(--err)}
+  #report[hidden]{display:none}
+  #report{animation:rise .3s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){#report{animation:none}}
+  .scorecard{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden}
+  .score{background:var(--card);padding:18px 16px;text-align:left}
+  .score .n{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
+  .score .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .score.err .n{color:var(--err)}.score.warn .n{color:var(--warn)}.score.ok .n{color:var(--ok)}
+  @media(max-width:640px){.scorecard{grid-template-columns:repeat(2,1fr)}}
+  .verdict{font-family:var(--serif);font-size:18px;margin:22px 0 6px}.verdict.clean{color:var(--ok)}
+  .sec-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--pencil);font-weight:700;margin:30px 0 12px}
+  .issue{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--hair)}
+  .issue:first-of-type{border-top:0}
+  .badge{flex:0 0 auto;width:20px;height:20px;border-radius:50%;margin-top:2px;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}
+  .badge.err{background:var(--err)}.badge.warn{background:var(--warn)}.badge.info{background:var(--pencil)}
+  .issue .body{flex:1;min-width:0}
+  .issue .abbr{font-family:var(--mono);font-weight:700;font-size:13.5px;background:var(--paper);border:1px solid var(--hair);border-radius:5px;padding:1px 7px;color:var(--ink)}
+  .issue .msg{font-size:14.5px;margin:2px 0 0}
+  .issue .snip{font-family:var(--serif);font-size:13.5px;color:var(--muted);background:var(--paper);border-left:3px solid var(--hair-strong);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0}
+  .issue .snip mark{background:var(--warn-soft);color:var(--ink);padding:0 2px;border-radius:3px;font-family:var(--mono);font-size:12.5px}
+  table.ledger{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+  table.ledger th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 10px 10px;border-bottom:2px solid var(--ink)}
+  table.ledger td{padding:11px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
+  table.ledger tr:last-child td{border-bottom:0}
+  table.ledger .t-abbr{font-family:var(--mono);font-weight:700;white-space:nowrap}
+  table.ledger .t-long{color:var(--ink)}.table .t-long.none{}
+  table.ledger .t-long.none{color:var(--faint);font-style:italic}
+  table.ledger .t-num{font-variant-numeric:tabular-nums;color:var(--muted)}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+  .dot.err{background:var(--err)}.dot.warn{background:var(--warn)}.dot.ok{background:var(--ok)}
+  .yn.y{color:var(--ok);font-weight:700}.yn.n{color:var(--err);font-weight:700}.yn.na{color:var(--faint)}
+  .std-note{margin-top:16px;font-size:13px;color:var(--muted)}
+  .std-note code{font-family:var(--mono);background:var(--paper);border:1px solid var(--hair);border-radius:4px;padding:1px 6px;font-size:12px;color:var(--pencil);margin:0 2px;display:inline-block}
+  .disclaimer{font-size:12.5px;color:var(--faint);margin-top:26px;border-top:1px solid var(--hair);padding-top:16px;line-height:1.6}
+  .report-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+  details.rules{margin-top:28px}
+  details.rules>summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--pencil);letter-spacing:.04em;text-transform:uppercase;list-style:none}
+  details.rules>summary::-webkit-details-marker{display:none}
+  details.rules>summary::before{content:"\25B8  "}
+  details.rules[open]>summary::before{content:"\25BE  "}
+  details.rules ol{margin:14px 0 0;padding-left:20px;color:var(--muted);font-size:13.5px}
+  details.rules li{margin:7px 0}details.rules li b{color:var(--ink);font-weight:600}
+  footer{color:var(--faint);font-size:12px;margin-top:40px;text-align:center}
+  @media print{body{background:#fff}.card:not(#report){display:none}.report-actions,.tabs,.actions{display:none}#report{box-shadow:none;border:0;padding:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Manuscript Proofing</p>
+    <h1>Abbreviation Check<span class="rule"></span></h1>
+    <p class="lede">Paste or upload a manuscript and it is examined against the standard rules for defining and using abbreviations in a research paper. Everything runs in your browser and nothing is uploaded to a server.</p>
+  </header>
+
+  <section class="card" id="input-card">
+    <h2>Your manuscript</h2>
+    <p class="sub">Supported files: plain text (.txt, .md), Word (.docx), and PDF (.pdf).</p>
+
+    <div class="tabs" role="tablist" aria-label="Input method">
+      <button class="tab" role="tab" id="tab-upload" aria-selected="true" aria-controls="panel-upload">Upload a file</button>
+      <button class="tab" role="tab" id="tab-paste" aria-selected="false" aria-controls="panel-paste">Paste text</button>
+    </div>
+
+    <div class="panel" id="panel-upload" role="tabpanel" aria-labelledby="tab-upload">
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a file or drop it here">
+        <p class="big">Drop your file here</p>
+        <p class="small">or click to browse</p>
+        <div class="formats">.txt · .md · .docx · .pdf</div>
+        <div id="filechip" class="filechip" style="display:none"></div>
+      </div>
+      <input type="file" id="file" accept=".txt,.md,.text,.docx,.pdf" style="display:none" />
+    </div>
+
+    <div class="panel" id="panel-paste" role="tabpanel" aria-labelledby="tab-paste" hidden>
+      <textarea id="paste" placeholder="Paste your manuscript text here (abstract and main body)…" aria-label="Manuscript text"></textarea>
+    </div>
+
+    <label class="fld" for="title">Paper title <span style="text-transform:none;font-weight:400;color:var(--faint)">(optional, enables the title check)</span></label>
+    <input class="text" id="title" type="text" placeholder="e.g. Nutrient recovery from source-separated urine using a stacked bio-electroconcentration system" />
+
+    <div class="opts">
+      <label class="opt"><input type="checkbox" id="opt-refs" checked /> Skip the References or Bibliography section (recommended)</label>
+      <label class="opt"><input type="checkbox" id="opt-tables" checked /> Skip tables and numeric data blocks (recommended)</label>
+    </div>
+
+    <details class="adv">
+      <summary>Advanced: terms treated as standard (no definition required)</summary>
+      <p class="hint">One per line. Abbreviations listed here are assumed universally known and are not flagged as undefined. The default list is deliberately short. Add your own field terms (for example COD, BOD, TSS) only if your target journal accepts them without definition.</p>
+      <textarea id="whitelist" style="min-height:120px" aria-label="Standard abbreviations"></textarea>
+    </details>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="run">Check abbreviations</button>
+      <button class="btn btn-ghost" id="clear">Clear</button>
+      <span class="statusline" id="status"></span>
+    </div>
+  </section>
+
+  <section class="card" id="report" hidden aria-live="polite">
+    <h2>Proofing report</h2>
+    <p class="sub" id="report-sub"></p>
+    <div class="scorecard" id="scorecard"></div>
+    <p class="verdict" id="verdict"></p>
+    <div id="errors-wrap"></div>
+    <div id="warnings-wrap"></div>
+    <div id="infos-wrap"></div>
+    <div id="ledger-wrap"></div>
+    <div id="std-wrap"></div>
+    <p class="disclaimer">This is a heuristic aid, not a substitute for a careful read. Detection of acronyms, definitions, and section boundaries is pattern-based and can still miss cases or over-flag chemical formulae and all-caps words. Definitions are recognised when the acronym sits beside its parenthetical (either order), including phrasings like "hereafter" or "abbreviated as". Requirements vary by journal, so always confirm against your target journal's author guidelines.</p>
+    <div class="report-actions">
+      <button class="btn btn-ghost" id="download">Download report (.txt)</button>
+      <button class="btn btn-ghost" id="print">Print or save as PDF</button>
+    </div>
+  </section>
+
+  <details class="rules">
+    <summary>What this checks</summary>
+    <ol>
+      <li><b>Define at first use.</b> Every non-standard abbreviation should be spelled out in full the first time it appears, with the short form in parentheses.</li>
+      <li><b>Do not use before defining.</b> The full form must appear at or before the first use, not later.</li>
+      <li><b>Earn the abbreviation.</b> Defined terms that are then used only once or twice are flagged.</li>
+      <li><b>No abbreviations in the title</b> unless universally recognised (checked when a title is provided).</li>
+      <li><b>Plurals without apostrophes.</b> <code>MFCs</code>, not <code>MFC's</code>.</li>
+      <li><b>Do not begin a sentence with an abbreviation.</b></li>
+      <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
+      <li><b>Units are not pluralised</b> (<code>kg</code>, not <code>kgs</code>).</li>
+      <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
+      <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
+      <li><b>Tables are skipped</b> by default. Word tables are removed directly, and numeric data rows with their header line are filtered from PDF and pasted text.</li>
+    </ol>
+  </details>
+
+  <footer>Runs entirely in your browser · No text leaves this page</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- Standard abbreviations (kept short on purpose) ---------- */
+const DEFAULT_STANDARD = [
+  "DNA","RNA","mRNA","PCR","ATP","ADP","NAD","NADH","pH","UV","NMR",
+  "USA","US","UK","EU","UN","WHO","PDF","HTML","URL","DOI","ID","GPS",
+  "LED","LCD","USB","AI","2D","3D","ISO","IUPAC","ASTM","SI"
+];
+
+const STOPWORDS = new Set([
+  "AND","THE","OR","OF","IN","ON","AT","TO","FOR","WITH","BY","AS","IS","ARE",
+  "WAS","WERE","THIS","THAT","THESE","THOSE","FROM","INTO","AN","IT","BE","WE",
+  "II","III","IV","VI","VII","VIII","IX","XI","XII","XX","OK","AM","PM","ET","AL",
+  "ABSTRACT","INTRODUCTION","METHODS","METHODOLOGY","MATERIALS","RESULTS",
+  "DISCUSSION","CONCLUSION","CONCLUSIONS","REFERENCES","ACKNOWLEDGEMENTS",
+  "ACKNOWLEDGMENTS","APPENDIX","NOMENCLATURE","ABBREVIATIONS","KEYWORDS",
+  "FIGURE","TABLE","SUPPLEMENTARY","HIGHLIGHTS","GRAPHICAL","BACKGROUND","REVIEW"
+]);
+
+/* ---------- Helpers ---------- */
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\-]/g,"\\$&");}
+function norm(s){return s.replace(/[^A-Za-z0-9]/g,"").toUpperCase();}
+function letters(s){return s.replace(/[^A-Za-z0-9]/g,"").length;}
+function tailWords(text,n){const w=text.trim().split(/\s+/).filter(Boolean);return w.slice(Math.max(0,w.length-n)).join(" ");}
+
+function splitIntoSentences(text){
+  const abbr=["e.g","i.e","etc","al","vs","cf","viz","Fig","Figs","Eq","Eqs","No","Dr","Prof",
+              "Mr","Mrs","Ms","approx","Inc","Ltd","Co","pp","Vol","Ref","Refs","ca","Sec","Chap","Ch"];
+  let t=text.replace(/\r/g,"");
+  t=t.replace(/(\d)\.(\d)/g,"$1<DOT>$2");
+  abbr.forEach(a=>{t=t.replace(new RegExp("\\b"+escapeRegExp(a)+"\\.","g"),a+"<DOT>");});
+  t=t.replace(/\b([A-Z])\./g,"$1<DOT>");
+  const parts=t.split(/(?<=[.!?])["'\u2019\)\]]?\s+(?=["'\u2018\(\[]?[A-Z0-9])/);
+  return parts.map(p=>p.replace(/<DOT>/g,".").replace(/\s+/g," ").trim()).filter(Boolean);
+}
+
+/* Schwartz–Hearst long-form extraction */
+function bestLongForm(sf0,lf){
+  const sf=sf0.replace(/-/g,"");let s=sf.length-1;let l=lf.length-1;
+  while(s>=0){
+    const c=sf.charAt(s).toLowerCase();
+    if(!/[a-z0-9]/.test(c)){s--;continue;}
+    while(l>=0&&(lf.charAt(l).toLowerCase()!==c||(s===0&&l>0&&/[A-Za-z0-9]/.test(lf.charAt(l-1))))){l--;}
+    if(l<0)return null;l--;s--;
+  }
+  return lf.substring(l+1).replace(/^[^A-Za-z0-9]+/,"").trim();
+}
+function validLongForm(sf,cand){
+  if(!cand)return null;const lf=bestLongForm(sf,cand);if(!lf)return null;
+  const w=lf.split(/\s+/).filter(Boolean);if(w.length<1||w.length>letters(sf)+5)return null;
+  if(new RegExp("\\b"+escapeRegExp(sf)+"\\b","i").test(lf)) return null; // full form must not contain the acronym itself
+  return lf;
+}
+
+/* Character spans of parentheticals in a sentence */
+function parenSpans(sent){
+  const spans=[]; const re=/\([^()]{1,120}\)/g; let m;
+  while((m=re.exec(sent))!==null) spans.push([m.index, m.index+m[0].length]);
+  return spans;
+}
+
+/* Find definitions in a sentence.
+   Style A: an acronym anywhere inside a parenthetical whose full form precedes the
+   parenthesis, so "full term (SHORT; instrument model)" and "full term (formula or SHORT)"
+   are both handled. Style B: "SHORT (full form)". */
+function collectDefs(sent,si,add){
+  const paren=/\(([^()]{1,120})\)/g;let p;
+  while((p=paren.exec(sent))!==null){
+    const inner=p[1].trim(), pre=sent.slice(0,p.index);
+    let matchedA=false;
+    const cand=inner.match(/[A-Z]{2,}(?:-[A-Z]{2,})*/g)||[];
+    for(const c of cand){
+      if(STOPWORDS.has(norm(c))) continue;
+      const lf=validLongForm(c, tailWords(pre, letters(c)+7));
+      if(lf){ add(c,lf,si); matchedA=true; }
+    }
+    if(matchedA) continue;
+    const preTok=(pre.trim().split(/\s+/).pop()||"").replace(/[^A-Za-z0-9-]/g,"");
+    if(/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(preTok) && !STOPWORDS.has(norm(preTok)) && /\s/.test(inner) && /[A-Za-z]/.test(inner[0])){
+      const lf=validLongForm(preTok,inner); if(lf) add(preTok,lf,si);
+    }
+  }
+}
+
+/* Remove the references / bibliography section */
+function excludeReferences(text,enabled){
+  if(!enabled) return {text,excluded:false};
+  const lines=text.split(/\n/);
+  const headRe=/^\s*(\d+\.?\s*)?(references|reference list|bibliography|literature cited|works cited)\s*:?\s*$/i;
+  for(let i=0;i<lines.length;i++){
+    if(headRe.test(lines[i]) && i>lines.length*0.25){
+      return {text:lines.slice(0,i).join("\n"),excluded:true};
+    }
+  }
+  const half=Math.floor(text.length*0.5);
+  const m=/(references|bibliography|literature cited)\b[\s:]*\n?\s*(\[\s*1\s*\]|1\.\s|\[\d)/i.exec(text.slice(half));
+  if(m) return {text:text.slice(0,half+m.index),excluded:true};
+  return {text,excluded:false};
+}
+
+/* Remove tabular data blocks (numeric rows and their header line) */
+function excludeTables(text,enabled){
+  if(!enabled) return {text,removed:0};
+  const lines=text.split(/\n/);
+  const numberFrac=line=>{
+    const t=line.trim().split(/\s+/).filter(Boolean);
+    if(!t.length) return 0;
+    let d=0; for(const x of t){ if(/\d/.test(x) && !/[A-Za-z]/.test(x)) d++; }
+    return d/t.length;
+  };
+  const tabs=line=>(line.match(/\t/g)||[]).length;
+  const isData=line=>{
+    const t=line.trim().split(/\s+/).filter(Boolean);
+    return tabs(line)>=2 || (t.length>=5 && numberFrac(line)>=0.6);
+  };
+  const headerish=line=>{
+    const l=line.trim(); if(!l) return false;
+    if(/[.!?]["'\u2019)\]]?$/.test(l)) return false;           // a full sentence, keep it
+    const t=l.split(/\s+/).filter(Boolean);
+    if(t.length>16) return false;
+    const labels=t.filter(x=>/[A-Z]/.test(x)||/\(.+\)/.test(x)).length;
+    return labels/t.length>=0.4;
+  };
+  const drop=new Array(lines.length).fill(false);
+  for(let i=0;i<lines.length;i++){
+    if(isData(lines[i])){
+      drop[i]=true;
+      if(i-1>=0 && !drop[i-1] && !isData(lines[i-1]) && headerish(lines[i-1])) drop[i-1]=true;
+    }
+  }
+  const removed=drop.filter(Boolean).length;
+  return {text:lines.filter((_,i)=>!drop[i]).join("\n"), removed};
+}
+
+/* Remove heading lines so words inside them are not mistaken for abbreviations.
+   Covers all-caps headings ("SYNTHESIS OF CATALYSTS") and numbered headings
+   ("2. Experimental section", "2.1. Materials CASE"). */
+function stripHeadings(text){
+  const lines=text.split(/\n/);
+  let removed=0;
+  const kept=lines.filter(line=>{
+    const l=line.trim();
+    if(!l) return true;
+    const upper=(l.match(/[A-Z]/g)||[]).length;
+    const lower=(l.match(/[a-z]/g)||[]).length;
+    if(upper+lower<2) return true;
+    const words=l.split(/\s+/).filter(Boolean);
+    const noTerminal=!/[.!?]["'\u2019)\]]?$/.test(l);   // headings do not end like a sentence
+    const capsHeading = words.length<=12 && upper>=2 && lower/(upper+lower)<=0.15 && /[A-Z]{2,}/.test(l);
+    const numbered = /^\d+(\.\d+)*\.?\s+[A-Z]/.test(l) && words.length<=10 && noTerminal;
+    const capWords = words.filter(w=>/^[("\u2018\u2019]?[A-Z]/.test(w)).length;
+    const titleHeading = /\b[A-Z]{2,}\b/.test(l) && words.length>=2 && words.length<=8 &&
+                         noTerminal && !/[,;]$/.test(l) && capWords/words.length>=0.7;
+    if(capsHeading || numbered || titleHeading){ removed++; return false; }
+    return true;
+  });
+  return {text:kept.join("\n"), removed};
+}
+
+/* ---------- Core analysis ---------- */
+function analyze(rawText, title, standardSet, skipRefs, skipTables){
+  const ref = excludeReferences(rawText, skipRefs);
+  const tab = excludeTables(ref.text, skipTables);
+  const head = stripHeadings(tab.text);
+  const text = head.text;
+  const sentences = splitIntoSentences(text);
+  const acroRe = /\b([A-Z]{2,}(?:-[A-Z]{2,})*)(s)?\b/g;
+
+  const groups = new Map();
+  const G = k => { if(!groups.has(k)) groups.set(k,{key:k,forms:new Map(),occ:[],defs:[]}); return groups.get(k); };
+  const bump = (g,f)=> g.forms.set(f,(g.forms.get(f)||0)+1);
+
+  sentences.forEach((sent,si)=>{
+    const spans=parenSpans(sent);
+    acroRe.lastIndex=0; let m;
+    while((m=acroRe.exec(sent))!==null){
+      const raw=m[1], key=norm(raw);
+      if(STOPWORDS.has(key)) continue;
+      const before=sent.slice(0,m.index);
+      const initial=/^[\s"'\u2018\u2019\(\[]*$/.test(before);
+      const inParen=spans.some(sp=> m.index>=sp[0] && m.index<sp[1]);
+      const g=G(key); g.occ.push({sent:si,initial,inParen}); bump(g,raw);
+    }
+    collectDefs(sent,si,(sf,lf,s2)=>{
+      const key=norm(sf); if(STOPWORDS.has(key)) return;
+      const g=G(key); g.defs.push({form:sf,long:lf,sent:s2}); bump(g,sf);
+    });
+  });
+
+  const isStd = k => standardSet.has(k);
+
+  const titleAbbrs = new Set();
+  if(title && title.trim()){
+    let tm; acroRe.lastIndex=0;
+    while((tm=acroRe.exec(title))!==null){
+      const k=norm(tm[1]);
+      if(!STOPWORDS.has(k) && !isStd(k)) titleAbbrs.add(k);
+    }
+  }
+
+  const hasList = text.split(/\n/).some(line=>{
+    const t=line.trim();
+    return t.length>0 && t.length<45 && /^(list of abbreviations|abbreviations|nomenclature|acronyms|glossary)\b/i.test(t);
+  });
+
+  const errors=[], warnings=[], infos=[], rows=[], standardSeen=[];
+
+  const displayForm = g => {
+    if(g.defs.length) return g.defs[0].form;
+    let best=null,n=-1; for(const [f,c] of g.forms){ if(c>n){best=f;n=c;} } return best||g.key;
+  };
+
+  [...groups.values()]
+    .filter(g=>g.occ.length)
+    .sort((a,b)=>displayForm(a).localeCompare(displayForm(b)))
+    .forEach(g=>{
+      const disp=displayForm(g);
+      const std=isStd(g.key);
+      const count=g.occ.length;
+      const defined=g.defs.length>0;
+      if(!std && !defined && g.occ.every(o=>o.inParen)) return;
+      const firstSent=Math.min(...g.occ.map(o=>o.sent));
+      const defSent=defined?Math.min(...g.defs.map(d=>d.sent)):Infinity;
+      const longForm=defined?[...g.defs].sort((a,b)=>a.sent-b.sent)[0].long:null;
+      const snippet=buildSnippet(sentences[firstSent]||"", disp);
+
+      let status="ok";
+      const usedBefore=defined && firstSent<defSent;
+      const firstUseOK=std || (defined && !usedBefore);
+
+      if(std){ standardSeen.push(disp); }
+      else if(!defined){
+        status="err";
+        errors.push({abbr:disp, msg:`Not defined anywhere. Spell it out in full at first use, for example "full term (${disp})".`, snip:snippet});
+      } else if(usedBefore){
+        status="err";
+        errors.push({abbr:disp, msg:`Used before it is defined. It appears in the text before its full form is given. Spell it out in full at the first use.`, snip:snippet});
+      }
+
+      if(!std && defined && count<=2){
+        if(status==="ok") status="warn";
+        warnings.push({abbr:disp, msg:`Used only ${count} time${count===1?"":"s"}. Abbreviate only terms that recur; otherwise spell it out each time.`, snip:null});
+      }
+
+      let apoHit=false;
+      for(const f of g.forms.keys()){
+        if(new RegExp("\\b"+escapeRegExp(f)+"['\u2019]s\\b").test(text)){apoHit=true;break;}
+      }
+      if(apoHit){
+        if(status==="ok") status="warn";
+        warnings.push({abbr:disp, msg:`Written with an apostrophe for a plural ("${disp}'s"). Use "${disp}s" with no apostrophe.`, snip:null});
+      }
+
+      const initOcc=g.occ.filter(o=>o.initial);
+      if(!std && initOcc.length){
+        if(status==="ok") status="warn";
+        warnings.push({abbr:disp, msg:`Begins a sentence. Rephrase so a sentence does not open with an abbreviation.`, snip:buildSnippet(sentences[initOcc[0].sent]||"", disp)});
+      }
+
+      if(g.defs.length>=2){
+        const ss=[...new Set(g.defs.map(d=>d.sent))];
+        if(ss.length>=2)
+          infos.push({abbr:disp, msg:`Defined ${ss.length} times. Define once at first use. A separate definition in the abstract and the main text is acceptable, but avoid repeating it otherwise.`, snip:null});
+      }
+
+      if(titleAbbrs.has(g.key)){
+        if(status==="ok") status="warn";
+        warnings.push({abbr:disp, msg:`Appears in the title. Avoid abbreviations in titles unless universally recognised.`, snip:null});
+      }
+
+      if(!std){
+        rows.push({base:disp, longForm, count, firstUseOK, inTitle:titleAbbrs.has(g.key), status});
+      }
+    });
+
+  const unitRe=/\b\d+(?:\.\d+)?\s?(kgs|kms|mls|cms|mms|nms|lts|ltrs|hrs)\b/gi;
+  const badUnits=new Set(); let um;
+  while((um=unitRe.exec(text))!==null){ badUnits.add(um[1].toLowerCase()); }
+  if(badUnits.size){
+    warnings.push({abbr:"units", msg:`Pluralised unit${badUnits.size>1?"s":""} found (${[...badUnits].join(", ")}). Units of measure take no plural s. Write "5 kg", not "5 kgs".`, snip:null});
+  }
+
+  const nonStd=rows.length;
+  if(nonStd>=8 && !hasList){
+    infos.push({abbr:null, msg:`You use ${nonStd} non-standard abbreviations but no "List of Abbreviations" or "Nomenclature" section was detected. Consider adding one for the reader's reference.`, snip:null});
+  }
+
+  return {errors,warnings,infos,rows,
+          standardSeen:[...new Set(standardSeen)].sort(),
+          totalAbbr:nonStd, hasList,
+          sentenceCount:sentences.length,
+          refExcluded:ref.excluded, refRequested:skipRefs,
+          tableLinesRemoved:tab.removed, tablesRequested:skipTables};
+}
+
+function buildSnippet(sentence, disp){
+  if(!sentence) return "";
+  let s=sentence;
+  const re=new RegExp("\\b"+escapeRegExp(disp)+"s?\\b");
+  if(s.length>200){
+    const idx=s.search(re); const start=Math.max(0,idx-80);
+    s=(start>0?"… ":"")+s.slice(start,start+200)+(start+200<sentence.length?" …":"");
+  }
+  return escapeHtml(s).replace(new RegExp("\\b("+escapeRegExp(disp)+"s?)\\b"),"<mark>$1</mark>");
+}
+
+/* ---------- Rendering ---------- */
+function renderReport(r){
+  const refNote = r.refExcluded ? " · references section excluded"
+                 : r.refRequested ? " · no references section detected" : "";
+  const tabNote = r.tableLinesRemoved ? ` · ${r.tableLinesRemoved} table line${r.tableLinesRemoved===1?"":"s"} removed` : "";
+  document.getElementById("report-sub").textContent =
+    `${r.totalAbbr} non-standard abbreviation${r.totalAbbr===1?"":"s"} · ${r.standardSeen.length} standard term${r.standardSeen.length===1?"":"s"} skipped${refNote}${tabNote}`;
+
+  const okCount=r.rows.filter(x=>x.status==="ok").length;
+  document.getElementById("scorecard").innerHTML=[
+    {n:r.errors.length,k:"Must fix",cls:"err"},
+    {n:r.warnings.length,k:"Warnings",cls:"warn"},
+    {n:r.infos.length,k:"Suggestions",cls:""},
+    {n:okCount,k:"Clean",cls:"ok"}
+  ].map(s=>`<div class="score ${s.cls}"><div class="n">${s.n}</div><div class="k">${s.k}</div></div>`).join("");
+
+  const v=document.getElementById("verdict");
+  if(r.errors.length===0 && r.warnings.length===0){ v.className="verdict clean"; v.textContent="No rule violations detected. Still worth a manual read before submission."; }
+  else if(r.errors.length===0){ v.className="verdict"; v.textContent="No hard errors. A few things worth reviewing below."; }
+  else { v.className="verdict"; v.textContent=`${r.errors.length} issue${r.errors.length===1?"":"s"} should be fixed before submission.`; }
+
+  document.getElementById("errors-wrap").innerHTML=section("Must fix",r.errors,"err");
+  document.getElementById("warnings-wrap").innerHTML=section("Warnings",r.warnings,"warn");
+  document.getElementById("infos-wrap").innerHTML=section("Suggestions",r.infos,"info");
+  document.getElementById("ledger-wrap").innerHTML=ledger(r.rows);
+  document.getElementById("std-wrap").innerHTML=
+    r.standardSeen.length?`<p class="std-note"><b>Treated as standard (definition not required):</b> ${r.standardSeen.map(s=>`<code>${escapeHtml(s)}</code>`).join("")}</p>`:"";
+
+  const rep=document.getElementById("report"); rep.hidden=false;
+  rep.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+}
+function section(label,items,kind){
+  if(!items.length) return "";
+  const sym=kind==="info"?"i":"!";
+  const rows=items.map(it=>`
+    <div class="issue">
+      <span class="badge ${kind}">${sym}</span>
+      <div class="body">
+        <p class="msg">${it.abbr && it.abbr!=="units"?`<span class="abbr">${escapeHtml(it.abbr)}</span> `:""}${escapeHtml(it.msg)}</p>
+        ${it.snip?`<div class="snip">${it.snip}</div>`:""}
+      </div>
+    </div>`).join("");
+  return `<p class="sec-label">${label}</p>${rows}`;
+}
+function ledger(rows){
+  if(!rows.length) return "";
+  const body=rows.map(x=>{
+    const dot=`<span class="dot ${x.status}"></span>`;
+    const long=x.longForm?`<span class="t-long">${escapeHtml(x.longForm)}</span>`:`<span class="t-long none">not defined</span>`;
+    const fu=x.longForm?(x.firstUseOK?`<span class="yn y">yes</span>`:`<span class="yn n">no</span>`):`<span class="yn na">—</span>`;
+    const tt=x.inTitle?`<span class="yn n">yes</span>`:`<span class="yn na">no</span>`;
+    return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${fu}</td><td>${tt}</td></tr>`;
+  }).join("");
+  return `<p class="sec-label">Abbreviation ledger</p>
+    <table class="ledger"><thead><tr><th>Abbrev.</th><th>Full form</th><th>Uses</th><th>Defined at first use</th><th>In title</th></tr></thead>
+    <tbody>${body}</tbody></table>`;
+}
+
+/* ---------- Export ---------- */
+let LAST=null;
+function reportText(r){
+  const L=[];
+  L.push("ABBREVIATION PROOFING REPORT");
+  L.push("");
+  L.push(`Non-standard abbreviations: ${r.totalAbbr}`);
+  L.push(`References excluded: ${r.refExcluded?"yes":(r.refRequested?"requested, none found":"no")}`);
+  L.push(`Table lines removed: ${r.tableLinesRemoved||0}`);
+  L.push(`Errors: ${r.errors.length} | Warnings: ${r.warnings.length} | Suggestions: ${r.infos.length}`);
+  L.push("");
+  const blk=(t,arr)=>{ if(!arr.length) return; L.push(t.toUpperCase()); arr.forEach(i=>L.push(`  - ${i.abbr&&i.abbr!=="units"?"["+i.abbr+"] ":""}${i.msg}`)); L.push(""); };
+  blk("Must fix",r.errors); blk("Warnings",r.warnings); blk("Suggestions",r.infos);
+  L.push("ABBREVIATION LEDGER");
+  L.push("  Abbrev | Full form | Uses | First-use defined | In title");
+  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.longForm?(x.firstUseOK?"yes":"no"):"-"} | ${x.inTitle?"yes":"no"}`));
+  if(r.standardSeen.length){ L.push(""); L.push("Treated as standard: "+r.standardSeen.join(", ")); }
+  return L.join("\n");
+}
+
+/* ---------- File reading ---------- */
+async function readFile(file){
+  const name=file.name.toLowerCase();
+  if(name.endsWith(".docx")){
+    if(typeof mammoth==="undefined") throw new Error("Word reader failed to load. Paste the text instead.");
+    const buf=await file.arrayBuffer();
+    const res=await mammoth.convertToHtml({arrayBuffer:buf});
+    const box=document.createElement("div");
+    box.innerHTML=res.value;
+    box.querySelectorAll("table").forEach(t=>t.remove());   // drop Word tables entirely
+    box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>h.remove()); // drop styled headings
+    box.querySelectorAll("p").forEach(p=>{                   // drop bold-only short headings
+      const txt=(p.textContent||"").trim(); if(!txt) return;
+      const bold=[...p.querySelectorAll("strong,b")].map(s=>s.textContent||"").join(" ").replace(/\s+/g,"").length;
+      const total=txt.replace(/\s+/g,"").length;
+      const noEnd=!/[.!?]["'\u2019)\]]?$/.test(txt);
+      if(bold>0 && bold>=total*0.8 && txt.split(/\s+/).length<=12 && noEnd) p.remove();
+    });
+    let h=box.innerHTML
+      .replace(/<\/(p|h[1-6]|li|div|blockquote|tr)>/gi,"\n")
+      .replace(/<br\s*\/?>/gi,"\n");
+    const tmp=document.createElement("div"); tmp.innerHTML=h;
+    return tmp.textContent||"";
+  }
+  if(name.endsWith(".pdf")){
+    if(typeof pdfjsLib==="undefined") throw new Error("PDF reader failed to load. Paste the text instead.");
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let out="";
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const c=await page.getTextContent();
+      let buf2="";
+      for(const it of c.items){ buf2 += it.str + (it.hasEOL ? "\n" : " "); }
+      out += buf2 + "\n";
+    }
+    return out;
+  }
+  return await file.text();
+}
+
+/* ---------- Wiring ---------- */
+const $=id=>document.getElementById(id);
+let currentFile=null;
+$("whitelist").value=DEFAULT_STANDARD.join("\n");
+
+function selectTab(which){
+  const up=which==="upload";
+  $("tab-upload").setAttribute("aria-selected",up);
+  $("tab-paste").setAttribute("aria-selected",!up);
+  $("panel-upload").hidden=!up; $("panel-paste").hidden=up;
+}
+$("tab-upload").onclick=()=>selectTab("upload");
+$("tab-paste").onclick=()=>selectTab("paste");
+
+const drop=$("drop"),fileInput=$("file"),chip=$("filechip");
+drop.onclick=()=>fileInput.click();
+drop.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fileInput.click(); } };
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag");}));
+drop.addEventListener("drop",e=>{ if(e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]); });
+fileInput.onchange=()=>{ if(fileInput.files.length) setFile(fileInput.files[0]); };
+function setFile(f){ currentFile=f; chip.style.display="inline-flex"; chip.textContent="📄 "+f.name; status(""); }
+function status(msg,isErr){ const el=$("status"); el.textContent=msg; el.className="statusline"+(isErr?" error":""); }
+
+$("clear").onclick=()=>{
+  currentFile=null; fileInput.value=""; chip.style.display="none";
+  $("paste").value=""; $("title").value=""; $("report").hidden=true; status(""); LAST=null;
+};
+
+$("run").onclick=async()=>{
+  const btn=$("run");
+  const standardSet=new Set($("whitelist").value.split(/\n/).map(s=>norm(s)).filter(Boolean));
+  const title=$("title").value;
+  const skipRefs=$("opt-refs").checked;
+  const skipTables=$("opt-tables").checked;
+  let text="";
+  try{
+    btn.disabled=true;
+    const usingUpload=$("tab-upload").getAttribute("aria-selected")==="true";
+    if(usingUpload && currentFile){ status("Reading file…"); text=await readFile(currentFile); }
+    else { text=$("paste").value; }
+    if(!text || text.trim().length<20){ status("Add some manuscript text first (paste it or upload a file).",true); btn.disabled=false; return; }
+    status("Analysing…");
+    const r=analyze(text,title,standardSet,skipRefs,skipTables);
+    LAST=r; renderReport(r); status("");
+  }catch(err){
+    console.error(err);
+    status(err.message||"Something went wrong reading that file. Try pasting the text instead.",true);
+  }finally{ btn.disabled=false; }
+};
+
+$("download").onclick=()=>{
+  if(!LAST) return;
+  const blob=new Blob([reportText(LAST)],{type:"text/plain"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="abbreviation-report.txt"; a.click(); URL.revokeObjectURL(a.href);
+};
+$("print").onclick=()=>window.print();
+</script>
+</body>
+</html>
