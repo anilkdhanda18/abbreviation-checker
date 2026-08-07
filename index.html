@@ -225,7 +225,12 @@
 const DEFAULT_STANDARD = [
   "DNA","RNA","mRNA","PCR","ATP","ADP","NAD","NADH","pH","UV","NMR",
   "USA","US","UK","EU","UN","WHO","PDF","HTML","URL","DOI","ID","GPS",
-  "LED","LCD","USB","AI","2D","3D","ISO","IUPAC","ASTM","SI"
+  "LED","LCD","USB","AI","2D","3D","ISO","IUPAC","ASTM","SI",
+  "# FTIR functional groups (lines starting with # are ignored)",
+  "–OH","–NH₂","–NH–","–CH₃","–CH₂–","–CH–","C=C","C≡C","C–C","C=O",
+  "–CHO","–COOH","–COO⁻","–COOR","C–O–C","C–O","C=N","C≡N","–NO₂","–SO₃H",
+  "S=O","C–S","–SH","P=O","P–O","C–F","C–Cl","C–Br","C–I","Si–O–Si","Si–OH",
+  "–CONH₂","–CONH–","–CO–NH–","Ar–H","Ar–C=C–"
 ];
 
 const STOPWORDS = new Set([
@@ -677,7 +682,13 @@ $("clear").onclick=()=>{
 
 $("run").onclick=async()=>{
   const btn=$("run");
-  const standardSet=new Set($("whitelist").value.split(/\n/).map(s=>norm(s)).filter(Boolean));
+  const standardSet=new Set();
+  $("whitelist").value.split(/\n/).forEach(line=>{
+    const s=line.trim();
+    if(!s || s.startsWith("#")) return;
+    const n=norm(s); if(n) standardSet.add(n);
+    (s.match(/[A-Z]{2,}/g)||[]).forEach(r=>standardSet.add(norm(r)));  // inner runs the detector would flag
+  });
   const title=$("title").value;
   const skipRefs=$("opt-refs").checked;
   const skipTables=$("opt-tables").checked;
