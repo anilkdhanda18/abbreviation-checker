@@ -103,7 +103,16 @@
   details.rules[open]>summary::before{content:"\25BE  "}
   details.rules ol{margin:14px 0 0;padding-left:20px;color:var(--muted);font-size:13.5px}
   details.rules li{margin:7px 0}details.rules li b{color:var(--ink);font-weight:600}
-  footer{color:var(--faint);font-size:12px;margin-top:40px;text-align:center}
+  footer{margin-top:44px;text-align:center}
+  .credit{border-top:1px solid var(--hair);padding-top:24px;max-width:520px;margin:0 auto}
+  .credit-lead{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 0 6px}
+  .credit-name{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ink);margin:0}
+  .credit-role{font-size:13.5px;color:var(--muted);margin:3px 0 0}
+  .credit-links{margin:12px 0 0;font-size:14px}
+  .credit-links a{color:var(--pencil);text-decoration:none;font-weight:600}
+  .credit-links a:hover{text-decoration:underline}
+  .credit-links .sep{color:var(--hair-strong);margin:0 10px}
+  .credit-tag{color:var(--faint);font-size:12px;margin:22px 0 0}
   @media print{body{background:#fff}.card:not(#report){display:none}.report-actions,.tabs,.actions{display:none}#report{box-shadow:none;border:0;padding:0}}
 </style>
 </head>
@@ -194,7 +203,19 @@
     </ol>
   </details>
 
-  <footer>Runs entirely in your browser · No text leaves this page</footer>
+  <footer>
+    <div class="credit">
+      <p class="credit-lead">Built by</p>
+      <p class="credit-name">Anil Dhanda</p>
+      <p class="credit-role">Assistant Professor, NIT Warangal</p>
+      <p class="credit-links">
+        <a href="mailto:Anildhanda@nitw.ac.in">Anildhanda@nitw.ac.in</a>
+        <span class="sep">·</span>
+        <a href="https://www.linkedin.com/in/ani018/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </p>
+    </div>
+    <p class="credit-tag">Runs entirely in your browser · No text leaves this page</p>
+  </footer>
 </div>
 
 <script>
