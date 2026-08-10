@@ -125,6 +125,19 @@
   .credit-links a:hover{text-decoration:underline}
   .credit-links .sep{color:var(--hair-strong);margin:0 10px}
   .credit-tag{color:var(--faint);font-size:12px;margin:22px 0 0}
+
+  .info-help{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;border:1px solid var(--hair-strong);color:var(--pencil);font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;background:#fff;vertical-align:middle;margin-left:7px;padding:0}
+  .info-help:hover,.info-help:focus{background:var(--pencil-soft);outline:none}
+  .ledger-help{margin:8px 0 14px;padding:12px 14px;border:1px solid var(--hair);border-radius:8px;background:#f8fafc;color:var(--muted);font-size:13px;line-height:1.55}
+  .ledger-help[hidden]{display:none}
+  .ledger-help-grid{display:grid;grid-template-columns:minmax(125px,170px) 1fr;gap:6px 14px}
+  .ledger-help-grid b{color:var(--ink)}
+
+  .help-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .section-help{margin:7px 0 14px;padding:11px 13px;border:1px solid var(--hair);border-radius:8px;background:#f8fafc;color:var(--muted);font-size:13px;line-height:1.52}
+  .section-help[hidden]{display:none}
+  .section-help b{color:var(--ink)}
+
   .dev-note{max-width:640px;margin:14px auto 0;padding:12px 16px;background:var(--pencil-soft);border:1px solid var(--hair);border-radius:9px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:left}
   @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#eng-report,#fte-report{box-shadow:none;border:0;padding:0}}
 </style>
@@ -249,7 +262,7 @@
 
   <div class="result-group" data-group="num" hidden>
   <section class="card" id="num-report" hidden aria-live="polite">
-    <h2>Number, pH &amp; precision report</h2>
+    <h2 class="help-row">Number, pH &amp; precision report <button type="button" class="info-help" id="num-report-info" aria-label="Explain the number, pH and precision report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="num-report-help" hidden><b>How to read this report:</b> findings are grouped by rule. The checker distinguishes ordinary number style, pH reporting, value ± variation consistency, ranges, p-values, and comparable precision patterns. Precision findings are intended for genuinely comparable data, not unrelated quantities or predefined thresholds.</div>
     <p class="sub" id="num-report-sub"></p>
     <div id="num-findings"></div>
     <p class="disclaimer">This combines numeral usage, pH reporting, and scientific numeric-precision checks. References and headings are excluded. Word tables are checked for precision patterns only within genuinely comparable measurement columns. Precision is assessed only within comparable numeric groups, including numerical series, ranges, uncertainties, percentages, p-values, and scientific notation. The checker never invents measurement resolution or silently adds or removes significant digits; uncertain cases are flagged for author review.</p>
@@ -276,7 +289,7 @@
 
   <div class="result-group" data-group="unit" hidden>
   <section class="card" id="unit-report" hidden aria-live="polite">
-    <h2>Units &amp; notation report</h2>
+    <h2 class="help-row">Units &amp; notation report <button type="button" class="info-help" id="unit-report-info" aria-label="Explain the units report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="unit-report-help" hidden><b>Purpose:</b> this module checks internal consistency of repeated units and their associated numerical precision. It does <b>not</b> force SI notation and does not compare unrelated units. Affiliations and references are excluded.</div>
     <p class="sub" id="unit-report-sub"></p>
     <div id="unit-summary"></div>
     <div id="unit-findings"></div>
@@ -305,12 +318,12 @@
 
   <div class="result-group" data-group="eng" hidden>
   <section class="card" id="eng-report" hidden aria-live="polite">
-    <h2>US/British English consistency report</h2>
+    <h2 class="help-row">English consistency report <button type="button" class="info-help" id="eng-report-info" aria-label="Explain the English consistency report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="eng-report-help" hidden><b>How to read this report:</b> the checker first infers the dominant US or British spelling convention, then flags contradictory spellings. It also applies strict third-person and past-tense rules, plus the 100–300 word main-text paragraph rule. Affiliations and references are excluded from language consistency; the Abstract is additionally excluded from paragraph-length checking.</div>
     <p class="sub" id="eng-report-sub"></p>
     <div id="eng-summary"></div>
     <div id="eng-findings"></div>
     <div id="eng-ledger-wrap"></div>
-    <p class="disclaimer">This check infers the manuscript's dominant English spelling convention from diagnostic US/British spelling markers, then flags contradictory spellings against that dominant pattern. References and affiliations are excluded. Ambiguous word pairs whose spelling depends on grammar, meaning, or accepted editorial alternatives are deliberately not used as automatic evidence.</p>
+    <p class="disclaimer">This check infers the manuscript's dominant English spelling convention from diagnostic US/British spelling markers and applies strict third-person and past-tense manuscript rules. References and affiliations are excluded. Ambiguous spelling pairs are deliberately not used as automatic evidence.</p>
     <div class="report-actions">
       <button class="btn btn-ghost" id="eng-download">Download report (.txt)</button>
       <button class="btn btn-ghost" id="eng-print">Print or save as PDF</button>
@@ -324,7 +337,10 @@
       <li><b>Contradictions only.</b> Once a dominant convention is established, only minority spellings are flagged. The report shows the conflicting word and its manuscript context.</li>
       <li><b>References and affiliations excluded.</b> Author affiliations, addresses, and the complete reference list do not influence the inferred language convention.</li>
       <li><b>Conservative vocabulary.</b> Ambiguous pairs such as <code>practice/practise</code>, <code>license/licence</code>, and <code>program/programme</code> are not used automatically because usage can depend on grammatical role or meaning.</li>
-      <li><b>No forced rewriting.</b> The checker does not change the manuscript. It reports the dominant convention and suggests the corresponding spelling for contradictory occurrences.</li>
+      <li><b>Strict third-person check.</b> First-person forms such as <code>I</code>, <code>we</code>, <code>our</code>, and <code>us</code>, and second-person forms such as <code>you</code> and <code>your</code>, are flagged in manuscript prose. This is implemented as a strict manuscript-style rule rather than a universal rule of scientific English.</li>
+      <li><b>Strict past-tense check.</b> Present-tense verb forms in manuscript prose are flagged for review. Examples include <code>is</code>, <code>are</code>, <code>has</code>, <code>have</code>, <code>shows</code>, <code>indicates</code>, <code>suggests</code>, and similar present-tense scientific verbs. The checker reports the exact sentence and detected verb. This is a selected manuscript-style rule, not a universal rule of scientific writing.</li>
+      <li><b>Paragraph length.</b> Main-text prose paragraphs should contain <b>100–300 words</b>. Paragraphs below 100 or above 300 words are flagged. The Abstract and References are excluded, as are obvious headings, captions, equations, and table-like structural lines.</li>
+      <li><b>No forced rewriting.</b> The checker does not change the manuscript. It reports the dominant convention, flags first/second-person usage, and provides a concise revision suggestion.</li>
     </ol>
   </details>
   </div><!-- /group eng -->
@@ -907,7 +923,21 @@ function renderUnitReport(res){
     const cls=unitStatusClass(r.status);
     return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td>${escapeHtml(prec)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td></tr>`;
   }).join("");
-  $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Precision</th><th>Uses</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="7">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
+  $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger <button type="button" class="info-help" id="unit-ledger-info" aria-label="Explain the Unit Ledger" aria-expanded="false" title="What do these columns mean?">i</button></p>
+  <div class="ledger-help" id="unit-ledger-help" hidden>
+    <div class="ledger-help-grid">
+      <b>Parameter / context</b><span>What the number represents, when the tool can infer it. Example: <i>Degradation efficiency</i>. A generic label such as <i>percentage</i> means the exact parameter could not be identified confidently.</span>
+      <b>Location</b><span>Where the unit was found, such as the manuscript body or a specific Word table.</span>
+      <b>Observed format</b><span>The unit exactly as written in the manuscript. The number in brackets is how many times that form occurs. Example: <code>% (45)</code>.</span>
+      <b>Normalized unit</b><span>The tool's internal comparison form. It is used only to recognise equivalent representations and does not mean the manuscript must be converted to that form.</span>
+      <b>Precision</b><span>How many decimal places are used with this same unit/context. Example: <code>1 dp (7)</code> means seven values were reported to one decimal place.</span>
+      <b>Uses</b><span>Total number of detected occurrences in that group.</span>
+      <b>Status</b><span><b>consistent</b> means one pattern is followed. <b>mixed precision</b> or <b>mixed format</b> means the same comparable unit/context is reported in more than one way and should be reviewed.</span>
+    </div>
+  </div>
+  <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Precision</th><th>Uses</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="7">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
+  bindInfoHelp("unit-report-info","unit-report-help");
+  bindInfoHelp("unit-ledger-info","unit-ledger-help");
   $("unit-report").hidden=false;
 }
 function unitReportText(res){
@@ -1185,6 +1215,302 @@ function engInferStyle(stats){
   const confidence=(total>=6&&share>=0.75)?"high":(total>=3&&share>=0.67)?"moderate":"low";
   return {style,label:style==="US"?"US English":"British English",share,confidence};
 }
+
+const ENG_PERSON_FORMS = [
+  {re:/\bI\b/g, person:"first", form:"I"},
+  {re:/\bme\b/gi, person:"first", form:"me"},
+  {re:/\bmy\b/gi, person:"first", form:"my"},
+  {re:/\bmine\b/gi, person:"first", form:"mine"},
+  {re:/\bmyself\b/gi, person:"first", form:"myself"},
+  {re:/\bwe\b/gi, person:"first", form:"we"},
+  {re:/\bus\b/gi, person:"first", form:"us"},
+  {re:/\bour\b/gi, person:"first", form:"our"},
+  {re:/\bours\b/gi, person:"first", form:"ours"},
+  {re:/\bourselves\b/gi, person:"first", form:"ourselves"},
+  {re:/\bI'm\b/gi, person:"first", form:"I'm"},
+  {re:/\bI've\b/gi, person:"first", form:"I've"},
+  {re:/\bI'll\b/gi, person:"first", form:"I'll"},
+  {re:/\bI'd\b/gi, person:"first", form:"I'd"},
+  {re:/\bwe're\b/gi, person:"first", form:"we're"},
+  {re:/\bwe've\b/gi, person:"first", form:"we've"},
+  {re:/\bwe'll\b/gi, person:"first", form:"we'll"},
+  {re:/\bwe'd\b/gi, person:"first", form:"we'd"},
+  {re:/\byou\b/gi, person:"second", form:"you"},
+  {re:/\byour\b/gi, person:"second", form:"your"},
+  {re:/\byours\b/gi, person:"second", form:"yours"},
+  {re:/\byourself\b/gi, person:"second", form:"yourself"},
+  {re:/\byourselves\b/gi, person:"second", form:"yourselves"},
+  {re:/\byou're\b/gi, person:"second", form:"you're"},
+  {re:/\byou've\b/gi, person:"second", form:"you've"},
+  {re:/\byou'll\b/gi, person:"second", form:"you'll"},
+  {re:/\byou'd\b/gi, person:"second", form:"you'd"}
+];
+
+function engLooksLikeQuotedText(text,index){
+  const before=text.slice(Math.max(0,index-180),index);
+  const after=text.slice(index,index+180);
+  const openDouble=(before.match(/["“]/g)||[]).length-(before.match(/["”]/g)||[]).length;
+  const openSingle=(before.match(/[‘]/g)||[]).length-(before.match(/[’]/g)||[]).length;
+  if(openDouble>0 && /["”]/.test(after)) return true;
+  if(openSingle>0 && /[’]/.test(after)) return true;
+  return false;
+}
+function engFindPersonUsage(text){
+  const hits=[];
+  ENG_PERSON_FORMS.forEach(def=>{
+    const re=new RegExp(def.re.source,def.re.flags);
+    let m;
+    while((m=re.exec(text))){
+      // Do not flag pronouns that are clearly inside quoted material.
+      if(engLooksLikeQuotedText(text,m.index)) continue;
+
+      // Avoid rare false positive where "US" is the country abbreviation.
+      if(def.form==="us" && m[0]==="US") continue;
+
+      hits.push({
+        code:def.person==="first"?"FIRST_PERSON_USAGE":"SECOND_PERSON_USAGE",
+        person:def.person,
+        word:m[0],
+        index:m.index,
+        length:m[0].length,
+        snippet:engContext(text,m.index,m[0].length),
+        msg:def.person==="first"
+          ?`First-person expression "${m[0]}" is used under the strict third-person manuscript rule.`
+          :`Second-person expression "${m[0]}" is used under the strict third-person manuscript rule.`,
+        suggestion:def.person==="first"
+          ?"Revise the sentence into third-person or impersonal scientific wording while preserving its meaning."
+          :"Revise the sentence to avoid addressing the reader directly; use third-person or impersonal scientific wording."
+      });
+    }
+  });
+  hits.sort((a,b)=>a.index-b.index);
+  return hits;
+}
+
+function engWordCount(s){
+  const m=String(s||"").match(/\b[\p{L}\p{N}][\p{L}\p{N}'’\-–]*\b/gu);
+  return m?m.length:0;
+}
+function engIsHeadingLike(p){
+  const s=String(p||"").replace(/\s+/g," ").trim();
+  if(!s)return true;
+  if(s.length<3)return true;
+  if(/^(?:abstract|keywords?|references?|bibliography|acknowledg(?:e)?ments?|funding|conflict of interest|competing interests|author contributions?|data availability|supplementary materials?|appendix|nomenclature)\b/i.test(s)) return true;
+  if(/^(?:figure|fig\.?|table)\s*[Ss]?\d+(?:\.\d+)?\s*[:.\-]/i.test(s)) return true;
+  if(/^(?:eq(?:uation)?s?\.?\s*)?\(?[Ss]?\d+(?:\.\d+)?\)?\s*$/i.test(s)) return true;
+  if(/^\d+(?:\.\d+){0,3}\s+[A-Z][A-Z0-9 ,/&()\-]{2,}$/.test(s)) return true;
+  if(s.length<120 && /^[A-Z0-9][A-Z0-9 ,;:/&()\-–—]+$/.test(s) && /[A-Z]/.test(s)) return true;
+  return false;
+}
+function engStripAbstractSection(text){
+  const lines=String(text||"").split(/\n+/);
+  let inAbstract=false, seenAbstract=false;
+  const out=[];
+  for(let i=0;i<lines.length;i++){
+    const raw=lines[i], s=raw.replace(/\s+/g," ").trim();
+    if(!seenAbstract && /^\s*(?:\d+(?:\.\d+)*\.?\s*)?abstract\s*:?\s*$/i.test(s)){
+      seenAbstract=true; inAbstract=true; continue;
+    }
+    if(inAbstract){
+      // Keywords usually end the abstract block. A numbered/main section heading
+      // also ends it.
+      if(/^\s*keywords?\s*:/i.test(s)){ inAbstract=false; continue; }
+      if(/^\s*(?:\d+(?:\.\d+)*\.?\s+)?(?:introduction|background|materials?\s+and\s+methods?|methodology|methods?|experimental|results?|discussion|results?\s+and\s+discussion|literature review)\b/i.test(s)){
+        inAbstract=false;
+        out.push(raw);
+      }
+      continue;
+    }
+    out.push(raw);
+  }
+  return out.join("\n");
+}
+function engParagraphContext(p){
+  const s=String(p||"").replace(/\s+/g," ").trim();
+  if(s.length<=360)return escapeHtml(s);
+  return escapeHtml(s.slice(0,175))+" … "+escapeHtml(s.slice(-150));
+}
+function engParagraphLengthCheck(text){
+  // First remove References, then front-matter affiliations/contact details,
+  // then the Abstract. The check applies to prose paragraphs only.
+  let body=excludeReferences(text||"",true).text;
+  body=unitExcludeAffiliations(body);
+  body=engStripAbstractSection(body);
+
+  const paras=body.split(/\n{1,}/).map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
+  const issues=[];
+  let proseNo=0;
+
+  paras.forEach((p,i)=>{
+    if(engIsHeadingLike(p))return;
+    // Ignore obvious table-like/data rows and equation-heavy lines.
+    const wc=engWordCount(p);
+    const digitCount=(p.match(/\d/g)||[]).length;
+    const letterCount=(p.match(/\p{L}/gu)||[]).length;
+    const pipeLike=(p.match(/[|;]/g)||[]).length;
+    if(wc<12 && digitCount>letterCount/2)return;
+    if(pipeLike>=4 && wc<80)return;
+    if(/[=±∑∫√→←⇌]/.test(p) && wc<45)return;
+    if(/^(?:note|source)\s*:/i.test(p) && wc<80)return;
+
+    proseNo++;
+    if(wc<100 || wc>300){
+      issues.push({
+        code:wc<100?"PARAGRAPH_TOO_SHORT":"PARAGRAPH_TOO_LONG",
+        paragraph:proseNo,
+        wordCount:wc,
+        direction:wc<100?"below":"above",
+        msg:`Paragraph ${proseNo} contains ${wc} words, which is ${wc<100?"below the 100-word minimum":"above the 300-word maximum"} for this manuscript rule.`,
+        suggestion:wc<100
+          ?"Consider combining it with a closely related paragraph or developing the idea further, while preserving logical paragraph structure."
+          :"Consider splitting it into two or more focused paragraphs at a logical transition.",
+        snippet:engParagraphContext(p)
+      });
+    }
+  });
+  return {issues,totalProse:proseNo};
+}
+
+/* Strict past-tense manuscript rule.
+   This is deliberately conservative. It flags high-confidence present-tense
+   auxiliaries and common scientific reporting verbs rather than treating every
+   word ending in -s as a verb. */
+const ENG_PRESENT_VERBS = [
+  // Present forms of BE/HAVE/DO
+  ["am","was"],["is","was"],["are","were"],["has","had"],["have","had"],
+  ["does","did"],["do","did"],
+
+  // Common scientific/reporting verbs
+  ["shows","showed"],["show","showed"],
+  ["indicates","indicated"],["indicate","indicated"],
+  ["suggests","suggested"],["suggest","suggested"],
+  ["demonstrates","demonstrated"],["demonstrate","demonstrated"],
+  ["reveals","revealed"],["reveal","revealed"],
+  ["confirms","confirmed"],["confirm","confirmed"],
+  ["presents","presented"],["present","presented"],
+  ["describes","described"],["describe","described"],
+  ["illustrates","illustrated"],["illustrate","illustrated"],
+  ["explains","explained"],["explain","explained"],
+  ["reports","reported"],["report","reported"],
+  ["provides","provided"],["provide","provided"],
+  ["contains","contained"],["contain","contained"],
+  ["consists","consisted"],["consist","consisted"],
+  ["represents","represented"],["represent","represented"],
+  ["comprises","comprised"],["comprise","comprised"],
+  ["includes","included"],["include","included"],
+  ["exists","existed"],["exist","existed"],
+  ["occurs","occurred"],["occur","occurred"],
+  ["remains","remained"],["remain","remained"],
+  ["depends","depended"],["depend","depended"],
+  ["increases","increased"],["increase","increased"],
+  ["decreases","decreased"],["decrease","decreased"],
+  ["improves","improved"],["improve","improved"],
+  ["enhances","enhanced"],["enhance","enhanced"],
+  ["reduces","reduced"],["reduce","reduced"],
+  ["affects","affected"],["affect","affected"],
+  ["influences","influenced"],["influence","influenced"],
+  ["results","resulted"],["result","resulted"],
+  ["leads","led"],["lead","led"],
+  ["forms","formed"],["form","formed"],
+  ["produces","produced"],["produce","produced"],
+  ["generates","generated"],["generate","generated"],
+  ["exhibits","exhibited"],["exhibit","exhibited"],
+  ["achieves","achieved"],["achieve","achieved"],
+  ["requires","required"],["require","required"],
+  ["uses","used"],["use","used"],
+  ["enables","enabled"],["enable","enabled"],
+  ["allows","allowed"],["allow","allowed"]
+];
+
+const ENG_PRESENT_MODALS = [
+  ["can","could"],["may","might"],["will","would"]
+];
+
+function engSentenceRanges(text){
+  const out=[];
+  const re=/[^.!?\n]+(?:[.!?]+(?=\s|$)|\n|$)/g;
+  let m;
+  while((m=re.exec(text))){
+    const raw=m[0];
+    const trimmed=raw.trim();
+    if(!trimmed) continue;
+    const lead=raw.indexOf(trimmed);
+    out.push({text:trimmed,index:m.index+(lead<0?0:lead)});
+  }
+  return out;
+}
+function engLooksNonProseSentence(s){
+  const t=String(s||"").trim();
+  if(!t)return true;
+  if(engIsHeadingLike(t))return true;
+  if(/^(?:figure|fig\.?|table)\s*[Ss]?\d+/i.test(t))return true;
+  if(/^[A-Z0-9 ,;:/&()\-–—]{3,}$/.test(t) && t.length<120)return true;
+  if(/[=∑∫√→←⇌]/.test(t) && engWordCount(t)<30)return true;
+  return false;
+}
+function engPresentTenseCheck(text){
+  const body=engPrepareText(text);
+  const issues=[];
+  const seen=new Set();
+
+  const verbMap=new Map([...ENG_PRESENT_VERBS,...ENG_PRESENT_MODALS].map(([a,b])=>[a,b]));
+  const verbs=[...verbMap.keys()].sort((a,b)=>b.length-a.length);
+  const re=new RegExp(`\\b(${verbs.map(engEscapeRegex).join("|")})\\b`,"gi");
+
+  engSentenceRanges(body).forEach((sent,si)=>{
+    if(engLooksNonProseSentence(sent.text))return;
+
+    let m;
+    while((m=re.exec(sent.text))){
+      const raw=m[0];
+      const low=raw.toLowerCase();
+
+      // Avoid "US" country abbreviation being read as "us" is handled elsewhere,
+      // and avoid nouns/labels where possible.
+      const before=sent.text.slice(Math.max(0,m.index-20),m.index);
+      const after=sent.text.slice(m.index+m[0].length,m.index+m[0].length+28);
+
+      // "use" as a noun: "the use of", "for use in", "use of"
+      if(low==="use" && /\b(?:the|for|in)\s*$/i.test(before) && /^\s+of\b/i.test(after)) continue;
+
+      // "result" as noun: "the result(s)"
+      if((low==="result"||low==="results") && /\b(?:the|these|those|our|main|experimental)\s*$/i.test(before) && !/^\s+(?:in|from)\b/i.test(after)) continue;
+
+      // "present" as adjective/noun: "the present study", "at present"
+      if(low==="present" && (/\b(?:the|at)\s*$/i.test(before) || /^\s+(?:study|work|investigation|case|results?)\b/i.test(after))) continue;
+
+      // Bare plural/base verbs can be nouns. Require stronger context unless auxiliary/modal
+      // or third-person singular form.
+      const strongAux=/^(?:am|is|are|has|have|does|do|can|may|will)$/i.test(low);
+      const thirdSing=/s$/i.test(low) && !/ss$/i.test(low);
+      if(!strongAux && !thirdSing){
+        // Base form is counted only if preceded by a plural/pronoun subject or "to not" is absent.
+        if(/\bto\s*$/i.test(before)) continue; // infinitive
+        if(!/\b(?:we|they|these|those|results|data|findings|values|samples|authors|cells|materials|systems|methods|figures|tables)\s*$/i.test(before)) continue;
+      }
+
+      const abs=sent.index+m.index;
+      const key=`${abs}:${low}`;
+      if(seen.has(key))continue;
+      seen.add(key);
+
+      const suggested=verbMap.get(low)||"past-tense form";
+      issues.push({
+        code:"PRESENT_TENSE_USAGE",
+        verb:raw,
+        suggested,
+        sentenceNo:si+1,
+        index:abs,
+        msg:`Present-tense verb "${raw}" is used under the strict past-tense manuscript rule.`,
+        suggestion:`Revise the sentence to past tense where scientifically appropriate. A possible verb form is "${engMatchCase(raw,suggested)}"; verify the full sentence before editing.`,
+        snippet:engContext(body,abs,raw.length)
+      });
+    }
+  });
+
+  issues.sort((a,b)=>a.index-b.index);
+  return issues;
+}
 function engAnalyze(text){
   const body=engPrepareText(text);
   const stats=engCollect(body);
@@ -1220,10 +1546,17 @@ function engAnalyze(text){
   });
 
   issues.sort((a,b)=>a.index-b.index);
+  const personIssues=engFindPersonUsage(body);
+  const tenseIssues=engPresentTenseCheck(text);
+  const paragraphCheck=engParagraphLengthCheck(text);
   return {
     body,
     inference,
     issues,
+    personIssues,
+    tenseIssues,
+    paragraphIssues:paragraphCheck.issues,
+    proseParagraphs:paragraphCheck.totalProse,
     ledger:ledger.sort((a,b)=>(b.us+b.uk)-(a.us+a.uk)||a.key.localeCompare(b.key)),
     usTotal:stats.usTotal,
     ukTotal:stats.ukTotal,
@@ -1236,7 +1569,7 @@ function renderEnglishReport(res){
   LAST_ENG=res;
   const inf=res.inference;
   if(inf.style==="US"||inf.style==="UK"){
-    $("eng-report-sub").textContent=`Dominant convention: ${inf.label} · ${res.issues.length} contradictory occurrence${res.issues.length===1?"":"s"} detected`;
+    $("eng-report-sub").textContent=`Dominant convention: ${inf.label} · ${res.issues.length} spelling contradiction${res.issues.length===1?"":"s"} · ${(res.personIssues||[]).length} first/second-person occurrence${(res.personIssues||[]).length===1?"":"s"} · ${(res.tenseIssues||[]).length} present-tense occurrence${(res.tenseIssues||[]).length===1?"":"s"} · ${(res.paragraphIssues||[]).length} paragraph-length item${(res.paragraphIssues||[]).length===1?"":"s"}`;
   }else if(inf.style==="mixed"){
     $("eng-report-sub").textContent="No clear US/British majority was established; contradictory spellings were not automatically flagged.";
   }else{
@@ -1249,7 +1582,10 @@ function renderEnglishReport(res){
     <div class="score ${inf.style==="mixed"||inf.style==="insufficient"?"warn":"ok"}"><div class="n" style="font-size:18px">${escapeHtml(styleLabel)}</div><div class="k">Dominant style</div></div>
     <div class="score ok"><div class="n">${res.usTotal}</div><div class="k">US markers</div></div>
     <div class="score ok"><div class="n">${res.ukTotal}</div><div class="k">British markers</div></div>
-    <div class="score ${contradictionCount?"warn":"ok"}"><div class="n">${contradictionCount}</div><div class="k">Contradictions</div></div>
+    <div class="score ${contradictionCount?"warn":"ok"}"><div class="n">${contradictionCount}</div><div class="k">Spelling contradictions</div></div>
+    <div class="score ${(res.personIssues||[]).length?"warn":"ok"}"><div class="n">${(res.personIssues||[]).length}</div><div class="k">1st/2nd person</div></div>
+    <div class="score ${(res.tenseIssues||[]).length?"warn":"ok"}"><div class="n">${(res.tenseIssues||[]).length}</div><div class="k">Present tense</div></div>
+    <div class="score ${(res.paragraphIssues||[]).length?"warn":"ok"}"><div class="n">${(res.paragraphIssues||[]).length}</div><div class="k">Paragraph length</div></div>
   </div>`;
 
   let html="";
@@ -1260,7 +1596,7 @@ function renderEnglishReport(res){
   }else if(inf.style==="insufficient"){
     html=`<p class="verdict">Insufficient diagnostic spelling evidence. The checker will not guess a language convention from one isolated word.</p>`;
   }else{
-    html+=`<p class="sec-label">Contradictory spellings · ${res.issues.length}</p>`;
+    html+=`<p class="sec-label">Contradictory spellings <button type="button" class="info-help inline-auto-help" data-help="Shows words that use the minority US/British spelling after a clear manuscript-wide majority has been established." aria-label="Explain Contradictory spellings" title="Explain this section">i</button> · ${res.issues.length}</p>`;
     res.issues.slice(0,300).forEach(it=>{
       html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
         <p class="msg"><span class="abbr">${escapeHtml(it.word)}</span> ${escapeHtml(it.msg)}</p>
@@ -1268,6 +1604,47 @@ function renderEnglishReport(res){
         <p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>
       </div></div>`;
     });
+  }
+  const pIssues=res.personIssues||[];
+  if(pIssues.length){
+    html+=`<p class="sec-label">First/second-person usage <button type="button" class="info-help inline-auto-help" data-help="Shows first- or second-person pronouns detected under the strict third-person manuscript rule. References and affiliations are excluded." aria-label="Explain First/second-person usage" title="Explain this section">i</button> · ${pIssues.length}</p>`;
+    pIssues.slice(0,300).forEach(it=>{
+      html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
+        <p class="msg"><span class="abbr">${escapeHtml(it.word)}</span> ${escapeHtml(it.msg)}</p>
+        <div class="snip">${it.snippet}</div>
+        <p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>
+      </div></div>`;
+    });
+  }else{
+    html+=`<p class="sec-label">First/second-person usage <button type="button" class="info-help inline-auto-help" data-help="Shows first- or second-person pronouns detected under the strict third-person manuscript rule. References and affiliations are excluded." aria-label="Explain First/second-person usage" title="Explain this section">i</button> · 0</p><p class="verdict clean">No first- or second-person pronouns were detected in the checked manuscript prose.</p>`;
+  }
+
+  const tenseIssues=res.tenseIssues||[];
+  html+=`<p class="sec-label">Present-tense usage <button type="button" class="info-help inline-auto-help" data-help="Under the selected strict rule, high-confidence present-tense verb forms in manuscript prose are flagged. References and affiliations are excluded. The suggested past-tense form is guidance only; verify the full sentence before editing." aria-label="Explain Present-tense usage" title="Explain this section">i</button> · ${tenseIssues.length}</p>`;
+  if(tenseIssues.length){
+    tenseIssues.slice(0,300).forEach(it=>{
+      html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
+        <p class="msg"><span class="abbr">${escapeHtml(it.verb)}</span> ${escapeHtml(it.msg)}</p>
+        <div class="snip">${it.snippet}</div>
+        <p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>
+      </div></div>`;
+    });
+  }else{
+    html+=`<p class="verdict clean">No high-confidence present-tense verb forms were detected in the checked manuscript prose.</p>`;
+  }
+
+  const paraIssues=res.paragraphIssues||[];
+  html+=`<p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks prose paragraphs against the selected 100–300 word rule. Abstract, References, headings, captions, equations, and obvious table-like lines are excluded." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
+  if(paraIssues.length){
+    paraIssues.slice(0,300).forEach(it=>{
+      html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
+        <p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p>
+        <div class="snip">${it.snippet}</div>
+        <p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>
+      </div></div>`;
+    });
+  }else{
+    html+=`<p class="verdict clean">All ${res.proseParagraphs||0} checked prose paragraphs are within the selected 100–300 word range.</p>`;
   }
   $("eng-findings").innerHTML=html;
 
@@ -1279,7 +1656,8 @@ function renderEnglishReport(res){
     ].filter(Boolean).join(" · ");
     return `<tr><td>${escapeHtml(r.key)}</td><td>${escapeHtml(forms)}</td><td class="t-num">${r.us}</td><td class="t-num">${r.uk}</td><td><span class="yn ${status==="mixed"?"na":"y"}">${escapeHtml(status)}</span></td></tr>`;
   }).join("");
-  $("eng-ledger-wrap").innerHTML=`<p class="sec-label">Variant evidence ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Spelling family</th><th>Forms detected</th><th>US uses</th><th>British uses</th><th>Observed</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No diagnostic US/British spelling markers detected.</td></tr>'}</tbody></table></div>`;
+  $("eng-ledger-wrap").innerHTML=`<p class="sec-label">Variant evidence ledger <button type="button" class="info-help inline-auto-help" data-help="Shows which diagnostic spelling families contributed evidence toward the inferred US or British English convention." aria-label="Explain Variant evidence ledger" title="Explain this section">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Spelling family</th><th>Forms detected</th><th>US uses</th><th>British uses</th><th>Observed</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No diagnostic US/British spelling markers detected.</td></tr>'}</tbody></table></div>`;
+  bindInfoHelp("eng-report-info","eng-report-help");
   $("eng-report").hidden=false;
 }
 function englishReportText(res){
@@ -1289,14 +1667,42 @@ function englishReportText(res){
     `Dominant convention: ${inf.label}`,
     `US markers: ${res.usTotal}`,
     `British markers: ${res.ukTotal}`,
-    `Contradictory occurrences: ${res.issues.length}`,
-    "Scope: manuscript text excluding affiliations and references.",""
+    `Contradictory spelling occurrences: ${res.issues.length}`,
+    `First/second-person occurrences: ${(res.personIssues||[]).length}`,
+    `Present-tense occurrences: ${(res.tenseIssues||[]).length}`,
+    `Paragraph-length items: ${(res.paragraphIssues||[]).length}`,
+    `Prose paragraphs checked: ${res.proseParagraphs||0}`,
+    "Scope: English consistency excludes affiliations and references; paragraph-length checking additionally excludes the Abstract and non-prose structural lines.",""
   ];
   if(res.issues.length){
-    L.push("CONTRADICTIONS");
+    L.push("SPELLING CONTRADICTIONS");
     res.issues.forEach(i=>{
       L.push(`${i.word} | ${i.msg}`);
       L.push(`  Suggested: ${i.suggested}`);
+    });
+    L.push("");
+  }
+  if((res.personIssues||[]).length){
+    L.push("FIRST / SECOND PERSON USAGE");
+    res.personIssues.forEach(i=>{
+      L.push(`${i.word} | ${i.msg}`);
+      L.push(`  Suggested: ${i.suggestion}`);
+    });
+    L.push("");
+  }
+  if((res.tenseIssues||[]).length){
+    L.push("PRESENT-TENSE USAGE");
+    res.tenseIssues.forEach(i=>{
+      L.push(`${i.verb} | ${i.msg}`);
+      L.push(`  Suggested: ${i.suggestion}`);
+    });
+    L.push("");
+  }
+  if((res.paragraphIssues||[]).length){
+    L.push("PARAGRAPH LENGTH");
+    res.paragraphIssues.forEach(i=>{
+      L.push(`Paragraph ${i.paragraph} | ${i.wordCount} words | ${i.msg}`);
+      L.push(`  Suggested: ${i.suggestion}`);
     });
     L.push("");
   }
@@ -2134,7 +2540,8 @@ function renderFteReport(res){
   LAST_FTE=res;
   const total=res.figures.length+res.tables.length+res.equations.length;
   $("fte-report-sub").textContent=!res.reliable?"Unable to verify document structure reliably.":`${res.issues.length} item${res.issues.length===1?"":"s"} to review · ${res.figures.length} figure${res.figures.length===1?"":"s"} · ${res.tables.length} table${res.tables.length===1?"":"s"} · ${res.equations.length} numbered equation${res.equations.length===1?"":"s"}`;
-  if(!res.reliable){ $("fte-summary").innerHTML=""; $("fte-findings").innerHTML=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg">Unable to verify placement reliably from the Word document structure.</p></div></div>`; $("fte-report").hidden=false; return; }
+  if(!res.reliable){ $("fte-summary").innerHTML=""; $("fte-findings").innerHTML=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg">Unable to verify placement reliably from the Word document structure.</p></div></div>`; bindInfoHelp("fte-report-info","fte-report-help");
+  $("fte-report").hidden=false; return; }
   const rows=[
     ["Figures",res.figures.length,fteStatus(res,"figure","numbering"),fteStatus(res,"figure","cited"),fteStatus(res,"figure","resolve"),fteStatus(res,"figure","before")],
     ["Tables",res.tables.length,fteStatus(res,"table","numbering"),fteStatus(res,"table","cited"),fteStatus(res,"table","resolve"),fteStatus(res,"table","before")],
@@ -2218,6 +2625,20 @@ async function readFile(file){
 
 /* ---------- Wiring ---------- */
 const $=id=>document.getElementById(id);
+
+function bindInfoHelp(buttonId,helpId){
+  const b=$(buttonId),h=$(helpId);
+  if(!b||!h)return;
+  b.onclick=()=>{
+    const open=h.hidden;
+    h.hidden=!open;
+    b.setAttribute("aria-expanded",String(open));
+  };
+}
+function infoButton(id,label="Explain this section"){
+  return `<button type="button" class="info-help" id="${id}" aria-label="${escapeHtml(label)}" aria-expanded="false" title="${escapeHtml(label)}">i</button>`;
+}
+
 let currentFile=null;
 $("whitelist").value=DEFAULT_STANDARD.join("\n");
 
@@ -3265,6 +3686,7 @@ function renderRefReport(res, cross){
   // The References tab intentionally shows only the ledger. Validation findings remain internal
   // for field-state calculation but are not rendered as warning/suggestion sections.
   $("ref-ledger-wrap").innerHTML=refLedger(res.parsed);
+  bindInfoHelp("ref-report-info","ref-report-help");
   $("ref-report").hidden=false;
 }
 function refIssueSection(label, items, kind){
@@ -3284,7 +3706,7 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
@@ -3677,6 +4099,7 @@ function renderNumReport(findings){
     items.slice(0,300).forEach(it=>{ html+=`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg">${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${it.snippet}</div>`:""}</div></div>`; });
   });
   $("num-findings").innerHTML=html;
+  bindInfoHelp("num-report-info","num-report-help");
   $("num-report").hidden=false;
 }
 
@@ -3745,7 +4168,7 @@ $("run").onclick=async()=>{
       renderEnglishReport(engAnalyze(text));
     }catch(e){
       console.error("English consistency check failed:",e);
-      renderEnglishReport({inference:{style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"},issues:[],ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0});
+      renderEnglishReport({inference:{style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"},issues:[],personIssues:[],tenseIssues:[],paragraphIssues:[],proseParagraphs:0,ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0});
     }
 
     // Figures, tables and numbered equations (Word structure preserves physical order)
@@ -3787,6 +4210,20 @@ function showTab(which){
   document.querySelectorAll("#results-tabs .rtab").forEach(btn=>{ const on=btn.dataset.tab===which; btn.classList.toggle("active",on); btn.setAttribute("aria-selected",on?"true":"false"); });
 }
 document.querySelectorAll("#results-tabs .rtab").forEach(btn=>{ btn.onclick=()=>showTab(btn.dataset.tab); });
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest(".inline-auto-help");
+  if(!b)return;
+  const old=b.parentElement.nextElementSibling;
+  if(old&&old.classList&&old.classList.contains("auto-section-help")){
+    old.remove();
+    return;
+  }
+  const d=document.createElement("div");
+  d.className="section-help auto-section-help";
+  d.textContent=b.dataset.help||"";
+  b.parentElement.insertAdjacentElement("afterend",d);
+});
 </script>
 
 </body>
