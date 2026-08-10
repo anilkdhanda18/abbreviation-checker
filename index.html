@@ -22,6 +22,10 @@
   .masthead h1{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.05;margin:0 0 8px;letter-spacing:-.01em}
   .masthead h1 .rule{display:block;height:3px;width:64px;background:var(--pencil);margin-top:14px;border-radius:2px}
   .lede{color:var(--muted);max-width:62ch;margin:8px 0 0;font-size:15px}
+  .modebar{display:flex;gap:6px;margin-top:26px;background:var(--card);border:1px solid var(--hair);border-radius:11px;padding:5px;width:fit-content}
+  .modebtn{appearance:none;border:0;background:transparent;color:var(--muted);font-family:var(--sans);font-size:14.5px;font-weight:600;cursor:pointer;padding:9px 20px;border-radius:7px;transition:background .15s,color .15s}
+  .modebtn[aria-selected="true"]{background:var(--pencil);color:#fff}
+  .modebtn:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
   .card{background:var(--card);border:1px solid var(--hair);border-radius:12px;padding:24px;margin-top:28px;box-shadow:0 1px 2px rgba(20,22,26,.03),0 8px 24px -18px rgba(20,22,26,.18)}
   .card h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:0 0 4px}
   .card .sub{color:var(--muted);font-size:13.5px;margin:0 0 18px}
@@ -92,6 +96,12 @@
   .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
   .dot.err{background:var(--err)}.dot.warn{background:var(--warn)}.dot.ok{background:var(--ok)}
   .yn.y{color:var(--ok);font-weight:700}.yn.n{color:var(--err);font-weight:700}.yn.na{color:var(--faint)}
+  .rtype{display:inline-block;font-size:10.5px;font-weight:700;color:var(--pencil);background:var(--pencil-soft);border-radius:4px;padding:1px 6px;margin-right:2px;white-space:nowrap}
+  .rtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px}
+  .rtab{appearance:none;border:1px solid var(--hair);background:var(--card);color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;padding:10px 20px;border-radius:9px;transition:background .15s,color .15s,border-color .15s}
+  .rtab:hover{border-color:var(--hair-strong);color:var(--ink)}
+  .rtab.active{background:var(--pencil);border-color:var(--pencil);color:#fff}
+  .result-group[hidden]{display:none}
   .std-note{margin-top:16px;font-size:13px;color:var(--muted)}
   .std-note code{font-family:var(--mono);background:var(--paper);border:1px solid var(--hair);border-radius:4px;padding:1px 6px;font-size:12px;color:var(--pencil);margin:0 2px;display:inline-block}
   .disclaimer{font-size:12.5px;color:var(--faint);margin-top:26px;border-top:1px solid var(--hair);padding-top:16px;line-height:1.6}
@@ -113,7 +123,8 @@
   .credit-links a:hover{text-decoration:underline}
   .credit-links .sep{color:var(--hair-strong);margin:0 10px}
   .credit-tag{color:var(--faint);font-size:12px;margin:22px 0 0}
-  @media print{body{background:#fff}.card:not(#report){display:none}.report-actions,.tabs,.actions{display:none}#report{box-shadow:none;border:0;padding:0}}
+  .dev-note{max-width:640px;margin:14px auto 0;padding:12px 16px;background:var(--pencil-soft);border:1px solid var(--hair);border-radius:9px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:left}
+  @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report{box-shadow:none;border:0;padding:0}}
 </style>
 </head>
 <body>
@@ -121,13 +132,13 @@
 
   <header class="masthead">
     <p class="eyebrow">Manuscript Proofing</p>
-    <h1>Abbreviation Check<span class="rule"></span></h1>
-    <p class="lede">Paste or upload a manuscript and it is examined against the standard rules for defining and using abbreviations in a research paper. </p>
+    <h1>Manuscript Check<span class="rule"></span></h1>
+    <p class="lede">Check a research manuscript for correct use of abbreviations and for complete, consistent references.</p>
   </header>
 
   <section class="card" id="input-card">
     <h2>Your manuscript</h2>
-    <p class="sub">Supported files: plain text (.txt, .md), Word (.docx), and PDF (.pdf).</p>
+    <p class="sub">Upload or paste your full manuscript. It is checked for abbreviations, and its reference list is checked too. The reference list is located automatically by the References or Bibliography heading. Supported files: .txt, .md, .docx, .pdf.</p>
 
     <div class="tabs" role="tablist" aria-label="Input method">
       <button class="tab" role="tab" id="tab-upload" aria-selected="true" aria-controls="panel-upload">Upload a file</button>
@@ -152,7 +163,7 @@
     <input class="text" id="title" type="text" placeholder="e.g. Nutrient recovery from source-separated urine using a stacked bio-electroconcentration system" />
 
     <div class="opts">
-      <label class="opt"><input type="checkbox" id="opt-refs" checked /> Skip the References or Bibliography section (recommended)</label>
+      <label class="opt"><input type="checkbox" id="opt-refs" checked /> Skip the References or Bibliography section when checking abbreviations (recommended)</label>
       <label class="opt"><input type="checkbox" id="opt-tables" checked /> Skip tables and numeric data blocks (recommended)</label>
     </div>
 
@@ -162,13 +173,26 @@
       <textarea id="whitelist" style="min-height:120px" aria-label="Standard abbreviations"></textarea>
     </details>
 
+    <details class="adv">
+      <summary>Reference style example (optional)</summary>
+      <p class="hint">Paste one reference written correctly in your target journal's style. Each reference in your list is then compared against its structure (year placement, DOI presence, page-dash style, volume grouping) and deviations are flagged. This is why the tool needs no database of thousands of styles.</p>
+      <textarea id="ref-style" style="min-height:70px" placeholder="e.g. Marcano, D. C., Kosynkin, D. V., & Tour, J. M. (2010). Improved synthesis of graphene oxide. ACS Nano, 4(8), 4806–4814. https://doi.org/10.1021/nn1006368" aria-label="Reference style example"></textarea>
+    </details>
+
     <div class="actions">
-      <button class="btn btn-primary" id="run">Check abbreviations</button>
+      <button class="btn btn-primary" id="run">Check manuscript</button>
       <button class="btn btn-ghost" id="clear">Clear</button>
       <span class="statusline" id="status"></span>
     </div>
   </section>
 
+  <div class="rtabs" id="results-tabs" role="tablist" hidden>
+    <button class="rtab active" data-tab="abbr" role="tab" aria-selected="true">Abbreviations</button>
+    <button class="rtab" data-tab="ref" role="tab" aria-selected="false">References</button>
+    <button class="rtab" data-tab="num" role="tab" aria-selected="false">Numbers &amp; pH</button>
+  </div>
+
+  <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
     <h2>Proofing report</h2>
     <p class="sub" id="report-sub"></p>
@@ -203,6 +227,54 @@
     </ol>
   </details>
 
+  </div><!-- /group abbr -->
+
+  <div class="result-group" data-group="ref" hidden>
+  <section class="card" id="ref-report" hidden aria-live="polite">
+      <h2>Reference report</h2>
+      <p class="sub" id="ref-report-sub"></p>
+      <div id="ref-ledger-wrap"></div>
+      <p class="disclaimer">This checks that each reference carries the components needed for formatting (authors, year, title area, source, volume or issue, pages, DOI) and that in-text citations and the list agree. It is heuristic and style-agnostic: it does not reformat references into a specific journal style, and title and source names cannot always be isolated from plain text. For exact reformatting, a reference manager such as Zotero is the right tool.</p>
+      <div class="report-actions">
+        <button class="btn btn-ghost" id="ref-download">Download report (.txt)</button>
+        <button class="btn btn-ghost" id="ref-print">Print or save as PDF</button>
+      </div>
+    </section>
+
+    <details class="rules">
+      <summary>What this checks</summary>
+      <ol>
+        <li><b>Completeness.</b> Each entry is checked for authors, publication year, a title area, source, volume or issue, page range, and DOI.</li>
+        <li><b>Style detection.</b> The dominant style family is identified (numbered such as Vancouver or IEEE, or author-year such as APA or Harvard).</li>
+        <li><b>In-text vs list.</b> Every numbered citation in the text has a matching entry, and every listed reference is actually cited.</li>
+        <li><b>Consistency.</b> Duplicate references, gaps or repeats in the numbering, and DOIs missing from only some entries are flagged.</li>
+      </ol>
+    </details>
+  </div><!-- /group ref -->
+
+  <div class="result-group" data-group="num" hidden>
+  <section class="card" id="num-report" hidden aria-live="polite">
+    <h2>Number &amp; pH report</h2>
+    <p class="sub" id="num-report-sub"></p>
+    <div id="num-findings"></div>
+    <p class="disclaimer">This checks numeral usage and pH reporting in the manuscript body (references, tables, and headings are excluded). It flags pH values reported without a decimal place, decimals missing a leading zero, small counts in prose that are usually spelled out, and sentences that begin with a numeral. It is context-aware and conservative: measurements, units, statistics, identifiers, dates, and chemical or scientific numbers are left as numerals. Precision is never invented; integer pH values are flagged for you to verify against the measurement, not silently changed.</p>
+    <div class="report-actions">
+      <button class="btn btn-ghost" id="num-print">Print or save as PDF</button>
+    </div>
+  </section>
+
+  <details class="rules">
+    <summary>What the number check covers</summary>
+    <ol>
+      <li><b>Numerals vs words.</b> Whole numbers zero to nine used as ordinary counts in prose are suggested to be spelled out; measurements, units, statistics, ratios, dates, and labels stay as numerals.</li>
+      <li><b>pH precision.</b> Measured, adjusted, or target pH values should carry at least one decimal place; integer pH values and integer pH ranges or thresholds are flagged for verification.</li>
+      <li><b>Leading zeros.</b> Decimals below one should be written as 0.5, not .5.</li>
+      <li><b>Sentence start.</b> Beginning a sentence with a numeral is flagged so the sentence can be restructured.</li>
+      <li><b>Not invented precision.</b> Values are flagged for author verification rather than changed, and authoritative or conceptual pH values are respected.</li>
+    </ol>
+  </details>
+  </div><!-- /group num -->
+
   <footer>
     <div class="credit">
       <p class="credit-lead">Built by</p>
@@ -214,7 +286,8 @@
         <a href="https://www.linkedin.com/in/ani018/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </p>
     </div>
-    <p class="credit-tag"> </p>
+    <p class="credit-tag">Runs entirely in your browser · No text leaves this page</p>
+    <p class="dev-note">This tool is still under development. We have tried our best to make its checks accurate, but it can still miss issues or flag things incorrectly. Authors are strongly advised to verify every item manually and not to rely on the tool alone.</p>
   </footer>
 </div>
 
@@ -243,6 +316,44 @@ const STOPWORDS = new Set([
   "FIGURE","TABLE","SUPPLEMENTARY","HIGHLIGHTS","GRAPHICAL","BACKGROUND","REVIEW"
 ]);
 
+/* ---------- Unit exclusion (measurement units are not abbreviations) ---------- */
+const U_UNITS = new Set(["m","g","s","A","K","mol","cd","Hz","N","Pa","J","W","C","V","F","Ω","ohm","S","Wb","T","H","lm","lx","Bq","Gy","Sv","kat","rad","sr","L","l","min","h","d","ha","t","Da","eV","Wh","bar","atm","mmHg","Torr","Å","rpm","psi","cal","kcal","Btu","hp","cP","cSt","MGD","MLD","VA","var","dB","M","B","bp","nt"]);
+const U_PREFIX = ["da","Q","R","Y","Z","E","P","T","G","M","k","h","d","c","m","µ","μ","u","n","p","f","a","z","y","r","q"];
+function uStripPow(c){ return c.replace(/[\u2070-\u2079\u00B2\u00B3\u00B9\u2080-\u2089\u207A\u207B]+$/,"").replace(/\^?[-\u2212]?\d+$/,"").replace(/[-\u2212]\d+$/,"").trim(); }
+function isUnitComponent(c){
+  c=uStripPow(c); if(!c) return false;
+  if(c==="°C"||c==="°F"||c==="℃"||c==="℉") return true;
+  if(U_UNITS.has(c)) return true;
+  if(/^[µμu]/.test(c) && U_UNITS.has(c.slice(1))) return true;
+  for(const p of U_PREFIX){ if(c.length>p.length && c.startsWith(p) && U_UNITS.has(c.slice(p.length))) return true; }
+  return false;
+}
+function isUnitExpr(tok){
+  const parts=tok.split(/[\/·×.\s]+/).filter(Boolean);
+  return parts.length>0 && parts.every(isUnitComponent);
+}
+/* character right after an uppercase run that marks a chemical formula (subscript/superscript/charge) */
+const FORMULA_FOLLOW=/^[\u2080-\u2089\u2070-\u2079\u00B2\u00B3\u00B9\u207A\u207B]/;
+
+/* Abbreviations the author declares in a "List of Abbreviations" table or section */
+let DECLARED_ABBRS=new Set();
+function extractDeclaredAbbrs(text){
+  const lines=text.split(/\n/); let inSec=false; const out=new Set();
+  const HEAD=/^(?:\d+\.?\s*)?(list of abbreviations|abbreviations|nomenclature|acronyms|glossary|abbreviations and acronyms)\s*:?\s*$/i;
+  const OTHER=/^(?:\d+\.?\s*)?(introduction|abstract|contents|table of contents|references|methodology|objectives?|results|discussion|conclusion|summary|acknowledge?ments)\b/i;
+  for(let i=0;i<lines.length;i++){
+    const bare=lines[i].replace(/[*_`#>]/g,"").trim();
+    if(HEAD.test(bare)){ inSec=true; continue; }
+    if(!inSec) continue;
+    if(!bare) continue;
+    if(OTHER.test(bare)) break;
+    if(/^\|?\s*-{2,}/.test(lines[i].trim())) continue;                 // markdown separator row
+    if(/^\|?\s*(abbreviation|acronym|symbol|full form|meaning|definition|expansion)\b/i.test(bare)) continue; // header row
+    const mm=lines[i].trim().match(/^\|?\s*([A-Za-z][A-Za-z0-9\/.\-]{0,13})\s*(?:\||\t|\s{2,}|\s[-–—:=]\s)\s*([A-Za-z].{2,})/);
+    if(mm && /[A-Z]/.test(mm[1])) out.add(mm[1].replace(/[^A-Za-z0-9]/g,"").toUpperCase());
+  }
+  return out;
+}
 /* ---------- Helpers ---------- */
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\-]/g,"\\$&");}
@@ -426,6 +537,14 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     while((m=acroRe.exec(sent))!==null){
       const raw=m[1], key=norm(raw);
       if(STOPWORDS.has(key)) continue;
+      const after=sent.slice(m.index+raw.length);
+      // chemical formula: uppercase run followed by a subscript/superscript/charge (e.g. CO₂, SO₄²⁻)
+      if(FORMULA_FOLLOW.test(after)) continue;
+      // measurement unit: reconstruct the full unit token and test it compositionally
+      const um=sent.slice(m.index).match(/^[A-Za-zµμΩ°]+[\u2070-\u2079\u00B2\u00B3\u00B9\u2080-\u2089\d]*(?:\s?[\/·×]\s?[A-Za-zµμΩ°]+[\u2070-\u2079\u00B2\u00B3\u00B9\u2080-\u2089\d\u2212-]*)*/);
+      const fullTok=um?um[0]:raw;
+      const numBefore=/[\d.]\s*[-–]?\s*$/.test(sent.slice(0,m.index));
+      if(isUnitExpr(fullTok) && (/[a-zµμ°\/·×]/.test(fullTok) || numBefore)) continue;
       const before=sent.slice(0,m.index);
       const initial=/^[\s"'\u2018\u2019\(\[]*$/.test(before);
       const inParen=spans.some(sp=> m.index>=sp[0] && m.index<sp[1]);
@@ -453,7 +572,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     return t.length>0 && t.length<45 && /^(list of abbreviations|abbreviations|nomenclature|acronyms|glossary)\b/i.test(t);
   });
 
-  const errors=[], warnings=[], infos=[], rows=[], standardSeen=[];
+  const errors=[], warnings=[], infos=[], rows=[], standardSeen=[], declaredSeen=[];
 
   const displayForm = g => {
     if(g.defs.length) return g.defs[0].form;
@@ -466,9 +585,10 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     .forEach(g=>{
       const disp=displayForm(g);
       const std=isStd(g.key);
+      const declared=DECLARED_ABBRS.has(g.key);
       const count=g.occ.length;
       const defined=g.defs.length>0;
-      if(!std && !defined && g.occ.every(o=>o.inParen)) return;
+      if(!std && !defined && !declared && g.occ.every(o=>o.inParen)) return;
       const firstSent=Math.min(...g.occ.map(o=>o.sent));
       const defSent=defined?Math.min(...g.defs.map(d=>d.sent)):Infinity;
       const longForm=defined?[...g.defs].sort((a,b)=>a.sent-b.sent)[0].long:null;
@@ -479,6 +599,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       const firstUseOK=std || (defined && !usedBefore);
 
       if(std){ standardSeen.push(disp); }
+      else if(declared && !defined){ declaredSeen.push(disp); }
       else if(!defined){
         status="err";
         errors.push({abbr:disp, msg:`Not defined anywhere. Spell it out in full at first use, for example "full term (${disp})".`, snip:snippet});
@@ -487,7 +608,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         errors.push({abbr:disp, msg:`Used before it is defined. It appears in the text before its full form is given. Spell it out in full at the first use.`, snip:snippet});
       }
 
-      if(!std && defined && count<=2){
+      if(!std && !declared && defined && count<=2){
         if(status==="ok") status="warn";
         warnings.push({abbr:disp, msg:`Used only ${count} time${count===1?"":"s"}. Abbreviate only terms that recur; otherwise spell it out each time.`, snip:null});
       }
@@ -537,6 +658,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
 
   return {errors,warnings,infos,rows,
           standardSeen:[...new Set(standardSeen)].sort(),
+          declaredSeen:[...new Set(declaredSeen)].sort(),
           totalAbbr:nonStd, hasList,
           sentenceCount:sentences.length,
           refExcluded:ref.excluded, refRequested:skipRefs,
@@ -560,7 +682,7 @@ function renderReport(r){
                  : r.refRequested ? " · no references section detected" : "";
   const tabNote = r.tableLinesRemoved ? ` · ${r.tableLinesRemoved} table line${r.tableLinesRemoved===1?"":"s"} removed` : "";
   document.getElementById("report-sub").textContent =
-    `${r.totalAbbr} non-standard abbreviation${r.totalAbbr===1?"":"s"} · ${r.standardSeen.length} standard term${r.standardSeen.length===1?"":"s"} skipped${refNote}${tabNote}`;
+    `${r.totalAbbr} non-standard abbreviation${r.totalAbbr===1?"":"s"} · ${r.standardSeen.length} standard term${r.standardSeen.length===1?"":"s"} skipped${r.declaredSeen&&r.declaredSeen.length?` · ${r.declaredSeen.length} covered by the abbreviations list`:""}${refNote}${tabNote}`;
 
   const okCount=r.rows.filter(x=>x.status==="ok").length;
   document.getElementById("scorecard").innerHTML=[
@@ -583,7 +705,6 @@ function renderReport(r){
     r.standardSeen.length?`<p class="std-note"><b>Treated as standard (definition not required):</b> ${r.standardSeen.map(s=>`<code>${escapeHtml(s)}</code>`).join("")}</p>`:"";
 
   const rep=document.getElementById("report"); rep.hidden=false;
-  rep.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
 }
 function section(label,items,kind){
   if(!items.length) return "";
@@ -641,15 +762,29 @@ async function readFile(file){
     const res=await mammoth.convertToHtml({arrayBuffer:buf});
     const box=document.createElement("div");
     box.innerHTML=res.value;
+    // Extract a "List of Abbreviations" table (abbr | full form) so those abbreviations count as defined
+    box.querySelectorAll("table").forEach(tbl=>{
+      const rows=[...tbl.querySelectorAll("tr")].map(tr=>[...tr.querySelectorAll("td,th")].map(td=>(td.textContent||"").replace(/\s+/g," ").trim()));
+      const two=rows.filter(r=>r.length>=2);
+      if(two.length<3) return;
+      const header=(two[0]||[]).join(" ").toLowerCase();
+      const headHint=/(abbrev|acronym|symbol|nomenclature|full form|expansion|meaning|definition)/.test(header);
+      const data=two.slice(headHint?1:0);
+      let good=0; data.forEach(r=>{ const a=r[0],bb=r[1]; if(a&&bb&&a.length<=14&&bb.length>=a.length&&/[A-Za-z]/.test(a)&&/[A-Z]/.test(a)&&/[A-Za-z]/.test(bb)) good++; });
+      if(headHint || good>=Math.max(3, data.length*0.6)){
+        data.forEach(r=>{ const a=r[0]; if(!a) return; const k=a.replace(/[^A-Za-z0-9]/g,"").toUpperCase(); if(k) DECLARED_ABBRS.add(k); (a.match(/[A-Z]{2,}/g)||[]).forEach(x=>DECLARED_ABBRS.add(x.replace(/[^A-Za-z0-9]/g,"").toUpperCase())); });
+      }
+    });
     box.querySelectorAll("table").forEach(t=>t.remove());   // drop Word tables entirely
-    box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>{  // drop styled headings
+    const KEEPHEAD=/^\s*(\d+\.?\s*)?(references?|reference list|bibliography|works cited|literature cited|cited literature|references cited|notes\s+and\s+references|references\s+and\s+notes|appendix|appendices|supplementary|supporting information|acknowledge?ments?|data availability|funding|conflicts?\s+of\s+interest|competing\s+interests?|author\s+contributions?|declarations?)\b/i;
+    box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>{  // drop styled headings, keep section markers
       const t=(h.textContent||"").trim();
-      if(/^(references|reference list|bibliography|literature cited|works cited)\s*:?\s*$/i.test(t))
-        h.replaceWith(document.createTextNode("\nReferences\n"));  // keep as a reference-cut marker
+      if(KEEPHEAD.test(t)) h.replaceWith(document.createTextNode("\n"+t+"\n"));
       else h.remove();
     });
-    box.querySelectorAll("p").forEach(p=>{                   // drop bold-only short headings
+    box.querySelectorAll("p").forEach(p=>{                   // drop bold-only short headings, keep section markers
       const txt=(p.textContent||"").trim(); if(!txt) return;
+      if(KEEPHEAD.test(txt)) return;
       const bold=[...p.querySelectorAll("strong,b")].map(s=>s.textContent||"").join(" ").replace(/\s+/g,"").length;
       const total=txt.replace(/\s+/g,"").length;
       const noEnd=!/[.!?]["'\u2019)\]]?$/.test(txt);
@@ -703,39 +838,6 @@ fileInput.onchange=()=>{ if(fileInput.files.length) setFile(fileInput.files[0]);
 function setFile(f){ currentFile=f; chip.style.display="inline-flex"; chip.textContent="📄 "+f.name; status(""); }
 function status(msg,isErr){ const el=$("status"); el.textContent=msg; el.className="statusline"+(isErr?" error":""); }
 
-$("clear").onclick=()=>{
-  currentFile=null; fileInput.value=""; chip.style.display="none";
-  $("paste").value=""; $("title").value=""; $("report").hidden=true; status(""); LAST=null;
-};
-
-$("run").onclick=async()=>{
-  const btn=$("run");
-  const standardSet=new Set();
-  $("whitelist").value.split(/\n/).forEach(line=>{
-    const s=line.trim();
-    if(!s || s.startsWith("#")) return;
-    const n=norm(s); if(n) standardSet.add(n);
-    (s.match(/[A-Z]{2,}/g)||[]).forEach(r=>standardSet.add(norm(r)));  // inner runs the detector would flag
-  });
-  const title=$("title").value;
-  const skipRefs=$("opt-refs").checked;
-  const skipTables=$("opt-tables").checked;
-  let text="";
-  try{
-    btn.disabled=true;
-    const usingUpload=$("tab-upload").getAttribute("aria-selected")==="true";
-    if(usingUpload && currentFile){ status("Reading file…"); text=await readFile(currentFile); }
-    else { text=$("paste").value; }
-    if(!text || text.trim().length<20){ status("Add some manuscript text first (paste it or upload a file).",true); btn.disabled=false; return; }
-    status("Analysing…");
-    const r=analyze(text,title,standardSet,skipRefs,skipTables);
-    LAST=r; renderReport(r); status("");
-  }catch(err){
-    console.error(err);
-    status(err.message||"Something went wrong reading that file. Try pasting the text instead.",true);
-  }finally{ btn.disabled=false; }
-};
-
 $("download").onclick=()=>{
   if(!LAST) return;
   const blob=new Blob([reportText(LAST)],{type:"text/plain"});
@@ -743,6 +845,490 @@ $("download").onclick=()=>{
   a.download="abbreviation-report.txt"; a.click(); URL.revokeObjectURL(a.href);
 };
 $("print").onclick=()=>window.print();
+
+/* ================= Reference checker ================= */
+function refSplitList(text){
+  const t=text.replace(/\r/g,"").trim();
+  const bmarks=[...t.matchAll(/\[(\d{1,3})\]/g)];
+  if(bmarks.length>=2){
+    const entries=[];
+    for(let i=0;i<bmarks.length;i++){
+      const s=bmarks[i].index, e=i+1<bmarks.length?bmarks[i+1].index:t.length;
+      entries.push({num:parseInt(bmarks[i][1],10), raw:t.slice(s,e).replace(/^\s*\[\d{1,3}\]\s*/,"").replace(/\s+/g," ").trim()});
+    }
+    return {style:"numbered (Vancouver / IEEE family)", marker:"bracket", entries};
+  }
+  const leadNum=l=>{
+    let m;
+    if((m=l.match(/^\((\d{1,3})\)\s*(.*)$/))) return {num:+m[1],rest:m[2]};        // (30)
+    if((m=l.match(/^\[(\d{1,3})\]\s*(.*)$/))) return {num:+m[1],rest:m[2]};        // [30]
+    if((m=l.match(/^(\d{1,3})[.)]\s+(.*)$/))) return {num:+m[1],rest:m[2]};        // 30. / 30)
+    if((m=l.match(/^(\d{1,3})\t+\s*(.*)$/))) return {num:+m[1],rest:m[2]};         // 30<tab>
+    if((m=l.match(/^(\d{1,3})\s{2,}(.*)$/))) return {num:+m[1],rest:m[2]};         // 30<2+ spaces>
+    if((m=l.match(/^(\d{1,3})\s+([\p{Lu}].*)$/u))) return {num:+m[1],rest:m[2]};   // 30 Author
+    return null;
+  };
+  const rawLines=t.split(/\n/).map(l=>l.trim());
+  const starts=l=>!!leadNum(l)||/^[\p{Lu}][\p{L}'’\-]+,?\s+[\p{Lu}]\.?/u.test(l);
+  const merged=[]; let cur="";
+  for(const l of rawLines){ if(!l) continue; if(starts(l)){ if(cur) merged.push(cur.trim()); cur=l; } else { cur=cur?cur+" "+l:l; } }
+  if(cur.trim()) merged.push(cur.trim());
+  const numbered=merged.filter(e=>leadNum(e)).length>=Math.max(3, merged.length*0.6);
+  return {
+    style: numbered?"numbered (Vancouver / IEEE family)":"author-year (APA / Harvard family)",
+    marker: numbered?"number":"none",
+    entries: merged.map(e=>{ const ln=leadNum(e); return ln?{num:ln.num,raw:ln.rest.trim()}:{num:null,raw:e}; })
+  };
+}
+function refType(s){
+  if(/\b(arxiv|biorxiv|medrxiv|chemrxiv|ssrn|preprint|research\s+square|preprints\.org)\b/i.test(s)) return "preprint";
+  if(/\b(thesis|dissertation|doctoral)\b/i.test(s)) return "thesis";
+  if(/\b(proceedings|conference|symposium|congress|workshop)\b/i.test(s)||/\bin:\s/i.test(s)) return "conference paper";
+  if(/\b(ISO|ASTM|IEC|BS\s?EN|EN)\s?\d{2,}/.test(s)) return "standard";
+  if(/\b(u\.?s\.?\s?patent|patent\s+no|pat\.\s?no)\b/i.test(s)) return "patent";
+  if(/\b(technical\s+report|tech\.?\s?rep|working\s+paper|white\s+paper|guidance|bulletin|report\s+no|US\s?EPA|USEPA|\bEPA\b|\bWHO\b|\bOECD\b|\bIPCC\b|\bITRC\b|\bUNEP\b|\bFAO\b|\bIEA\b|\bNIST\b)\b/.test(s) && !/10\.\d{4,9}\//.test(s) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)/.test(s)) return "report";
+  const hasUrl=/\bhttps?:\/\/|\bwww\./i.test(s);
+  const placeholder=/\bVolume\s+Pages\b|,\s*Journal\s*[.,]?\s*(\[|https?:|www\.|$)/i.test(s);
+  if((hasUrl||placeholder) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)/.test(s) && !/10\.\d{4,9}\//.test(s)) return "web page";
+  if(/\b(eds?\.|editors?|press\b|publisher|Wiley|Elsevier|Springer|Routledge|CRC\s+Press|Academic\s+Press|ISBN)\b/i.test(s) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)\s*\d/.test(s)) return "book";
+  return "journal article";
+}
+function refParseEntry(raw){
+  const year=(raw.match(/\b(?:19|20)\d{2}[a-z]?\b/)||[])[0]||null;
+  const doiM=raw.match(/10\.\d{4,9}\/[^\s,;]+/);
+  const doi=doiM?doiM[0].replace(/[.,;)\]]+$/,""):null;
+  const rawNoDoi=doiM?raw.replace(doiM[0],""):raw;
+  const yr=year?year.replace(/[a-z]$/,""):null;
+  const rawNoYear=year?raw.replace(year," "):raw;
+  const rawTrim=raw.trim();
+  const volArt=/\b(\d{1,3})\s*,\s*(\d{3,6})\b/.exec(rawNoDoi);
+  const hasArticleNo=
+    /\be\d{4,}\b/i.test(raw) ||
+    /\b(article|art|paper)\.?\s*(no\.?|number|id)?\s*:?\s*\d+/i.test(raw) ||
+    /\(\d+\)\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||          // vol(issue), 471.
+    /,\s*\d{1,4}\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||       // journal, vol, 130426.
+    /\(\d{4}[a-z]?\)\s*:?\s*\d{1,7}(?:\s*[-–]\s*\d{1,7})?/.test(raw) ||  // (Year) 53  /  (Year) 995
+    (volArt && !/^(?:19|20)\d{2}$/.test(volArt[2])) ||
+    (new RegExp("\\b\\d{5,7}\\b").test(yr?rawNoDoi.replace(new RegExp("\\b"+yr+"\\b","g"),""):rawNoDoi));
+  const hasPageRange=/\b\d+\s*[-–—]\s*\d+\b/.test(raw)||/\bpp?\.\s*\d+/i.test(raw)||/:\s*\d+\s*[-–]\s*\d+/.test(raw);
+  const hasPages=hasPageRange||hasArticleNo;
+  const hasVolume=
+    /\b\d+\s*\(\d+\)/.test(raw) ||                            // 40(17)
+    /\bvol\.?\s*\d+/i.test(raw) ||
+    /;\s*\d+\s*[:(]/.test(raw) ||
+    /\b\d+\s*:\s*\d+/.test(raw) ||
+    /\b\d{1,4}\s*\(\d{4}[a-z]?\)/.test(raw) ||                // Volume (Year)
+    /,\s*\d{1,4}\s*[,(.]/.test(rawNoYear) ||                  // , Volume , / ( / .
+    /\.\s+\d{1,4}\s*,/.test(rawNoYear);                       // Journal Abbrev. Volume,
+  const hasAuthors=/^[\p{Lu}][\p{L}'’\-]+,?\s+[\p{Lu}]\.?([\p{Lu}]\.?)*/u.test(raw)||/^[\p{L}'’\-]+\s+[\p{Lu}]{1,3}\b/u.test(raw);
+  const wordCount=(raw.match(/[A-Za-z]{3,}/g)||[]).length;
+  const firstAuthor=(raw.match(/^([\p{Lu}][\p{L}'’\-]+)/u)||[])[1]||null;
+  return {raw, year, doi, hasPages, hasArticleNo, hasVolume, hasAuthors, wordCount, firstAuthor, type:refType(raw)};
+}
+/* Reference-likelihood of a single entry, from several independent signals */
+function refScore(s){
+  let sc=0;
+  if(/\b(?:19|20)\d{2}[a-z]?\b/.test(s)) sc+=2;
+  if(/10\.\d{4,9}\/\S+/.test(s) || /\bdoi\b/i.test(s)) sc+=3;
+  if(/^\s*(\[\d{1,3}\]|\(\d{1,3}\)|\d{1,3}[.)])\s/.test(s)) sc+=2;
+  if(/[A-Z][A-Za-z'’-]+,?\s+[A-Z]\.?([A-Z]\.?)*(\s|,|\.)/.test(s)) sc+=2;
+  if(/\bet al\.?/i.test(s)) sc+=2;
+  if(/\b\d+\s*\(\d+\)\s*[,:]?\s*\d+/.test(s) || /\b\d+\s*:\s*\d+\s*[-–]\s*\d+/.test(s)) sc+=2;
+  if(/\b\d+\s*[-–]\s*\d+\b/.test(s)) sc+=1;
+  if(/\bhttps?:\/\/\S+/.test(s)) sc+=1;
+  if(/\b(Press|Publisher|Publishing|Wiley|Elsevier|Springer|Taylor|Francis|Nature|IEEE|ACS|RSC|Proceedings|Conference|Symposium|Congress|Thesis|Dissertation|University|ISO|ASTM|USEPA|EPA|WHO|Report|Vol\.?|pp\.?|ed\.?|eds\.?|Journal)\b/i.test(s)) sc+=1;
+  return sc;
+}
+function isRefLike(s){ return refScore(s)>=4; }
+
+function detectCiteStyle(body){
+  const br=(body.match(/\[\d{1,3}(?:[–,\-]\s*\d{1,3})*\]/g)||[]).length;
+  const par=(body.match(/\(\d{1,3}(?:[,–\-]\s*\d{1,3})*\)/g)||[]).length;
+  const ay=(body.match(/\([A-Z][A-Za-z'’-]+(?:\s+(?:et al\.?|and|&)\s+[A-Z][A-Za-z'’-]+)?,?\s*(?:19|20)\d{2}[a-z]?\)/g)||[]).length
+        +(body.match(/[A-Z][A-Za-z'’-]+\s+et al\.?,?\s*\(?(?:19|20)\d{2}/g)||[]).length;
+  if(br>=3 && br>=par && br>=ay) return "numeric_brackets";
+  if(ay>=3 && ay>=br) return "author_year";
+  if(par>=3 && par>br) return "numeric_parentheses";
+  return "uncertain";
+}
+
+const AFTER_REF=/^\s*(\d+\.?\s*)?(appendix|appendices|supplementary(\s+(information|materials?|data))?|supporting\s+information|author\s+contributions?|author\s+statements?|credit\s+author|conflicts?\s+of\s+interest|competing\s+interests?|declarations?(\s+of\s+interest)?|data\s+availability|funding|acknowledge?ments?|notes?)\s*:?\s*$/i;
+
+function toParagraphs(text){
+  const parts=[];
+  if(/\n\s*\n/.test(text)){
+    const chunks=text.split(/\n\s*\n/); let cursor=0;
+    for(const ch of chunks){ const idx=text.indexOf(ch,cursor); if(idx<0) continue; const t=ch.replace(/\s+/g," ").trim(); if(t) parts.push({text:t,start:idx}); cursor=idx+ch.length; }
+  } else {
+    let cursor=0;
+    for(const ln of text.split(/\n/)){ const t=ln.trim(); if(t) parts.push({text:t,start:cursor}); cursor+=ln.length+1; }
+  }
+  return parts;
+}
+
+/* Multi-signal reference-section detection. Returns
+   {found, body, refs, heading, method, citeStyle, confidence} */
+function refSplitManuscript(text){
+  const lines=text.split(/\n/);
+  const N=text.length;
+  const citeStyle=detectCiteStyle(text);
+  const HEAD=/^\s*(\d+\.?\s*)?(references?|reference list|bibliography|works cited|literature cited|cited literature|references cited|references and notes|notes and references|literature references)\s*:?\.?\s*$/i;
+
+  // line char offsets
+  const off=[]; let acc=0; for(const l of lines){ off.push(acc); acc+=l.length+1; }
+
+  // gather refs text from a heading line to the next end-boundary heading (or doc end)
+  const gather=(fromLine)=>{
+    let endLine=lines.length;
+    for(let j=fromLine;j<lines.length;j++){ if(AFTER_REF.test(lines[j])){ endLine=j; break; } }
+    return lines.slice(fromLine,endLine).join("\n").trim();
+  };
+
+  // CASE A: standalone reference heading with reference-like content after it
+  let best=null;
+  for(let i=0;i<lines.length;i++){
+    if(!HEAD.test(lines[i])) continue;
+    const refsText=gather(i+1);
+    if(refsText.length<20) continue;
+    const yearN=(refsText.match(/\b(?:19|20)\d{2}\b/g)||[]).length;
+    const doiN=(refsText.match(/10\.\d{4,9}\//g)||[]).length;
+    const numN=(refsText.match(/(?:^|\n)\s*(?:\[\d{1,3}\]|\(\d{1,3}\)|\d{1,3}[.)])\s/g)||[]).length;
+    const authorN=(refsText.match(/[A-Z][A-Za-z'’-]+,?\s+[A-Z]\.?[A-Z]?\.?/g)||[]).length;
+    const etalN=(refsText.match(/\bet al\.?/gi)||[]).length;
+    // accept when the section shows genuine bibliographic signal
+    const hasSignal=(yearN>=1 && (doiN>=1||authorN>=1||numN>=1||etalN>=1)) || numN>=2 || doiN>=2;
+    if(hasSignal){
+      const signal=yearN + doiN*2 + numN + etalN + Math.min(authorN,12);
+      const score=signal + (off[i]>N*0.5?12:0) + (citeStyle!=="uncertain"?4:0);
+      if(!best || score>best.score) best={i,refsText,score,signal};
+    }
+  }
+  if(best){
+    return {found:true, refs:best.refsText, body:lines.slice(0,best.i).join("\n"),
+            heading:lines[best.i].trim(), method:"explicit_heading", citeStyle,
+            confidence:Math.min(96, 60+Math.min(35,best.signal))};
+  }
+
+  // CASE B1: headingless numeric references = final strictly increasing [1],[2],[3]... run
+  const M=[...text.matchAll(/\[(\d{1,3})\]/g)].map(m=>({index:m.index,num:+m[1]}));
+  if(M.length>=4){
+    let k=M.length-1;
+    while(k>0 && M[k-1].num<=M[k].num) k--;
+    const start=M[k].index, runLen=M.length-k, region=text.slice(start);
+    const looksRef=/doi\.org|\bdoi\b|et al\.?|\(\d{4}\)|\b(19|20)\d{2}\b/i.test(region);
+    if(runLen>=4 && M[k].num<=2 && looksRef && start>N*0.35 && M[M.length-1].index>N*0.55)
+      return {found:true, refs:text.slice(start), body:text.slice(0,start), heading:null, method:"headingless_pattern", citeStyle, confidence:74};
+  }
+
+  // CASE B2: headingless sustained reference-like paragraph run in the latter part
+  const paras=toParagraphs(text); const cut=N*0.45;
+  for(let i=0;i<paras.length;i++){
+    if(paras[i].start<cut) continue;
+    const win=paras.slice(i,i+5);
+    const strong=win.filter(p=>isRefLike(p.text)).length;
+    if((win.length>=5 && strong>=4) || (win.length>=2 && win.length<5 && strong===win.length)){
+      return {found:true, refs:text.slice(paras[i].start), body:text.slice(0,paras[i].start), heading:null, method:"headingless_pattern", citeStyle, confidence:70};
+    }
+  }
+
+  return {found:false, refs:"", body:text, heading:null, method:null, citeStyle, confidence:0};
+}
+function refCheck(refText, bodyText){
+  const {style, marker, entries}=refSplitList(refText);
+  const parsed=entries.map(e=>({...e, ...refParseEntry(e.raw)}));
+  const issues=[];
+  const withDoi=parsed.filter(p=>p.doi).length;
+  const doiCoverage=parsed.length?withDoi/parsed.length:0;
+  const NA_FIELDS={
+    "web page":{vol:1,pages:1,doi:1},"report":{vol:1,pages:1},"thesis":{vol:1,pages:1,doi:1},
+    "preprint":{vol:1,pages:1},"book":{vol:1},"conference paper":{vol:1},"standard":{vol:1,pages:1},"patent":{vol:1,pages:1}
+  };
+  const lab=(p,i)=> p.num!=null?`[${p.num}]`:`#${i+1}`;
+  parsed.forEach((p,i)=>{
+    const L=lab(p,i);
+    if(p.wordCount<4){ issues.push({level:"err",idx:i,label:L,msg:"Entry looks incomplete or too short to be a full reference."}); return; }
+    const na=NA_FIELDS[p.type]||{};
+    if(p.type!=="journal article") issues.push({level:"info",idx:i,label:L,msg:`Identified as a ${p.type}; journal fields are not expected.`});
+    if(!p.year) issues.push({level:"warn",idx:i,label:L,msg:"No publication year found."});
+    if(!p.hasAuthors && p.type==="journal article") issues.push({level:"warn",idx:i,label:L,msg:"No author names detected at the start of the entry."});
+    if(!p.hasPages && !na.pages) issues.push({level:"warn",idx:i,label:L,msg:"No page range or article number found."});
+    if(!p.hasVolume && !na.vol) issues.push({level:"info",idx:i,label:L,msg:"No volume or issue number found."});
+    if(!p.doi && !na.doi && doiCoverage>=0.6) issues.push({level:"info",idx:i,label:L,msg:"No DOI, though other references in the list include one. Add it only if your target style uses DOIs."});
+  });
+  const seen=new Map();
+  parsed.forEach((p,i)=>{ const key=p.doi?("doi:"+p.doi.toLowerCase()):((p.firstAuthor||"")+"|"+(p.year||"")); if(key.trim()&&key!=="|"&&seen.has(key)) issues.push({level:"warn",idx:i,label:lab(p,i),msg:`Looks like a duplicate of entry ${seen.get(key)}.`}); else seen.set(key,lab(p,i)); });
+  if(marker==="bracket"||marker==="number"){
+    const nums=parsed.map(p=>p.num).filter(n=>n!=null);
+    for(let n=1;n<=nums.length;n++){ if(!nums.includes(n)) issues.push({level:"warn",idx:-1,label:"list",msg:`Reference number ${n} is missing from the sequence.`}); }
+    [...new Set(nums.filter((n,i)=>nums.indexOf(n)!==i))].forEach(n=>issues.push({level:"warn",idx:-1,label:"list",msg:`Reference number ${n} appears more than once.`}));
+  }
+  let cross=null;
+  if(bodyText && marker!=="none"){
+    const cited=new Set();
+    for(const m of bodyText.matchAll(/\[([\d,\s–-]+)\]/g)){
+      m[1].split(/[,\s]+/).forEach(tok=>{ const rng=tok.match(/^(\d+)[–-](\d+)$/); if(rng){for(let x=+rng[1];x<=+rng[2];x++)cited.add(x);} else if(/^\d+$/.test(tok))cited.add(+tok); });
+    }
+    const listNums=new Set(parsed.map(p=>p.num).filter(n=>n!=null));
+    const citedNotListed=[...cited].filter(n=>!listNums.has(n)).sort((a,b)=>a-b);
+    const listedNotCited=[...listNums].filter(n=>!cited.has(n)).sort((a,b)=>a-b);
+    cross={citedNotListed, listedNotCited};
+    citedNotListed.forEach(n=>issues.push({level:"err",idx:-1,label:"in-text",msg:`Citation [${n}] appears in the text but has no entry in the reference list.`}));
+    listedNotCited.forEach(n=>issues.push({level:"warn",idx:-1,label:`[${n}]`,msg:"Listed but never cited in the text."}));
+  }
+  return {style, marker, count:parsed.length, parsed, issues, doiCoverage, cross, hadBody:!!bodyText};
+}
+async function refCrossref(parsed, onProgress){
+  const base="https://api.crossref.org/works", out=[], cap=Math.min(parsed.length,40);
+  for(let i=0;i<cap;i++){
+    const p=parsed[i]; onProgress&&onProgress(i+1,cap);
+    try{
+      if(p.doi){
+        const res=await fetch(`${base}/${encodeURIComponent(p.doi)}`);
+        if(res.status===200){
+          const it=(await res.json()).message;
+          const cy=it.issued&&it.issued["date-parts"]&&it.issued["date-parts"][0]&&it.issued["date-parts"][0][0];
+          if(p.year&&cy&&String(cy)!==String(parseInt(p.year))) out.push({idx:i,level:"warn",msg:`DOI resolves, but CrossRef year (${cy}) differs from the entry year (${p.year}).`});
+          else out.push({idx:i,level:"ok",msg:"DOI verified on CrossRef."});
+        } else if(res.status===404) out.push({idx:i,level:"err",msg:"DOI not found on CrossRef; it may be incorrect."});
+        else out.push({idx:i,level:"info",msg:`Could not verify DOI (CrossRef returned ${res.status}).`});
+      } else {
+        const res=await fetch(`${base}?query.bibliographic=${encodeURIComponent(p.raw.slice(0,300))}&rows=1&select=DOI,score`);
+        if(res.status===200){
+          const items=(await res.json()).message.items||[];
+          const top=items[0];
+          if(top&&top.DOI) out.push({idx:i,level:"info",msg:`Possible DOI from CrossRef: ${top.DOI} (match score ${Math.round(top.score||0)}). Verify before adding.`});
+          else out.push({idx:i,level:"info",msg:"No DOI match found on CrossRef."});
+        } else out.push({idx:i,level:"info",msg:`CrossRef lookup returned ${res.status}.`});
+      }
+    }catch(e){ out.push({idx:i,level:"info",msg:"Online check failed (network or rate limit)."}); }
+    await new Promise(r=>setTimeout(r,250));
+  }
+  return out;
+}
+
+let LAST_REF_OUT=null;
+function renderRefReport(res, cross){
+  $("ref-report-sub").textContent =
+    `Detected style: ${res.style} · ${res.count} references`+
+    (res.doiCoverage>0?` · DOI coverage ${(res.doiCoverage*100).toFixed(0)}%`:"")+
+    (res.detect ? ` · section found by ${res.detect.method==="explicit_heading"?("heading “"+(res.detect.heading||"References")+"”"):"citation-pattern detection"} (confidence ${res.detect.confidence})` : "")+
+    (res.hadBody?"":" · in-text check skipped (no manuscript body detected)");
+  $("ref-ledger-wrap").innerHTML=refLedger(res.parsed);
+  $("ref-report").hidden=false;
+}
+function refIssueSection(label, items, kind){
+  if(!items.length) return "";
+  const sym=kind==="info"?"i":"!";
+  const rows=items.map(it=>`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.label)}</span> ${escapeHtml(it.msg)}</p></div></div>`).join("");
+  return `<p class="sec-label">${label}</p>${rows}`;
+}
+function refLedger(parsed){
+  if(!parsed.length) return "";
+  const yn=b=> b?`<span class="yn y">yes</span>`:`<span class="yn n">no</span>`;
+  const na=`<span class="yn na">n/a</span>`;
+  const NA={
+    "web page":{vol:1,pages:1,doi:1},
+    "report":{vol:1,pages:1},
+    "thesis":{vol:1,pages:1,doi:1},
+    "preprint":{vol:1,pages:1},
+    "book":{vol:1},
+    "conference paper":{vol:1},
+    "standard":{vol:1,pages:1},
+    "patent":{vol:1,pages:1}
+  };
+  const body=parsed.map((p,i)=>{
+    const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
+    const na_=NA[p.type]||{};
+    const tag=p.type!=="journal article"?`<span class="rtype">${escapeHtml(p.type)}</span> `:"";
+    const snip=escapeHtml(p.raw.length>66?p.raw.slice(0,66)+"…":p.raw);
+    const pagesCell=na_.pages?na:yn(p.hasPages);
+    const volCell=na_.vol?na:yn(p.hasVolume);
+    const doiCell=na_.doi?na:yn(!!p.doi);
+    return `<tr><td class="t-abbr">${label}</td><td class="t-long">${tag}${snip}</td><td>${yn(!!p.year)}</td><td>${pagesCell}</td><td>${volCell}</td><td>${doiCell}</td></tr>`;
+  }).join("");
+  return `<p class="sec-label">Reference ledger</p><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Year</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+function refReportText(res, cross){
+  const L=["REFERENCE REPORT","",`Detected style: ${res.style}`,`References: ${res.count}`];
+  if(res.doiCoverage>0) L.push(`DOI coverage: ${(res.doiCoverage*100).toFixed(0)}%`);
+  L.push("");
+  const all=res.issues.slice();
+  (cross||[]).forEach(c=>{ if(c.level!=="ok"){ const p=res.parsed[c.idx]; const label=p?(p.num!=null?`[${p.num}]`:`#${c.idx+1}`):"ref"; all.push({level:c.level,label,msg:c.msg}); } });
+  const blk=(t,lv)=>{ const a=all.filter(x=>x.level===lv); if(!a.length) return; L.push(t.toUpperCase()); a.forEach(x=>L.push(`  - ${x.label}: ${x.msg}`)); L.push(""); };
+  blk("Must fix","err"); blk("Warnings","warn"); blk("Suggestions","info");
+  return L.join("\n");
+}
+
+/* ---------- reference style-by-example template ---------- */
+function inferTemplate(ex){
+  const p=refParseEntry(ex);
+  const enDash=/\d+\s*–\s*\d+/.test(ex);
+  return {
+    yearParen: /\((?:19|20)\d{2}[a-z]?\)/.test(ex),
+    doi: !!p.doi,
+    enDashPages: enDash,
+    volIssue: /\b\d+\s*\(\d+\)/.test(ex)
+  };
+}
+function applyTemplateChecks(res, tpl){
+  res.parsed.forEach((p,i)=>{
+    const L=p.num!=null?`[${p.num}]`:`#${i+1}`, raw=p.raw;
+    const parenYear=/\((?:19|20)\d{2}[a-z]?\)/.test(raw);
+    if(tpl.yearParen && p.year && !parenYear)
+      res.issues.push({level:"warn",idx:i,label:L,msg:"Year is not in parentheses, but your style example parenthesises the year."});
+    if(!tpl.yearParen && parenYear)
+      res.issues.push({level:"info",idx:i,label:L,msg:"Year is in parentheses, but your style example does not."});
+    if(tpl.doi && !p.doi)
+      res.issues.push({level:"warn",idx:i,label:L,msg:"No DOI, but your style example includes a DOI."});
+    if(tpl.enDashPages && /\d+\s*-\s*\d+/.test(raw) && !/\d+\s*–\s*\d+/.test(raw))
+      res.issues.push({level:"info",idx:i,label:L,msg:"Page range uses a hyphen, but your style example uses an en dash (–)."});
+    if(tpl.volIssue && p.hasPages && !/\b\d+\s*\(\d+\)/.test(raw))
+      res.issues.push({level:"info",idx:i,label:L,msg:"No volume(issue) grouping like your style example, e.g. 4(8)."});
+  });
+}
+function showRefNote(note){
+  $("ref-report-sub").textContent=note;
+  $("ref-ledger-wrap").innerHTML="";
+  $("ref-report").hidden=false;
+}
+
+/* ================= Number & pH check ================= */
+const NUM_WORD9={"0":"zero","1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight","9":"nine"};
+const COUNT_NOUNS=new Set(["samples","replicates","reactors","groups","treatments","sites","locations","stages","steps","phases","batches","runs","trials","experiments","tests","days","weeks","months","years","hours","minutes","seconds","methods","techniques","approaches","categories","classes","species","strains","columns","rows","points","values","measurements","observations","parameters","variables","factors","conditions","sets","cycles","rounds","iterations","participants","subjects","patients","animals","plants","cells","wells","plates","tubes","vials","bottles","tanks","chambers","electrodes","membranes","films","layers","sheets","particles","fractions","aliquots","dilutions","solutions","mixtures","compounds","reactions","assays","devices","sensors","options","questions","items"]);
+const IDENT_WORDS=new Set(["figure","fig","table","eq","equation","section","chapter","appendix","scheme","reaction","reactor","group","sample","site","phase","stage","step","day","week","type","class","level","model","grade","run","trial","test","batch","experiment","no","version","treatment","location","panel","column","row","lane","site","phase"]);
+function numSnip(s,idx,len){
+  const a=Math.max(0,idx-45), b=Math.min(s.length,idx+len+45);
+  return (a>0?"… ":"")+escapeHtml(s.slice(a,idx))+"<mark>"+escapeHtml(s.slice(idx,idx+len))+"</mark>"+escapeHtml(s.slice(idx+len,b))+(b<s.length?" …":"");
+}
+function numberCheck(text){
+  const out=[]; const sents=splitIntoSentences(text); const phDec=[];
+  sents.forEach(s=>{
+    let m;
+    const rw=/\bpH\s*(?:=|:|of\s+)?\s*(zero|one|two|three|four|five|six|seven|eight|nine|ten)\b/ig;
+    while((m=rw.exec(s))) out.push({cat:"pH",msg:"Report pH numerically (for example pH 7.0), not as a spelled-out word.",snippet:numSnip(s,m.index,m[0].length)});
+    const rr=/\bpH\s*(\d+(?:\.\d+)?)\s*[-\u2013\u2014]\s*(\d+(?:\.\d+)?)/ig;
+    while((m=rr.exec(s))){ if(!m[1].includes(".")||!m[2].includes(".")) out.push({cat:"pH",msg:"Report both pH range endpoints to at least one decimal place (for example pH 6.0-8.0).",snippet:numSnip(s,m.index,m[0].length)}); }
+    const rt=/\bpH\s*([<>]=?|\u2264|\u2265)\s*(\d+)(?!\.\d)/ig;
+    while((m=rt.exec(s))) out.push({cat:"pH",msg:"pH threshold given as an integer; use at least one decimal place if it is a measured value (for example pH < 4.0). Preserve authoritative or standard-defined thresholds as written.",snippet:numSnip(s,m.index,m[0].length)});
+    const rv=/\bpH\b\s*(?:=|:)?\s*(?:(?:was|were|is|are|of|to|at|reached|became|remained|near|around|about|approximately|adjusted\s+to|set\s+to|maintained\s+at|kept\s+at|held\s+at|fixed\s+at|controlled\s+at|equal\s+to|close\s+to)\s+)*[~\u2248]?\s*(\d{1,2})(?!\s*\.\d)(?!\s*[-\u2013\u2014<>=\u2264\u2265\d])/ig;
+    while((m=rv.exec(s))){ const v=m[1]; if(v==="7"&&/neutral/i.test(s)) continue; out.push({cat:"pH",msg:`pH ${v} is reported without a decimal place; report to at least one decimal (for example pH ${v}.0) if the measurement supports it, or verify the original precision.`,snippet:numSnip(s,m.index,m[0].length)}); }
+    let dm; const rd=/\bpH\s*(?:=|:)?\s*\d+\.(\d+)/ig; while((dm=rd.exec(s))) phDec.push(dm[1].length);
+    const lz=/(?<![\w.])\.\d+/g;
+    while((m=lz.exec(s))) out.push({cat:"zero",msg:`Add a leading zero: write 0${m[0]} instead of ${m[0]}.`,snippet:numSnip(s,m.index,m[0].length)});
+    const st=s.replace(/^["'\u201C(\[]+/,""); const off=s.length-st.length;
+    if(/^(\d[\d.,]*)\s+[A-Za-z]/.test(st)){
+      const affiliation=/^\d{1,2}[.)]?\s+[A-Z]/.test(st) &&
+        /\b(Department|School|Institute|Institution|University|College|Faculty|Centre|Center|Laborator(?:y|ies)|Division|Hospital|Ministry|Corporation|Academy|Organi[sz]ation|Council|Board|Authority|Foundation|Society)\b/i.test(st);
+      if(!affiliation) out.push({cat:"start",msg:"Avoid beginning a sentence with a numeral; restructure the sentence rather than spelling out a measurement.",snippet:numSnip(s,off,Math.min(38,st.length))});
+    }
+    const nc=/(^|[^\w.,\-\u2013<>=\u00B1~\u00D7xX$\/])([0-9])\s+([a-z][a-z]+)\b/g;
+    while((m=nc.exec(s))){
+      const digit=m[2], word=m[3];
+      if(!COUNT_NOUNS.has(word.toLowerCase())) continue;
+      const pre=(s.slice(0,m.index+m[1].length).trim().split(/\s+/).pop()||"").toLowerCase().replace(/[^a-z]/g,"");
+      if(IDENT_WORDS.has(pre)) continue;
+      out.push({cat:"count",msg:`Spell out small whole numbers used as ordinary counts in prose: write "${NUM_WORD9[digit]} ${word}" rather than "${digit} ${word}". Keep numerals for measurements, statistics, and labels.`,snippet:numSnip(s,m.index+m[1].length,m[0].length-m[1].length)});
+    }
+  });
+  const dd=[...new Set(phDec)];
+  if(dd.length>1) out.push({cat:"pH",msg:`Measured pH values use mixed decimal precision (${dd.sort().join(" and ")} places). Use consistent precision where the measurement justifies it.`,snippet:""});
+  return out;
+}
+function renderNumReport(findings){
+  const cats=[{k:"pH",label:"pH reporting"},{k:"zero",label:"Missing leading zero"},{k:"count",label:"Small counts in prose (spell out 0 to 9)"},{k:"start",label:"Sentence begins with a numeral"}];
+  $("num-report-sub").textContent = findings.length ? `${findings.length} item${findings.length===1?"":"s"} to review` : "No number or pH issues detected.";
+  let html="";
+  cats.forEach(c=>{
+    const items=findings.filter(f=>f.cat===c.k); if(!items.length) return;
+    const kind=(c.k==="pH"||c.k==="zero")?"warn":"info", sym=kind==="warn"?"!":"i";
+    html+=`<p class="sec-label">${c.label} · ${items.length}</p>`;
+    items.slice(0,300).forEach(it=>{ html+=`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg">${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${it.snippet}</div>`:""}</div></div>`; });
+  });
+  $("num-findings").innerHTML=html;
+  $("num-report").hidden=false;
+}
+
+/* ---------- single combined run ---------- */
+$("run").onclick=async()=>{
+  const btn=$("run");
+  const standardSet=new Set();
+  $("whitelist").value.split(/\n/).forEach(line=>{
+    const s=line.trim(); if(!s || s.startsWith("#")) return;
+    const n=norm(s); if(n) standardSet.add(n);
+    (s.match(/[A-Z]{2,}/g)||[]).forEach(r=>standardSet.add(norm(r)));
+  });
+  const title=$("title").value;
+  const skipRefs=$("opt-refs").checked, skipTables=$("opt-tables").checked;
+  let text="";
+  try{
+    btn.disabled=true;
+    DECLARED_ABBRS=new Set();
+    const usingUpload=$("tab-upload").getAttribute("aria-selected")==="true";
+    if(usingUpload && currentFile){ status("Reading file…"); text=await readFile(currentFile); }
+    else text=$("paste").value;
+    if(!text || text.trim().length<20){ status("Add your manuscript first (paste it or upload a file).",true); btn.disabled=false; return; }
+    extractDeclaredAbbrs(text).forEach(k=>DECLARED_ABBRS.add(k));
+
+    // Abbreviations (from the manuscript)
+    try{
+      status("Checking abbreviations…");
+      const r=analyze(text,title,standardSet,skipRefs,skipTables); LAST=r; renderReport(r);
+    }catch(e){ console.error("abbreviation check failed:",e); }
+
+    // References (reference section auto-located from the manuscript; never the body text)
+    try{
+      status("Checking references…");
+      const split=refSplitManuscript(text);
+      if(split.found){
+        const refResult=refCheck(split.refs, split.body);
+        refResult.detect={heading:split.heading, method:split.method, confidence:split.confidence, citeStyle:split.citeStyle};
+        if(!refResult.count){ showRefNote("A references section was found, but no reference entries could be parsed from it."); LAST_REF_OUT=null; }
+        else {
+          const styleEx=$("ref-style").value.trim();
+          if(styleEx) applyTemplateChecks(refResult, inferTemplate(styleEx));
+          LAST_REF_OUT={res:refResult,cross:null}; renderRefReport(refResult,null);
+        }
+      } else {
+        showRefNote("No References or Bibliography section was found, so the reference checks were skipped. Make sure your document has a \"References\" (or \"Bibliography\") heading on its own line before the reference list.");
+        LAST_REF_OUT=null;
+      }
+    }catch(e){ console.error("reference check failed:",e); }
+
+    // Numbers & pH (manuscript body only: references, tables, and headings removed)
+    try{
+      status("Checking numbers and pH…");
+      let nb=excludeReferences(text,true).text; nb=excludeTables(nb,true).text; nb=stripHeadings(nb).text;
+      renderNumReport(numberCheck(nb));
+    }catch(e){ console.error("number check failed:",e); }
+
+    $("results-tabs").hidden=false;
+    showTab(currentTab||"abbr");
+    $("results-tabs").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+    status("");
+  }catch(err){ console.error(err); status(err.message||"Something went wrong reading that file. Try pasting the text instead.",true); }
+  finally{ btn.disabled=false; }
+};
+
+$("clear").onclick=()=>{
+  currentFile=null; fileInput.value=""; chip.style.display="none";
+  $("paste").value=""; $("title").value=""; $("ref-style").value="";
+  $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true;
+  $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
+  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null;
+};
+
+$("ref-download").onclick=()=>{ if(!LAST_REF_OUT) return; const blob=new Blob([refReportText(LAST_REF_OUT.res,LAST_REF_OUT.cross)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reference-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
+$("ref-print").onclick=()=>window.print();
+$("num-print").onclick=()=>window.print();
+
+let currentTab="abbr";
+function showTab(which){
+  currentTab=which;
+  document.querySelectorAll(".result-group").forEach(el=>{ el.hidden = el.dataset.group!==which; });
+  document.querySelectorAll("#results-tabs .rtab").forEach(btn=>{ const on=btn.dataset.tab===which; btn.classList.toggle("active",on); btn.setAttribute("aria-selected",on?"true":"false"); });
+}
+document.querySelectorAll("#results-tabs .rtab").forEach(btn=>{ btn.onclick=()=>showTab(btn.dataset.tab); });
 </script>
+
 </body>
 </html>
