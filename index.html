@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Abbreviation Check — Manuscript Proofing</title>
+<title>Manuscript Check — Manuscript Proofing</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 <style>
@@ -126,7 +126,7 @@
   .credit-links .sep{color:var(--hair-strong);margin:0 10px}
   .credit-tag{color:var(--faint);font-size:12px;margin:22px 0 0}
   .dev-note{max-width:640px;margin:14px auto 0;padding:12px 16px;background:var(--pencil-soft);border:1px solid var(--hair);border-radius:9px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:left}
-  @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report,#fte-report{box-shadow:none;border:0;padding:0}}
+  @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#fte-report{box-shadow:none;border:0;padding:0}}
 </style>
 </head>
 <body>
@@ -135,7 +135,7 @@
   <header class="masthead">
     <p class="eyebrow">Manuscript Proofing</p>
     <h1>Manuscript Check<span class="rule"></span></h1>
-    <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, and figure/table/equation consistency.</p>
+    <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, units, and figure/table/equation consistency.</p>
   </header>
 
   <section class="card" id="input-card">
@@ -183,6 +183,7 @@
     <button class="rtab active" data-tab="abbr" role="tab" aria-selected="true">Abbreviations</button>
     <button class="rtab" data-tab="ref" role="tab" aria-selected="false">References</button>
     <button class="rtab" data-tab="num" role="tab" aria-selected="false">Numbers, pH &amp; precision</button>
+    <button class="rtab" data-tab="unit" role="tab" aria-selected="false">Units &amp; notation</button>
     <button class="rtab" data-tab="fte" role="tab" aria-selected="false">Figures, tables &amp; equations</button>
   </div>
 
@@ -214,7 +215,6 @@
       <li><b>Plurals without apostrophes.</b> <code>MFCs</code>, not <code>MFC's</code>.</li>
       <li><b>Do not begin a sentence with an abbreviation.</b></li>
       <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
-      <li><b>Units are not pluralised</b> (<code>kg</code>, not <code>kgs</code>).</li>
       <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
       <li><b>Tables are skipped</b> by default. Word tables are removed directly, and numeric data blocks extracted from the Word manuscript are filtered where appropriate.</li>
@@ -251,7 +251,7 @@
     <h2>Number, pH &amp; precision report</h2>
     <p class="sub" id="num-report-sub"></p>
     <div id="num-findings"></div>
-    <p class="disclaimer">This combines numeral usage, pH reporting, and scientific numeric-precision checks. References and headings are excluded. Word tables are checked column-wise for precision consistency. Precision is assessed only within comparable numeric groups, including numerical series, ranges, uncertainties, percentages, p-values, and scientific notation. The checker never invents measurement resolution or silently adds or removes significant digits; uncertain cases are flagged for author review.</p>
+    <p class="disclaimer">This combines numeral usage, pH reporting, and scientific numeric-precision checks. References and headings are excluded. Word tables are checked for precision patterns only within genuinely comparable measurement columns. Precision is assessed only within comparable numeric groups, including numerical series, ranges, uncertainties, percentages, p-values, and scientific notation. The checker never invents measurement resolution or silently adds or removes significant digits; uncertain cases are flagged for author review.</p>
     <div class="report-actions">
       <button class="btn btn-ghost" id="num-print">Print or save as PDF</button>
     </div>
@@ -272,6 +272,34 @@
     </ol>
   </details>
   </div><!-- /group num -->
+
+  <div class="result-group" data-group="unit" hidden>
+  <section class="card" id="unit-report" hidden aria-live="polite">
+    <h2>Units &amp; notation report</h2>
+    <p class="sub" id="unit-report-sub"></p>
+    <div id="unit-summary"></div>
+    <div id="unit-findings"></div>
+    <div id="unit-ledger-wrap"></div>
+    <p class="disclaimer">This check distinguishes scientific unit errors from valid differences in notation or scale. References are excluded, Word-table header units are inherited by the cells beneath them, and unit consistency is assessed only within scientifically comparable groups. The checker does not automatically convert or alter manuscript values.</p>
+    <div class="report-actions">
+      <button class="btn btn-ghost" id="unit-download">Download report (.txt)</button>
+      <button class="btn btn-ghost" id="unit-print">Print or save as PDF</button>
+    </div>
+  </section>
+
+  <details class="rules">
+    <summary>What the units and notation check covers</summary>
+    <ol>
+      <li><b>Unit recognition.</b> SI, accepted non-SI, and common environmental-engineering units are recognized as measurement units rather than abbreviations.</li>
+      <li><b>Equivalent notation.</b> Forms such as <code>mg/L</code>, <code>mg L⁻¹</code>, and <code>mg·L⁻¹</code> are treated as the same physical unit while mixed notation can still be reported as a style issue.</li>
+      <li><b>Dimensional compatibility.</b> Directly comparable quantities are checked for incompatible dimensions and mixed unit scales without forcing unrelated parameters into one unit.</li>
+      <li><b>SI-style notation.</b> Number-unit spacing, °C and K usage, prefix capitalization, pluralized/non-standard symbols, repeated solidi, micro-symbol typography, and exponent formatting are checked conservatively.</li>
+      <li><b>Analyte basis.</b> Expressions such as <code>mg N/L</code>, <code>mg NO3-N/L</code>, and <code>mg COD/L</code> retain their analytical basis rather than being merged solely by physical dimension.</li>
+      <li><b>Word tables.</b> A header such as <code>BOD (mg/L)</code> supplies the unit context to numeric cells below it; an explicit conflicting cell unit is flagged.</li>
+      <li><b>No automatic data edits.</b> The checker may compare conversion factors internally but does not rewrite numerical results or invent measurement precision.</li>
+    </ol>
+  </details>
+  </div><!-- /group unit -->
 
   <div class="result-group" data-group="fte" hidden>
   <section class="card" id="fte-report" hidden aria-live="polite">
@@ -340,22 +368,315 @@ const STOPWORDS = new Set([
   "FIGURE","TABLE","SUPPLEMENTARY","HIGHLIGHTS","GRAPHICAL","BACKGROUND","REVIEW"
 ]);
 
-/* ---------- Unit exclusion (measurement units are not abbreviations) ---------- */
-const U_UNITS = new Set(["m","g","s","A","K","mol","cd","Hz","N","Pa","J","W","C","V","F","Ω","ohm","S","Wb","T","H","lm","lx","Bq","Gy","Sv","kat","rad","sr","L","l","min","h","d","ha","t","Da","eV","Wh","bar","atm","mmHg","Torr","Å","rpm","psi","cal","kcal","Btu","hp","cP","cSt","MGD","MLD","VA","var","dB","M","B","bp","nt"]);
-const U_PREFIX = ["da","Q","R","Y","Z","E","P","T","G","M","k","h","d","c","m","µ","μ","u","n","p","f","a","z","y","r","q"];
-function uStripPow(c){ return c.replace(/[\u2070-\u2079\u00B2\u00B3\u00B9\u2080-\u2089\u207A\u207B]+$/,"").replace(/\^?[-\u2212]?\d+$/,"").replace(/[-\u2212]\d+$/,"").trim(); }
-function isUnitComponent(c){
-  c=uStripPow(c); if(!c) return false;
-  if(c==="°C"||c==="°F"||c==="℃"||c==="℉") return true;
-  if(U_UNITS.has(c)) return true;
-  if(/^[µμu]/.test(c) && U_UNITS.has(c.slice(1))) return true;
-  for(const p of U_PREFIX){ if(c.length>p.length && c.startsWith(p) && U_UNITS.has(c.slice(p.length))) return true; }
-  return false;
+/* UNIT MODULE START: shared unit registry, parsing, consistency checks, and report helpers */
+const UNIT_PREFIX_SCALE={q:1e-30,r:1e-27,y:1e-24,z:1e-21,a:1e-18,f:1e-15,p:1e-12,n:1e-9,"µ":1e-6,"μ":1e-6,u:1e-6,m:1e-3,c:1e-2,d:1e-1,da:1e1,h:1e2,k:1e3,M:1e6,G:1e9,T:1e12,P:1e15,E:1e18,Z:1e21,Y:1e24,R:1e27,Q:1e30};
+const UNIT_PREFIX_KEYS=Object.keys(UNIT_PREFIX_SCALE).sort((a,b)=>b.length-a.length);
+const UNIT_REGISTRY={
+  m:{dim:{L:1},scale:1,prefix:true,si:true},
+  g:{dim:{M:1},scale:1e-3,prefix:true,si:true},
+  s:{dim:{T:1},scale:1,prefix:true,si:true},
+  A:{dim:{I:1},scale:1,prefix:true,si:true},
+  K:{dim:{Th:1},scale:1,prefix:true,si:true},
+  mol:{dim:{N:1},scale:1,prefix:true,si:true},
+  cd:{dim:{Cd:1},scale:1,prefix:true,si:true},
+  L:{dim:{L:3},scale:1e-3,prefix:true,si:false,accepted:true},
+  l:{dim:{L:3},scale:1e-3,prefix:true,si:false,accepted:true,preferred:"L"},
+  min:{dim:{T:1},scale:60,prefix:false,accepted:true}, h:{dim:{T:1},scale:3600,prefix:false,accepted:true}, d:{dim:{T:1},scale:86400,prefix:false,accepted:true},
+  Hz:{dim:{T:-1},scale:1,prefix:true,si:true},
+  N:{dim:{M:1,L:1,T:-2},scale:1,prefix:true,si:true},
+  Pa:{dim:{M:1,L:-1,T:-2},scale:1,prefix:true,si:true},
+  J:{dim:{M:1,L:2,T:-2},scale:1,prefix:true,si:true},
+  W:{dim:{M:1,L:2,T:-3},scale:1,prefix:true,si:true},
+  C:{dim:{I:1,T:1},scale:1,prefix:true,si:true},
+  V:{dim:{M:1,L:2,T:-3,I:-1},scale:1,prefix:true,si:true},
+  F:{dim:{M:-1,L:-2,T:4,I:2},scale:1,prefix:true,si:true},
+  "Ω":{dim:{M:1,L:2,T:-3,I:-2},scale:1,prefix:true,si:true},
+  ohm:{dim:{M:1,L:2,T:-3,I:-2},scale:1,prefix:true,si:false,preferred:"Ω"},
+  S:{dim:{M:-1,L:-2,T:3,I:2},scale:1,prefix:true,si:true},
+  Wb:{dim:{M:1,L:2,T:-2,I:-1},scale:1,prefix:true,si:true},
+  T:{dim:{M:1,T:-2,I:-1},scale:1,prefix:true,si:true},
+  H:{dim:{M:1,L:2,T:-2,I:-2},scale:1,prefix:true,si:true},
+  lm:{dim:{Cd:1},scale:1,prefix:true,si:true}, lx:{dim:{Cd:1,L:-2},scale:1,prefix:true,si:true},
+  Bq:{dim:{T:-1},scale:1,prefix:true,si:true}, Gy:{dim:{L:2,T:-2},scale:1,prefix:true,si:true}, Sv:{dim:{L:2,T:-2},scale:1,prefix:true,si:true}, kat:{dim:{N:1,T:-1},scale:1,prefix:true,si:true},
+  rad:{dim:{},scale:1,prefix:true,si:true}, sr:{dim:{},scale:1,prefix:true,si:true},
+  ha:{dim:{L:2},scale:1e4,prefix:false,accepted:true},
+  bar:{dim:{M:1,L:-1,T:-2},scale:1e5,prefix:true,accepted:true}, atm:{dim:{M:1,L:-1,T:-2},scale:101325,prefix:false,accepted:true},
+  Wh:{dim:{M:1,L:2,T:-2},scale:3600,prefix:true,accepted:true}, eV:{dim:{M:1,L:2,T:-2},scale:1.602176634e-19,prefix:true,accepted:true},
+  "Å":{dim:{L:1},scale:1e-10,prefix:false,accepted:true},
+  rpm:{dim:{T:-1},scale:1/60,prefix:false,domain:true}, r:{dim:{Count:1},scale:1,prefix:false,domain:true},
+  CFU:{dim:{Count:1},scale:1,prefix:false,domain:true}, MPN:{dim:{Count:1},scale:1,prefix:false,domain:true}, cells:{dim:{Count:1},scale:1,prefix:false,domain:true},
+  NTU:{dim:{NTU:1},scale:1,prefix:false,domain:true}, FNU:{dim:{FNU:1},scale:1,prefix:false,domain:true},
+  "%":{dim:{},scale:0.01,prefix:false,accepted:true}, "°":{dim:{},scale:Math.PI/180,prefix:false,accepted:true}, "′":{dim:{},scale:Math.PI/10800,prefix:false,accepted:true}, "″":{dim:{},scale:Math.PI/648000,prefix:false,accepted:true}, ppm:{dim:{},scale:1e-6,prefix:false,domain:true}, ppb:{dim:{},scale:1e-9,prefix:false,domain:true}, ppt:{dim:{},scale:1e-12,prefix:false,domain:true},
+  M:{dim:{N:1,L:-3},scale:1000,prefix:false,domain:true}
+};
+const UNIT_ANALYTES=new Set(["COD","BOD","TOC","DOC","TSS","TDS","TS","VS","FS","TN","TP","TKN","N","P","NH4-N","NH3-N","NO3-N","NO2-N","PO4-P","CA2+","MG2+","CACO3","CL-","F-","SO4","SO4-S","S","H2S","O2","CO2"]);
+const UNIT_NONSTANDARD={sec:"s",secs:"s",hr:"h",hrs:"h",cc:"cm^3",mps:"m/s",kgs:"kg",mgs:"mg",mLs:"mL"};
+const UNIT_NAME_ALIASES={second:"s",seconds:"s",minute:"min",minutes:"min",hour:"h",hours:"h",day:"d",days:"d",metre:"m",metres:"m",meter:"m",meters:"m",litre:"L",litres:"L",liter:"L",liters:"L",gram:"g",grams:"g",kilogram:"kg",kilograms:"kg",kelvin:"K"};
+const UNIT_BAD_CASE={KPa:"kPa",KPA:"kPa",kpa:"kPa",HZ:"Hz",hz:"Hz",PA:"Pa",KW:"kW",mw:"mW"};
+const UNIT_DIRECT_EXPRESSIONS={
+  MLD:{normalized:"ML d^-1",dim:{L:3,T:-1},scale:1e3/86400,status:"domain"},
+  LPM:{normalized:"L min^-1",dim:{L:3,T:-1},scale:1e-3/60,status:"domain"}, LPH:{normalized:"L h^-1",dim:{L:3,T:-1},scale:1e-3/3600,status:"domain"}, LPD:{normalized:"L d^-1",dim:{L:3,T:-1},scale:1e-3/86400,status:"domain"},
+  MGD:{normalized:"MGal d^-1",dim:{L:3,T:-1},scale:3785.411784/86400,status:"domain"}
+};
+function unitCloneDim(d){const o={};Object.keys(d||{}).forEach(k=>{if(d[k])o[k]=d[k];});return o;}
+function unitAddDim(dst,src,mul=1){Object.keys(src||{}).forEach(k=>{dst[k]=(dst[k]||0)+src[k]*mul;if(Math.abs(dst[k])<1e-12)delete dst[k];});return dst;}
+function unitDimKey(d){return Object.keys(d||{}).sort().map(k=>`${k}:${d[k]}`).join("|")||"dimensionless";}
+function unitScaleKey(x){if(!isFinite(x)||x<=0)return String(x);return Math.abs(Math.log10(x)-Math.round(Math.log10(x)))<1e-10?`1e${Math.round(Math.log10(x))}`:Number(x.toPrecision(9)).toString();}
+function unitSuperToAscii(s){
+  const map={"⁰":"0","¹":"1","²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6","⁷":"7","⁸":"8","⁹":"9","⁻":"-","⁺":"+"};
+  return (s||"").replace(/([A-Za-zµμΩ%°]+)([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+)/g,(m,a,b)=>a+"^"+[...b].map(c=>map[c]||c).join(""))
+    .replace(/([A-Za-zµμΩ]+)[−–](\d+)$/g,"$1^-$2");
 }
-function isUnitExpr(tok){
-  const parts=tok.split(/[\/·×.\s]+/).filter(Boolean);
-  return parts.length>0 && parts.every(isUnitComponent);
+function unitNormalizeMicro(s){return (s||"").replace(/μ/g,"µ");}
+function unitParseSymbol(sym){
+  sym=unitNormalizeMicro(sym);
+  if(UNIT_REGISTRY[sym]) return {symbol:sym,canonical:UNIT_REGISTRY[sym].preferred||sym,...UNIT_REGISTRY[sym],prefix:""};
+  for(const p0 of UNIT_PREFIX_KEYS){
+    const p=unitNormalizeMicro(p0);
+    if(!sym.startsWith(p)||sym.length<=p.length)continue;
+    const rest=sym.slice(p.length),base=UNIT_REGISTRY[rest];
+    if(!base||base.prefix===false)continue;
+    return {symbol:sym,canonical:(p==="μ"?"µ":p)+(base.preferred||rest),dim:base.dim,scale:UNIT_PREFIX_SCALE[p0]*base.scale,prefix:p,si:base.si,accepted:base.accepted,domain:base.domain};
+  }
+  return null;
 }
+function unitParseComponent(tok){
+  tok=tok.trim(); const nameAlias=UNIT_NAME_ALIASES[tok.toLowerCase()]; if(nameAlias) tok=nameAlias;
+  tok=unitSuperToAscii(unitNormalizeMicro(tok));
+  if(!tok)return null;
+  let exp=1,sym=tok,m=tok.match(/^(.+?)\^([+-]?\d+)$/);
+  if(m){sym=m[1];exp=+m[2];}
+  else if((m=tok.match(/^([A-Za-zµΩ]+)([23])$/)) && UNIT_REGISTRY[m[1]]){sym=m[1];exp=+m[2];}
+  const u=unitParseSymbol(sym); if(!u)return null;
+  return {...u,exp};
+}
+function unitParseExpression(raw,opts={}){
+  if(!raw)return null;
+  let original=raw.trim().replace(/^[,;:]+|[,;:.]+$/g,"").trim(); if(!original)return null;
+  const flags={microAscii:/\bu(?=(?:g|L|m|S|mol)\b)/.test(original),microGreek:/μ/.test(original),asciiExponent:/\^[-+]?\d+/.test(original),plainPower:/\b(?:m|cm|mm|km|L)(?:2|3)\b/.test(original),multipleSolidus:(original.match(/\//g)||[]).length>1,badKelvin:/°\s*K\b/.test(original),lowerLitre:/\b(?:[fpnumcdhkMGTPEZYRQ]?l)\b/.test(original)};
+  if(UNIT_DIRECT_EXPRESSIONS[original]){
+    const d=UNIT_DIRECT_EXPRESSIONS[original];return {raw:original,valid:true,recognized:true,normalized:d.normalized,dim:unitCloneDim(d.dim),dimKey:unitDimKey(d.dim),scale:d.scale,scaleKey:unitScaleKey(d.scale),offset:0,notationFamily:"domain_shorthand",analyte:null,flags,components:[],domain:true};
+  }
+  let aliasCanonical=null,unitName=false;
+  if(UNIT_NAME_ALIASES[original.toLowerCase()]){aliasCanonical=UNIT_NAME_ALIASES[original.toLowerCase()];original=aliasCanonical;unitName=true;}
+  else if(UNIT_NONSTANDARD[original]){aliasCanonical=UNIT_NONSTANDARD[original];original=aliasCanonical;}
+  if(UNIT_BAD_CASE[original]) return {raw:raw.trim(),valid:false,recognized:false,badCase:true,suggested:UNIT_BAD_CASE[original],flags};
+  if(original==="°K") return {raw:raw.trim(),valid:false,recognized:false,badKelvin:true,suggested:"K",flags};
+  let work=unitSuperToAscii(unitNormalizeMicro(original)).replace(/℃/g,"°C").replace(/℉/g,"°F");
+  if(work==="°C") return {raw:raw.trim(),valid:true,recognized:true,normalized:"°C",dim:{Th:1},dimKey:"Th:1",scale:1,scaleKey:"1e0",offset:273.15,affine:true,notationFamily:"single",analyte:null,flags,components:[{canonical:"°C",exp:1}],nonstandard:!!aliasCanonical&&!unitName,unitName};
+  if(work==="°F") return {raw:raw.trim(),valid:true,recognized:true,normalized:"°F",dim:{Th:1},dimKey:"Th:1",scale:5/9,scaleKey:unitScaleKey(5/9),offset:255.372222,affine:true,notationFamily:"single",analyte:null,flags,components:[{canonical:"°F",exp:1}],domain:true};
+  if(work==="%") return {raw:raw.trim(),valid:true,recognized:true,normalized:"%",dim:{},dimKey:"dimensionless",scale:.01,scaleKey:unitScaleKey(.01),offset:0,notationFamily:"single",analyte:null,flags,components:[{canonical:"%",exp:1}]};
+  work=work.replace(/·|⋅|×/g," ").replace(/\//g," / ").replace(/\s+/g," ").trim();
+  const toks=work.split(" ").filter(Boolean); if(!toks.length)return null;
+  let denom=false,dim={},scale=1,analyte=null,components=[],numericDiv=1,physical=0,unknown=[];
+  for(let i=0;i<toks.length;i++){
+    let t=toks[i].replace(/^[()\[\]]+|[()\[\],;]+$/g,""); if(!t)continue;
+    if(t==="/"){denom=true;continue;}
+    if(/^\d+(?:\.\d+)?$/.test(t) && denom){numericDiv*=+t;continue;}
+    if(/^as$/i.test(t)){continue;}
+    const aq=t.toUpperCase().replace(/[₀-₉]/g,c=>({"₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9"}[c]));
+    if(physical>0 && UNIT_ANALYTES.has(aq)){analyte=analyte||aq;continue;}
+    let comp=unitParseComponent(t);
+    if(!comp && UNIT_NONSTANDARD[t]){comp=unitParseComponent(UNIT_NONSTANDARD[t]);flags.nonstandardToken=t;}
+    if(!comp){unknown.push(t);break;}
+    let exp=comp.exp*(denom?-1:1); physical++;
+    unitAddDim(dim,comp.dim,exp); scale*=Math.pow(comp.scale,exp);
+    components.push({canonical:comp.canonical,exp,raw:t});
+  }
+  if(unknown.length||physical===0)return opts.allowUnknown?{raw:raw.trim(),valid:false,recognized:false,unknown:unknown[0]||raw.trim(),flags}:null;
+  if(numericDiv!==1)scale/=numericDiv;
+  const normalized=components.map(c=>c.exp===1?c.canonical:`${c.canonical}^${c.exp}`).join(" ");
+  const notationFamily=(raw.includes("/")?"solidus":raw.includes("·")||raw.includes("⋅")?"negative_exponent_dot":/[⁻−]|\^-/.test(raw)?"negative_exponent_space":"product_space");
+  return {raw:raw.trim(),valid:true,recognized:true,normalized,dim,dimKey:unitDimKey(dim),scale,scaleKey:unitScaleKey(scale),offset:0,notationFamily,analyte,flags,components,nonstandard:(!!aliasCanonical&&!unitName)||!!flags.nonstandardToken,unitName,domain:components.some(c=>UNIT_REGISTRY[c.canonical]&&UNIT_REGISTRY[c.canonical].domain)};
+}
+function isUnitComponent(c){return !!unitParseComponent(c);}
+function isUnitExpr(tok){const p=unitParseExpression(tok);return !!(p&&p.valid&&p.recognized);}
+function unitIsChemicalLike(s){return /^(?:H2O|CO2|O2|NH4\+?|NH3|NO[23][−-]?|SO4(?:2[−-]|²⁻)?|Fe[23](?:\+|⁺)|Cr\(?VI\)?|TiO2|MnO2|g-?C3N4|PM2\.5|C\d+H\d+)/i.test((s||"").replace(/\s+/g,""));}
+function unitStrongUnknown(s){s=(s||"").trim();return !!s&&!unitIsChemicalLike(s)&&(s.includes("/")||/[µμ°%²³⁻]/.test(s)||/^[a-z]{1,4}$/.test(s));}
+function unitCandidatePrefixes(rest){
+  rest=(rest||"").replace(/^[\s]+/,"");
+  const cut=rest.split(/(?=[,;!?])|\.(?=\s+[A-Z]|$)/)[0].slice(0,90);
+  const parts=cut.split(/\s+/).filter(Boolean).slice(0,8),out=[];
+  for(let n=parts.length;n>=1;n--)out.push(parts.slice(0,n).join(" ").replace(/[)\]]+$/g,""));
+  return out;
+}
+const UNIT_NUM_CORE='(?:\\d+(?:\\.\\d+)?\\s*[×x]\\s*10\\s*(?:\\^?\\s*[-−]?\\d+|[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)|\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)';
+const UNIT_VALUE_RE=new RegExp('(?:[<>≤≥~≈]\\s*)?'+UNIT_NUM_CORE+'(?:\\s*(?:±|[-–—]|\\bto\\b)\\s*'+UNIT_NUM_CORE+')?','g');
+const UNIT_PARAM_PATTERNS=[
+  ["BOD",/\bBOD\b/ig],["COD",/\bCOD\b/ig],["TSS",/\bTSS\b/ig],["TDS",/\bTDS\b/ig],["TN",/\bTN\b/ig],["TP",/\bTP\b/ig],["TKN",/\bTKN\b/ig],["TOC",/\bTOC\b/ig],["DOC",/\bDOC\b/ig],["NH4-N",/\bNH\s*4\s*[-–]?\s*N\b/ig],["NO3-N",/\bNO\s*3\s*[-–]?\s*N\b/ig],["NO2-N",/\bNO\s*2\s*[-–]?\s*N\b/ig],["PO4-P",/\bPO\s*4\s*[-–]?\s*P\b/ig],
+  ["temperature",/\btemperature\b/ig],["flow",/\b(?:flow|discharge|throughput|capacity)\b/ig],["electrical conductivity",/\b(?:electrical conductivity|conductivity|EC)\b/ig],["pressure",/\bpressure\b/ig],["surface area",/\b(?:specific )?surface area\b/ig],["energy",/\b(?:energy|energy consumption)\b/ig],["power",/\bpower\b/ig],["turbidity",/\bturbidity\b/ig],["dissolved oxygen",/\b(?:dissolved oxygen|DO)\b/ig],["hardness",/\bhardness\b/ig],["alkalinity",/\balkalinity\b/ig],["acidity",/\bacidity\b/ig]
+];
+function unitInferParameter(text,index,parsed){
+  const before=(text||"").slice(Math.max(0,index-140),index),near=before.slice(-100); let best=null,bestPos=-1;
+  for(const [key,re0] of UNIT_PARAM_PATTERNS){const re=new RegExp(re0.source,re0.flags);let m;while((m=re.exec(near)))if(m.index>bestPos){best=key;bestPos=m.index;}}
+  if(parsed&&parsed.analyte) return {key:parsed.analyte,confidence:.98};
+  if(best){if(parsed&&parsed.dimKey==="dimensionless"&&/remov|efficien|percent/i.test(near))best+=" removal/efficiency";return {key:best,confidence:.85};}
+  if(parsed){
+    if(parsed.dimKey==="Th:1")return {key:"temperature",confidence:.7};
+    if(parsed.dimKey==="L:3|T:-1")return {key:"flow",confidence:.7};
+    if(parsed.raw==="%")return {key:"percentage",confidence:.45};
+  }
+  return {key:"Body text",confidence:.35};
+}
+function unitContextFlags(text,index){const s=(text||"").slice(Math.max(0,index-110),Math.min((text||"").length,index+90));return {external:/\b(?:reported by|according to|et al\.|standard|guideline|limit|threshold|CPCB|NGT|WHO|EPA)\b/i.test(s),snippet:s.replace(/\s+/g," ").trim()};}
+function unitExtractQuantities(text,context="body"){
+  const out=[]; text=(text||"").replace(/\u00A0|\u202F/g," "); let m; UNIT_VALUE_RE.lastIndex=0;
+  while((m=UNIT_VALUE_RE.exec(text))){
+    const val=m[0],pre=text.slice(Math.max(0,m.index-24),m.index);
+    if(/\b(?:Figure|Fig\.?|Table|Eq\.?|Equation|Section|Sec\.?)\s*$/i.test(pre)) continue;
+    const after=text.slice(m.index+m[0].length,m.index+m[0].length+95); if(!after)continue;
+    const sep=(after.match(/^[ \t]*/)||[""])[0],rest=after.slice(sep.length); if(!rest)continue;
+    if(sep==="" && /^(?:18|19|20|21)\d{2}[a-z]\b/i.test(val+rest.slice(0,1))) continue;
+    let parsed=null,rawUnit="";
+    for(const cand of unitCandidatePrefixes(rest)){
+      if(unitIsChemicalLike(cand))continue;
+      const p=unitParseExpression(cand); if(p&&p.valid){parsed=p;rawUnit=cand;break;}
+      if(UNIT_BAD_CASE[cand]||UNIT_NONSTANDARD[cand]||cand==="°K"){parsed=unitParseExpression(cand,{allowUnknown:true})||{raw:cand,valid:false};rawUnit=cand;break;}
+    }
+    if(!parsed){
+      const one=(rest.match(/^[A-Za-zµμΩ°%][A-Za-z0-9µμΩ°%²³⁻−^/·-]{0,16}/)||[])[0];
+      if(one&&unitStrongUnknown(one)&&(sep===""||/[\/µμ°%²³⁻^]/.test(one))){parsed={raw:one,valid:false,recognized:false,unknown:one,flags:{}};rawUnit=one;} else continue;
+    }
+    const param=unitInferParameter(text,m.index,parsed.valid?parsed:null),ctx=unitContextFlags(text,m.index);
+    out.push({value:val,rawUnit,parsed,parameter:param.key,parameterConfidence:param.confidence,context,external:ctx.external,snippet:ctx.snippet,index:m.index,space:sep});
+  }
+  return out;
+}
+function unitIssue(code,severity,msg,q,suggestion=""){return {code,severity,msg,parameter:q?.parameter||"",context:q?.context||"",snippet:q?.snippet||"",suggestion};}
+function unitStyleIssues(qs){
+  const issues=[];
+  qs.forEach(q=>{const p=q.parsed,raw=q.rawUnit;
+    if(!p||!p.valid){
+      if(p?.badCase||UNIT_BAD_CASE[raw])issues.push(unitIssue("UNIT_PREFIX_CASE","err",`Unit symbol "${raw}" has incorrect capitalization.`,q,`Use ${p?.suggested||UNIT_BAD_CASE[raw]}.`));
+      else if(p?.badKelvin||raw==="°K")issues.push(unitIssue("UNIT_INVALID_SYMBOL","err","Kelvin must not be written with a degree symbol.",q,"Use K."));
+      else if(p?.unknown)issues.push(unitIssue("UNIT_UNKNOWN","info",`Unrecognized unit expression "${raw}". Verify whether it is a valid discipline-specific unit.`,q));
+      return;
+    }
+    // Percentage spacing is style-convention based and is checked globally in
+    // unitPercentSpacingConsistency(). Do not force a space before % here.
+    if(q.space==="" && raw!=="%" && !/^[°′″]$/.test(raw)){
+      const code=raw==="°C"?"UNIT_CELSIUS_SPACING":"UNIT_NUMBER_SPACING";
+      issues.push(unitIssue(code,"info",`Add a space between the numerical value and unit (${q.value} ${raw}).`,q));
+    }
+    if(q.parameter==="temperature" && raw==="C") issues.push(unitIssue("UNIT_INVALID_SYMBOL","err","Temperature is written with C rather than the degree Celsius symbol.",q,"Use °C if Celsius temperature is intended."));
+    if(p.flags?.badKelvin)issues.push(unitIssue("UNIT_INVALID_SYMBOL","err","Kelvin must not use a degree symbol.",q,"Use K."));
+    if(p.flags?.multipleSolidus)issues.push(unitIssue("UNIT_MULTIPLE_SOLIDUS","err",`The compound unit "${raw}" contains repeated solidi and may be ambiguous.`,q,"Use negative exponents or explicit grouping."));
+    if(p.nonstandard||p.flags?.nonstandardToken)issues.push(unitIssue("UNIT_NONSTANDARD_SYMBOL","warn",`Non-standard unit symbol "${q.rawUnit}" detected.`,q,`Prefer ${p.normalized}.`));
+    if(p.flags?.microAscii)issues.push(unitIssue("UNIT_MICRO_SYMBOL_FORMAT","info",`ASCII "u" is used for the micro prefix in "${raw}".`,q,raw.replace(/\bu(?=[A-Za-z])/g,"µ")));
+    if(p.flags?.microGreek)issues.push(unitIssue("UNIT_MICRO_SYMBOL_FORMAT","info",`Greek mu (μ) is used in "${raw}"; use a consistent micro symbol throughout the manuscript.`,q));
+    if(p.flags?.plainPower||p.flags?.asciiExponent)issues.push(unitIssue("UNIT_EXPONENT_FORMAT_INCONSISTENT","info",`Unit exponent formatting in "${raw}" is validly interpretable but may be typographically inconsistent.`,q,"Use formatted superscripts consistently where supported."));
+    if(p.flags?.lowerLitre)issues.push(unitIssue("UNIT_NOTATION_INCONSISTENT","info",`Lowercase litre symbol detected in "${raw}".`,q,"Use L consistently if that is the manuscript convention."));
+    if(/\b(?:ppb|ppt)\b/i.test(raw))issues.push(unitIssue("UNIT_PPB_PPT_ADVISORY","info",`${raw.toLowerCase()} can be ambiguous across conventions.`,q,"Consider an explicit quantity ratio or concentration unit where ambiguity matters."));
+  });
+  return issues;
+}
+function unitPercentSpacingConsistency(qs){
+  const pcts=(qs||[]).filter(q=>q.parsed?.valid&&q.rawUnit==="%"&&!q.external);
+  if(pcts.length<2)return [];
+  const noSpace=pcts.filter(q=>q.space==="");
+  const spaced=pcts.filter(q=>q.space!=="");
+  if(!noSpace.length||!spaced.length)return [];
+
+  const dominant=noSpace.length>spaced.length?"no-space":spaced.length>noSpace.length?"spaced":"mixed";
+  const exemplar=dominant==="no-space"?spaced[0]:dominant==="spaced"?noSpace[0]:pcts[0];
+  const examplesNo=noSpace.slice(0,3).map(q=>`${q.value}%`).join(", ");
+  const examplesSp=spaced.slice(0,3).map(q=>`${q.value} %`).join(", ");
+  let suggestion;
+  if(dominant==="no-space") suggestion=`The manuscript predominantly uses no space before %. Use that style consistently unless the target journal requires otherwise.`;
+  else if(dominant==="spaced") suggestion=`The manuscript predominantly uses a space before %. Use that style consistently unless the target journal requires otherwise.`;
+  else suggestion=`Choose either spaced or unspaced percentage formatting and use it consistently throughout the manuscript, subject to the target journal style.`;
+
+  return [unitIssue(
+    "UNIT_PERCENT_SPACING_INCONSISTENT",
+    "info",
+    `Percentage spacing is inconsistent: ${noSpace.length} occurrence${noSpace.length===1?"":"s"} without a space and ${spaced.length} occurrence${spaced.length===1?"":"s"} with a space${examplesNo||examplesSp?`. Examples: ${examplesNo?`no-space ${examplesNo}`:""}${examplesNo&&examplesSp?"; ":""}${examplesSp?`spaced ${examplesSp}`:""}.`:"."}`,
+    exemplar,
+    suggestion
+  )];
+}
+function unitGroupConsistency(qs){
+  const issues=[]; const usable=qs.filter(q=>q.parsed?.valid&&q.parameterConfidence>=.7&&!q.external);
+  const groups=new Map(); usable.forEach(q=>{const k=(q.context.startsWith("Table ")?q.context+"|":"")+q.parameter+"|"+(q.parsed.analyte||"");if(!groups.has(k))groups.set(k,[]);groups.get(k).push(q);});
+  groups.forEach(g=>{
+    if(g.length<2)return;
+    const dimMap=new Map();g.forEach(q=>{const k=q.parsed.dimKey;if(!dimMap.has(k))dimMap.set(k,[]);dimMap.get(k).push(q);});
+    if(dimMap.size>1){
+      const counts=[...dimMap.values()].map(a=>a.length).sort((a,b)=>b-a); if(g.length>=2&&g.every(x=>x.parameterConfidence>=.85)){const q=g.find(x=>dimMap.get(x.parsed.dimKey).length===Math.min(...counts))||g[g.length-1];issues.push(unitIssue("UNIT_DIMENSION_MISMATCH","err",`Directly comparable ${q.parameter} values use dimensionally incompatible units: ${[...new Set(g.map(x=>x.rawUnit))].join(", ")}.`,q,"Verify the parameter basis and units before comparison."));} return;
+    }
+    const scaleGroups=new Map();g.forEach(q=>{const k=q.parsed.scaleKey+(q.parsed.affine?"|affine":"");if(!scaleGroups.has(k))scaleGroups.set(k,[]);scaleGroups.get(k).push(q);});
+    if(scaleGroups.size>1 && g.length>=3){const q=g[0];issues.push(unitIssue("UNIT_SCALE_INCONSISTENT","warn",`Directly comparable ${q.parameter} values use mixed unit scales: ${[...new Set(g.map(x=>x.rawUnit))].join(", ")}.`,q,"Consider one consistent unit scale if the values are intended for direct comparison."));return;}
+    const fam=[...new Set(g.map(q=>q.parsed.notationFamily+"|"+q.parsed.normalized))];
+    const raws=[...new Set(g.map(q=>q.rawUnit))];
+    if(raws.length>1&&fam.length>1&&g.length>=3){const q=g[0];issues.push(unitIssue("UNIT_NOTATION_INCONSISTENT","info",`The same ${q.parameter} unit is written in mixed notation: ${raws.join(", ")}.`,q,"Choose one valid notation consistently."));}
+  });
+  return issues;
+}
+function unitFindHeaderUnit(header){
+  header=(header||"").replace(/\u00A0/g," ").trim(); if(!header)return null;
+  const pars=[...header.matchAll(/\(([^()]{1,45})\)/g)].map(m=>m[1]);
+  for(let i=pars.length-1;i>=0;i--){const p=unitParseExpression(pars[i]);if(p?.valid)return {parsed:p,raw:pars[i],parameter:header.replace(/\([^()]*\)/g," ").replace(/\s+/g," ").trim()||"Table column"};}
+  const words=header.split(/\s+/).filter(Boolean);
+  for(let n=Math.min(5,words.length);n>=1;n--){const cand=words.slice(words.length-n).join(" ").replace(/^[,;:]+/,"");const p=unitParseExpression(cand);if(p?.valid){const parameter=words.slice(0,words.length-n).join(" ").replace(/[,;:]$/," ").trim()||"Table column";return {parsed:p,raw:cand,parameter};}}
+  return null;
+}
+function unitAnalyzeTables(tables){
+  const qs=[],issues=[];
+  (tables||[]).forEach(t=>{
+    if(!t.rows||t.rows.length<2)return; const max=Math.max(...t.rows.map(r=>r.length));
+    for(let c=0;c<max;c++){
+      let hi=null,headerRow=0;
+      for(let r=0;r<Math.min(3,t.rows.length);r++){const h=unitFindHeaderUnit(t.rows[r][c]||"");if(h){hi=h;headerRow=r;break;}}
+      if(!hi)continue;
+      let uses=0;
+      for(let r=headerRow+1;r<t.rows.length;r++){
+        const cell=(t.rows[r][c]||"").trim();if(!cell)continue;
+        const explicit=unitExtractQuantities(cell,`Table ${t.index}, ${hi.parameter}`);
+        if(explicit.length){
+          explicit.forEach(q=>{q.parameter=hi.parameter;q.parameterConfidence=.99;qs.push(q);uses++;if(q.parsed?.valid){if(q.parsed.dimKey!==hi.parsed.dimKey)issues.push(unitIssue("UNIT_TABLE_OVERRIDE","err",`Cell unit ${q.rawUnit} conflicts dimensionally with header unit ${hi.raw}.`,q,"Verify the cell value or table header."));else if(q.parsed.scaleKey!==hi.parsed.scaleKey)issues.push(unitIssue("UNIT_TABLE_OVERRIDE","warn",`Cell unit ${q.rawUnit} overrides the header scale ${hi.raw}.`,q,"Use the header unit consistently unless the override is intentional."));}});
+        }else if(/^[<>≤≥~≈]?\s*[-+]?\d+(?:\.\d+)?(?:\s*±\s*\d+(?:\.\d+)?)?\s*$/.test(cell)){
+          qs.push({value:cell,rawUnit:hi.raw,parsed:hi.parsed,parameter:hi.parameter,parameterConfidence:.99,context:`Table ${t.index}, ${hi.parameter}`,external:false,snippet:`Table ${t.index}, ${hi.parameter}: ${cell}`,space:" ",inherited:true});uses++;
+        }
+      }
+      if(uses===0)continue;
+    }
+  });
+  return {quantities:qs,issues};
+}
+function unitDedupIssues(issues){const seen=new Set();return issues.filter(x=>{const k=x.code+"|"+x.parameter+"|"+x.msg+"|"+x.context;if(seen.has(k))return false;seen.add(k);return true;});}
+function unitLedger(qs,issues){
+  const map=new Map();
+  qs.filter(q=>q.parsed?.valid).forEach(q=>{const key=q.parameter+"|"+q.context.replace(/, .*/,"")+"|"+q.parsed.dimKey+"|"+q.parsed.scaleKey; if(!map.has(key))map.set(key,{parameter:q.parameter,context:q.context.startsWith("Table ")?q.context.split(",")[0]:"Body",raws:new Map(),normalized:q.parsed.normalized,uses:0,status:"consistent"});const x=map.get(key);x.uses++;x.raws.set(q.rawUnit,(x.raws.get(q.rawUnit)||0)+1);});
+  const rows=[...map.values()];
+  rows.forEach(r=>{const rel=issues.filter(i=>i.parameter===r.parameter);if(rel.some(i=>i.code==="UNIT_DIMENSION_MISMATCH"||i.code==="UNIT_TABLE_OVERRIDE"&&i.severity==="err"))r.status="dimension mismatch";else if(rel.some(i=>i.code==="UNIT_SCALE_INCONSISTENT"||i.code==="UNIT_TABLE_OVERRIDE"))r.status="mixed scale";else if(rel.some(i=>i.code==="UNIT_NOTATION_INCONSISTENT"))r.status="mixed notation";});
+  return rows.sort((a,b)=>a.parameter.localeCompare(b.parameter)||a.context.localeCompare(b.context));
+}
+function unitAnalyze(text,tables){
+  let body=excludeReferences(text,true).text; body=stripHeadings(body).text;
+  const bodyQs=unitExtractQuantities(body,"Body"),tableRes=unitAnalyzeTables(tables),qs=bodyQs.concat(tableRes.quantities);
+  let issues=[...unitStyleIssues(qs),...unitPercentSpacingConsistency(qs),...tableRes.issues,...unitGroupConsistency(qs)];issues=unitDedupIssues(issues);
+  return {quantities:qs,issues,ledger:unitLedger(qs,issues),recognized:qs.filter(q=>q.parsed?.valid).length,unknown:qs.filter(q=>!q.parsed?.valid).length};
+}
+function unitStatusClass(s){return /dimension|invalid|mismatch/.test(s)?"n":/mixed/.test(s)?"na":"y";}
+function renderUnitReport(res){
+  LAST_UNIT=res;
+  $("unit-report-sub").textContent=res.issues.length?`${res.recognized} unit-bearing quantities detected · ${res.issues.length} item${res.issues.length===1?"":"s"} to review`:`${res.recognized} unit-bearing quantities detected · no unit-consistency issues detected`;
+  const counts={err:res.issues.filter(x=>x.severity==="err").length,warn:res.issues.filter(x=>x.severity==="warn").length,info:res.issues.filter(x=>x.severity==="info").length};
+  $("unit-summary").innerHTML=`<div class="scorecard"><div class="score ${counts.err?"err":"ok"}"><div class="n">${counts.err}</div><div class="k">Scientific</div></div><div class="score ${counts.warn?"warn":"ok"}"><div class="n">${counts.warn}</div><div class="k">Consistency</div></div><div class="score"><div class="n">${counts.info}</div><div class="k">Style</div></div><div class="score ok"><div class="n">${res.ledger.length}</div><div class="k">Unit groups</div></div></div>`;
+  let ih=""; if(!res.issues.length)ih=`<p class="verdict clean">No unit-consistency issues detected.</p>`;else{const order=["err","warn","info"];for(const sev of order){const a=res.issues.filter(x=>x.severity===sev);if(!a.length)continue;ih+=`<p class="sec-label">${sev==="err"?"Scientific issues":sev==="warn"?"Consistency issues":"Notation / review"} · ${a.length}</p>`;a.slice(0,250).forEach(it=>{const cls=sev==="err"?"err":sev==="warn"?"warn":"info",sym=cls==="err"?"×":cls==="warn"?"!":"i";ih+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,240))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;});}}
+  $("unit-findings").innerHTML=ih;
+  const rows=res.ledger.map(r=>{const obs=[...r.raws.entries()].map(([u,n])=>n>1?`${u} (${n})`:u).join("; ");const cls=unitStatusClass(r.status);return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td></tr>`;}).join("");
+  $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed unit</th><th>Normalized unit</th><th>Uses</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
+  $("unit-report").hidden=false;
+}
+function unitReportText(res){const L=["UNITS AND NOTATION REPORT","",`Unit-bearing quantities detected: ${res.recognized}`,`Items to review: ${res.issues.length}`,""];if(res.issues.length){L.push("ISSUES");res.issues.forEach(i=>{L.push(`${i.code} | ${i.parameter||"General"} | ${i.msg}`);if(i.context)L.push(`  Location: ${i.context}`);if(i.suggestion)L.push(`  Suggested: ${i.suggestion}`);});L.push("");}L.push("UNIT LEDGER","Parameter / context | Location | Observed unit | Normalized unit | Uses | Status");res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${r.uses} | ${r.status}`));return L.join("\n");}
+/* UNIT MODULE END */
+
+
+
+
+
+
+
 /* character right after an uppercase run that marks a chemical formula (subscript/superscript/charge) */
 const FORMULA_FOLLOW=/^[\u2080-\u2089\u2070-\u2079\u00B2\u00B3\u00B9\u207A\u207B]/;
 
@@ -695,13 +1016,6 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       }
     });
 
-  const unitRe=/\b\d+(?:\.\d+)?\s?(kgs|kms|mls|cms|mms|nms|lts|ltrs|hrs)\b/gi;
-  const badUnits=new Set(); let um;
-  while((um=unitRe.exec(text))!==null){ badUnits.add(um[1].toLowerCase()); }
-  if(badUnits.size){
-    warnings.push({abbr:"units", msg:`Pluralised unit${badUnits.size>1?"s":""} found (${[...badUnits].join(", ")}). Units of measure take no plural s. Write "5 kg", not "5 kgs".`, snip:null});
-  }
-
   const nonStd=rows.length;
   if(nonStd>=8 && !hasList){
     infos.push({abbr:null, msg:`You use ${nonStd} non-standard abbreviations but no "List of Abbreviations" or "Nomenclature" section was detected. Consider adding one for the reader's reference.`, snip:null});
@@ -808,6 +1122,7 @@ function reportText(r){
 let DOCX_NUMERIC_TABLES=[];
 let DOCX_FTE_BLOCKS=[];
 let LAST_FTE=null;
+let LAST_UNIT=null;
 
 
 /* ---------- Word structural extraction for Figures / Tables / Equations ---------- */
@@ -902,10 +1217,13 @@ function fteTableCaption(text){
   return m?{id:fteCanonId(m[1]),raw:m[0]}:null;
 }
 function fteNormalizeCrossRefText(text){
+  // Normalize whitespace around cross-reference labels without forcing one punctuation style.
+  // Preserve both full-word forms ("Equation 1") and abbreviated forms ("Eq. 1").
   return (text||"")
     .replace(/[\u00A0\u202F]/g," ")
-    .replace(/\b(Eq(?:uation)?s?|Fig(?:ure)?s?)\s*\.\s*/gi,"$1. ")
-    .replace(/\b(Eq(?:uation)?s?)\s*\.?(?=\d)/gi,"$1. ")
+    .replace(/\b(Eq|Eqs|Fig|Figs)\s*\.\s*/gi,"$1. ")
+    .replace(/\b(Equation|Equations|Figure|Figures|Table|Tables)\s*\.\s*/gi,"$1. ")
+    .replace(/\b(Eq|Eqs|Fig|Figs)\s*(?=\d)/gi,"$1. ")
     .replace(/\s+/g," ")
     .trim();
 }
@@ -967,7 +1285,7 @@ function fteExpandIds(expr){
   // "Eq.1 to Eq. 7" can be treated as the numeric range 1 to 7.
   const e=(expr||"")
     .replace(/\u2212/g,"-")
-    .replace(/\b(?:Figures?|Figs?\.?|Tables?|Equations?|Eqs?\.?)\s*/gi," ")
+    .replace(/\b(?:Figures?\.?|Figs?\.?|Tables?\.?|Equations?\.?|Eqs?\.?)\s*/gi," ")
     .replace(/[()]/g,"");
   // Simple numeric ranges, including S2-S5 and textual "S2 to S5".
   let r; const rr=/\b(S?)(\d+)\s*(?:[–—-]|\bto\b)\s*(S?)(\d+)\b/gi;
@@ -995,10 +1313,10 @@ function fteCitations(text,kind){
     expr=token+'(?:'+sep+token+')*';
   } else {
     token='\\(?[Ss]?\\d+(?:\\.\\d+)?\\)?';
-    head='(?:Equations?|Eqs?\\.?)';
+    head='(?:Equations?\\.?|Eqs?\\.?)';
     // Equation ranges are often written with the label repeated at both ends,
     // e.g. "Eq.1 to Eq. 7", "Eq. (1)-Eq. (7)", or "Equation 1 to Equation 7".
-    const repeatedHead='(?:Equations?|Eqs?\\.?)';
+    const repeatedHead='(?:Equations?\\.?|Eqs?\\.?)';
     expr=token+'(?:'+sep+'(?:'+repeatedHead+'\\s*)?'+token+')*';
   }
   // Word manuscripts commonly use both "Fig. 1" and compact "Fig.1".
@@ -1007,6 +1325,28 @@ function fteCitations(text,kind){
   while((m=re.exec(text))){ fteExpandIds(m[1]).forEach(id=>out.push({id,index:m.index,match:m[0]})); }
   return out;
 }
+function fteEquationCitationsLoose(text){
+  // Independent recovery pass for ordinary prose references. This is deliberately
+  // separate from displayed-equation identification so a valid prose citation can
+  // never disappear because of equation-layout heuristics.
+  text=fteNormalizeCrossRefText(text||"");
+  const out=[];
+  const re=/\b(?:Equation(?:s)?|Eq(?:s)?\.?)\s*\(?\s*([Ss]?\d+(?:\.\d+)?)\s*\)?(?:\s*(?:,|and|&|to|[-–—])\s*(?:(?:Equation(?:s)?|Eq(?:s)?\.?)\s*)?\(?\s*([Ss]?\d+(?:\.\d+)?)\s*\)?)?/gi;
+  let m;
+  while((m=re.exec(text))){
+    const a=fteCanonId(m[1]), b=m[2]?fteCanonId(m[2]):null;
+    if(a) out.push({id:a,index:m.index,match:m[0]});
+    if(b){
+      const sep=(m[0].match(/\bto\b|[-–—]/i)||[])[0];
+      const A=fteIdParts(a),B=fteIdParts(b);
+      if(sep && A&&B&&A.supp===B.supp&&A.parts.length===1&&B.parts.length===1&&B.parts[0]>=A.parts[0]&&B.parts[0]-A.parts[0]<=100){
+        for(let n=A.parts[0]+1;n<=B.parts[0];n++) out.push({id:(A.supp?"S":"")+n,index:m.index,match:m[0]});
+      }else out.push({id:b,index:m.index,match:m[0]});
+    }
+  }
+  return out;
+}
+
 function fteSnippet(t){ t=(t||"").replace(/\s+/g," ").trim(); return t.length>220?t.slice(0,217)+"…":t; }
 function fteIssue(issues,kind,id,code,msg,suggestion,context,severity="warn"){
   issues.push({kind,id,code,msg,suggestion,context:fteSnippet(context),severity});
@@ -1093,7 +1433,13 @@ function fteAnalyze(blocks){
       // instead of discarding the whole paragraph. This prevents prose + inline-math
       // paragraphs from losing legitimate cross-references.
       if(kind==="equation" && eqBlocks.has(i)) scanText=fteStripTerminalEquationLabel(scanText);
-      fteCitations(scanText,kind).forEach(c=>citations[kind].push({...c,pos:b.pos,context:b.text}));
+      const found=fteCitations(scanText,kind);
+      if(kind==="equation"){
+        fteEquationCitationsLoose(scanText).forEach(c=>{
+          if(!found.some(x=>x.id===c.id && x.index===c.index)) found.push(c);
+        });
+      }
+      found.forEach(c=>citations[kind].push({...c,pos:b.pos,context:b.text}));
     }
   });
 
@@ -2454,37 +2800,131 @@ function tableScalar(cell){
   if(!m) return null;
   return {raw:m[1],unit:nNormUnit(m[2]||"")};
 }
+function tableLooksLikeThresholdMatrix(rows){
+  const sample=(rows||[]).slice(0,6).flat().join(" ").replace(/\s+/g," ");
+  const boundHits=(sample.match(/\b(?:LB|UB|lower\s+bound|upper\s+bound|category|score\s+range|limit|threshold|standard)\b/gi)||[]).length;
+  const categoryRows=(rows||[]).filter(r=>/\b(?:good|satisfactory|moderate|poor|very\s+poor|severe|acceptable|category|class)\b/i.test((r||[]).join(" "))).length;
+  return boundHits>=2 || (boundHits>=1 && categoryRows>=2);
+}
+function tableRowLabel(row,c){
+  row=row||[];
+  for(let i=0;i<row.length;i++){
+    if(i===c) continue;
+    const t=String(row[i]||"").replace(/\s+/g," ").trim();
+    if(!t) continue;
+    if(!tableScalar(t)) return t.length>48?t.slice(0,45)+"…":t;
+  }
+  const t=String(row[0]||"").replace(/\s+/g," ").trim();
+  return t.length>48?t.slice(0,45)+"…":t;
+}
+function precisionVariantSummary(vals,dp,c,rows){
+  const subset=vals.filter(v=>nDec(v.raw)===dp);
+  const ex=subset.slice(0,3).map(v=>{
+    const label=tableRowLabel(rows[v.rowIndex],c);
+    return `${v.raw} (row ${v.row}${label?`, ${label}`:""})`;
+  });
+  return `${dp} decimal place${dp===1?"":"s"}: ${ex.join("; ")}${subset.length>3?`; +${subset.length-3} more`:""}`;
+}
 function precisionTableCheck(tables){
   const out=[];
   (tables||[]).forEach(tbl=>{
-    const rows=tbl.rows||[]; if(rows.length<4) return;
+    const rows=tbl.rows||[]; if(rows.length<3) return;
+
+    // Category bands, LB/UB matrices, regulatory limits, and other predefined
+    // threshold tables are exact/external values. Do not force decimal harmonisation.
+    if(tableLooksLikeThresholdMatrix(rows)) return;
+
     const maxCols=Math.max(...rows.map(r=>r.length));
     for(let c=0;c<maxCols;c++){
       const header=tableHeader(rows,c);
       if(/\b(?:sl\.?\s*no|serial|ref\.?|reference|year|date|id|sample\s*id|site\s*id|stp\s*id|number|no\.?|rank|n\s*=|count)\b/i.test(header)) continue;
+
       const vals=[];
       for(let r=1;r<rows.length;r++){
-        const x=tableScalar(rows[r][c]); if(x) vals.push(x);
+        const x=tableScalar(rows[r][c]);
+        if(x) vals.push({...x,row:r+1,rowIndex:r});
       }
-      if(vals.length<3) continue;
+
+      // Two values are enough when the header clearly identifies a measurement
+      // parameter/unit; otherwise require at least three values before inferring a pattern.
+      const comparableHeader=/\b(?:pH|BOD|COD|TSS|TDS|TN|TP|FC|DO|EC|temperature|temp\.?|pressure|flow|concentration|removal|efficiency|capacity|rate|yield|voltage|current|conductivity|turbidity)\b/i.test(header)
+        || /[([]\s*(?:mg|g|µg|μg|ng|kg|mL|L|m³|cm³|mm|cm|m|°C|K|Pa|kPa|MPa|%|µS|μS|mS|S\/m|CFU|MPN)\b/i.test(header);
+      if(vals.length<(comparableHeader?2:3)) continue;
+
       const units=[...new Set(vals.map(v=>v.unit).filter(Boolean))];
-      if(units.length>1) continue; // mixed units are not safely comparable without conversion metadata
+      if(units.length>1) continue; // Unit module handles mixed units.
+
       const raw=vals.map(v=>v.raw);
-      const decs=raw.map(nDec);
-      if(decs.every(d=>d===0)) continue; // likely counts/exact integers, no artificial decimals
-      if(!shouldFlagMixedPrecision(raw)) continue;
+      const dps=[...new Set(raw.map(nDec))].sort((a,b)=>a-b);
+      if(dps.length<2) continue;
+
+      // Do not compare exact integer-only columns. If decimals occur, infer the
+      // observed reporting pattern and show the conflicting forms together.
+      if(raw.every(v=>nDec(v)===0)) continue;
+      if(!shouldFlagMixedPrecision(raw) && vals.length<4) continue;
+
       const dom=dominantDecimal(raw);
-      // Need a meaningful dominant pattern for a table warning; otherwise do not force visual uniformity.
-      if(dom.count/raw.length<0.60 && Math.max(...dom.unique)-Math.min(...dom.unique)<2) continue;
-      const examples=raw.slice(0,8).join(", ")+(raw.length>8?", …":"");
-      out.push({cat:"table",msg:`Word table ${tbl.index}, ${header}: numeric values use mixed decimal precision (${examples}). Values in one parameter column are usually directly comparable, but verify measurement resolution before standardising. Dominant reporting uses ${dom.dp} decimal place${dom.dp===1?"":"s"}.`,snippet:""});
+      const dominantShare=dom.count/raw.length;
+      const variants=dps.map(dp=>precisionVariantSummary(vals,dp,c,rows));
+      const loc=`Word table ${tbl.index}, column ${c+1} (${header})`;
+
+      let msg;
+      if(dominantShare>=0.60){
+        const conflicts=vals.filter(v=>nDec(v.raw)!==dom.dp);
+        const conflictText=conflicts.slice(0,5).map(v=>{
+          const label=tableRowLabel(rows[v.rowIndex],c);
+          return `${v.raw} at row ${v.row}${label?` [${label}]`:""}`;
+        }).join("; ");
+        const comparison=vals.filter(v=>nDec(v.raw)===dom.dp).slice(0,3).map(v=>{
+          const label=tableRowLabel(rows[v.rowIndex],c);
+          return `${v.raw} at row ${v.row}${label?` [${label}]`:""}`;
+        }).join("; ");
+        msg=`${loc}: inconsistent precision pattern. The dominant reporting pattern uses ${dom.dp} decimal place${dom.dp===1?"":"s"}, but ${conflictText} ${conflicts.length===1?"does":"do"} not follow it. Compare with ${comparison}. Verify the measurement resolution before standardising.`;
+      }else{
+        msg=`${loc}: directly comparable values use more than one precision pattern. ${variants.join(" | ")}. No single pattern clearly dominates, so verify the measurement resolution and choose a consistent scientifically justified format.`;
+      }
+
+      // Show only the relevant cells, not the entire table rows.
+      const examples=[];
+      dps.forEach(dp=>{
+        vals.filter(v=>nDec(v.raw)===dp).slice(0,2).forEach(v=>{
+          const label=tableRowLabel(rows[v.rowIndex],c);
+          examples.push(`<b>Row ${v.row}${label?` [${escapeHtml(label)}]`:""}:</b> <mark>${escapeHtml(v.raw)}</mark>`);
+        });
+      });
+      out.push({cat:"table",msg,snippet:examples.join("<br>")});
     }
   });
   return out;
 }
 
 function numberCheck(text,tables=[]){
-  const out=[]; const sents=splitIntoSentences(text); const phDec=[];
+  const out=[]; const sents=splitIntoSentences(text);
+
+  // Collect pH reporting forms globally so inconsistent forms are reported together.
+  // Ranges and inequalities are handled separately below.
+  const phOcc=[];
+  const phRe=/\bpH\b\s*(?:=|:|of\s+)?\s*(?:(?:was|were|is|are|of|to|at|reached|became|remained|near|around|about|approximately|adjusted\s+to|set\s+to|maintained\s+at|kept\s+at|held\s+at|fixed\s+at|controlled\s+at|equal\s+to|close\s+to)\s+)*[~≈]?\s*(\d{1,2}(?:\.\d+)?)(?!\s*[-–—<>=≤≥\d])/ig;
+  let phm;
+  while((phm=phRe.exec(text))){
+    phOcc.push({raw:phm[1],dp:nDec(phm[1]),idx:phm.index,len:phm[0].length,match:phm[0]});
+  }
+  const phDps=[...new Set(phOcc.map(x=>x.dp))].sort((a,b)=>a-b);
+  const mixedPh=phDps.length>1;
+  if(mixedPh){
+    const groups=phDps.map(dp=>{
+      const g=phOcc.filter(x=>x.dp===dp);
+      const ex=g.slice(0,3).map(x=>`"${x.match}"`).join(", ");
+      return `${dp} decimal place${dp===1?"":"s"}: ${ex}${g.length>3?` (+${g.length-3} more)`:""}`;
+    });
+    const snippets=[];
+    phDps.forEach(dp=>phOcc.filter(x=>x.dp===dp).slice(0,2).forEach(x=>snippets.push(numSnip(text,x.idx,x.len))));
+    out.push({
+      cat:"pH",
+      msg:`pH reporting is inconsistent across directly comparable occurrences. ${groups.join(" | ")}. Use one scientifically justified precision consistently; measured pH should normally retain at least one decimal place when supported by the measurement.`,
+      snippet:snippets.join("<br><br>")
+    });
+  }
   sents.forEach(s=>{
     let m;
     const rw=/\bpH\s*(?:=|:|of\s+)?\s*(zero|one|two|three|four|five|six|seven|eight|nine|ten)\b/ig;
@@ -2494,8 +2934,7 @@ function numberCheck(text,tables=[]){
     const rt=/\bpH\s*([<>]=?|\u2264|\u2265)\s*(\d+)(?!\.\d)/ig;
     while((m=rt.exec(s))) out.push({cat:"pH",msg:"pH threshold given as an integer; use at least one decimal place if it is a measured value (for example pH < 4.0). Preserve authoritative or standard-defined thresholds as written.",snippet:numSnip(s,m.index,m[0].length)});
     const rv=/\bpH\b\s*(?:=|:)?\s*(?:(?:was|were|is|are|of|to|at|reached|became|remained|near|around|about|approximately|adjusted\s+to|set\s+to|maintained\s+at|kept\s+at|held\s+at|fixed\s+at|controlled\s+at|equal\s+to|close\s+to)\s+)*[~\u2248]?\s*(\d{1,2})(?!\s*\.\d)(?!\s*[-\u2013\u2014<>=\u2264\u2265\d])/ig;
-    while((m=rv.exec(s))){ const v=m[1]; if(v==="7"&&/neutral/i.test(s)) continue; out.push({cat:"pH",msg:`pH ${v} is reported without a decimal place; report to at least one decimal (for example pH ${v}.0) if the measurement supports it, or verify the original precision.`,snippet:numSnip(s,m.index,m[0].length)}); }
-    let dm; const rd=/\bpH\s*(?:=|:)?\s*\d+\.(\d+)/ig; while((dm=rd.exec(s))) phDec.push(dm[1].length);
+    while((m=rv.exec(s))){ const v=m[1]; if(v==="7"&&/neutral/i.test(s)) continue; if(!mixedPh) out.push({cat:"pH",msg:`pH ${v} is reported without a decimal place; report to at least one decimal (for example pH ${v}.0) if the measurement supports it, or verify the original precision.`,snippet:numSnip(s,m.index,m[0].length)}); }
     const lz=/(?<![\w.])\.\d+/g;
     while((m=lz.exec(s))) out.push({cat:"zero",msg:`Add a leading zero: write 0${m[0]} instead of ${m[0]}.`,snippet:numSnip(s,m.index,m[0].length)});
     const st=s.replace(/^["'\u201C(\[]+/,""); const off=s.length-st.length;
@@ -2512,8 +2951,6 @@ function numberCheck(text,tables=[]){
       out.push({cat:"count",msg:`Spell out small whole numbers used as ordinary counts in prose: write "${NUM_WORD9[digit]} ${word}" rather than "${digit} ${word}". Keep numerals for measurements, statistics, and labels.`,snippet:numSnip(s,m.index+m[1].length,m[0].length-m[1].length)});
     }
   });
-  const dd=[...new Set(phDec)];
-  if(dd.length>1) out.push({cat:"pH",msg:`Measured pH values use mixed decimal precision (${dd.sort().join(" and ")} places). Use consistent precision only where the measurements are directly comparable and the analytical resolution justifies it.`,snippet:""});
 
   out.push(...precisionBodyCheck(text));
   out.push(...precisionTableCheck(tables));
@@ -2601,6 +3038,12 @@ $("run").onclick=async()=>{
       renderNumReport(numberCheck(nb,DOCX_NUMERIC_TABLES));
     }catch(e){ console.error("number check failed:",e); }
 
+    // Units & notation (references excluded; Word tables inherit header units)
+    try{
+      status("Checking units and notation…");
+      renderUnitReport(unitAnalyze(text,DOCX_NUMERIC_TABLES));
+    }catch(e){ console.error("unit check failed:",e); renderUnitReport({quantities:[],issues:[],ledger:[],recognized:0,unknown:0}); }
+
     // Figures, tables and numbered equations (Word structure preserves physical order)
     try{
       status("Checking figures, tables and equations…");
@@ -2618,14 +3061,16 @@ $("run").onclick=async()=>{
 $("clear").onclick=()=>{
   currentFile=null; fileInput.value=""; chip.style.display="none";
   $("title").value=""; $("ref-style").value="";
-  $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("fte-report").hidden=true;
+  $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
-  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; DOCX_FTE_BLOCKS=[];
+  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; DOCX_FTE_BLOCKS=[];
 };
 
 $("ref-download").onclick=()=>{ if(!LAST_REF_OUT) return; const blob=new Blob([refReportText(LAST_REF_OUT.res,LAST_REF_OUT.cross)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reference-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("ref-print").onclick=()=>window.print();
 $("num-print").onclick=()=>window.print();
+$("unit-download").onclick=()=>{ if(!LAST_UNIT) return; const blob=new Blob([unitReportText(LAST_UNIT)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="units-notation-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
+$("unit-print").onclick=()=>window.print();
 $("fte-download").onclick=()=>{ if(!LAST_FTE) return; const blob=new Blob([fteReportText(LAST_FTE)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="figure-table-equation-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("fte-print").onclick=()=>window.print();
 
