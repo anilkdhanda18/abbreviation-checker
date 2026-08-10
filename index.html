@@ -266,7 +266,7 @@
       <li><b>Sentence start.</b> Beginning a sentence with a numeral is flagged so the sentence can be restructured.</li>
       <li><b>Comparable precision.</b> Decimal places or significant figures are compared only within scientifically plausible groups, not across unrelated quantities.</li>
       <li><b>Table-column precision.</b> Checks consistent precision within the same parameter column.</li>
-      <li><b>Uncertainty and ranges.</b> Values paired with ± uncertainty and endpoints of the same range are checked for compatible decimal positions.</li>
+      <li><b>Uncertainty and ranges.</b> A reported value and its ± variation/uncertainty should use the same decimal place; range endpoints are also checked for compatible precision.</li>
       <li><b>Statistics.</b> p-values, percentages, confidence-style numerical series, and scientific notation receive conservative consistency checks.</li>
       <li><b>No false precision.</b> The checker does not automatically add trailing zeros, remove justified digits, or alter standards and literature values. It flags uncertain precision for author review.</li>
     </ol>
@@ -280,7 +280,7 @@
     <div id="unit-summary"></div>
     <div id="unit-findings"></div>
     <div id="unit-ledger-wrap"></div>
-    <p class="disclaimer">This check distinguishes scientific unit errors from valid differences in notation or scale. References are excluded, Word-table header units are inherited by the cells beneath them, and unit consistency is assessed only within scientifically comparable groups. The checker does not automatically convert or alter manuscript values.</p>
+    <p class="disclaimer">This check focuses on internal unit consistency. References and affiliations are excluded. The checker looks for meaningful inconsistencies in repeated unit notation or numerical precision; harmless exponent typography such as m2, m^2, and m² is treated as equivalent. It does not require SI notation and does not compare unrelated units.</p>
     <div class="report-actions">
       <button class="btn btn-ghost" id="unit-download">Download report (.txt)</button>
       <button class="btn btn-ghost" id="unit-print">Print or save as PDF</button>
@@ -290,12 +290,12 @@
   <details class="rules">
     <summary>What the units and notation check covers</summary>
     <ol>
-      <li><b>Unit recognition.</b> SI, accepted non-SI, and common environmental-engineering units are recognized as measurement units rather than abbreviations.</li>
-      <li><b>Equivalent notation.</b> Forms such as <code>mg/L</code>, <code>mg L⁻¹</code>, and <code>mg·L⁻¹</code> are treated as the same physical unit while mixed notation can still be reported as a style issue.</li>
-      <li><b>Dimensional compatibility.</b> Directly comparable quantities are checked for incompatible dimensions and mixed unit scales without forcing unrelated parameters into one unit.</li>
-      <li><b>SI-style notation.</b> Number-unit spacing, °C and K usage, prefix capitalization, pluralized/non-standard symbols, repeated solidi, micro-symbol typography, and exponent formatting are checked conservatively.</li>
+      <li><b>Unit recognition.</b> Common scientific and environmental-engineering unit expressions are recognized as measurement units rather than abbreviations.</li>
+      <li><b>Same-unit format.</b> Equivalent forms such as <code>mg/L</code>, <code>mg L⁻¹</code>, and <code>mg·L⁻¹</code> are recognized as the same unit; mixed use is reported only as an internal consistency issue.</li>
+      <li><b>Same-unit precision.</b> Repeated values for the same parameter and same unit are checked for inconsistent numerical precision, for example <code>10 mg/L</code> versus <code>10.0 mg/L</code>.</li>
+      <li><b>Convention consistency.</b> A notation is not rejected merely because it is non-SI. If one format is used consistently, it is accepted; mixed formatting of the same unit is reported.</li>
       <li><b>Analyte basis.</b> Expressions such as <code>mg N/L</code>, <code>mg NO3-N/L</code>, and <code>mg COD/L</code> retain their analytical basis rather than being merged solely by physical dimension.</li>
-      <li><b>Word tables.</b> A header such as <code>BOD (mg/L)</code> supplies the unit context to numeric cells below it; an explicit conflicting cell unit is flagged.</li>
+      <li><b>Word tables.</b> A header such as <code>BOD (mg/L)</code> supplies unit context to the numeric cells below it. Precision is compared only within the same parameter and unit.</li>
       <li><b>No automatic data edits.</b> The checker may compare conversion factors internally but does not rewrite numerical results or invent measurement precision.</li>
     </ol>
   </details>
@@ -543,71 +543,198 @@ function unitExtractQuantities(text,context="body"){
   return out;
 }
 function unitIssue(code,severity,msg,q,suggestion=""){return {code,severity,msg,parameter:q?.parameter||"",context:q?.context||"",snippet:q?.snippet||"",suggestion};}
-function unitStyleIssues(qs){
+
+function unitConsistencyKey(q){
+  if(!q?.parsed?.valid)return null;
+  // Same physical unit and scale. This is used only to identify alternate
+  // written forms of the SAME unit, never to compare different dimensions.
+  return `${q.parsed.dimKey}|${q.parsed.scaleKey}|${q.parsed.affine?"affine":""}|${q.parsed.analyte||""}`;
+}
+function unitRawFormatKey(q){
+  /*
+    Compare meaningful unit notation, not harmless exponent typography.
+
+    These are treated as the SAME written unit for consistency checking:
+      m2   = m^2   = m²
+      m3   = m^3   = m³
+      cm2  = cm^2  = cm²
+
+    This prevents false UNIT_FORMAT_INCONSISTENT findings caused only by
+    Word superscript formatting. Structural notation remains distinct, so
+    mg/L and mg L^-1 can still be compared as different notation families.
+  */
+  let s=unitNormalizeMicro((q.rawUnit||"")
+    .replace(/\u00A0|\u202F/g," ")
+    .replace(/\s+/g," ")
+    .trim());
+
+  // Convert Unicode superscripts to caret notation.
+  s=unitSuperToAscii(s);
+
+  // Convert common plain-text powers to the same caret representation.
+  // Restrict this to recognised unit-like alphabetic tokens and powers 2/3.
+  s=s.replace(/\b([A-Za-zµΩ]+)([23])\b/g,"$1^$2");
+
+  // Normalize optional whitespace around a solidus without changing the
+  // underlying solidus-versus-negative-exponent notation family.
+  s=s.replace(/\s*\/\s*/g,"/");
+
+  return s;
+}
+function unitScalarDecimals(v){
+  v=(v||"").trim();
+  // Precision comparison is limited to simple scalar reported values.
+  // Ranges, uncertainty expressions and scientific notation are handled by
+  // the dedicated numeric-precision checker.
+  if(/[±×x]|(?:\bto\b)|[–—]|[eE][+-]?\d+/.test(v))return null;
+  const m=v.match(/^[<>≤≥~≈]?\s*[-+]?(\d+)(?:\.(\d+))?\s*$/);
+  return m?(m[2]||"").length:null;
+}
+function unitShortContext(q){
+  const s=(q?.snippet||q?.context||"").replace(/\s+/g," ").trim();
+  return s.length>145?s.slice(0,142)+"…":s;
+}
+function unitExcludeAffiliations(text){
+  text=text||"";
+  const lines=text.split(/\n/);
+
+  // In a normal research manuscript, everything before the standalone
+  // ABSTRACT heading is front matter. Excluding it is the safest way to
+  // prevent department addresses, postal codes, phone numbers and author
+  // affiliations from entering unit consistency analysis.
+  const abs=lines.findIndex((l,i)=>i<100 && /^\s*(?:\d+(?:\.\d+)*\.?\s*)?ABSTRACT\s*:?\s*$/i.test(l.replace(/[*_`#>]/g,"").trim()));
+  if(abs>=0)return lines.slice(abs).join("\n");
+
+  // Conservative fallback where no explicit ABSTRACT heading exists.
+  const aff=/\b(?:department|school|faculty|college|university|institute|institution|centre|center|laborator(?:y|ies)|division|hospital|ministry|academy|research\s+centre|research\s+center)\b/i;
+  const contact=/\b(?:corresponding author|e-?mail|email|orcid|telephone|phone|fax|postal|postcode|zip)\b/i;
+  return lines.map((l,i)=>{
+    if(i<60 && (aff.test(l)||contact.test(l)))return "";
+    return l;
+  }).join("\n");
+}
+function unitNotationConsistency(qs){
   const issues=[];
-  qs.forEach(q=>{const p=q.parsed,raw=q.rawUnit;
-    if(!p||!p.valid){
-      if(p?.badCase||UNIT_BAD_CASE[raw])issues.push(unitIssue("UNIT_PREFIX_CASE","err",`Unit symbol "${raw}" has incorrect capitalization.`,q,`Use ${p?.suggested||UNIT_BAD_CASE[raw]}.`));
-      else if(p?.badKelvin||raw==="°K")issues.push(unitIssue("UNIT_INVALID_SYMBOL","err","Kelvin must not be written with a degree symbol.",q,"Use K."));
-      else if(p?.unknown)issues.push(unitIssue("UNIT_UNKNOWN","info",`Unrecognized unit expression "${raw}". Verify whether it is a valid discipline-specific unit.`,q));
-      return;
-    }
-    // Percentage spacing is style-convention based and is checked globally in
-    // unitPercentSpacingConsistency(). Do not force a space before % here.
-    if(q.space==="" && raw!=="%" && !/^[°′″]$/.test(raw)){
-      const code=raw==="°C"?"UNIT_CELSIUS_SPACING":"UNIT_NUMBER_SPACING";
-      issues.push(unitIssue(code,"info",`Add a space between the numerical value and unit (${q.value} ${raw}).`,q));
-    }
-    if(q.parameter==="temperature" && raw==="C") issues.push(unitIssue("UNIT_INVALID_SYMBOL","err","Temperature is written with C rather than the degree Celsius symbol.",q,"Use °C if Celsius temperature is intended."));
-    if(p.flags?.badKelvin)issues.push(unitIssue("UNIT_INVALID_SYMBOL","err","Kelvin must not use a degree symbol.",q,"Use K."));
-    if(p.flags?.multipleSolidus)issues.push(unitIssue("UNIT_MULTIPLE_SOLIDUS","err",`The compound unit "${raw}" contains repeated solidi and may be ambiguous.`,q,"Use negative exponents or explicit grouping."));
-    if(p.nonstandard||p.flags?.nonstandardToken)issues.push(unitIssue("UNIT_NONSTANDARD_SYMBOL","warn",`Non-standard unit symbol "${q.rawUnit}" detected.`,q,`Prefer ${p.normalized}.`));
-    if(p.flags?.microAscii)issues.push(unitIssue("UNIT_MICRO_SYMBOL_FORMAT","info",`ASCII "u" is used for the micro prefix in "${raw}".`,q,raw.replace(/\bu(?=[A-Za-z])/g,"µ")));
-    if(p.flags?.microGreek)issues.push(unitIssue("UNIT_MICRO_SYMBOL_FORMAT","info",`Greek mu (μ) is used in "${raw}"; use a consistent micro symbol throughout the manuscript.`,q));
-    if(p.flags?.plainPower||p.flags?.asciiExponent)issues.push(unitIssue("UNIT_EXPONENT_FORMAT_INCONSISTENT","info",`Unit exponent formatting in "${raw}" is validly interpretable but may be typographically inconsistent.`,q,"Use formatted superscripts consistently where supported."));
-    if(p.flags?.lowerLitre)issues.push(unitIssue("UNIT_NOTATION_INCONSISTENT","info",`Lowercase litre symbol detected in "${raw}".`,q,"Use L consistently if that is the manuscript convention."));
-    if(/\b(?:ppb|ppt)\b/i.test(raw))issues.push(unitIssue("UNIT_PPB_PPT_ADVISORY","info",`${raw.toLowerCase()} can be ambiguous across conventions.`,q,"Consider an explicit quantity ratio or concentration unit where ambiguity matters."));
+  const usable=(qs||[]).filter(q=>q.parsed?.valid&&!q.external);
+  const groups=new Map();
+  usable.forEach(q=>{
+    const k=unitConsistencyKey(q);
+    if(!k)return;
+    if(!groups.has(k))groups.set(k,[]);
+    groups.get(k).push(q);
+  });
+
+  groups.forEach(g=>{
+    if(g.length<2)return;
+
+    // A different scale is a different unit for this checker. Therefore
+    // W/m3 and mW/m2, mg/L and h, etc. can never land in the same group.
+    const forms=new Map();
+    g.forEach(q=>{
+      const k=unitRawFormatKey(q);
+      if(!forms.has(k))forms.set(k,[]);
+      forms.get(k).push(q);
+    });
+    if(forms.size<=1)return;
+
+    // Only report genuine representational variants of one parsed unit.
+    // All items already have identical dimension + scale + analyte basis.
+    const counts=[...forms.entries()].sort((a,b)=>b[1].length-a[1].length);
+    const dominant=counts[0];
+    const total=g.length;
+    const examples=counts.slice(0,4).map(([f,a])=>`${f} (${a.length})`).join(", ");
+    const sampleQs=counts.slice(0,3).map(x=>x[1][0]);
+    issues.push({
+      code:"UNIT_FORMAT_INCONSISTENT",
+      severity:"warn",
+      msg:`The same unit is written in more than one format: ${examples}. Use one format consistently throughout the manuscript.`,
+      parameter:sampleQs[0]?.parameter||"Unit",
+      context:"Body/table occurrences",
+      snippet:sampleQs.map(q=>unitShortContext(q)).filter(Boolean).join(" | "),
+      suggestion:`The dominant form is "${dominant[0]}" (${dominant[1].length} of ${total} occurrences). Keep either valid form, but use the chosen form consistently.`
+    });
   });
   return issues;
 }
-function unitPercentSpacingConsistency(qs){
-  const pcts=(qs||[]).filter(q=>q.parsed?.valid&&q.rawUnit==="%"&&!q.external);
-  if(pcts.length<2)return [];
-  const noSpace=pcts.filter(q=>q.space==="");
-  const spaced=pcts.filter(q=>q.space!=="");
-  if(!noSpace.length||!spaced.length)return [];
-
-  const dominant=noSpace.length>spaced.length?"no-space":spaced.length>noSpace.length?"spaced":"mixed";
-  const exemplar=dominant==="no-space"?spaced[0]:dominant==="spaced"?noSpace[0]:pcts[0];
-  const examplesNo=noSpace.slice(0,3).map(q=>`${q.value}%`).join(", ");
-  const examplesSp=spaced.slice(0,3).map(q=>`${q.value} %`).join(", ");
-  let suggestion;
-  if(dominant==="no-space") suggestion=`The manuscript predominantly uses no space before %. Use that style consistently unless the target journal requires otherwise.`;
-  else if(dominant==="spaced") suggestion=`The manuscript predominantly uses a space before %. Use that style consistently unless the target journal requires otherwise.`;
-  else suggestion=`Choose either spaced or unspaced percentage formatting and use it consistently throughout the manuscript, subject to the target journal style.`;
-
-  return [unitIssue(
-    "UNIT_PERCENT_SPACING_INCONSISTENT",
-    "info",
-    `Percentage spacing is inconsistent: ${noSpace.length} occurrence${noSpace.length===1?"":"s"} without a space and ${spaced.length} occurrence${spaced.length===1?"":"s"} with a space${examplesNo||examplesSp?`. Examples: ${examplesNo?`no-space ${examplesNo}`:""}${examplesNo&&examplesSp?"; ":""}${examplesSp?`spaced ${examplesSp}`:""}.`:"."}`,
-    exemplar,
-    suggestion
-  )];
-}
-function unitGroupConsistency(qs){
-  const issues=[]; const usable=qs.filter(q=>q.parsed?.valid&&q.parameterConfidence>=.7&&!q.external);
-  const groups=new Map(); usable.forEach(q=>{const k=(q.context.startsWith("Table ")?q.context+"|":"")+q.parameter+"|"+(q.parsed.analyte||"");if(!groups.has(k))groups.set(k,[]);groups.get(k).push(q);});
+function unitSpacingConsistency(qs){
+  const issues=[];
+  const usable=(qs||[]).filter(q=>q.parsed?.valid&&!q.external);
+  const groups=new Map();
+  usable.forEach(q=>{
+    const k=unitConsistencyKey(q)+"|"+unitRawFormatKey(q);
+    if(!groups.has(k))groups.set(k,[]);
+    groups.get(k).push(q);
+  });
   groups.forEach(g=>{
     if(g.length<2)return;
-    const dimMap=new Map();g.forEach(q=>{const k=q.parsed.dimKey;if(!dimMap.has(k))dimMap.set(k,[]);dimMap.get(k).push(q);});
-    if(dimMap.size>1){
-      const counts=[...dimMap.values()].map(a=>a.length).sort((a,b)=>b-a); if(g.length>=2&&g.every(x=>x.parameterConfidence>=.85)){const q=g.find(x=>dimMap.get(x.parsed.dimKey).length===Math.min(...counts))||g[g.length-1];issues.push(unitIssue("UNIT_DIMENSION_MISMATCH","err",`Directly comparable ${q.parameter} values use dimensionally incompatible units: ${[...new Set(g.map(x=>x.rawUnit))].join(", ")}.`,q,"Verify the parameter basis and units before comparison."));} return;
-    }
-    const scaleGroups=new Map();g.forEach(q=>{const k=q.parsed.scaleKey+(q.parsed.affine?"|affine":"");if(!scaleGroups.has(k))scaleGroups.set(k,[]);scaleGroups.get(k).push(q);});
-    if(scaleGroups.size>1 && g.length>=3){const q=g[0];issues.push(unitIssue("UNIT_SCALE_INCONSISTENT","warn",`Directly comparable ${q.parameter} values use mixed unit scales: ${[...new Set(g.map(x=>x.rawUnit))].join(", ")}.`,q,"Consider one consistent unit scale if the values are intended for direct comparison."));return;}
-    const fam=[...new Set(g.map(q=>q.parsed.notationFamily+"|"+q.parsed.normalized))];
-    const raws=[...new Set(g.map(q=>q.rawUnit))];
-    if(raws.length>1&&fam.length>1&&g.length>=3){const q=g[0];issues.push(unitIssue("UNIT_NOTATION_INCONSISTENT","info",`The same ${q.parameter} unit is written in mixed notation: ${raws.join(", ")}.`,q,"Choose one valid notation consistently."));}
+    const joined=g.filter(q=>q.space==="");
+    const spaced=g.filter(q=>q.space!=="");
+    if(!joined.length||!spaced.length)return;
+    const unit=unitRawFormatKey(g[0]);
+    const noEx=joined.slice(0,2).map(q=>`${q.value}${unit}`).join(", ");
+    const spEx=spaced.slice(0,2).map(q=>`${q.value} ${unit}`).join(", ");
+    const dominant=joined.length>spaced.length?"no-space":spaced.length>joined.length?"spaced":"mixed";
+    issues.push({
+      code:unit==="%"?"UNIT_PERCENT_SPACING_INCONSISTENT":"UNIT_SPACING_INCONSISTENT",
+      severity:"info",
+      msg:`Spacing is inconsistent for the same unit "${unit}": ${joined.length} occurrence${joined.length===1?"":"s"} without a space and ${spaced.length} with a space. Examples: ${noEx}; ${spEx}.`,
+      parameter:g[0].parameter||unit,
+      context:"Body/table occurrences",
+      snippet:[joined[0],spaced[0]].map(q=>unitShortContext(q)).join(" | "),
+      suggestion:dominant==="mixed"?"Choose either spacing convention and use it consistently.":`The manuscript predominantly uses the ${dominant} form for this unit. Use that convention consistently.`
+    });
+  });
+  return issues;
+}
+function unitPrecisionConsistency(qs){
+  const issues=[];
+  const usable=(qs||[]).filter(q=>
+    q.parsed?.valid &&
+    !q.external &&
+    q.parameterConfidence>=.85 &&
+    q.parameter &&
+    q.parameter!=="Body text" &&
+    q.parameter!=="percentage"
+  );
+
+  // Precision is intentionally stricter than notation matching: values must
+  // share the same inferred parameter AND the same physical unit/scale.
+  const groups=new Map();
+  usable.forEach(q=>{
+    const dp=unitScalarDecimals(q.value);
+    if(dp===null)return;
+    const scope=q.context.startsWith("Table ")?q.context.split(",")[0]:"Body";
+    const k=`${scope}|${q.parameter}|${unitConsistencyKey(q)}`;
+    if(!groups.has(k))groups.set(k,[]);
+    groups.get(k).push({...q,dp});
+  });
+
+  groups.forEach(g=>{
+    if(g.length<2)return;
+    const dpMap=new Map();
+    g.forEach(q=>{if(!dpMap.has(q.dp))dpMap.set(q.dp,[]);dpMap.get(q.dp).push(q);});
+    if(dpMap.size<=1)return;
+
+    const variants=[...dpMap.entries()].sort((a,b)=>b[1].length-a[1].length);
+    const dominant=variants[0], share=dominant[1].length/g.length;
+    const unit=unitRawFormatKey(g[0]);
+    const desc=variants.map(([dp,a])=>{
+      const ex=a.slice(0,3).map(q=>`${q.value} ${unit}`).join(", ");
+      return `${dp} decimal place${dp===1?"":"s"}: ${ex}${a.length>3?` (+${a.length-3} more)`:""}`;
+    }).join(" | ");
+    const snippets=variants.slice(0,3).map(x=>unitShortContext(x[1][0])).filter(Boolean).join(" | ");
+
+    issues.push({
+      code:"UNIT_PRECISION_INCONSISTENT",
+      severity:"warn",
+      msg:`${g[0].parameter} values reported in the same unit (${unit}) use inconsistent numerical precision. ${desc}.`,
+      parameter:g[0].parameter,
+      context:g[0].context.startsWith("Table ")?g[0].context.split(",")[0]:"Body",
+      snippet:snippets,
+      suggestion:share>=.60
+        ?`The dominant pattern uses ${dominant[0]} decimal place${dominant[0]===1?"":"s"}. Verify measurement resolution before making the other occurrences consistent.`
+        :"No single precision pattern clearly dominates. Verify measurement resolution and choose one scientifically justified precision for directly comparable values."
+    });
   });
   return issues;
 }
@@ -620,55 +747,163 @@ function unitFindHeaderUnit(header){
   return null;
 }
 function unitAnalyzeTables(tables){
-  const qs=[],issues=[];
+  const qs=[];
   (tables||[]).forEach(t=>{
     if(!t.rows||t.rows.length<2)return; const max=Math.max(...t.rows.map(r=>r.length));
     for(let c=0;c<max;c++){
       let hi=null,headerRow=0;
       for(let r=0;r<Math.min(3,t.rows.length);r++){const h=unitFindHeaderUnit(t.rows[r][c]||"");if(h){hi=h;headerRow=r;break;}}
       if(!hi)continue;
-      let uses=0;
       for(let r=headerRow+1;r<t.rows.length;r++){
         const cell=(t.rows[r][c]||"").trim();if(!cell)continue;
         const explicit=unitExtractQuantities(cell,`Table ${t.index}, ${hi.parameter}`);
         if(explicit.length){
-          explicit.forEach(q=>{q.parameter=hi.parameter;q.parameterConfidence=.99;qs.push(q);uses++;if(q.parsed?.valid){if(q.parsed.dimKey!==hi.parsed.dimKey)issues.push(unitIssue("UNIT_TABLE_OVERRIDE","err",`Cell unit ${q.rawUnit} conflicts dimensionally with header unit ${hi.raw}.`,q,"Verify the cell value or table header."));else if(q.parsed.scaleKey!==hi.parsed.scaleKey)issues.push(unitIssue("UNIT_TABLE_OVERRIDE","warn",`Cell unit ${q.rawUnit} overrides the header scale ${hi.raw}.`,q,"Use the header unit consistently unless the override is intentional."));}});
-        }else if(/^[<>≤≥~≈]?\s*[-+]?\d+(?:\.\d+)?(?:\s*±\s*\d+(?:\.\d+)?)?\s*$/.test(cell)){
-          qs.push({value:cell,rawUnit:hi.raw,parsed:hi.parsed,parameter:hi.parameter,parameterConfidence:.99,context:`Table ${t.index}, ${hi.parameter}`,external:false,snippet:`Table ${t.index}, ${hi.parameter}: ${cell}`,space:" ",inherited:true});uses++;
+          explicit.forEach(q=>{
+            q.parameter=hi.parameter;
+            q.parameterConfidence=.99;
+            q.context=`Table ${t.index}, ${hi.parameter}`;
+            q.snippet=`Table ${t.index}, row ${r+1}, ${hi.parameter}: ${cell}`;
+            qs.push(q);
+          });
+        }else if(/^[<>≤≥~≈]?\s*[-+]?\d+(?:\.\d+)?\s*$/.test(cell)){
+          qs.push({
+            value:cell,
+            rawUnit:hi.raw,
+            parsed:hi.parsed,
+            parameter:hi.parameter,
+            parameterConfidence:.99,
+            context:`Table ${t.index}, ${hi.parameter}`,
+            external:false,
+            snippet:`Table ${t.index}, row ${r+1}, ${hi.parameter}: ${cell}`,
+            space:" ",
+            inherited:true
+          });
         }
       }
-      if(uses===0)continue;
     }
   });
-  return {quantities:qs,issues};
+  return {quantities:qs,issues:[]};
 }
 function unitDedupIssues(issues){const seen=new Set();return issues.filter(x=>{const k=x.code+"|"+x.parameter+"|"+x.msg+"|"+x.context;if(seen.has(k))return false;seen.add(k);return true;});}
 function unitLedger(qs,issues){
   const map=new Map();
-  qs.filter(q=>q.parsed?.valid).forEach(q=>{const key=q.parameter+"|"+q.context.replace(/, .*/,"")+"|"+q.parsed.dimKey+"|"+q.parsed.scaleKey; if(!map.has(key))map.set(key,{parameter:q.parameter,context:q.context.startsWith("Table ")?q.context.split(",")[0]:"Body",raws:new Map(),normalized:q.parsed.normalized,uses:0,status:"consistent"});const x=map.get(key);x.uses++;x.raws.set(q.rawUnit,(x.raws.get(q.rawUnit)||0)+1);});
+  (qs||[]).filter(q=>q.parsed?.valid).forEach(q=>{
+    const scope=q.context.startsWith("Table ")?q.context.split(",")[0]:"Body";
+    const k=unitConsistencyKey(q)+"|"+scope;
+    if(!map.has(k))map.set(k,{
+      parameter:q.parameter&&q.parameter!=="Body text"?q.parameter:"Unit",
+      context:scope,
+      raws:new Map(),
+      normalized:q.parsed.normalized,
+      uses:0,
+      precisions:new Map(),
+      status:"consistent"
+    });
+    const x=map.get(k);
+    x.uses++;
+    x.raws.set(q.rawUnit,(x.raws.get(q.rawUnit)||0)+1);
+    const dp=unitScalarDecimals(q.value);
+    if(dp!==null)x.precisions.set(dp,(x.precisions.get(dp)||0)+1);
+  });
   const rows=[...map.values()];
-  rows.forEach(r=>{const rel=issues.filter(i=>i.parameter===r.parameter);if(rel.some(i=>i.code==="UNIT_DIMENSION_MISMATCH"||i.code==="UNIT_TABLE_OVERRIDE"&&i.severity==="err"))r.status="dimension mismatch";else if(rel.some(i=>i.code==="UNIT_SCALE_INCONSISTENT"||i.code==="UNIT_TABLE_OVERRIDE"))r.status="mixed scale";else if(rel.some(i=>i.code==="UNIT_NOTATION_INCONSISTENT"))r.status="mixed notation";});
-  return rows.sort((a,b)=>a.parameter.localeCompare(b.parameter)||a.context.localeCompare(b.context));
+  rows.forEach(r=>{
+    const rawForms=r.raws.size;
+    const precisionForms=r.precisions.size;
+    if(rawForms>1&&precisionForms>1)r.status="mixed format + precision";
+    else if(rawForms>1)r.status="mixed format";
+    else if(precisionForms>1)r.status="mixed precision";
+  });
+  return rows.sort((a,b)=>a.normalized.localeCompare(b.normalized)||a.context.localeCompare(b.context));
 }
 function unitAnalyze(text,tables){
-  let body=excludeReferences(text,true).text; body=stripHeadings(body).text;
-  const bodyQs=unitExtractQuantities(body,"Body"),tableRes=unitAnalyzeTables(tables),qs=bodyQs.concat(tableRes.quantities);
-  let issues=[...unitStyleIssues(qs),...unitPercentSpacingConsistency(qs),...tableRes.issues,...unitGroupConsistency(qs)];issues=unitDedupIssues(issues);
-  return {quantities:qs,issues,ledger:unitLedger(qs,issues),recognized:qs.filter(q=>q.parsed?.valid).length,unknown:qs.filter(q=>!q.parsed?.valid).length};
+  let body=excludeReferences(text,true).text;
+  body=unitExcludeAffiliations(body);
+  body=stripHeadings(body).text;
+
+  const bodyQs=unitExtractQuantities(body,"Body");
+  const tableRes=unitAnalyzeTables(tables);
+  const qs=bodyQs.concat(tableRes.quantities);
+
+  // Deliberately NO dimensional mismatch, scale conversion, SI-compliance,
+  // capitalization, preferred-symbol, or mandatory-spacing checks here.
+  // This module is only for internal consistency of the SAME unit.
+  let issues=[
+    ...unitNotationConsistency(qs),
+    ...unitSpacingConsistency(qs),
+    ...unitPrecisionConsistency(qs)
+  ];
+  issues=unitDedupIssues(issues);
+
+  return {
+    quantities:qs,
+    issues,
+    ledger:unitLedger(qs,issues),
+    recognized:qs.filter(q=>q.parsed?.valid).length,
+    unknown:qs.filter(q=>!q.parsed?.valid).length
+  };
 }
-function unitStatusClass(s){return /dimension|invalid|mismatch/.test(s)?"n":/mixed/.test(s)?"na":"y";}
+function unitStatusClass(s){return /mixed/.test(s)?"na":"y";}
 function renderUnitReport(res){
   LAST_UNIT=res;
-  $("unit-report-sub").textContent=res.issues.length?`${res.recognized} unit-bearing quantities detected · ${res.issues.length} item${res.issues.length===1?"":"s"} to review`:`${res.recognized} unit-bearing quantities detected · no unit-consistency issues detected`;
-  const counts={err:res.issues.filter(x=>x.severity==="err").length,warn:res.issues.filter(x=>x.severity==="warn").length,info:res.issues.filter(x=>x.severity==="info").length};
-  $("unit-summary").innerHTML=`<div class="scorecard"><div class="score ${counts.err?"err":"ok"}"><div class="n">${counts.err}</div><div class="k">Scientific</div></div><div class="score ${counts.warn?"warn":"ok"}"><div class="n">${counts.warn}</div><div class="k">Consistency</div></div><div class="score"><div class="n">${counts.info}</div><div class="k">Style</div></div><div class="score ok"><div class="n">${res.ledger.length}</div><div class="k">Unit groups</div></div></div>`;
-  let ih=""; if(!res.issues.length)ih=`<p class="verdict clean">No unit-consistency issues detected.</p>`;else{const order=["err","warn","info"];for(const sev of order){const a=res.issues.filter(x=>x.severity===sev);if(!a.length)continue;ih+=`<p class="sec-label">${sev==="err"?"Scientific issues":sev==="warn"?"Consistency issues":"Notation / review"} · ${a.length}</p>`;a.slice(0,250).forEach(it=>{const cls=sev==="err"?"err":sev==="warn"?"warn":"info",sym=cls==="err"?"×":cls==="warn"?"!":"i";ih+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,240))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;});}}
+  $("unit-report-sub").textContent=res.issues.length
+    ?`${res.recognized} unit-bearing quantities detected · ${res.issues.length} consistency item${res.issues.length===1?"":"s"} to review`
+    :`${res.recognized} unit-bearing quantities detected · unit formats and precision are internally consistent`;
+
+  const counts={
+    format:res.issues.filter(x=>x.code==="UNIT_FORMAT_INCONSISTENT"||x.code==="UNIT_SPACING_INCONSISTENT"||x.code==="UNIT_PERCENT_SPACING_INCONSISTENT").length,
+    precision:res.issues.filter(x=>x.code==="UNIT_PRECISION_INCONSISTENT").length
+  };
+  $("unit-summary").innerHTML=`<div class="scorecard"><div class="score ${counts.format?"warn":"ok"}"><div class="n">${counts.format}</div><div class="k">Format</div></div><div class="score ${counts.precision?"warn":"ok"}"><div class="n">${counts.precision}</div><div class="k">Precision</div></div><div class="score ok"><div class="n">${res.ledger.length}</div><div class="k">Unit groups</div></div></div>`;
+
+  let ih="";
+  if(!res.issues.length){
+    ih=`<p class="verdict clean">No same-unit formatting or precision inconsistencies detected.</p>`;
+  }else{
+    const fmt=res.issues.filter(x=>x.code!=="UNIT_PRECISION_INCONSISTENT");
+    const pre=res.issues.filter(x=>x.code==="UNIT_PRECISION_INCONSISTENT");
+    const draw=(title,a)=>{
+      if(!a.length)return;
+      ih+=`<p class="sec-label">${title} · ${a.length}</p>`;
+      a.slice(0,250).forEach(it=>{
+        ih+=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,420))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;
+      });
+    };
+    draw("Unit-format consistency",fmt);
+    draw("Same-unit numerical precision",pre);
+  }
   $("unit-findings").innerHTML=ih;
-  const rows=res.ledger.map(r=>{const obs=[...r.raws.entries()].map(([u,n])=>n>1?`${u} (${n})`:u).join("; ");const cls=unitStatusClass(r.status);return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td></tr>`;}).join("");
-  $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed unit</th><th>Normalized unit</th><th>Uses</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
+
+  const rows=res.ledger.map(r=>{
+    const obs=[...r.raws.entries()].map(([u,n])=>n>1?`${u} (${n})`:u).join("; ");
+    const prec=[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} dp (${n})`).join("; ")||"n/a";
+    const cls=unitStatusClass(r.status);
+    return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td>${escapeHtml(prec)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td></tr>`;
+  }).join("");
+  $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Precision</th><th>Uses</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="7">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
   $("unit-report").hidden=false;
 }
-function unitReportText(res){const L=["UNITS AND NOTATION REPORT","",`Unit-bearing quantities detected: ${res.recognized}`,`Items to review: ${res.issues.length}`,""];if(res.issues.length){L.push("ISSUES");res.issues.forEach(i=>{L.push(`${i.code} | ${i.parameter||"General"} | ${i.msg}`);if(i.context)L.push(`  Location: ${i.context}`);if(i.suggestion)L.push(`  Suggested: ${i.suggestion}`);});L.push("");}L.push("UNIT LEDGER","Parameter / context | Location | Observed unit | Normalized unit | Uses | Status");res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${r.uses} | ${r.status}`));return L.join("\n");}
+function unitReportText(res){
+  const L=[
+    "UNITS AND NOTATION CONSISTENCY REPORT","",
+    `Unit-bearing quantities detected: ${res.recognized}`,
+    `Consistency items to review: ${res.issues.length}`,"",
+    "Scope: same-unit format and same-parameter/same-unit numerical precision. Affiliations and references excluded. No SI-conformance or dimensional-mismatch enforcement.",""
+  ];
+  if(res.issues.length){
+    L.push("ISSUES");
+    res.issues.forEach(i=>{
+      L.push(`${i.code} | ${i.parameter||"Unit"} | ${i.msg}`);
+      if(i.context)L.push(`  Location: ${i.context}`);
+      if(i.snippet)L.push(`  Examples: ${i.snippet}`);
+      if(i.suggestion)L.push(`  Suggested: ${i.suggestion}`);
+    });
+    L.push("");
+  }
+  L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Normalized unit | Precision | Uses | Status");
+  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${[...r.precisions.keys()].sort((a,b)=>a-b).map(d=>d+" dp").join("; ")||"n/a"} | ${r.uses} | ${r.status}`));
+  return L.join("\n");
+}
+
 /* UNIT MODULE END */
 
 
@@ -2736,7 +2971,7 @@ function precisionBodyCheck(text){
     // Value ± uncertainty: same decimal place; uncertainty normally one or two significant digits.
     const unc=new RegExp(`([+−-]?\\d+(?:\\.\\d+)?)\\s*[±]\\s*(\\d+(?:\\.\\d+)?)(?:\\s*(${PREC_UNIT}))?`,'gi');
     while((m=unc.exec(s))){
-      if(nDec(m[1])!==nDec(m[2])) precisionIssue(out,"uncertainty",`Value and uncertainty end at different decimal places (${m[1]} ± ${m[2]}). Verify the underlying precision and report them to compatible decimal positions.`,s,m.index,m[0].length);
+      if(nDec(m[1])!==nDec(m[2])) precisionIssue(out,"uncertainty",`Value and variation/uncertainty end at different decimal places (${m[1]} ± ${m[2]}). Use the same decimal place for both the reported value and its variation/uncertainty. For example, report them as ${m[1]} ± ${Number(m[2]).toFixed(nDec(m[1]))} or round both to another scientifically justified common decimal place after verifying the underlying precision.`,s,m.index,m[0].length);
       if(nSig(m[2])>2) precisionIssue(out,"uncertainty",`Uncertainty ${m[2]} has more than two significant digits. Verify the field convention; uncertainties are commonly reported with one or two significant digits, then the measured value is rounded to the same decimal place.`,s,m.index,m[0].length);
     }
 
