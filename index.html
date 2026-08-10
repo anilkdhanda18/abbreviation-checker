@@ -126,7 +126,7 @@
   .credit-links .sep{color:var(--hair-strong);margin:0 10px}
   .credit-tag{color:var(--faint);font-size:12px;margin:22px 0 0}
   .dev-note{max-width:640px;margin:14px auto 0;padding:12px 16px;background:var(--pencil-soft);border:1px solid var(--hair);border-radius:9px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:left}
-  @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#fte-report{box-shadow:none;border:0;padding:0}}
+  @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#eng-report,#fte-report{box-shadow:none;border:0;padding:0}}
 </style>
 </head>
 <body>
@@ -135,7 +135,7 @@
   <header class="masthead">
     <p class="eyebrow">Manuscript Proofing</p>
     <h1>Manuscript Check<span class="rule"></span></h1>
-    <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, units, and figure/table/equation consistency.</p>
+    <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, units, US/British English consistency, and figure/table/equation consistency.</p>
   </header>
 
   <section class="card" id="input-card">
@@ -184,6 +184,7 @@
     <button class="rtab" data-tab="ref" role="tab" aria-selected="false">References</button>
     <button class="rtab" data-tab="num" role="tab" aria-selected="false">Numbers, pH &amp; precision</button>
     <button class="rtab" data-tab="unit" role="tab" aria-selected="false">Units &amp; notation</button>
+    <button class="rtab" data-tab="eng" role="tab" aria-selected="false">English consistency</button>
     <button class="rtab" data-tab="fte" role="tab" aria-selected="false">Figures, tables &amp; equations</button>
   </div>
 
@@ -266,7 +267,7 @@
       <li><b>Sentence start.</b> Beginning a sentence with a numeral is flagged so the sentence can be restructured.</li>
       <li><b>Comparable precision.</b> Decimal places or significant figures are compared only within scientifically plausible groups, not across unrelated quantities.</li>
       <li><b>Table-column precision.</b> Checks consistent precision within the same parameter column.</li>
-      <li><b>Uncertainty and ranges.</b> A reported value and its ± variation/uncertainty should use the same decimal place; range endpoints are also checked for compatible precision.</li>
+      <li><b>Uncertainty and ranges.</b> A reported value and its ± variation/uncertainty should end at the same decimal place; the checker does not impose a separate significant-digit limit on the variation. Range endpoints are also checked for compatible precision.</li>
       <li><b>Statistics.</b> p-values, percentages, confidence-style numerical series, and scientific notation receive conservative consistency checks.</li>
       <li><b>No false precision.</b> The checker does not automatically add trailing zeros, remove justified digits, or alter standards and literature values. It flags uncertain precision for author review.</li>
     </ol>
@@ -300,6 +301,33 @@
     </ol>
   </details>
   </div><!-- /group unit -->
+
+
+  <div class="result-group" data-group="eng" hidden>
+  <section class="card" id="eng-report" hidden aria-live="polite">
+    <h2>US/British English consistency report</h2>
+    <p class="sub" id="eng-report-sub"></p>
+    <div id="eng-summary"></div>
+    <div id="eng-findings"></div>
+    <div id="eng-ledger-wrap"></div>
+    <p class="disclaimer">This check infers the manuscript's dominant English spelling convention from diagnostic US/British spelling markers, then flags contradictory spellings against that dominant pattern. References and affiliations are excluded. Ambiguous word pairs whose spelling depends on grammar, meaning, or accepted editorial alternatives are deliberately not used as automatic evidence.</p>
+    <div class="report-actions">
+      <button class="btn btn-ghost" id="eng-download">Download report (.txt)</button>
+      <button class="btn btn-ghost" id="eng-print">Print or save as PDF</button>
+    </div>
+  </section>
+
+  <details class="rules">
+    <summary>What the English consistency check covers</summary>
+    <ol>
+      <li><b>Dominant convention first.</b> The checker counts diagnostic US and British spelling markers across the manuscript and establishes the majority convention only when there is sufficient evidence.</li>
+      <li><b>Contradictions only.</b> Once a dominant convention is established, only minority spellings are flagged. The report shows the conflicting word and its manuscript context.</li>
+      <li><b>References and affiliations excluded.</b> Author affiliations, addresses, and the complete reference list do not influence the inferred language convention.</li>
+      <li><b>Conservative vocabulary.</b> Ambiguous pairs such as <code>practice/practise</code>, <code>license/licence</code>, and <code>program/programme</code> are not used automatically because usage can depend on grammatical role or meaning.</li>
+      <li><b>No forced rewriting.</b> The checker does not change the manuscript. It reports the dominant convention and suggests the corresponding spelling for contradictory occurrences.</li>
+    </ol>
+  </details>
+  </div><!-- /group eng -->
 
   <div class="result-group" data-group="fte" hidden>
   <section class="card" id="fte-report" hidden aria-live="polite">
@@ -906,6 +934,380 @@ function unitReportText(res){
 
 /* UNIT MODULE END */
 
+/* =====================================================================
+   US / BRITISH ENGLISH CONSISTENCY MODULE
+   ===================================================================== */
+
+/*
+  Only comparatively diagnostic spelling pairs are used automatically.
+  Deliberately excluded from automatic classification:
+    practice/practise, licence/license, programme/program,
+    organise/organize, characterise/characterize, optimise/optimize,
+    towards/toward, amongst/among, whilst/while
+  because grammar, meaning, journal preference, or accepted British
+  alternatives can make them unreliable as dialect markers.
+*/
+const ENG_VARIANTS = [
+  {key:"color", forms:[
+    ["color","colour"],["colors","colours"],["colored","coloured"],
+    ["coloring","colouring"],["colorful","colourful"],["colorless","colourless"]
+  ]},
+  {key:"behavior", forms:[
+    ["behavior","behaviour"],["behaviors","behaviours"],
+    ["behavioral","behavioural"],["behaviorally","behaviourally"]
+  ]},
+  {key:"favor", forms:[
+    ["favor","favour"],["favors","favours"],["favored","favoured"],
+    ["favoring","favouring"],["favorable","favourable"],["favorably","favourably"]
+  ]},
+  {key:"labor", forms:[
+    ["labor","labour"],["labors","labours"],["labored","laboured"],["laboring","labouring"]
+  ]},
+  {key:"neighbor", forms:[
+    ["neighbor","neighbour"],["neighbors","neighbours"],["neighboring","neighbouring"],
+    ["neighborhood","neighbourhood"],["neighborhoods","neighbourhoods"]
+  ]},
+  {key:"odor", forms:[
+    ["odor","odour"],["odors","odours"],["odorless","odourless"]
+  ]},
+  {key:"tumor", forms:[
+    ["tumor","tumour"],["tumors","tumours"]
+  ]},
+  {key:"vapor", forms:[
+    ["vapor","vapour"],["vapors","vapours"],["vaporized","vapourised"],
+    ["vaporizing","vapourising"],["vaporization","vapourisation"]
+  ]},
+  {key:"center", forms:[
+    ["center","centre"],["centers","centres"],["centered","centred"],["centering","centring"]
+  ]},
+  {key:"fiber", forms:[
+    ["fiber","fibre"],["fibers","fibres"],["fiberboard","fibreboard"]
+  ]},
+  {key:"liter", forms:[
+    ["liter","litre"],["liters","litres"]
+  ]},
+  {key:"defense", forms:[
+    ["defense","defence"],["defenses","defences"],["defenseless","defenceless"]
+  ]},
+  {key:"offense", forms:[
+    ["offense","offence"],["offenses","offences"],["offensive","offensive"]
+  ]},
+  {key:"pretense", forms:[
+    ["pretense","pretence"],["pretenses","pretences"]
+  ]},
+  {key:"catalog", forms:[
+    ["catalog","catalogue"],["catalogs","catalogues"],["cataloged","catalogued"],["cataloging","cataloguing"]
+  ]},
+  {key:"artifact", forms:[
+    ["artifact","artefact"],["artifacts","artefacts"]
+  ]},
+  {key:"aluminum", forms:[
+    ["aluminum","aluminium"]
+  ]},
+  {key:"mold", forms:[
+    ["mold","mould"],["molds","moulds"],["molded","moulded"],["molding","moulding"]
+  ]},
+  {key:"gray", forms:[
+    ["gray","grey"],["grays","greys"],["grayish","greyish"]
+  ]},
+  {key:"aging", forms:[
+    ["aging","ageing"]
+  ]},
+  {key:"skeptic", forms:[
+    ["skeptic","sceptic"],["skeptics","sceptics"],["skeptical","sceptical"],["skepticism","scepticism"]
+  ]},
+  {key:"pediatric", forms:[
+    ["pediatric","paediatric"],["pediatrics","paediatrics"],["pediatrician","paediatrician"]
+  ]},
+  {key:"estrogen", forms:[
+    ["estrogen","oestrogen"],["estrogens","oestrogens"]
+  ]},
+  {key:"hemoglobin", forms:[
+    ["hemoglobin","haemoglobin"]
+  ]},
+  {key:"leukemia", forms:[
+    ["leukemia","leukaemia"]
+  ]},
+  {key:"labeled", forms:[
+    ["labeled","labelled"],["labeling","labelling"]
+  ]},
+  {key:"modeled", forms:[
+    ["modeled","modelled"],["modeling","modelling"]
+  ]},
+  {key:"canceled", forms:[
+    ["canceled","cancelled"],["canceling","cancelling"],["cancellation","cancellation"]
+  ]},
+  {key:"traveled", forms:[
+    ["traveled","travelled"],["traveling","travelling"],["traveler","traveller"],["travelers","travellers"]
+  ]},
+  {key:"signaled", forms:[
+    ["signaled","signalled"],["signaling","signalling"]
+  ]},
+  {key:"fueled", forms:[
+    ["fueled","fuelled"],["fueling","fuelling"]
+  ]},
+  {key:"enrollment", forms:[
+    ["enrollment","enrolment"],["enrollments","enrolments"]
+  ]},
+  {key:"fulfill", forms:[
+    ["fulfill","fulfil"],["fulfills","fulfils"]
+  ]},
+  {key:"skillful", forms:[
+    ["skillful","skilful"]
+  ]},
+  {key:"instill", forms:[
+    ["instill","instil"],["instills","instils"]
+  ]},
+  {key:"distill", forms:[
+    ["distill","distil"],["distills","distils"]
+  ]},
+  {key:"analyze", forms:[
+    ["analyze","analyse"],["analyzed","analysed"],["analyzing","analysing"]
+  ]},
+  {key:"paralyze", forms:[
+    ["paralyze","paralyse"],["paralyzed","paralysed"],["paralyzing","paralysing"]
+  ]},
+  {key:"hydrolyze", forms:[
+    ["hydrolyze","hydrolyse"],["hydrolyzed","hydrolysed"],["hydrolyzing","hydrolysing"]
+  ]},
+  {key:"airplane", forms:[
+    ["airplane","aeroplane"],["airplanes","aeroplanes"]
+  ]}
+];
+
+function engEscapeRegex(s){
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+}
+function engExcludeAffiliations(text){
+  const lines=(text||"").split(/\n/);
+  const abs=lines.findIndex((l,i)=>i<120 && /^\s*(?:\d+(?:\.\d+)*\.?\s*)?ABSTRACT\s*:?\s*$/i.test(l.replace(/[*_`#>]/g,"").trim()));
+  const limit=abs>=0?abs:Math.min(lines.length,70);
+  const aff=/\b(?:department|school|faculty|college|university|institute|institution|centre|center|laborator(?:y|ies)|division|hospital|ministry|academy|research\s+centre|research\s+center)\b/i;
+  const contact=/\b(?:corresponding author|e-?mail|email|orcid|telephone|phone|fax|postal|postcode|zip)\b/i;
+  let affiliationBlock=false;
+  for(let i=0;i<limit;i++){
+    const l=lines[i];
+    if(aff.test(l)||contact.test(l)){
+      affiliationBlock=true;
+      lines[i]="";
+      continue;
+    }
+    if(affiliationBlock){
+      // Once affiliations begin in front matter, suppress address/contact continuations
+      // until the Abstract heading, while leaving the title and author line(s) above intact.
+      if(abs>=0 || /\b(?:india|china|usa|u\.?s\.?a\.?|united states|united kingdom|uk|australia|canada|germany|france|japan|korea|italy|spain)\b/i.test(l) ||
+         /\b\d{5,6}\b/.test(l) || /^\s*[\d,*†‡§]+\s*/.test(l)){
+        lines[i]="";
+      }
+    }
+  }
+  return lines.join("\n");
+}
+function engPrepareText(text){
+  let body=excludeReferences(text||"",true).text;
+  body=engExcludeAffiliations(body);
+  // URLs/e-mails can contain arbitrary spellings and should not influence style.
+  body=body.replace(/\bhttps?:\/\/\S+/gi," ")
+           .replace(/\bwww\.\S+/gi," ")
+           .replace(/\b[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}\b/g," ");
+  return body;
+}
+function engFindOccurrences(text,word){
+  const out=[];
+  const re=new RegExp(`(^|[^\\p{L}])(${engEscapeRegex(word)})(?=$|[^\\p{L}])`,"giu");
+  let m;
+  while((m=re.exec(text))){
+    const lead=m[1]||"";
+    out.push({index:m.index+lead.length,length:m[2].length,raw:m[2]});
+    if(m[0].length===0) re.lastIndex++;
+  }
+  return out;
+}
+function engContext(text,index,len){
+  const max=230;
+  let start=Math.max(0,index-150), end=Math.min(text.length,index+len+150);
+  // Prefer sentence/newline boundaries when they are nearby.
+  const left=text.slice(start,index);
+  const lm=Math.max(left.lastIndexOf(". "),left.lastIndexOf("? "),left.lastIndexOf("! "),left.lastIndexOf("\n"));
+  if(lm>=0) start+=lm+(left[lm]==="\n"?1:2);
+  const right=text.slice(index+len,end);
+  const candidates=[
+    right.indexOf(". "),right.indexOf("? "),right.indexOf("! "),right.indexOf("\n")
+  ].filter(x=>x>=0);
+  if(candidates.length) end=index+len+Math.min(...candidates)+1;
+  let before=text.slice(start,index).replace(/\s+/g," ").trimStart();
+  let hit=text.slice(index,index+len);
+  let after=text.slice(index+len,end).replace(/\s+/g," ").trimEnd();
+  let html=`${escapeHtml(before)}<mark>${escapeHtml(hit)}</mark>${escapeHtml(after)}`;
+  const plain=(before+hit+after);
+  if(plain.length>max){
+    const b=before.slice(Math.max(0,before.length-90));
+    const a=after.slice(0,110);
+    html=`${before.length>b.length?"…":""}${escapeHtml(b)}<mark>${escapeHtml(hit)}</mark>${escapeHtml(a)}${after.length>a.length?"…":""}`;
+  }
+  return html;
+}
+function engMatchCase(source,target){
+  if(!source)return target;
+  if(source===source.toUpperCase())return target.toUpperCase();
+  if(source[0]===source[0].toUpperCase())return target[0].toUpperCase()+target.slice(1);
+  return target;
+}
+function engCollect(text){
+  const families=[];
+  let usTotal=0,ukTotal=0, usWeighted=0,ukWeighted=0;
+  ENG_VARIANTS.forEach(f=>{
+    const us=[],uk=[];
+    f.forms.forEach(pair=>{
+      const [u,b]=pair;
+      // Identical spellings do not provide dialect evidence.
+      if(u.toLowerCase()===b.toLowerCase())return;
+      engFindOccurrences(text,u).forEach(o=>us.push({...o,pair,side:"US",family:f.key}));
+      engFindOccurrences(text,b).forEach(o=>uk.push({...o,pair,side:"UK",family:f.key}));
+    });
+    if(us.length||uk.length){
+      usTotal+=us.length; ukTotal+=uk.length;
+      // Cap each family at 3 points so one highly repeated word cannot completely
+      // overwhelm the manuscript-wide style inference.
+      usWeighted+=Math.min(us.length,3);
+      ukWeighted+=Math.min(uk.length,3);
+      families.push({key:f.key,us,uk});
+    }
+  });
+  return {families,usTotal,ukTotal,usWeighted,ukWeighted};
+}
+function engInferStyle(stats){
+  const u=stats.usWeighted,b=stats.ukWeighted,total=u+b;
+  if(total<2)return {style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"};
+  const max=Math.max(u,b),share=max/total;
+  if(share<0.60)return {style:"mixed",label:"Mixed / no clear majority",share,confidence:"low"};
+  const style=u>b?"US":"UK";
+  const confidence=(total>=6&&share>=0.75)?"high":(total>=3&&share>=0.67)?"moderate":"low";
+  return {style,label:style==="US"?"US English":"British English",share,confidence};
+}
+function engAnalyze(text){
+  const body=engPrepareText(text);
+  const stats=engCollect(body);
+  const inference=engInferStyle(stats);
+  const issues=[];
+  const ledger=[];
+
+  stats.families.forEach(f=>{
+    ledger.push({
+      key:f.key,
+      us:f.us.length,
+      uk:f.uk.length,
+      usExamples:[...new Set(f.us.map(x=>x.raw))].slice(0,4),
+      ukExamples:[...new Set(f.uk.map(x=>x.raw))].slice(0,4)
+    });
+
+    if(inference.style!=="US"&&inference.style!=="UK")return;
+    const minority=inference.style==="US"?f.uk:f.us;
+    minority.forEach(o=>{
+      const replacement=inference.style==="US"?o.pair[0]:o.pair[1];
+      issues.push({
+        code:"ENGLISH_VARIANT_CONTRADICTION",
+        style:inference.style,
+        word:o.raw,
+        suggested:engMatchCase(o.raw,replacement),
+        family:f.key,
+        index:o.index,
+        snippet:engContext(body,o.index,o.length),
+        msg:`"${o.raw}" follows ${inference.style==="US"?"British":"US"} spelling, while the manuscript predominantly uses ${inference.style==="US"?"US":"British"} English.`,
+        suggestion:`For consistency with the manuscript's dominant convention, consider "${engMatchCase(o.raw,replacement)}".`
+      });
+    });
+  });
+
+  issues.sort((a,b)=>a.index-b.index);
+  return {
+    body,
+    inference,
+    issues,
+    ledger:ledger.sort((a,b)=>(b.us+b.uk)-(a.us+a.uk)||a.key.localeCompare(b.key)),
+    usTotal:stats.usTotal,
+    ukTotal:stats.ukTotal,
+    usWeighted:stats.usWeighted,
+    ukWeighted:stats.ukWeighted,
+    evidenceFamilies:stats.families.length
+  };
+}
+function renderEnglishReport(res){
+  LAST_ENG=res;
+  const inf=res.inference;
+  if(inf.style==="US"||inf.style==="UK"){
+    $("eng-report-sub").textContent=`Dominant convention: ${inf.label} · ${res.issues.length} contradictory occurrence${res.issues.length===1?"":"s"} detected`;
+  }else if(inf.style==="mixed"){
+    $("eng-report-sub").textContent="No clear US/British majority was established; contradictory spellings were not automatically flagged.";
+  }else{
+    $("eng-report-sub").textContent="Too few diagnostic spelling markers were found to establish a reliable US/British convention.";
+  }
+
+  const styleLabel=inf.label;
+  const contradictionCount=res.issues.length;
+  $("eng-summary").innerHTML=`<div class="scorecard">
+    <div class="score ${inf.style==="mixed"||inf.style==="insufficient"?"warn":"ok"}"><div class="n" style="font-size:18px">${escapeHtml(styleLabel)}</div><div class="k">Dominant style</div></div>
+    <div class="score ok"><div class="n">${res.usTotal}</div><div class="k">US markers</div></div>
+    <div class="score ok"><div class="n">${res.ukTotal}</div><div class="k">British markers</div></div>
+    <div class="score ${contradictionCount?"warn":"ok"}"><div class="n">${contradictionCount}</div><div class="k">Contradictions</div></div>
+  </div>`;
+
+  let html="";
+  if((inf.style==="US"||inf.style==="UK")&&!res.issues.length){
+    html=`<p class="verdict clean">No contradictory US/British spelling was detected against the dominant ${escapeHtml(inf.label)} pattern.</p>`;
+  }else if(inf.style==="mixed"){
+    html=`<p class="verdict">US and British markers are too evenly mixed to identify a reliable majority. Review the variant ledger and choose one convention before treating individual spellings as contradictions.</p>`;
+  }else if(inf.style==="insufficient"){
+    html=`<p class="verdict">Insufficient diagnostic spelling evidence. The checker will not guess a language convention from one isolated word.</p>`;
+  }else{
+    html+=`<p class="sec-label">Contradictory spellings · ${res.issues.length}</p>`;
+    res.issues.slice(0,300).forEach(it=>{
+      html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
+        <p class="msg"><span class="abbr">${escapeHtml(it.word)}</span> ${escapeHtml(it.msg)}</p>
+        <div class="snip">${it.snippet}</div>
+        <p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>
+      </div></div>`;
+    });
+  }
+  $("eng-findings").innerHTML=html;
+
+  const rows=res.ledger.map(r=>{
+    const status=r.us&&r.uk?"mixed":r.us?"US":"British";
+    const forms=[
+      r.us?`US: ${r.usExamples.join(", ")} (${r.us})`:"",
+      r.uk?`British: ${r.ukExamples.join(", ")} (${r.uk})`:""
+    ].filter(Boolean).join(" · ");
+    return `<tr><td>${escapeHtml(r.key)}</td><td>${escapeHtml(forms)}</td><td class="t-num">${r.us}</td><td class="t-num">${r.uk}</td><td><span class="yn ${status==="mixed"?"na":"y"}">${escapeHtml(status)}</span></td></tr>`;
+  }).join("");
+  $("eng-ledger-wrap").innerHTML=`<p class="sec-label">Variant evidence ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Spelling family</th><th>Forms detected</th><th>US uses</th><th>British uses</th><th>Observed</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No diagnostic US/British spelling markers detected.</td></tr>'}</tbody></table></div>`;
+  $("eng-report").hidden=false;
+}
+function englishReportText(res){
+  const inf=res.inference;
+  const L=[
+    "US / BRITISH ENGLISH CONSISTENCY REPORT","",
+    `Dominant convention: ${inf.label}`,
+    `US markers: ${res.usTotal}`,
+    `British markers: ${res.ukTotal}`,
+    `Contradictory occurrences: ${res.issues.length}`,
+    "Scope: manuscript text excluding affiliations and references.",""
+  ];
+  if(res.issues.length){
+    L.push("CONTRADICTIONS");
+    res.issues.forEach(i=>{
+      L.push(`${i.word} | ${i.msg}`);
+      L.push(`  Suggested: ${i.suggested}`);
+    });
+    L.push("");
+  }
+  L.push("VARIANT EVIDENCE LEDGER","Spelling family | US uses | British uses");
+  res.ledger.forEach(r=>L.push(`${r.key} | ${r.us} | ${r.uk}`));
+  return L.join("\n");
+}
+
+/* ENGLISH CONSISTENCY MODULE END */
+
+
 
 
 
@@ -1358,6 +1760,7 @@ let DOCX_NUMERIC_TABLES=[];
 let DOCX_FTE_BLOCKS=[];
 let LAST_FTE=null;
 let LAST_UNIT=null;
+let LAST_ENG=null;
 
 
 /* ---------- Word structural extraction for Figures / Tables / Equations ---------- */
@@ -1768,6 +2171,7 @@ async function readFile(file){
     const res=await mammoth.convertToHtml({arrayBuffer:buf});
     const box=document.createElement("div");
     box.innerHTML=res.value;
+    protectNumericCitationSuperscripts(box);
     DOCX_NUMERIC_TABLES=[];
     DOCX_FTE_BLOCKS=[];
     try{ DOCX_FTE_BLOCKS=await extractDocxStructure(buf); }
@@ -2972,7 +3376,7 @@ function precisionBodyCheck(text){
     const unc=new RegExp(`([+−-]?\\d+(?:\\.\\d+)?)\\s*[±]\\s*(\\d+(?:\\.\\d+)?)(?:\\s*(${PREC_UNIT}))?`,'gi');
     while((m=unc.exec(s))){
       if(nDec(m[1])!==nDec(m[2])) precisionIssue(out,"uncertainty",`Value and variation/uncertainty end at different decimal places (${m[1]} ± ${m[2]}). Use the same decimal place for both the reported value and its variation/uncertainty. For example, report them as ${m[1]} ± ${Number(m[2]).toFixed(nDec(m[1]))} or round both to another scientifically justified common decimal place after verifying the underlying precision.`,s,m.index,m[0].length);
-      if(nSig(m[2])>2) precisionIssue(out,"uncertainty",`Uncertainty ${m[2]} has more than two significant digits. Verify the field convention; uncertainties are commonly reported with one or two significant digits, then the measured value is rounded to the same decimal place.`,s,m.index,m[0].length);
+      
     }
 
     // Numerical ranges with an explicit unit. Ignore likely years and identifiers.
@@ -3133,7 +3537,60 @@ function precisionTableCheck(tables){
   return out;
 }
 
+function protectNumericCitationSuperscripts(box){
+  /*
+    Word/Mammoth commonly represents superscript literature citations as <sup>.
+    Once HTML is flattened, a sentence-final period followed by superscript 2,3
+    can become ".2,3" and be misread as a decimal without a leading zero.
+
+    Protect ONLY superscripts that consist entirely of citation-number syntax.
+    Scientific superscripts such as 2+, 3-, x2, m2, 10-3, ionic charges, and
+    algebraic expressions are deliberately left untouched.
+  */
+  if(!box || !box.querySelectorAll) return;
+  box.querySelectorAll("sup").forEach(sup=>{
+    const raw=(sup.textContent||"").replace(/\u00A0|\u202F/g," ").trim();
+    if(!raw) return;
+    // Numeric citation forms: 2 ; 2,3 ; 2-4 ; 2–4 ; 2, 4, 7-9
+    if(/^\d{1,4}(?:\s*(?:,|;|[-–—])\s*\d{1,4})*$/.test(raw)){
+      const marker=document.createTextNode(`⟦refnum:${raw}⟧`);
+      sup.replaceWith(marker);
+    }
+  });
+}
+function numberTextWithoutCitationMarkers(text){
+  return String(text||"").replace(/⟦refnum:[^⟧]+⟧/g," ");
+}
+function looksLikeFlattenedCitationDecimal(sentence,index,token){
+  /*
+    Fallback for DOCX files/styles where superscript formatting was not exposed
+    by Mammoth. Reject citation-like pseudo-decimals such as:
+      ... (NPs).2,3 These ...
+      ... (I1) .70 Afterwards ...
+      ... (Table S2) .74 The ...
+    This safeguard is intentionally conservative and does not suppress a normal
+    decimal followed by a unit, lowercase word, operator, or punctuation.
+  */
+  const before=sentence.slice(Math.max(0,index-70),index);
+  const after=sentence.slice(index+token.length,index+token.length+40);
+  const digits=token.replace(/^\./,"");
+  if(!/^\d{1,4}$/.test(digits)) return false;
+
+  // Explicit citation list/range immediately following the first integer.
+  if(/^\s*(?:,|;|[-–—])\s*\d{1,4}/.test(after)) return true;
+
+  // A citation number at a sentence boundary is commonly followed directly by
+  // the next sentence's capitalized word after DOCX superscript flattening.
+  const prevBoundary=/[\)\]\}"'’A-Za-z0-9]\s*$/.test(before);
+  const nextSentence=/^\s+[A-Z][A-Za-z\-]+\b/.test(after);
+  const previousLooksComplete=/(?:\)|\]|[A-Za-z])\s*$/.test(before);
+  if(prevBoundary && previousLooksComplete && nextSentence) return true;
+
+  return false;
+}
+
 function numberCheck(text,tables=[]){
+  text=numberTextWithoutCitationMarkers(text);
   const out=[]; const sents=splitIntoSentences(text);
 
   // Collect pH reporting forms globally so inconsistent forms are reported together.
@@ -3171,7 +3628,10 @@ function numberCheck(text,tables=[]){
     const rv=/\bpH\b\s*(?:=|:)?\s*(?:(?:was|were|is|are|of|to|at|reached|became|remained|near|around|about|approximately|adjusted\s+to|set\s+to|maintained\s+at|kept\s+at|held\s+at|fixed\s+at|controlled\s+at|equal\s+to|close\s+to)\s+)*[~\u2248]?\s*(\d{1,2})(?!\s*\.\d)(?!\s*[-\u2013\u2014<>=\u2264\u2265\d])/ig;
     while((m=rv.exec(s))){ const v=m[1]; if(v==="7"&&/neutral/i.test(s)) continue; if(!mixedPh) out.push({cat:"pH",msg:`pH ${v} is reported without a decimal place; report to at least one decimal (for example pH ${v}.0) if the measurement supports it, or verify the original precision.`,snippet:numSnip(s,m.index,m[0].length)}); }
     const lz=/(?<![\w.])\.\d+/g;
-    while((m=lz.exec(s))) out.push({cat:"zero",msg:`Add a leading zero: write 0${m[0]} instead of ${m[0]}.`,snippet:numSnip(s,m.index,m[0].length)});
+    while((m=lz.exec(s))){
+      if(looksLikeFlattenedCitationDecimal(s,m.index,m[0])) continue;
+      out.push({cat:"zero",msg:`Add a leading zero: write 0${m[0]} instead of ${m[0]}.`,snippet:numSnip(s,m.index,m[0].length)});
+    }
     const st=s.replace(/^["'\u201C(\[]+/,""); const off=s.length-st.length;
     if(/^(\d[\d.,]*)\s+[A-Za-z]/.test(st)){
       const affiliation=/^\d{1,2}[.)]?\s+[A-Z]/.test(st) && /\b(Department|School|Institute|Institution|University|College|Faculty|Centre|Center|Laborator(?:y|ies)|Division|Hospital|Ministry|Corporation|Academy|Organi[sz]ation|Council|Board|Authority|Foundation|Society)\b/i.test(st);
@@ -3279,6 +3739,15 @@ $("run").onclick=async()=>{
       renderUnitReport(unitAnalyze(text,DOCX_NUMERIC_TABLES));
     }catch(e){ console.error("unit check failed:",e); renderUnitReport({quantities:[],issues:[],ledger:[],recognized:0,unknown:0}); }
 
+    // US/British English consistency (affiliations and references excluded)
+    try{
+      status("Checking US/British English consistency…");
+      renderEnglishReport(engAnalyze(text));
+    }catch(e){
+      console.error("English consistency check failed:",e);
+      renderEnglishReport({inference:{style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"},issues:[],ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0});
+    }
+
     // Figures, tables and numbered equations (Word structure preserves physical order)
     try{
       status("Checking figures, tables and equations…");
@@ -3296,9 +3765,9 @@ $("run").onclick=async()=>{
 $("clear").onclick=()=>{
   currentFile=null; fileInput.value=""; chip.style.display="none";
   $("title").value=""; $("ref-style").value="";
-  $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("fte-report").hidden=true;
+  $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
-  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; DOCX_FTE_BLOCKS=[];
+  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[];
 };
 
 $("ref-download").onclick=()=>{ if(!LAST_REF_OUT) return; const blob=new Blob([refReportText(LAST_REF_OUT.res,LAST_REF_OUT.cross)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reference-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
@@ -3306,6 +3775,8 @@ $("ref-print").onclick=()=>window.print();
 $("num-print").onclick=()=>window.print();
 $("unit-download").onclick=()=>{ if(!LAST_UNIT) return; const blob=new Blob([unitReportText(LAST_UNIT)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="units-notation-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("unit-print").onclick=()=>window.print();
+$("eng-download").onclick=()=>{ if(!LAST_ENG) return; const blob=new Blob([englishReportText(LAST_ENG)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="english-consistency-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
+$("eng-print").onclick=()=>window.print();
 $("fte-download").onclick=()=>{ if(!LAST_FTE) return; const blob=new Blob([fteReportText(LAST_FTE)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="figure-table-equation-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("fte-print").onclick=()=>window.print();
 
