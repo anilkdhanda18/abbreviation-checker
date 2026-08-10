@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Abbreviation Check — Manuscript Proofing</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
 <style>
   :root{
     --paper:#F6F7F9;--card:#FFFFFF;--ink:#14161A;--muted:#5B6470;--faint:#8A929C;
@@ -86,6 +85,8 @@
   .issue .snip{font-family:var(--serif);font-size:13.5px;color:var(--muted);background:var(--paper);border-left:3px solid var(--hair-strong);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0}
   .issue .snip mark{background:var(--warn-soft);color:var(--ink);padding:0 2px;border-radius:3px;font-family:var(--mono);font-size:12.5px}
   table.ledger{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+  .ledger-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ledger-scroll table.ledger{min-width:640px}
   table.ledger th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 10px 10px;border-bottom:2px solid var(--ink)}
   table.ledger td{padding:11px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
   table.ledger tr:last-child td{border-bottom:0}
@@ -138,25 +139,16 @@
 
   <section class="card" id="input-card">
     <h2>Your manuscript</h2>
-    <p class="sub">Upload or paste your full manuscript. It is checked for abbreviations, and its reference list is checked too. The reference list is located automatically by the References or Bibliography heading. Supported files: .txt, .md, .docx, .pdf.</p>
+    <p class="sub">Upload your complete manuscript as a Microsoft Word <b>.docx</b> file. The checker is intentionally restricted to Word files so paragraph boundaries, headings, lists, and reference structure can be read more reliably. Legacy <b>.doc</b>, PDF, TXT, MD, and pasted manuscript text are not accepted.</p>
 
-    <div class="tabs" role="tablist" aria-label="Input method">
-      <button class="tab" role="tab" id="tab-upload" aria-selected="true" aria-controls="panel-upload">Upload a file</button>
-      <button class="tab" role="tab" id="tab-paste" aria-selected="false" aria-controls="panel-paste">Paste text</button>
-    </div>
-
-    <div class="panel" id="panel-upload" role="tabpanel" aria-labelledby="tab-upload">
-      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a file or drop it here">
-        <p class="big">Drop your file here</p>
+    <div class="panel" id="panel-upload">
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a Word DOCX file or drop it here">
+        <p class="big">Drop your Word manuscript here</p>
         <p class="small">or click to browse</p>
-        <div class="formats">.txt · .md · .docx · .pdf</div>
+        <div class="formats">Microsoft Word · .docx only</div>
         <div id="filechip" class="filechip" style="display:none"></div>
       </div>
-      <input type="file" id="file" accept=".txt,.md,.text,.docx,.pdf" style="display:none" />
-    </div>
-
-    <div class="panel" id="panel-paste" role="tabpanel" aria-labelledby="tab-paste" hidden>
-      <textarea id="paste" placeholder="Paste your manuscript text here (abstract and main body)…" aria-label="Manuscript text"></textarea>
+      <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" />
     </div>
 
     <label class="fld" for="title">Paper title <span style="text-transform:none;font-weight:400;color:var(--faint)">(optional, enables the title check)</span></label>
@@ -189,7 +181,7 @@
   <div class="rtabs" id="results-tabs" role="tablist" hidden>
     <button class="rtab active" data-tab="abbr" role="tab" aria-selected="true">Abbreviations</button>
     <button class="rtab" data-tab="ref" role="tab" aria-selected="false">References</button>
-    <button class="rtab" data-tab="num" role="tab" aria-selected="false">Numbers &amp; pH</button>
+    <button class="rtab" data-tab="num" role="tab" aria-selected="false">Numbers, pH &amp; precision</button>
   </div>
 
   <div class="result-group" data-group="abbr" hidden>
@@ -223,7 +215,7 @@
       <li><b>Units are not pluralised</b> (<code>kg</code>, not <code>kgs</code>).</li>
       <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Tables are skipped</b> by default. Word tables are removed directly, and numeric data rows with their header line are filtered from PDF and pasted text.</li>
+      <li><b>Tables are skipped</b> by default. Word tables are removed directly, and numeric data blocks extracted from the Word manuscript are filtered where appropriate.</li>
     </ol>
   </details>
 
@@ -234,7 +226,7 @@
       <h2>Reference report</h2>
       <p class="sub" id="ref-report-sub"></p>
       <div id="ref-ledger-wrap"></div>
-      <p class="disclaimer">This checks that each reference carries the components needed for formatting (authors, year, title area, source, volume or issue, pages, DOI) and that in-text citations and the list agree. It is heuristic and style-agnostic: it does not reformat references into a specific journal style, and title and source names cannot always be isolated from plain text. For exact reformatting, a reference manager such as Zotero is the right tool.</p>
+      <p class="disclaimer">The reference ledger reports whether key bibliographic components are detected in each entry. Field applicability is inferred from the reference type and the dominant structure of the reference list. Detection is heuristic, so ambiguous entries should still be checked manually.</p>
       <div class="report-actions">
         <button class="btn btn-ghost" id="ref-download">Download report (.txt)</button>
         <button class="btn btn-ghost" id="ref-print">Print or save as PDF</button>
@@ -244,33 +236,37 @@
     <details class="rules">
       <summary>What this checks</summary>
       <ol>
-        <li><b>Completeness.</b> Each entry is checked for authors, publication year, a title area, source, volume or issue, page range, and DOI.</li>
-        <li><b>Style detection.</b> The dominant style family is identified (numbered such as Vancouver or IEEE, or author-year such as APA or Harvard).</li>
-        <li><b>In-text vs list.</b> Every numbered citation in the text has a matching entry, and every listed reference is actually cited.</li>
-        <li><b>Consistency.</b> Duplicate references, gaps or repeats in the numbering, and DOIs missing from only some entries are flagged.</li>
+        <li><b>Reference ledger.</b> Each entry is assessed for author, year, title, source, pages or article number, volume, and DOI.</li>
+        <li><b>Style-aware applicability.</b> Fields intentionally omitted by the dominant reference-list convention are shown as <code>n/a</code> rather than as errors.</li>
+        <li><b>Reference type.</b> Journal articles and non-journal sources are distinguished so inapplicable journal fields are not treated as required.</li>
+        <li><b>Ledger-only report.</b> The References tab displays the field-status ledger without separate warning or suggestion sections.</li>
       </ol>
     </details>
   </div><!-- /group ref -->
 
   <div class="result-group" data-group="num" hidden>
   <section class="card" id="num-report" hidden aria-live="polite">
-    <h2>Number &amp; pH report</h2>
+    <h2>Number, pH &amp; precision report</h2>
     <p class="sub" id="num-report-sub"></p>
     <div id="num-findings"></div>
-    <p class="disclaimer">This checks numeral usage and pH reporting in the manuscript body (references, tables, and headings are excluded). It flags pH values reported without a decimal place, decimals missing a leading zero, small counts in prose that are usually spelled out, and sentences that begin with a numeral. It is context-aware and conservative: measurements, units, statistics, identifiers, dates, and chemical or scientific numbers are left as numerals. Precision is never invented; integer pH values are flagged for you to verify against the measurement, not silently changed.</p>
+    <p class="disclaimer">This combines numeral usage, pH reporting, and scientific numeric-precision checks. References and headings are excluded. Word tables are checked column-wise for precision consistency. Precision is assessed only within comparable numeric groups, including numerical series, ranges, uncertainties, percentages, p-values, and scientific notation. The checker never invents measurement resolution or silently adds or removes significant digits; uncertain cases are flagged for author review.</p>
     <div class="report-actions">
       <button class="btn btn-ghost" id="num-print">Print or save as PDF</button>
     </div>
   </section>
 
   <details class="rules">
-    <summary>What the number check covers</summary>
+    <summary>What the number, pH and precision check covers</summary>
     <ol>
       <li><b>Numerals vs words.</b> Whole numbers zero to nine used as ordinary counts in prose are suggested to be spelled out; measurements, units, statistics, ratios, dates, and labels stay as numerals.</li>
-      <li><b>pH precision.</b> Measured, adjusted, or target pH values should carry at least one decimal place; integer pH values and integer pH ranges or thresholds are flagged for verification.</li>
+      <li><b>pH reporting.</b> Measured, adjusted, or target pH values should carry at least one decimal place, and directly comparable pH measurements are checked for mixed precision.</li>
       <li><b>Leading zeros.</b> Decimals below one should be written as 0.5, not .5.</li>
       <li><b>Sentence start.</b> Beginning a sentence with a numeral is flagged so the sentence can be restructured.</li>
-      <li><b>Not invented precision.</b> Values are flagged for author verification rather than changed, and authoritative or conceptual pH values are respected.</li>
+      <li><b>Comparable precision.</b> Decimal places or significant figures are compared only within scientifically plausible groups, not across unrelated quantities.</li>
+      <li><b>Table-column precision.</b> Checks consistent precision within the same parameter column.</li>
+      <li><b>Uncertainty and ranges.</b> Values paired with ± uncertainty and endpoints of the same range are checked for compatible decimal positions.</li>
+      <li><b>Statistics.</b> p-values, percentages, confidence-style numerical series, and scientific notation receive conservative consistency checks.</li>
+      <li><b>No false precision.</b> The checker does not automatically add trailing zeros, remove justified digits, or alter standards and literature values. It flags uncertain precision for author review.</li>
     </ol>
   </details>
   </div><!-- /group num -->
@@ -424,34 +420,61 @@ function collectDefs(sent,si,add){
 function excludeReferences(text,enabled){
   if(!enabled) return {text,excluded:false};
 
-  // A. "References" heading on its own line
+  /*
+    Use the SAME publisher-independent reference-section detector as the
+    reference checker. This prevents the abbreviation checker from having a
+    separate, weaker heading parser. It therefore inherits:
+      - fuzzy heading recognition (e.g. REFERNCES / REFRENCES)
+      - Bibliography / Literature Cited / Notes and References variants
+      - protection against singular "Reference" table-column labels
+      - headingless bibliography fallback detection
+      - post-reference section boundaries
+  */
+  try{
+    const split=refSplitManuscript(text);
+    if(split && split.found){
+      return {text:split.body, excluded:true};
+    }
+  }catch(err){
+    // Keep conservative legacy fallbacks below if structural detection fails.
+  }
+
+  // Legacy fallback A: exact heading on its own line.
   const lines=text.split(/\n/);
-  const headRe=/^\s*(\d+\.?\s*)?(references|reference list|bibliography|literature cited|works cited)\s*:?\s*$/i;
+  const headRe=/^\s*(\d+(?:\.\d+)*\.?\s*)?(references?|reference list|bibliography|literature cited|literature references|references cited|cited literature|works cited|notes\s+and\s+references|references\s+and\s+notes)\s*:?\s*$/i;
   for(let i=Math.floor(lines.length*0.25);i<lines.length;i++){
-    if(headRe.test(lines[i])) return {text:lines.slice(0,i).join("\n"),excluded:true};
+    if(headRe.test(lines[i]) || isReferenceHeading(lines[i])){
+      return {text:lines.slice(0,i).join("\n"),excluded:true};
+    }
   }
 
-  // B. "References" word in the latter part, immediately followed by the first entry
-  const reHead=/\b(references|bibliography|literature cited|reference list)\b\s*:?\s*/ig;
+  // Legacy fallback B: reference-heading phrase in the latter part immediately
+  // followed by a plausible first reference.
+  const reHead=/\b(references?|bibliography|literature cited|literature references|references cited|cited literature|works cited|reference list|notes and references|references and notes)\b\s*:?\s*/ig;
   let hm,lastHead=null;
-  while((hm=reHead.exec(text))!==null){ if(hm.index>text.length*0.35) lastHead=hm; }
+  while((hm=reHead.exec(text))!==null){
+    if(hm.index>text.length*0.35) lastHead=hm;
+  }
   if(lastHead){
-    const after=text.slice(lastHead.index+lastHead[0].length, lastHead.index+lastHead[0].length+30);
-    if(/^\s*(\[\s*\d|\d{1,3}\.\s+[A-Z]|[A-Z][a-z]+,?\s+[A-Z])/.test(after))
+    const after=text.slice(lastHead.index+lastHead[0].length,lastHead.index+lastHead[0].length+100);
+    if(/^\s*(?:\[\s*\d+\s*\]|\(\s*\d+\s*\)|\d{1,4}[.)]\s+|[\p{Lu}][\p{L}'’.\-]+(?:,\s*|\s+)[\p{Lu}])/u.test(after)){
       return {text:text.slice(0,lastHead.index),excluded:true};
+    }
   }
 
-  // C. Dense block of bracketed citation numbers ([1], [22], ...) running to the end
-  const marks=[...text.matchAll(/\[\d{1,3}\]/g)];
+  // Legacy fallback C: dense final numeric bibliography block.
+  const marks=[...text.matchAll(/\[\d{1,4}\]/g)];
   if(marks.length>=4){
     let start=marks[marks.length-1].index;
     for(let k=marks.length-1;k>0;k--){
-      if(marks[k].index-marks[k-1].index<=700) start=marks[k-1].index; else break;
+      if(marks[k].index-marks[k-1].index<=700) start=marks[k-1].index;
+      else break;
     }
     const region=text.slice(start);
     const size=marks.filter(x=>x.index>=start).length;
-    const looksRef=/doi\.org|\bdoi\b|et al\.?|\(\d{4}\)|\b(19|20)\d{2}\b/i.test(region);
-    if(size>=4 && looksRef && start>text.length*0.30 && marks[marks.length-1].index>text.length*0.70){
+    const looksRef=/doi\.org|\bdoi\b|et al\.?|\(\d{4}\)|\b(?:19|20)\d{2}\b/i.test(region);
+    if(size>=4 && looksRef && start>text.length*0.30 &&
+       marks[marks.length-1].index>text.length*0.70){
       return {text:text.slice(0,start),excluded:true};
     }
   }
@@ -753,18 +776,29 @@ function reportText(r){
   return L.join("\n");
 }
 
+/* Numeric table structure retained from the currently loaded Word file. */
+let DOCX_NUMERIC_TABLES=[];
+
 /* ---------- File reading ---------- */
 async function readFile(file){
   const name=file.name.toLowerCase();
-  if(name.endsWith(".docx")){
-    if(typeof mammoth==="undefined") throw new Error("Word reader failed to load. Paste the text instead.");
+  if(!name.endsWith(".docx")){
+    if(name.endsWith(".doc")) throw new Error("Legacy .doc files are not supported. Open the file in Microsoft Word and save it as .docx, then upload the .docx version.");
+    throw new Error("Only Microsoft Word .docx files are accepted. Please upload a .docx manuscript.");
+  }
+  {
+    if(typeof mammoth==="undefined") throw new Error("Word reader failed to load. Reload the page and try the .docx file again.");
     const buf=await file.arrayBuffer();
     const res=await mammoth.convertToHtml({arrayBuffer:buf});
     const box=document.createElement("div");
     box.innerHTML=res.value;
+    DOCX_NUMERIC_TABLES=[];
+    // Retain Word table structure for the numeric-precision checker. Tables are still removed from manuscript text below.
     // Extract a "List of Abbreviations" table (abbr | full form) so those abbreviations count as defined
-    box.querySelectorAll("table").forEach(tbl=>{
+    box.querySelectorAll("table").forEach((tbl,tableIndex)=>{
       const rows=[...tbl.querySelectorAll("tr")].map(tr=>[...tr.querySelectorAll("td,th")].map(td=>(td.textContent||"").replace(/\s+/g," ").trim()));
+      const numericRows=rows.filter(r=>r.some(c=>c));
+      if(numericRows.length>=2) DOCX_NUMERIC_TABLES.push({index:tableIndex+1,rows:numericRows});
       const two=rows.filter(r=>r.length>=2);
       if(two.length<3) return;
       const header=(two[0]||[]).join(" ").toLowerCase();
@@ -779,12 +813,12 @@ async function readFile(file){
     const KEEPHEAD=/^\s*(\d+\.?\s*)?(references?|reference list|bibliography|works cited|literature cited|cited literature|references cited|notes\s+and\s+references|references\s+and\s+notes|appendix|appendices|supplementary|supporting information|acknowledge?ments?|data availability|funding|conflicts?\s+of\s+interest|competing\s+interests?|author\s+contributions?|declarations?)\b/i;
     box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>{  // drop styled headings, keep section markers
       const t=(h.textContent||"").trim();
-      if(KEEPHEAD.test(t)) h.replaceWith(document.createTextNode("\n"+t+"\n"));
+      if(KEEPHEAD.test(t)||isReferenceHeading(t)) h.replaceWith(document.createTextNode("\n"+t+"\n"));
       else h.remove();
     });
     box.querySelectorAll("p").forEach(p=>{                   // drop bold-only short headings, keep section markers
       const txt=(p.textContent||"").trim(); if(!txt) return;
-      if(KEEPHEAD.test(txt)) return;
+      if(KEEPHEAD.test(txt)||isReferenceHeading(txt)) return;
       const bold=[...p.querySelectorAll("strong,b")].map(s=>s.textContent||"").join(" ").replace(/\s+/g,"").length;
       const total=txt.replace(/\s+/g,"").length;
       const noEnd=!/[.!?]["'\u2019)\]]?$/.test(txt);
@@ -796,37 +830,13 @@ async function readFile(file){
     const tmp=document.createElement("div"); tmp.innerHTML=h;
     return tmp.textContent||"";
   }
-  if(name.endsWith(".pdf")){
-    if(typeof pdfjsLib==="undefined") throw new Error("PDF reader failed to load. Paste the text instead.");
-    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    const buf=await file.arrayBuffer();
-    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-    let out="";
-    for(let i=1;i<=pdf.numPages;i++){
-      const page=await pdf.getPage(i);
-      const c=await page.getTextContent();
-      let buf2="";
-      for(const it of c.items){ buf2 += it.str + (it.hasEOL ? "\n" : " "); }
-      out += buf2 + "\n";
-    }
-    return out;
-  }
-  return await file.text();
+  throw new Error("The Word file could not be read.");
 }
 
 /* ---------- Wiring ---------- */
 const $=id=>document.getElementById(id);
 let currentFile=null;
 $("whitelist").value=DEFAULT_STANDARD.join("\n");
-
-function selectTab(which){
-  const up=which==="upload";
-  $("tab-upload").setAttribute("aria-selected",up);
-  $("tab-paste").setAttribute("aria-selected",!up);
-  $("panel-upload").hidden=!up; $("panel-paste").hidden=up;
-}
-$("tab-upload").onclick=()=>selectTab("upload");
-$("tab-paste").onclick=()=>selectTab("paste");
 
 const drop=$("drop"),fileInput=$("file"),chip=$("filechip");
 drop.onclick=()=>fileInput.click();
@@ -835,7 +845,15 @@ drop.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fileIn
 ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag");}));
 drop.addEventListener("drop",e=>{ if(e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]); });
 fileInput.onchange=()=>{ if(fileInput.files.length) setFile(fileInput.files[0]); };
-function setFile(f){ currentFile=f; chip.style.display="inline-flex"; chip.textContent="📄 "+f.name; status(""); }
+function setFile(f){
+  const name=(f&&f.name||"").toLowerCase();
+  if(!name.endsWith(".docx")){
+    currentFile=null; DOCX_NUMERIC_TABLES=[]; fileInput.value=""; chip.style.display="none";
+    status(name.endsWith(".doc") ? "Legacy .doc files are not supported. Save the manuscript as .docx and upload that file." : "Only Microsoft Word .docx files are accepted.", true);
+    return;
+  }
+  currentFile=f; chip.style.display="inline-flex"; chip.textContent="📄 "+f.name; status("");
+}
 function status(msg,isErr){ const el=$("status"); el.textContent=msg; el.className="statusline"+(isErr?" error":""); }
 
 $("download").onclick=()=>{
@@ -847,16 +865,24 @@ $("download").onclick=()=>{
 $("print").onclick=()=>window.print();
 
 /* ================= Reference checker ================= */
+/* Author parser revision: supports surname+initials, initials+surname, complex surnames and corporate authors. */
 function refSplitList(text){
   const t=text.replace(/\r/g,"").trim();
-  const bmarks=[...t.matchAll(/\[(\d{1,3})\]/g)];
+  // Prefer reference numbers at paragraph/line starts. Do not split at bracketed numbers inside titles.
+  let bmarks=[...t.matchAll(/^\s*\[(\d{1,4})\]\s*/gm)];
+  // Fallback for Word extraction that may lose some reference line boundaries, retained only when there is a plausible increasing run.
+  if(bmarks.length<2){
+    const all=[...t.matchAll(/\[(\d{1,4})\]\s+/g)];
+    const inc=all.length>=3 && all.slice(1).every((m,i)=>+m[1]>=+all[i][1]);
+    if(inc) bmarks=all;
+  }
   if(bmarks.length>=2){
     const entries=[];
     for(let i=0;i<bmarks.length;i++){
       const s=bmarks[i].index, e=i+1<bmarks.length?bmarks[i+1].index:t.length;
-      entries.push({num:parseInt(bmarks[i][1],10), raw:t.slice(s,e).replace(/^\s*\[\d{1,3}\]\s*/,"").replace(/\s+/g," ").trim()});
+      entries.push({num:parseInt(bmarks[i][1],10), raw:t.slice(s,e).replace(/^\s*\[\d{1,4}\]\s*/,"").replace(/\s+/g," ").trim()});
     }
-    return {style:"numbered (Vancouver / IEEE family)", marker:"bracket", entries};
+    return {style:"numbered", marker:"bracket", entries};
   }
   const leadNum=l=>{
     let m;
@@ -869,61 +895,760 @@ function refSplitList(text){
     return null;
   };
   const rawLines=t.split(/\n/).map(l=>l.trim());
-  const starts=l=>!!leadNum(l)||/^[\p{Lu}][\p{L}'’\-]+,?\s+[\p{Lu}]\.?/u.test(l);
+  const starts=l=>!!leadNum(l)||refStartsAuthor(l);
   const merged=[]; let cur="";
   for(const l of rawLines){ if(!l) continue; if(starts(l)){ if(cur) merged.push(cur.trim()); cur=l; } else { cur=cur?cur+" "+l:l; } }
   if(cur.trim()) merged.push(cur.trim());
   const numbered=merged.filter(e=>leadNum(e)).length>=Math.max(3, merged.length*0.6);
   return {
-    style: numbered?"numbered (Vancouver / IEEE family)":"author-year (APA / Harvard family)",
+    style: numbered?"numbered":"author–year",
     marker: numbered?"number":"none",
     entries: merged.map(e=>{ const ln=leadNum(e); return ln?{num:ln.num,raw:ln.rest.trim()}:{num:null,raw:e}; })
   };
 }
+/* ---- Robust author-region detection, independent from entry segmentation ---- */
+const REF_CORP_AUTHOR_RE=/^\s*(WHO|US\s?EPA|USEPA|EPA|APHA|AWWA|WEF|MHA|NGT|MOEFCC|NEIWPCC|BIS|CPCB|CPHEEO|OECD|IPCC|UNEP|FAO|IEA|NIST|EFSA|American Public Health Association|World Health Organization|European Commission|International Organization for Standardization|Bureau of Indian Standards|United Nations|Ministry of|Department of|National\s+[\p{L}]|Central\s+[\p{L}])\b/iu;
+const REF_ORG_WORD_RE=/\b(association|organisation|organization|agency|administration|authority|commission|committee|council|department|foundation|government|institute|institution|ministry|office|society|university|board|bureau|laboratory|laboratories|centre|center)\b/i;
+const REF_SURNAME_PARTICLE=String.raw`(?:[Vv]an\s+[Dd]er|[Vv]an|[Vv]on|[Dd]e\s+[Ll]a|[Dd]e|[Dd]el|[Dd]ella|[Dd]i|[Dd]a|[Dd]os|[Dd]as|[Ll]a|[Ll]e|[Ee]l)`;
+const REF_SURNAME_WORD=String.raw`[\p{Lu}][\p{L}'’\-]{1,}`;
+const REF_SURNAME_SHORT=String.raw`[\p{Lu}][\p{L}'’\-]*`;
+// A continuation token may begin in lowercase in real bibliographies, e.g.
+// "Gnana kumar G". Restrict it to alphabetic name-like tokens and only use
+// it inside the leading author parser, never as a general title rule.
+const REF_SURNAME_CONT=String.raw`[\p{L}][\p{L}'’\-]{1,}`;
+const REF_SURNAME_PHRASE=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?${REF_SURNAME_WORD}(?:\s+${REF_SURNAME_CONT})?`;
+const REF_SURNAME_PHRASE_LOWER=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?(?:[\p{Ll}][\p{L}'’\-]{1,}\s+)?${REF_SURNAME_WORD}(?:\s+${REF_SURNAME_CONT})?`;
+// Initials may be compact, dotted, spaced or hyphenated: BE, J.A., J. A., W.-J., S.M.S.G.D.
+const REF_INITIAL_UNIT=String.raw`(?:[\p{Lu}]\.-[\p{Lu}]\.|[\p{Lu}]\.? )`.replace(/ $/,"");
+const REF_INITIALS=String.raw`(?:(?:[\p{Lu}]\.){1,8}|(?:[\p{Lu}]\.-[\p{Lu}]\.|[\p{Lu}]\.?)(?:\s+(?:[\p{Lu}]\.-[\p{Lu}]\.|[\p{Lu}]\.?)){0,7}|[\p{Lu}]{1,8}\.?)`;
+
+function refParsePersonalAuthorAt(text){
+  let t=(text||"").trimStart();
+  if(!t) return null;
+  // Some imported bibliographies contain a stray leading "by" before the author list.
+  // Ignore it for author-field detection without changing the original displayed reference.
+  const by=t.match(/^by\s+/i); const leadOffset=by?by[0].length:0;
+  if(by) t=t.slice(leadOffset);
+  const boundary=String.raw`(?=\s*(?:,|;|&|\band\b|\(|(?:19|20)\d{2}[a-z]?\b|\.|$))`;
+  const patterns=[
+    // Smith, JA / Smith, J.A. / ALATTABI, A. W.
+    {kind:"surname_first_comma", re:new RegExp(`^(${REF_SURNAME_PHRASE}),\\s*(${REF_INITIALS})${boundary}`,"u"), surnameGroup:1},
+    // P. Y. You / J Smith / J.A. Smith / PY Smith. Also tolerates malformed "K. ichi Katsumata".
+    {kind:"initials_first", re:new RegExp(`^(${REF_INITIALS})\\s+(${REF_SURNAME_PHRASE_LOWER})${boundary}`,"u"), surnameGroup:2},
+    // Logan BE / Cao Y / Fernandez-Morales FJ / van der Meer JR
+    {kind:"surname_initials", re:new RegExp(`^(${REF_SURNAME_PHRASE})\\s+(${REF_INITIALS})${boundary}`,"u"), surnameGroup:1},
+    // Rare one-letter surname after several dotted initials, e.g. malformed export "C.O.W.O. N".
+    {kind:"initials_first_short_surname", re:new RegExp(`^((?:[\\p{Lu}]\\.){2,8})\\s+([\\p{Lu}])${boundary}`,"u"), surnameGroup:2},
+    // Occasional export artefact: Pan.J.  -> surname Pan, initial J.
+    {kind:"surname_dot_initials", re:new RegExp(`^(${REF_SURNAME_SHORT})\\.(${REF_INITIALS})${boundary}`,"u"), surnameGroup:1}
+  ];
+  for(const p of patterns){
+    const m=t.match(p.re);
+    if(!m) continue;
+    const surname=(m[p.surnameGroup]||"").replace(/\s+/g," ").trim();
+    return {matched:(by?by[0]:"")+m[0].trimEnd(), length:leadOffset+m[0].length, surname, kind:p.kind};
+  }
+  return null;
+}
+
+function refLooksLikeJournalAbbrevCandidate(text, parsed){
+  if(!parsed || parsed.kind!=="initials_first") return false;
+  const tail=(text||"").trimStart().slice(parsed.length);
+  // A token such as "J. Mater. Chem. A" superficially resembles "J. Smith".
+  // If the apparent surname is immediately followed by another dotted source token,
+  // treat it as a journal abbreviation rather than an author name.
+  return /^\.\s*[\p{Lu}][\p{L}]{1,}\.?/u.test(tail);
+}
+
+function refGenericCorporateAuthor(text){
+  const t=(text||"").trim();
+  if(!t) return null;
+  // Unknown acronym immediately followed by a year, e.g. NREL 2022.
+  let m=t.match(/^([\p{Lu}][\p{Lu}\d&.\-]{1,14})\.?\s+(?=(?:19|20)\d{2}[a-z]?\b)/u);
+  if(m) return {region:m[1], firstAuthorSurname:m[1]};
+  // Multiword all-capital institutional or classic corporate author, e.g. METCALF & EDDY 2014.
+  m=t.match(/^([\p{Lu}][\p{Lu}'’&.\-]{1,}(?:\s+(?:&\s+)?[\p{Lu}][\p{Lu}'’&.\-]{1,}){1,7})\s+(?=(?:19|20)\d{2}[a-z]?\b)/u);
+  if(m) return {region:m[1], firstAuthorSurname:m[1]};
+  // Organisation name followed by a year. Require an organisation keyword to avoid title false positives.
+  m=t.match(/^(.{3,90}?)(?=\s+(?:19|20)\d{2}[a-z]?\b)/u);
+  if(m){
+    const region=m[1].trim().replace(/[.,;:]+$/g,"");
+    if(REF_ORG_WORD_RE.test(region) && region.split(/\s+/).length<=12)
+      return {region, firstAuthorSurname:region};
+  }
+  return null;
+}
+
+function detectAuthorRegion(reference){
+  const raw=(reference||"").replace(/^\s*(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s*/,"").trim();
+  if(!raw) return {hasAuthors:false,authorType:null,authorRegion:null,firstAuthorSurname:null,authorCount:0,confidence:0};
+
+  // Known corporate/institutional authors.
+  const corp=raw.match(REF_CORP_AUTHOR_RE);
+  if(corp){
+    let region=corp[0].trim();
+    const beforeYear=raw.match(/^(.{2,100}?)(?=\s+(?:19|20)\d{2}[a-z]?\b)/u);
+    if(beforeYear && beforeYear[1].length>=region.length && beforeYear[1].split(/\s+/).length<=12) region=beforeYear[1].trim().replace(/[.,;:]+$/g,"");
+    return {hasAuthors:true,authorType:"corporate",authorRegion:region,firstAuthorSurname:region,authorCount:1,confidence:0.98};
+  }
+  const genericCorp=refGenericCorporateAuthor(raw);
+  if(genericCorp){
+    return {hasAuthors:true,authorType:"corporate",authorRegion:genericCorp.region,firstAuthorSurname:genericCorp.firstAuthorSurname,authorCount:1,confidence:0.90};
+  }
+
+  // Personal authors. Parse only the leading bibliographic name sequence.
+  const first=refParsePersonalAuthorAt(raw);
+  if(!first || refLooksLikeJournalAbbrevCandidate(raw,first))
+    return {hasAuthors:false,authorType:null,authorRegion:null,firstAuthorSurname:null,authorCount:0,confidence:0};
+
+  let pos=first.length, count=1, lastGood=pos;
+  const firstSurname=first.surname;
+  while(pos<raw.length){
+    const rest=raw.slice(pos);
+    const sep=rest.match(/^\s*(?:,|;|&|\band\b)\s*/i);
+    if(!sep) break;
+    const candidate=raw.slice(pos+sep[0].length);
+
+    // Do not let an acronym-heavy journal/container name be consumed as another author.
+    // A source such as "ACS ES&T Engineering, 2023, 3, 1547-1556" can otherwise be
+    // misread as "ACS ES" + author separator "&" + "T Engineering". Internal
+    // ampersands inside a compact acronym token are strong source evidence and are not a
+    // normal feature of personal-name initials. This is structural, not publisher-specific.
+    const compactAmpContainer=/^(?:[\p{Lu}]{2,}\s+)?[\p{Lu}]{1,8}&[\p{Lu}]{1,8}\s+(?:Journal|Engineering|Eng\.?|Chemistry|Chem\.?|Science|Sci\.?|Technology|Technol\.?|Materials?|Mater\.?|Research|Res\.?|Reviews?|Rev\.?|Energy|Water|Environmental|Environ\.?|Society|Soc\.?|Catalysis|Catal\.?|Nano|Nanotechnology|Bioengineering|Bioelectron|Biosensors?)\b/u;
+    if(compactAmpContainer.test(candidate.trimStart())) break;
+
+    const next=refParsePersonalAuthorAt(candidate);
+    if(!next || refLooksLikeJournalAbbrevCandidate(candidate,next)) break;
+    pos+=sep[0].length+next.length;
+    lastGood=pos;
+    count++;
+    if(count>100) break;
+  }
+
+  // Treat a trailing "et al." as part of the author block, not as the beginning of the title.
+  // Many database exports write "Author A; Author B; et al. Title...".
+  const etal=raw.slice(lastGood).match(/^\s*(?:,|;)\s*et\s+al\.?/i);
+  if(etal) lastGood+=etal[0].length;
+
+  const region=raw.slice(0,lastGood).trim().replace(/[;,]+$/g,"");
+  const after=raw.slice(lastGood,Math.min(raw.length,lastGood+180));
+  let confidence=count>=3?0.98:(count===2?0.94:0.84);
+  if(/(?:19|20)\d{2}[a-z]?\b/.test(after) || /\b(in press|forthcoming|n\.?\s?d\.?)\b/i.test(after)) confidence=Math.min(0.99,confidence+0.02);
+  if(/10\.\d{4,9}\//.test(raw)) confidence=Math.min(0.99,confidence+0.01);
+  return {hasAuthors:confidence>=0.78,authorType:"personal",authorRegion:region,firstAuthorSurname:firstSurname,authorCount:count,confidence};
+}
+
+/* Does a line begin a new reference? Used only as one segmentation signal. */
+function refStartsAuthor(l){
+  return detectAuthorRegion(l).hasAuthors;
+}
+/* ---- Reference heading recognition (fuzzy, publisher-independent) ---- */
+function refLevenshtein(a,b){
+  const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+  const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++) d[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++){
+    const c=a[i-1]===b[j-1]?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);
+  }
+  return d[m][n];
+}
+function normalizeReferenceHeading(line){
+  return (line||"").toLowerCase().replace(/[*_`#>|]/g,"").replace(/^\s*\d+(\.\d+)*\.?\s*/,"").replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();
+}
+const REF_HEADINGS=["references","reference","reference list","bibliography","literature cited","literature references","references cited","cited literature","works cited","notes and references","references and notes"];
+function isReferenceHeading(line){
+  if(!line) return false;
+  const t=line.trim();
+  if(t.length>42) return false;                 // only short heading-like lines
+  const norm=normalizeReferenceHeading(t);
+  if(!norm||norm.split(" ").length>4) return false;
+  if(REF_HEADINGS.includes(norm)) return true;
+  // conservative fuzzy match for single-word headings (typos: REFERNCES, REFRENCES)
+  for(const h of ["references","reference","bibliography"]){
+    const dist=refLevenshtein(norm,h);
+    if(dist>0 && dist<=2 && Math.abs(norm.length-h.length)<=2) return true;
+  }
+  return false;
+}
+function referenceHeadingStrength(line){
+  const norm=normalizeReferenceHeading(line);
+  if(!norm) return 0;
+  // Singular "Reference" is often a table-column label, so treat it as weak.
+  if(norm==="reference") return 1;
+  if(REF_HEADINGS.includes(norm)) return 3;
+  if(isReferenceHeading(line)) return 2;
+  return 0;
+}
+
+/* ---- Title region: detect a real work title from bibliographic structure ---- */
+function refLooksLikeSourceName(text, structural=false){
+  const t=(text||"").trim().replace(/^[,;\s]+|[,;\s]+$/g,"").replace(/\.$/,"").trim();
+  if(!t || t.length>150 || /\b(?:19|20)\d{2}[a-z]?\b/.test(t)) return false;
+
+  // Some database/export styles append a non-year qualifier to a journal title,
+  // e.g. "Sustainability (Switzerland)". Preserve the full source for display, but
+  // ignore the parenthetical qualifier while scoring whether the span looks like a source.
+  const scoreText=t.replace(/\s*\((?!\s*(?:19|20)\d{2}\b)[^()]{2,50}\)\s*$/u,"").trim();
+  const words=scoreText.split(/\s+/).filter(Boolean);
+  if(!words.length || words.length>14) return false;
+
+  const meaningful=words.filter(w=>!/^(?:of|the|and|for|in|on|&|:)$/i.test(w));
+  if(!meaningful.length) return false;
+
+  // Allow full words and journal abbreviations such as "Sep.", "Purif.", "Technol.",
+  // "J.", "Chem.", and "Rev." to count as source-like capitalized tokens.
+  const capitalish=meaningful.filter(w=>
+    /^(?:[A-Z]\.?|[A-Z][\p{L}\d'’&:\-]{1,}\.?|[A-Z]{2,}\.?)$/u.test(w)
+  ).length;
+  const capRatio=capitalish/meaningful.length;
+  const dotted=(scoreText.match(/\b[\p{Lu}][\p{L}]*\./gu)||[]).length;
+
+  // Strong container/source vocabulary is only a supporting signal. Do not let the
+  // mere presence of a word such as "Chemistry" or "Materials" turn a short article
+  // title plus journal name into one giant source span.
+  const strong=/\b(?:Journal|J\.?|Nature|Nat\.?|Science|Sci\.?|Review|Rev\.?|Proceedings|Proc\.?|Transactions|Trans\.?|Research|Res\.?|Chem(?:istry)?|Eng(?:ineering)?|Technol(?:ogy)?|Mater(?:ials)?|Microbiol(?:ogy)?|Nanotechnol(?:ogy)?|Water|Environ(?:mental)?|Energy|Bioresour|Biosens(?:ors)?|Bioelectron|Electrochim|Catal|Acta|Reports?|Soc(?:iety)?|Appl(?:ied)?|Adv(?:ances|anced)?|Sustain(?:able|ability)?|Renew(?:able)?|Ecotoxicol|Bioelectrochemistry|Heliyon|Anal(?:ytical)?|Phys(?:ics|ical)?|Biol(?:ogy)?|Clean|Prod(?:uction)?|Sep(?:aration)?|Purif(?:ication)?|Chemosphere|Nanoscale|Langmuir|Vacuum|Carbon|Materials)\b/i.test(scoreText);
+
+  // In a structurally known source slot immediately before volume/year, a one-word
+  // journal name such as Chemosphere, Nanoscale, Vacuum, EnergyChem or Sustainability is valid.
+  if(structural && words.length===1 &&
+     (/^[\p{Lu}][\p{L}\d&'’\-]{2,}$/u.test(scoreText) || /^[\p{Lu}]{2,}$/u.test(scoreText))) return true;
+
+  // Some canonical journal/container names are short title-cased phrases with a leading
+  // article, for example "The Lancet" or "The BMJ". In a structurally constrained
+  // source slot immediately before YEAR/VOLUME, accept these without requiring a generic
+  // source keyword such as Journal, Science or Materials. This is intentionally restricted
+  // to a short terminal span so ordinary article-title prose is not promoted to a source.
+  if(structural && words.length>=2 && words.length<=5 && /^(?:The|A|An)\s+/u.test(scoreText)){
+    const content=words.slice(1);
+    const contentCaps=content.filter(w=>/^(?:[\p{Lu}][\p{L}\d&'’\-]{1,}|[\p{Lu}]{2,})\.?$/u.test(w)).length;
+    if(content.length>=1 && contentCaps===content.length) return true;
+  }
+
+  // Abbreviated journals are often heavily dotted and title-cased.
+  if(structural && meaningful.length<=10 && dotted>=2 && capRatio>=0.5) return true;
+
+  if(structural && meaningful.length<=10 && capRatio>=0.66 && (strong || dotted>=1)) return true;
+
+  return meaningful.length<=8 && capRatio>=0.8 && (strong || dotted>=1 || capitalish>=2);
+}
+function refPlausibleTitle(text){
+  const t=(text||"").trim().replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+  if(t.length<6 || /^(?:19|20)\d{2}[a-z]?$/i.test(t)) return false;
+  const words=t.split(/\s+/).filter(Boolean);
+  if(words.length<2) return false;
+  const lexical=words.filter(w=>/[a-zà-öø-ÿ]{2,}/iu.test(w)).length;
+  if(lexical<1) return false;
+  const abbrevish=words.filter(w=>/^(?:[A-Z]\.?|[A-Z]{2,4}\.?)$/u.test(w)).length;
+  if(abbrevish===words.length) return false;
+  return true;
+}
+
+function refExtractSourceFromPrefix(prefix, structural=true){
+  const p=(prefix||"").trim().replace(/[,;\s]+$/g,"");
+  if(!p) return null;
+  const commas=[]; for(let i=0;i<p.length;i++) if(p[i]===",") commas.push(i);
+  for(let k=commas.length-1;k>=0;k--){
+    const i=commas[k];
+    const source=p.slice(i+1).trim().replace(/^[,.;:\s“”‘’"']+|[,.;:\s“”‘’"']+$/g,"");
+    if(refLooksLikeSourceName(source,structural)) return {source,start:i+1,titlePrefix:p.slice(0,i).trim()};
+  }
+  // A source-only prefix occurs in compact titleless formats, e.g. "Chem. Eng. J.".
+  // Keep this conservative so a long title in a malformed reference is not re-labelled as the source.
+  const pw=p.split(/\s+/).filter(Boolean);
+  const strongContainer=/\b(?:Journal|J\.?|Review|Rev\.?|Proceedings|Proc\.?|Transactions|Trans\.?|Nature|Nat\.?|Science|Sci\.?|Research|Res\.?|Chem(?:istry)?|Eng(?:ineering)?|Technol(?:ogy)?|Mater(?:ials)?|Microbiol(?:ogy)?|Nanotechnol(?:ogy)?|Bioresour|Electrochim|Catal|Acta|Reports?|Soc(?:iety)?|Appl(?:ied)?|Langmuir|Chemosphere|Nanoscale|Vacuum|Heliyon|Bioelectrochemistry)\b/i.test(p);
+  if(refLooksLikeSourceName(p,structural) && (pw.length<=6 || strongContainer)) return {source:p,start:0,titlePrefix:""};
+  return null;
+}
+
+function refTitleBeforeSource(prefix){
+  const hit=refExtractSourceFromPrefix(prefix,true);
+  if(!hit) return null;
+  const title=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+  return refPlausibleTitle(title)?title:null;
+}
+
+function refRestAfterAuthors(raw, authorInfo){
+  const cleaned=(raw||"").replace(/^\s*(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s*/,"").trim();
+  const ai=authorInfo||detectAuthorRegion(cleaned);
+  let rest=cleaned;
+  if(ai && ai.hasAuthors && ai.authorRegion){
+    // authorRegion may omit a tolerated leading "by" marker, so use the parser length when possible.
+    const first=refParsePersonalAuthorAt(cleaned);
+    if(/^by\s+/i.test(cleaned) && first && ai.authorType==="personal"){
+      // Reconstruct the full author sequence boundary from authorRegion's final text occurrence.
+      const idx=cleaned.toLocaleLowerCase().indexOf(ai.authorRegion.toLocaleLowerCase());
+      if(idx>=0) rest=cleaned.slice(idx+ai.authorRegion.length);
+    } else {
+      const ar=ai.authorRegion.trim();
+      if(rest.slice(0,ar.length).toLocaleLowerCase()===ar.toLocaleLowerCase()) rest=rest.slice(ar.length);
+    }
+  }
+  return rest.replace(/^\s*[,;.]+\s*/,"").trim();
+}
+
+/* ---- Book-specific structure: Authors YEAR. Book title, Publisher. ---- */
+function detectBookFields(raw, authorInfo){
+  const rest=refRestAfterAuthors(raw,authorInfo)
+    .replace(/(?:\s+(?:https?:\/\/(?:dx\.)?doi\.org\/)?10\.\d{4,9}\/\S+|\s+https?:\/\/\S+)\s*$/i,"")
+    .trim();
+  if(!rest) return null;
+
+  const m=rest.match(/^\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\s*[,;]?\s*(.+)$/iu);
+  if(!m) return null;
+  const year=m[1];
+  const tail=m[2].trim().replace(/[.;\s]+$/g,"");
+  const publisherCue=/\b(?:University\s+Press|Academic\s+Press|CRC\s+Press|Press|Publishing|Publishers?|Publications?|Verlag|Editions?|Books|Springer|Elsevier|Wiley|Routledge|Pearson|McGraw[- ]Hill)\b/iu;
+
+  // Find the final bibliographic separator and test only the suffix as publisher.
+  // This avoids swallowing the book title into a publisher phrase.
+  const cuts=[];
+  for(let i=0;i<tail.length;i++){
+    if(tail[i]===",") cuts.push(i);
+    else if(tail[i]==="." && /\s/.test(tail[i+1]||"")) cuts.push(i);
+  }
+  for(let ci=cuts.length-1;ci>=0;ci--){
+    const cut=cuts[ci];
+    const publisher=tail.slice(cut+1).replace(/^[,.;:\s]+|[,.;:\s]+$/g,"").trim();
+    const title=tail.slice(0,cut).replace(/^[,.;:\s]+|[,.;:\s]+$/g,"").trim();
+    const pw=publisher.split(/\s+/).filter(Boolean).length;
+    if(publisher && pw<=10 && publisherCue.test(publisher) && refPlausibleTitle(title)){
+      return {title,publisher,year};
+    }
+  }
+  return null;
+}
+
+function detectSourceRegion(raw, authorInfo){
+  let rest=refRestAfterAuthors(raw,authorInfo);
+  rest=rest.replace(/(?:\s+(?:https?:\/\/(?:dx\.)?doi\.org\/)?10\.\d{4,9}\/\S+|\s+https?:\/\/\S+)\s*$/i,"").trim();
+
+  // Author-year family: YEAR. Title. Source, volume/pages...
+  let m=rest.match(/^\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\s*[,;]?\s*(.+?)\.\s+(.+)$/u);
+  if(m){
+    const after=m[3].trim();
+    const sm=after.match(/^(.+?)(?=\s*[,;]\s*\d{1,5}\b|\s+\d{1,5}\s*\(|\s*\.|$)/u);
+    const cand=(sm?sm[1]:after).trim().replace(/[.,;]+$/g,"");
+    if(refLooksLikeSourceName(cand,true)) return cand;
+  }
+
+  // Chicago/notes-style journal tail: Source VOLUME, no. ISSUE (YEAR): PAGES/ARTICLE.
+  // Example: Angewandte Chemie International Edition 60, no. 1 (2021): 181-185.
+  // The title may be quoted and may itself contain commas, so locate the source from the
+  // structurally constrained span immediately before the volume/issue/year tail.
+  m=rest.match(/\b\d{1,6}\s*,\s*(?:no\.?|issue)\s*\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)/iu);
+  if(m){
+    const hit=refExtractSourceFromPrefix(rest.slice(0,m.index),true);
+    if(hit) return hit.source;
+  }
+
+  // Volume (YEAR) tail, including article numbers and optional pages.
+  m=rest.match(/\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)/u);
+  if(m){ const hit=refExtractSourceFromPrefix(rest.slice(0,m.index),true); if(hit) return hit.source; }
+
+  // Source. (YEAR) [pages] when volume is absent.
+  m=rest.match(/\(\s*(?:19|20)\d{2}[a-z]?\s*\)/u);
+  if(m){
+    const prefix=rest.slice(0,m.index).trim();
+    // A period immediately before the year is strong source-boundary evidence.
+    if(/\.\s*$/.test(prefix)){
+      const hit=refExtractSourceFromPrefix(prefix,true); if(hit) return hit.source;
+    }
+  }
+
+  // Source YEAR, volume/pages family, including source qualifiers such as
+  // "Sustainability (Switzerland) 2019, 11 (19)".
+  // The source is the terminal bibliographic span immediately before the year. Titles may
+  // contain commas, so do not use commas alone as title/source boundaries here.
+  m=rest.match(/\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}\b/u);
+  if(m){
+    const prefix=rest.slice(0,m.index).trim().replace(/[,;\s]+$/g,"");
+    // Scan sentence-boundary suffixes and keep the longest plausible source suffix.
+    // The source-likelihood function itself rejects ordinary title prose, while this
+    // longest-suffix rule preserves abbreviated journals such as "Sep. Purif. Technol."
+    // and "Chem. Eng. J." rather than truncating them to the final abbreviation token.
+    const bounds=[0];
+    const br=/[.;]\s+/g; let bm;
+    while((bm=br.exec(prefix))!==null) bounds.push(bm.index+bm[0].length);
+    let best=null;
+    for(let bi=bounds.length-1;bi>=0;bi--){
+      const cand=prefix.slice(bounds[bi]).trim().replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+      const wc=cand.split(/\s+/).filter(Boolean).length;
+      if(!cand || wc>12) continue;
+      if(refLooksLikeSourceName(cand,true)) best=cand;
+    }
+    if(best) return best;
+
+    // Database-export source names may contain a parenthetical qualifier, for example
+    // "Sustainability (Switzerland)". Treat the final sentence-like segment as the source
+    // when it is structurally immediately before YEAR, VOLUME.
+    const sentenceParts=prefix.split(/\.\s+(?=[\p{Lu}])/u);
+    if(sentenceParts.length>=2){
+      const cand=sentenceParts[sentenceParts.length-1].trim().replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+      if(refLooksLikeSourceName(cand,true)) return cand;
+    }
+
+    const hit=refExtractSourceFromPrefix(prefix,true);
+    if(hit) return hit.source;
+  }
+
+  // Comma-year family, e.g. RSC: Source, 2020, 8, 6041-6056.
+  m=rest.match(/,\s*(?:19|20)\d{2}[a-z]?\s*(?=,|\.|$)/u);
+  if(m){ const hit=refExtractSourceFromPrefix(rest.slice(0,m.index),true); if(hit) return hit.source; }
+
+  // Source, YEAR with DOI/URL and no volume/pages.
+  m=rest.match(/,\s*(?:19|20)\d{2}[a-z]?\s*\.?\s*$/u);
+  if(m){ const hit=refExtractSourceFromPrefix(rest.slice(0,m.index),true); if(hit) return hit.source; }
+  return null;
+}
+
+function detectTitleRegion(raw, authorInfo){
+  const rest=refRestAfterAuthors(raw,authorInfo);
+  if(!rest) return null;
+
+  // Book/chapter or database-export form: Authors, Title, in: Source, Publisher, YEAR: pages.
+  // Everything before the explicit "in:" marker is the work title, and commas inside it are valid.
+  let im=rest.match(/,\s*in:\s*/i);
+  if(im){
+    const cand=rest.slice(0,im.index).trim().replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+    if(refPlausibleTitle(cand)) return cand;
+  }
+
+  // Author-year / APA / IWA family: Authors YEAR. Title. Source...
+  let m=rest.match(/^\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\s*[,;]?\s*(.+?)\.\s+(.+)$/u);
+  if(m){
+    const cand=m[2].trim();
+    const after=m[3].trim();
+    if(refPlausibleTitle(cand) && (refLooksLikeSourceName(after.split(/[,;]|\b\d{1,5}\s*\(/)[0],true) || /\b\d{1,5}\b/.test(after))) return cand;
+  }
+
+  // Chicago/notes-style family: Authors, “Title,” Source VOLUME, no. ISSUE (YEAR): PAGES.
+  // Internal commas inside the quoted/unquoted title are valid and must not terminate it.
+  m=rest.match(/\b\d{1,6}\s*,\s*(?:no\.?|issue)\s*\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)/iu);
+  if(m){
+    const prefix=rest.slice(0,m.index);
+    const hit=refExtractSourceFromPrefix(prefix,true);
+    if(hit){
+      const cand=hit.titlePrefix
+        .replace(/^[,.;:\s“”‘’"']+|[,.;:\s“”‘’"']+$/g,"")
+        .trim();
+      if(refPlausibleTitle(cand)) return cand;
+    }
+  }
+
+  // Elsevier/Nature family: Authors, Title, Source VOLUME (YEAR) PAGES/ARTICLE.
+  m=rest.match(/\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)/u);
+  if(m){
+    const prefix=rest.slice(0,m.index);
+    const hit=refExtractSourceFromPrefix(prefix,true);
+    if(hit){
+      const cand=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+      if(refPlausibleTitle(cand)) return cand;
+      return null;
+    }
+    // Missing-source reference: title is still a real field and should be detected.
+    const cand=prefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+    if(refPlausibleTitle(cand) && !refLooksLikeSourceName(cand,false)) return cand;
+  }
+
+  // Source. (YEAR) PAGES or title-only, (YEAR) when source is missing.
+  m=rest.match(/\(\s*(?:19|20)\d{2}[a-z]?\s*\)/u);
+  if(m){
+    const prefix=rest.slice(0,m.index).trim();
+    if(/\.\s*$/.test(prefix)){
+      const hit=refExtractSourceFromPrefix(prefix,true);
+      if(hit){
+        const cand=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+        if(refPlausibleTitle(cand)) return cand;
+        return null;
+      }
+    }
+    // Some journals place an e-location/article number before the year, e.g.
+    // "Adv Funct Mater. 2009779 (2021) 1-44". Remove that numeric tail before finding the source.
+    const pNoLocator=prefix.replace(/\s+[eE]?\d{5,8}\s*$/,"").trim();
+    if(pNoLocator!==prefix){
+      const hit=refExtractSourceFromPrefix(pNoLocator,true);
+      if(hit){
+        const cand=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+        if(refPlausibleTitle(cand)) return cand;
+      }
+    }
+    // Missing-source references still contain a real title. Since this branch is reached only
+    // for parenthesized-year styles, preserve a plausible multiword span instead of discarding it.
+    const cand=prefix.replace(/(?:,\s*|\s+)[eE]?\d{1,8}\s*$/,"").replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+    if(refPlausibleTitle(cand)){
+      const wc=cand.split(/\s+/).filter(Boolean).length;
+      if(wc>=4 || /[:?]/.test(cand)) return cand;
+    }
+  }
+
+  // Source-year-only family: Authors, Title, Source, YEAR. DOI/URL
+  m=rest.match(/,\s*(?:19|20)\d{2}[a-z]?\s*\.?(?=\s*(?:https?:\/\/|doi\s*:|$))/iu);
+  if(m){
+    const hit=refExtractSourceFromPrefix(rest.slice(0,m.index),true);
+    if(hit){
+      const cand=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+      if(refPlausibleTitle(cand)) return cand;
+    }
+  }
+
+  // Journal + space-year family: Authors, Title. Source YEAR, VOLUME, PAGES/ARTICLE.
+  // Example: "... treatment plant. Chemosphere 2022, 300, 134489."
+  // Internal commas belong to the title and must not be treated as field separators.
+  m=rest.match(/\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}\b/u);
+  if(m){
+    const source=detectSourceRegion(raw,authorInfo);
+    if(source){
+      const prefix=rest.slice(0,m.index).trim();
+      const idx=prefix.toLocaleLowerCase().lastIndexOf(source.toLocaleLowerCase());
+      if(idx>=0){
+        const cand=prefix.slice(0,idx).replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+        if(refPlausibleTitle(cand)) return cand;
+      }
+    }
+  }
+
+  // RSC/ACS comma family: Authors, [Title,] Source, YEAR, VOLUME, PAGES/ARTICLE.
+  m=rest.match(/,\s*(?:19|20)\d{2}[a-z]?\s*,\s*\d{1,6}(?:\s*[,;:]\s*(?:[eE]?\d+|\d+\s*[-–—]\s*\d+))?/u);
+  if(m){
+    const hit=refExtractSourceFromPrefix(rest.slice(0,m.index),true);
+    if(hit){
+      const cand=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+      if(refPlausibleTitle(cand)) return cand;
+    }
+    return null;
+  }
+
+  // Common journal form: Authors, Title. Journal. YEAR;VOLUME:PAGES.
+  m=rest.match(/\b(?:19|20)\d{2}[a-z]?\s*[;,]\s*\d{1,6}/u);
+  if(m){
+    const prefix=rest.slice(0,m.index).trim().replace(/[,;\s]+$/g,"");
+    const hit=refExtractSourceFromPrefix(prefix,true);
+    if(hit){
+      const cand=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+      if(refPlausibleTitle(cand)) return cand;
+    }
+    const parts=prefix.split(/\.\s+(?=[\p{Lu}])/u);
+    if(parts.length>=2){
+      const source=parts.pop().trim(), title=parts.join(". ").trim();
+      if(refLooksLikeSourceName(source,true) && refPlausibleTitle(title)) return title;
+    }
+  }
+  return null;
+}
+
+/* ---- List-level conventions inferred from the whole bibliography ---- */
+function inferTitleConvention(parsed){
+  const j=parsed.filter(p=>p.type==="journal article" && p.year);
+  if(j.length<3) return "uncertain";
+  const omitted=j.filter(p=>p.rscCompact).length;
+  const titled=j.filter(p=>p.hasTitle).length;
+  if(omitted/j.length>=0.7) return "omitted";
+  if(titled/j.length>=0.7) return "included";
+  if(omitted>=2 && titled>=2) return "mixed";
+  return omitted>titled?"omitted":(titled>omitted?"included":"uncertain");
+}
+function inferDoiConvention(parsed){
+  const j=parsed.filter(p=>p.type==="journal article");
+  if(j.length<3) return "uncertain";
+  const c=j.filter(p=>p.doi).length/j.length;
+  if(c<=0.1) return "omitted";
+  if(c>=0.7) return "included";
+  return "mixed";
+}
+
+/* ---- Publication-year detection anchored to bibliographic structure ---- */
+function detectPublicationYear(raw, authorInfo, sourceRegion){
+  let rest=refRestAfterAuthors(raw,authorInfo);
+  // DOI/URL strings can contain year-like digit groups that are not publication years.
+  rest=rest.replace(/(?:doi\s*:\s*)?(?:https?:\/\/(?:dx\.)?doi\.org\/)?10\.\d{4,9}\/\S+/ig," ")
+           .replace(/https?:\/\/\S+/ig," ").trim();
+
+  // Strongest signal: the first year immediately after the detected journal/container.
+  // This correctly handles both "Journal 2020, 396" and "Journal. 396 (2020)" while
+  // ignoring years mentioned inside an article title before the source.
+  if(sourceRegion){
+    const low=rest.toLocaleLowerCase(), src=sourceRegion.toLocaleLowerCase();
+    const idx=low.lastIndexOf(src);
+    if(idx>=0){
+      const tail=rest.slice(idx+sourceRegion.length, idx+sourceRegion.length+100);
+      const m=tail.match(/\b((?:19|20)\d{2}[a-z]?)\b/i);
+      if(m) return m[1];
+    }
+  }
+
+  // Author-year styles place the publication year directly after the author block.
+  let m=rest.match(/^\s*\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\b/i);
+  if(m) return m[1];
+
+  // Structural fallbacks: year adjacent to volume/pages or inside a volume(year) tail.
+  const pats=[
+    /\b((?:19|20)\d{2}[a-z]?)\s*[,;]\s*\d{1,6}\b/i,
+    /\b\d{1,6}\s*\(\s*((?:19|20)\d{2}[a-z]?)\s*\)/i,
+    /\(\s*((?:19|20)\d{2}[a-z]?)\s*\)\s*[,;:]?\s*(?:\d|e\d)/i,
+    /\b((?:19|20)\d{2}[a-z]?)\s*[;:]\s*\d{1,6}\b/i
+  ];
+  for(const re of pats){ const x=rest.match(re); if(x) return x[1]; }
+
+  // Last resort only. This preserves compatibility for sparse/nonstandard references.
+  m=rest.match(/\b((?:19|20)\d{2}[a-z]?)\b/i);
+  return m?m[1]:(/\b(in press|forthcoming|n\.?\s?d\.?)\b/i.test(rest)?"n.d.":null);
+}
+
 function refType(s){
   if(/\b(arxiv|biorxiv|medrxiv|chemrxiv|ssrn|preprint|research\s+square|preprints\.org)\b/i.test(s)) return "preprint";
   if(/\b(thesis|dissertation|doctoral)\b/i.test(s)) return "thesis";
   if(/\b(proceedings|conference|symposium|congress|workshop)\b/i.test(s)||/\bin:\s/i.test(s)) return "conference paper";
   if(/\b(ISO|ASTM|IEC|BS\s?EN|EN)\s?\d{2,}/.test(s)) return "standard";
   if(/\b(u\.?s\.?\s?patent|patent\s+no|pat\.\s?no)\b/i.test(s)) return "patent";
-  if(/\b(technical\s+report|tech\.?\s?rep|working\s+paper|white\s+paper|guidance|bulletin|report\s+no|US\s?EPA|USEPA|\bEPA\b|\bWHO\b|\bOECD\b|\bIPCC\b|\bITRC\b|\bUNEP\b|\bFAO\b|\bIEA\b|\bNIST\b)\b/.test(s) && !/10\.\d{4,9}\//.test(s) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)/.test(s)) return "report";
+  if(/\b(technical\s+report|tech\.?\s?rep|working\s+paper|white\s+paper|guidance|bulletin|report\s+no|US\s?EPA|USEPA|\bEPA\b|\bWHO\b|\bOECD\b|\bIPCC\b|\bITRC\b|\bUNEP\b|\bFAO\b|\bIEA\b|\bNIST\b)\b/.test(s) && !/10\.\d{4,9}\//.test(s) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)\s*\d/.test(s)) return "report";
   const hasUrl=/\bhttps?:\/\/|\bwww\./i.test(s);
   const placeholder=/\bVolume\s+Pages\b|,\s*Journal\s*[.,]?\s*(\[|https?:|www\.|$)/i.test(s);
   if((hasUrl||placeholder) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)/.test(s) && !/10\.\d{4,9}\//.test(s)) return "web page";
-  if(/\b(eds?\.|editors?|press\b|publisher|Wiley|Elsevier|Springer|Routledge|CRC\s+Press|Academic\s+Press|ISBN)\b/i.test(s) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)\s*\d/.test(s)) return "book";
+
+  // Strong journal-tail evidence takes precedence over publisher/book keywords. This prevents
+  // journal titles such as "Angewandte Chemie International Edition" from being misclassified
+  // as books merely because they contain the word "Edition".
+  const journalTail =
+    /\b\d{1,6}\s*,\s*(?:no\.?|issue)\s*\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)\s*[:;,]?\s*(?:\d|e\d)/i.test(s) ||
+    /\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)\s*(?:\d|e\d)/i.test(s) ||
+    /\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}\s*[,;:]\s*(?:\d|e\d)/i.test(s) ||
+    /\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}\s*\(\s*\d+\s*\)/i.test(s) ||
+    /\b\d{1,6}\s*[,;]\s*(?:19|20)\d{2}[a-z]?\s*[,;:]\s*(?:\d|e\d)/i.test(s);
+  if(journalTail) return "journal article";
+
+  // Book evidence must be bibliographically specific. A bare word "Edition" is not enough,
+  // because it can legitimately occur inside a journal title. Accept numbered editions and
+  // genuine publisher/imprint cues instead.
+  const numberedEdition=/\b(?:\d+(?:st|nd|rd|th)\s+edition|edition\s+\d+|\d+(?:st|nd|rd|th)\s+ed\.?|ed\.?\s+\d+)\b/i.test(s);
+  const publisherCue=/\b(?:ISBN|Publishing|Publishers?|Publications?|University\s+Press|Academic\s+Press|CRC\s+Press|[\p{L}\-]+\s+Press|Springer|Elsevier|Wiley|Routledge|Pearson|McGraw[- ]Hill|Verlag)\b/iu.test(s);
+  const editorCue=/\b(?:eds?\.|editors?)\b/i.test(s);
+  if(numberedEdition || publisherCue || editorCue) return "book";
+
   return "journal article";
 }
+function refExtractDoi(raw){
+  let t=(raw||"")
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"");
+
+  // Word layout may split a DOI at several visually harmless positions, including
+  // between "10." and the registrant code, around the slash, or after punctuation
+  // inside the suffix. Normalize the DOI prefix conservatively before matching.
+  t=t.replace(/\b10\.\s+(\d{4,9})\s*\/\s*/ig,"10.$1/");
+  t=t.replace(/\b(10\.\d{4,9})\s*\/\s*/ig,"$1/");
+
+  // Normal inline DOI.
+  let m=t.match(/\b(10\.\d{4,9}\/[^\s,;<>"']+)/i);
+  let cand=m?m[1]:null;
+
+  // If a DOI URL/label is the final field, tolerate line wrapping within the suffix by
+  // collapsing whitespace in that final DOI field only.
+  if(!cand){
+    m=t.match(/(?:https?:\/\/(?:dx\.)?doi\.org\/|doi\s*:\s*)\s*(10\.\d{4,9}\/[\s\S]{1,180})\s*$/i);
+    if(m) cand=m[1].replace(/\s+/g,"");
+  }
+  if(!cand){
+    m=t.match(/\b(10\.\d{4,9}\/[\s\S]{1,180})\s*$/i);
+    if(m && /[A-Za-z0-9]/.test(m[1].slice(m[1].indexOf("/")+1))) cand=m[1].replace(/\s+/g,"");
+  }
+  if(!cand) return null;
+
+  // Remove ordinary trailing bibliography punctuation. Preserve a terminal ')' when it is
+  // balanced because parentheses can legitimately occur inside DOI suffixes.
+  cand=cand.replace(/[.,;:]+$/g,"");
+  while(cand.endsWith("]")) cand=cand.slice(0,-1);
+  while(cand.endsWith(")")){
+    const opens=(cand.match(/\(/g)||[]).length, closes=(cand.match(/\)/g)||[]).length;
+    if(closes>opens) cand=cand.slice(0,-1); else break;
+  }
+  return cand||null;
+}
+
+function refHasVolume(raw, year, sourceRegion){
+  const t=(raw||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+
+  // Explicit volume labels are unambiguous.
+  if(/\bvol(?:ume)?\.?\s*\d{1,6}\b/i.test(t)) return true;
+
+  // Common journal tails: 396 (2020), 2, no. 4 (2022), 592 (2024): 118171.
+  if(/\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)/i.test(t)) return true;
+  if(/\b\d{1,6}\s*,\s*(?:no\.?|issue)\s*\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)/i.test(t)) return true;
+
+  // Year-first families: 2022, 300, 134489 or 2021; 279; 119793.
+  if(/\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}\b/i.test(t)) return true;
+
+  // Source followed directly by volume, then year. Anchoring to the detected source
+  // avoids treating numbers in the article title as a volume.
+  if(sourceRegion){
+    const esc=sourceRegion.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    try{
+      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6})(?=\\s*(?:,|;|:|\\(|\\bno\\.?\\b|\\bissue\\b))","i");
+      if(re.test(t)) return true;
+    }catch(e){}
+  }
+
+  // If a publication year is already known, accept a nearby preceding volume pattern.
+  if(year && /^\d{4}/.test(year)){
+    const y=year.slice(0,4);
+    const re1=new RegExp("\\b\\d{1,6}\\s*(?:,\\s*(?:no\\.?|issue)\\s*\\d{1,6}\\s*)?\\(\\s*"+y+"[a-z]?\\s*\\)","i");
+    const re2=new RegExp("\\b"+y+"[a-z]?\\s*[,;]\\s*\\d{1,6}\\b","i");
+    if(re1.test(t)||re2.test(t)) return true;
+  }
+
+  // Legacy structural forms retained for compatibility.
+  return /;\s*\d+\s*[:(]/.test(t) || /\b\d+\s*:\s*\d+/.test(t);
+}
+
 function refParseEntry(raw){
-  const year=(raw.match(/\b(?:19|20)\d{2}[a-z]?\b/)||[])[0]||null;
-  const doiM=raw.match(/10\.\d{4,9}\/[^\s,;]+/);
-  const doi=doiM?doiM[0].replace(/[.,;)\]]+$/,""):null;
-  const rawNoDoi=doiM?raw.replace(doiM[0],""):raw;
-  const yr=year?year.replace(/[a-z]$/,""):null;
-  const rawNoYear=year?raw.replace(year," "):raw;
   const rawTrim=raw.trim();
+  const doi=refExtractDoi(raw);
+
+  // Author-field parsing is independent of reference-entry segmentation.
+  const authorInfo=detectAuthorRegion(rawTrim);
+  const hasAuthors=authorInfo.hasAuthors;
+  const hasCorporateAuthor=authorInfo.authorType==="corporate";
+  const firstAuthor=authorInfo.firstAuthorSurname||null;
+
+  const type=refType(raw);
+  const bookFields=type==="book"?detectBookFields(raw,authorInfo):null;
+
+  // Detect source/publisher before year so title-internal years are not mistaken for publication years.
+  const sourceRegion=bookFields?.publisher||detectSourceRegion(raw,authorInfo);
+  const year=bookFields?.year||detectPublicationYear(raw,authorInfo,sourceRegion);
+  const yr=year&&/^\d/.test(year)?year.replace(/[a-z]$/i,""):null;
+  const rawNoDoi=doi?raw.replace(doi,""):raw;
+  const rawNoYear=yr?raw.replace(new RegExp("\\b"+yr+"\\b")," "):raw;
+
   const volArt=/\b(\d{1,3})\s*,\s*(\d{3,6})\b/.exec(rawNoDoi);
   const hasArticleNo=
     /\be\d{4,}\b/i.test(raw) ||
-    /\b(article|art|paper)\.?\s*(no\.?|number|id)?\s*:?\s*\d+/i.test(raw) ||
-    /\(\d+\)\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||          // vol(issue), 471.
-    /,\s*\d{1,4}\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||       // journal, vol, 130426.
-    /\(\d{4}[a-z]?\)\s*:?\s*\d{1,7}(?:\s*[-–]\s*\d{1,7})?/.test(raw) ||  // (Year) 53  /  (Year) 995
+    /\b(article|art|paper|e-location|elocation)\.?\s*(no\.?|number|id)?\s*:?\s*[eE]?\d+/i.test(raw) ||
+    /\(\d+\)\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||
+    /,\s*\d{1,4}\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||
+    /\(\d{4}[a-z]?\)\s*:?\s*\d{1,7}(?:\s*[-–]\s*\d{1,7})?/.test(raw) ||
     (volArt && !/^(?:19|20)\d{2}$/.test(volArt[2])) ||
     (new RegExp("\\b\\d{5,7}\\b").test(yr?rawNoDoi.replace(new RegExp("\\b"+yr+"\\b","g"),""):rawNoDoi));
+  // A bare label such as "Article." without an identifier is intentionally NOT counted
+  // as an article number. The ledger should show the field as missing rather than inventing
+  // an identifier from the DOI.
   const hasPageRange=/\b\d+\s*[-–—]\s*\d+\b/.test(raw)||/\bpp?\.\s*\d+/i.test(raw)||/:\s*\d+\s*[-–]\s*\d+/.test(raw);
   const hasPages=hasPageRange||hasArticleNo;
-  const hasVolume=
-    /\b\d+\s*\(\d+\)/.test(raw) ||                            // 40(17)
-    /\bvol\.?\s*\d+/i.test(raw) ||
-    /;\s*\d+\s*[:(]/.test(raw) ||
-    /\b\d+\s*:\s*\d+/.test(raw) ||
-    /\b\d{1,4}\s*\(\d{4}[a-z]?\)/.test(raw) ||                // Volume (Year)
-    /,\s*\d{1,4}\s*[,(.]/.test(rawNoYear) ||                  // , Volume , / ( / .
-    /\.\s+\d{1,4}\s*,/.test(rawNoYear);                       // Journal Abbrev. Volume,
-  const hasAuthors=/^[\p{Lu}][\p{L}'’\-]+,?\s+[\p{Lu}]\.?([\p{Lu}]\.?)*/u.test(raw)||/^[\p{L}'’\-]+\s+[\p{Lu}]{1,3}\b/u.test(raw);
+  const hasVolume=refHasVolume(raw,year,sourceRegion);
+  const hasIssue=/\b\d+\s*\(\s*\d+\s*\)/.test(raw) || /\bno\.\s*\d+/i.test(raw) || /\biss(?:ue)?\.?\s*\d+/i.test(raw);
+  // Compact comma-tail signature. It is considered titleless only after title parsing confirms no title.
+  const compactCommaTail=/,\s*(?:19|20)\d{2}[a-z]?\s*,\s*\d+(?:\s*,\s*(?:\d+\s*[-–—]\s*\d+|[eE]?\d+))?\s*\.?\s*$/.test(rawTrim);
+  const hasSource=!!sourceRegion ||
+    /(?:[A-Z][a-z]{1,}\.\s*){1,}[A-Z]?[A-Za-z]*\.?/.test(raw) ||
+    /\b(Journal|Proc\.|Trans\.|Rev\.|Bull\.|Ann\.|Adv\.|Environ|Water|Energy|Chem|Sci|Eng|Technol|Mater|Bioresour|Biosens(?:ors)?|Bioelectron|Electrochim|Catal|Nature|Science|Renew|Sustain|Ecol|Biol|Phys|Anal|Membr|Sep|Purif|Clean|Prod|Acta|Rep)\b/i.test(raw);
+  const title=bookFields?.title||detectTitleRegion(raw,authorInfo);
+  const hasTitle=!!title;
+  const rscCompact=compactCommaTail && !hasTitle;
+
   const wordCount=(raw.match(/[A-Za-z]{3,}/g)||[]).length;
-  const firstAuthor=(raw.match(/^([\p{Lu}][\p{L}'’\-]+)/u)||[])[1]||null;
-  return {raw, year, doi, hasPages, hasArticleNo, hasVolume, hasAuthors, wordCount, firstAuthor, type:refType(raw)};
+  return {raw, year, doi, hasPages, hasArticleNo, hasVolume, hasIssue, hasAuthors, hasCorporateAuthor,
+          authorType:authorInfo.authorType, authorRegion:authorInfo.authorRegion, authorCount:authorInfo.authorCount,
+          authorConfidence:authorInfo.confidence, hasSource, sourceRegion, hasTitle, title, rscCompact, wordCount, firstAuthor, type};
 }
 /* Reference-likelihood of a single entry, from several independent signals */
 function refScore(s){
@@ -931,7 +1656,7 @@ function refScore(s){
   if(/\b(?:19|20)\d{2}[a-z]?\b/.test(s)) sc+=2;
   if(/10\.\d{4,9}\/\S+/.test(s) || /\bdoi\b/i.test(s)) sc+=3;
   if(/^\s*(\[\d{1,3}\]|\(\d{1,3}\)|\d{1,3}[.)])\s/.test(s)) sc+=2;
-  if(/[A-Z][A-Za-z'’-]+,?\s+[A-Z]\.?([A-Z]\.?)*(\s|,|\.)/.test(s)) sc+=2;
+  if(refStartsAuthor(s)) sc+=2;
   if(/\bet al\.?/i.test(s)) sc+=2;
   if(/\b\d+\s*\(\d+\)\s*[,:]?\s*\d+/.test(s) || /\b\d+\s*:\s*\d+\s*[-–]\s*\d+/.test(s)) sc+=2;
   if(/\b\d+\s*[-–]\s*\d+\b/.test(s)) sc+=1;
@@ -984,23 +1709,30 @@ function refSplitManuscript(text){
     return lines.slice(fromLine,endLine).join("\n").trim();
   };
 
-  // CASE A: standalone reference heading with reference-like content after it
+  // CASE A: standalone reference heading with reference-like content after it.
+  // Prefer a canonical/fuzzy bibliography heading that occurs later in the document over
+  // an earlier singular "Reference" table-column label whose gathered text happens to
+  // include the true bibliography farther below.
   let best=null;
   for(let i=0;i<lines.length;i++){
-    if(!HEAD.test(lines[i])) continue;
+    if(!HEAD.test(lines[i]) && !isReferenceHeading(lines[i])) continue;
     const refsText=gather(i+1);
     if(refsText.length<20) continue;
     const yearN=(refsText.match(/\b(?:19|20)\d{2}\b/g)||[]).length;
     const doiN=(refsText.match(/10\.\d{4,9}\//g)||[]).length;
-    const numN=(refsText.match(/(?:^|\n)\s*(?:\[\d{1,3}\]|\(\d{1,3}\)|\d{1,3}[.)])\s/g)||[]).length;
+    const numN=(refsText.match(/(?:^|\n)\s*(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s*/g)||[]).length;
     const authorN=(refsText.match(/[A-Z][A-Za-z'’-]+,?\s+[A-Z]\.?[A-Z]?\.?/g)||[]).length;
     const etalN=(refsText.match(/\bet al\.?/gi)||[]).length;
-    // accept when the section shows genuine bibliographic signal
     const hasSignal=(yearN>=1 && (doiN>=1||authorN>=1||numN>=1||etalN>=1)) || numN>=2 || doiN>=2;
     if(hasSignal){
       const signal=yearN + doiN*2 + numN + etalN + Math.min(authorN,12);
-      const score=signal + (off[i]>N*0.5?12:0) + (citeStyle!=="uncertain"?4:0);
-      if(!best || score>best.score) best={i,refsText,score,signal};
+      const strength=referenceHeadingStrength(lines[i]);
+      const position=off[i]/Math.max(1,N);
+      const density=signal/Math.max(1,refsText.length/500);
+      const cand={i,refsText,signal,strength,position,density};
+      if(!best || strength>best.strength ||
+         (strength===best.strength && i>best.i) ||
+         (strength===best.strength && i===best.i && density>best.density)) best=cand;
     }
   }
   if(best){
@@ -1036,46 +1768,79 @@ function refSplitManuscript(text){
 function refCheck(refText, bodyText){
   const {style, marker, entries}=refSplitList(refText);
   const parsed=entries.map(e=>({...e, ...refParseEntry(e.raw)}));
+  const titleConvention=inferTitleConvention(parsed);
+  const doiConvention=inferDoiConvention(parsed);
   const issues=[];
   const withDoi=parsed.filter(p=>p.doi).length;
   const doiCoverage=parsed.length?withDoi/parsed.length:0;
   const NA_FIELDS={
-    "web page":{vol:1,pages:1,doi:1},"report":{vol:1,pages:1},"thesis":{vol:1,pages:1,doi:1},
-    "preprint":{vol:1,pages:1},"book":{vol:1},"conference paper":{vol:1},"standard":{vol:1,pages:1},"patent":{vol:1,pages:1}
+    "web page":{vol:1,issue:1,pages:1,doi:1},
+    "report":{vol:1,issue:1,pages:1},
+    "thesis":{vol:1,issue:1,pages:1,doi:1},
+    "preprint":{vol:1,issue:1,pages:1},
+    "book":{vol:1,issue:1,pages:1,doi:1},
+    "conference paper":{vol:1,issue:1},
+    "standard":{vol:1,issue:1,pages:1},
+    "patent":{vol:1,issue:1,pages:1}
   };
   const lab=(p,i)=> p.num!=null?`[${p.num}]`:`#${i+1}`;
   parsed.forEach((p,i)=>{
     const L=lab(p,i);
-    if(p.wordCount<4){ issues.push({level:"err",idx:i,label:L,msg:"Entry looks incomplete or too short to be a full reference."}); return; }
     const na=NA_FIELDS[p.type]||{};
-    if(p.type!=="journal article") issues.push({level:"info",idx:i,label:L,msg:`Identified as a ${p.type}; journal fields are not expected.`});
+    const isArt=p.type==="journal article";
+    const isBook=p.type==="book";
+    const titleReq = (isArt && titleConvention==="included") || isBook;
+    const sourceReq = isArt || isBook;
+    // three-state field flags (present / required-absent="no" / not-applicable="na")
+    p._authorState = p.hasAuthors?"yes":"no";
+    p._yearState = p.year?"yes":"no";
+    p._titleState = (isArt && titleConvention==="omitted")?"na":(p.hasTitle?"yes":(titleReq?"no":"na"));
+    p._sourceState = p.hasSource?"yes":(sourceReq?"no":"na");
+    p._pagesState = p.hasPages?"yes":(na.pages?"na":"no");
+    p._volState = p.hasVolume?"yes":(na.vol?"na":"no");
+    p._doiState = p.doi?"yes":((na.doi||doiConvention==="included"?(na.doi?"na":"no"):"na"));
+
+    if(p.wordCount<4 && !p.rscCompact && !p.hasCorporateAuthor){ issues.push({level:"err",idx:i,label:L,msg:"Entry looks incomplete or too short to be a full reference."}); return; }
+    if(!isArt) issues.push({level:"info",idx:i,label:L,msg:`Identified as a ${p.type}; journal-specific fields are not expected.`});
     if(!p.year) issues.push({level:"warn",idx:i,label:L,msg:"No publication year found."});
-    if(!p.hasAuthors && p.type==="journal article") issues.push({level:"warn",idx:i,label:L,msg:"No author names detected at the start of the entry."});
+    if(!p.hasAuthors) issues.push({level:"warn",idx:i,label:L,msg:"No author or organisation detected at the start of the entry."});
+    if(titleReq && !p.hasTitle) issues.push({level:"warn",idx:i,label:L,msg:"No article title detected, though this list normally includes titles."});
+    if(isArt && !p.hasSource) issues.push({level:"warn",idx:i,label:L,msg:"No journal or source name detected."});
     if(!p.hasPages && !na.pages) issues.push({level:"warn",idx:i,label:L,msg:"No page range or article number found."});
     if(!p.hasVolume && !na.vol) issues.push({level:"info",idx:i,label:L,msg:"No volume or issue number found."});
-    if(!p.doi && !na.doi && doiCoverage>=0.6) issues.push({level:"info",idx:i,label:L,msg:"No DOI, though other references in the list include one. Add it only if your target style uses DOIs."});
+    if(p._doiState==="no") issues.push({level:"info",idx:i,label:L,msg:"No DOI, though most references in this list include one."});
   });
   const seen=new Map();
-  parsed.forEach((p,i)=>{ const key=p.doi?("doi:"+p.doi.toLowerCase()):((p.firstAuthor||"")+"|"+(p.year||"")); if(key.trim()&&key!=="|"&&seen.has(key)) issues.push({level:"warn",idx:i,label:lab(p,i),msg:`Looks like a duplicate of entry ${seen.get(key)}.`}); else seen.set(key,lab(p,i)); });
+  parsed.forEach((p,i)=>{
+    const key=p.doi?("doi:"+p.doi.toLowerCase())
+      :((p.firstAuthor||"").toLowerCase()+"|"+(p.year||"")+"|"+((p.title||p.raw).slice(0,24).toLowerCase().replace(/[^a-z0-9]/g,"")));
+    if(p.doi || (p.firstAuthor && p.year)){ if(seen.has(key)) issues.push({level:"warn",idx:i,label:lab(p,i),msg:`Looks like a duplicate of entry ${seen.get(key)}.`}); else seen.set(key,lab(p,i)); }
+  });
   if(marker==="bracket"||marker==="number"){
     const nums=parsed.map(p=>p.num).filter(n=>n!=null);
-    for(let n=1;n<=nums.length;n++){ if(!nums.includes(n)) issues.push({level:"warn",idx:-1,label:"list",msg:`Reference number ${n} is missing from the sequence.`}); }
-    [...new Set(nums.filter((n,i)=>nums.indexOf(n)!==i))].forEach(n=>issues.push({level:"warn",idx:-1,label:"list",msg:`Reference number ${n} appears more than once.`}));
+    if(nums.length>=3){
+      for(let n=1;n<=nums.length;n++){ if(!nums.includes(n)) issues.push({level:"warn",idx:-1,label:"list",msg:`Reference number ${n} is missing from the sequence.`}); }
+      [...new Set(nums.filter((n,i)=>nums.indexOf(n)!==i))].forEach(n=>issues.push({level:"warn",idx:-1,label:"list",msg:`Reference number ${n} appears more than once.`}));
+    }
   }
   let cross=null;
   if(bodyText && marker!=="none"){
     const cited=new Set();
-    for(const m of bodyText.matchAll(/\[([\d,\s–-]+)\]/g)){
-      m[1].split(/[,\s]+/).forEach(tok=>{ const rng=tok.match(/^(\d+)[–-](\d+)$/); if(rng){for(let x=+rng[1];x<=+rng[2];x++)cited.add(x);} else if(/^\d+$/.test(tok))cited.add(+tok); });
-    }
+    const collect=re=>{ for(const m of bodyText.matchAll(re)){ m[1].split(/[,\s]+/).forEach(tok=>{ const rng=tok.match(/^(\d+)[–—-](\d+)$/); if(rng){for(let x=+rng[1];x<=+rng[2]&&x-(+rng[1])<200;x++)cited.add(x);} else if(/^\d+$/.test(tok))cited.add(+tok); }); } };
+    const brk=(bodyText.match(/\[\d/g)||[]).length, par=(bodyText.match(/\(\d{1,3}(?:[,\s–—-]|\))/g)||[]).length;
+    if(brk>=par && brk>0) collect(/\[([\d,\s–—-]+)\]/g); else if(par>0) collect(/\(([\d,\s–—-]+)\)/g);
     const listNums=new Set(parsed.map(p=>p.num).filter(n=>n!=null));
-    const citedNotListed=[...cited].filter(n=>!listNums.has(n)).sort((a,b)=>a-b);
-    const listedNotCited=[...listNums].filter(n=>!cited.has(n)).sort((a,b)=>a-b);
-    cross={citedNotListed, listedNotCited};
-    citedNotListed.forEach(n=>issues.push({level:"err",idx:-1,label:"in-text",msg:`Citation [${n}] appears in the text but has no entry in the reference list.`}));
-    listedNotCited.forEach(n=>issues.push({level:"warn",idx:-1,label:`[${n}]`,msg:"Listed but never cited in the text."}));
+    if(cited.size){
+      const citedNotListed=[...cited].filter(n=>!listNums.has(n)).sort((a,b)=>a-b);
+      const listedNotCited=[...listNums].filter(n=>!cited.has(n)).sort((a,b)=>a-b);
+      cross={citedNotListed, listedNotCited};
+      citedNotListed.forEach(n=>issues.push({level:"err",idx:-1,label:"in-text",msg:`Citation ${n} appears in the text but has no entry in the reference list.`}));
+      listedNotCited.forEach(n=>issues.push({level:"warn",idx:-1,label:`[${n}]`,msg:"Listed but never cited in the text."}));
+    }
   }
-  return {style, marker, count:parsed.length, parsed, issues, doiCoverage, cross, hadBody:!!bodyText};
+  const bibLines=(refText.match(/\b(?:19|20)\d{2}\b/g)||[]).length;
+  const segLowConfidence = parsed.length<=2 && bibLines>=6;
+  return {style, marker, count:parsed.length, parsed, issues, doiCoverage, doiConvention, titleConvention, cross, hadBody:!!bodyText, segLowConfidence};
 }
 async function refCrossref(parsed, onProgress){
   const base="https://api.crossref.org/works", out=[], cap=Math.min(parsed.length,40);
@@ -1110,9 +1875,12 @@ let LAST_REF_OUT=null;
 function renderRefReport(res, cross){
   $("ref-report-sub").textContent =
     `Detected style: ${res.style} · ${res.count} references`+
-    (res.doiCoverage>0?` · DOI coverage ${(res.doiCoverage*100).toFixed(0)}%`:"")+
+    (res.titleConvention&&res.titleConvention!=="uncertain"?` · titles ${res.titleConvention}`:"")+
+    (res.doiConvention&&res.doiConvention!=="uncertain"?` · DOIs ${res.doiConvention}`:"")+
     (res.detect ? ` · section found by ${res.detect.method==="explicit_heading"?("heading “"+(res.detect.heading||"References")+"”"):"citation-pattern detection"} (confidence ${res.detect.confidence})` : "")+
     (res.hadBody?"":" · in-text check skipped (no manuscript body detected)");
+  // The References tab intentionally shows only the ledger. Validation findings remain internal
+  // for field-state calculation but are not rendered as warning/suggestion sections.
   $("ref-ledger-wrap").innerHTML=refLedger(res.parsed);
   $("ref-report").hidden=false;
 }
@@ -1124,38 +1892,28 @@ function refIssueSection(label, items, kind){
 }
 function refLedger(parsed){
   if(!parsed.length) return "";
-  const yn=b=> b?`<span class="yn y">yes</span>`:`<span class="yn n">no</span>`;
-  const na=`<span class="yn na">n/a</span>`;
-  const NA={
-    "web page":{vol:1,pages:1,doi:1},
-    "report":{vol:1,pages:1},
-    "thesis":{vol:1,pages:1,doi:1},
-    "preprint":{vol:1,pages:1},
-    "book":{vol:1},
-    "conference paper":{vol:1},
-    "standard":{vol:1,pages:1},
-    "patent":{vol:1,pages:1}
-  };
+  const cell=st=> st==="yes"?`<span class="yn y">yes</span>`:(st==="no"?`<span class="yn n">no</span>`:`<span class="yn na">n/a</span>`);
   const body=parsed.map((p,i)=>{
     const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
-    const na_=NA[p.type]||{};
     const tag=p.type!=="journal article"?`<span class="rtype">${escapeHtml(p.type)}</span> `:"";
-    const snip=escapeHtml(p.raw.length>66?p.raw.slice(0,66)+"…":p.raw);
-    const pagesCell=na_.pages?na:yn(p.hasPages);
-    const volCell=na_.vol?na:yn(p.hasVolume);
-    const doiCell=na_.doi?na:yn(!!p.doi);
-    return `<tr><td class="t-abbr">${label}</td><td class="t-long">${tag}${snip}</td><td>${yn(!!p.year)}</td><td>${pagesCell}</td><td>${volCell}</td><td>${doiCell}</td></tr>`;
+    const snip=escapeHtml(p.raw.length>58?p.raw.slice(0,58)+"…":p.raw);
+    return `<tr><td class="t-abbr">${label}</td><td class="t-long">${tag}${snip}</td>`+
+      `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
+      `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger</p><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Year</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table>`;
+  return `<p class="sec-label">Reference ledger</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function refReportText(res, cross){
-  const L=["REFERENCE REPORT","",`Detected style: ${res.style}`,`References: ${res.count}`];
-  if(res.doiCoverage>0) L.push(`DOI coverage: ${(res.doiCoverage*100).toFixed(0)}%`);
-  L.push("");
-  const all=res.issues.slice();
-  (cross||[]).forEach(c=>{ if(c.level!=="ok"){ const p=res.parsed[c.idx]; const label=p?(p.num!=null?`[${p.num}]`:`#${c.idx+1}`):"ref"; all.push({level:c.level,label,msg:c.msg}); } });
-  const blk=(t,lv)=>{ const a=all.filter(x=>x.level===lv); if(!a.length) return; L.push(t.toUpperCase()); a.forEach(x=>L.push(`  - ${x.label}: ${x.msg}`)); L.push(""); };
-  blk("Must fix","err"); blk("Warnings","warn"); blk("Suggestions","info");
+  const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
+  if(res.titleConvention&&res.titleConvention!=="uncertain") L.push(`Title convention: ${res.titleConvention}`);
+  if(res.doiConvention&&res.doiConvention!=="uncertain") L.push(`DOI convention: ${res.doiConvention}`);
+  L.push("", "Ref | Entry / type | Author | Year | Title | Source | Pages/Art. | Vol. | DOI");
+  const state=st=>st==="yes"?"yes":(st==="no"?"no":"n/a");
+  res.parsed.forEach((p,i)=>{
+    const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
+    const entry=(p.type!=="journal article"?`[${p.type}] `:"")+p.raw.replace(/\s+/g," ").trim();
+    L.push(`${label} | ${entry} | ${state(p._authorState)} | ${state(p._yearState)} | ${state(p._titleState)} | ${state(p._sourceState)} | ${state(p._pagesState)} | ${state(p._volState)} | ${state(p._doiState)}`);
+  });
   return L.join("\n");
 }
 
@@ -1192,15 +1950,142 @@ function showRefNote(note){
   $("ref-report").hidden=false;
 }
 
-/* ================= Number & pH check ================= */
+/* ================= Number, pH & scientific precision check ================= */
 const NUM_WORD9={"0":"zero","1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight","9":"nine"};
 const COUNT_NOUNS=new Set(["samples","replicates","reactors","groups","treatments","sites","locations","stages","steps","phases","batches","runs","trials","experiments","tests","days","weeks","months","years","hours","minutes","seconds","methods","techniques","approaches","categories","classes","species","strains","columns","rows","points","values","measurements","observations","parameters","variables","factors","conditions","sets","cycles","rounds","iterations","participants","subjects","patients","animals","plants","cells","wells","plates","tubes","vials","bottles","tanks","chambers","electrodes","membranes","films","layers","sheets","particles","fractions","aliquots","dilutions","solutions","mixtures","compounds","reactions","assays","devices","sensors","options","questions","items"]);
 const IDENT_WORDS=new Set(["figure","fig","table","eq","equation","section","chapter","appendix","scheme","reaction","reactor","group","sample","site","phase","stage","step","day","week","type","class","level","model","grade","run","trial","test","batch","experiment","no","version","treatment","location","panel","column","row","lane","site","phase"]);
+
 function numSnip(s,idx,len){
   const a=Math.max(0,idx-45), b=Math.min(s.length,idx+len+45);
   return (a>0?"… ":"")+escapeHtml(s.slice(a,idx))+"<mark>"+escapeHtml(s.slice(idx,idx+len))+"</mark>"+escapeHtml(s.slice(idx+len,b))+(b<s.length?" …":"");
 }
-function numberCheck(text){
+function nDec(v){ const m=String(v).trim().match(/^[+−-]?(?:\d+)?(?:\.(\d+))?/); return m&&m[1]?m[1].length:0; }
+function nSig(v){
+  let s=String(v).trim().replace(/[+−-]/g,"").split(/[eE×]/)[0].replace(/\./g,"");
+  s=s.replace(/^0+/,""); return s.length||1;
+}
+function nNormUnit(u){
+  return (u||"").toLowerCase().replace(/[\s·⋅]/g,"").replace(/μ/g,"µ").replace(/−/g,"-").replace(/⁻¹/g,"-1").replace(/⁻²/g,"-2").replace(/⁻³/g,"-3");
+}
+const PREC_UNIT=String.raw`(?:CFU(?:\s*\/\s*|\s+)100\s*mL|MPN(?:\s*\/\s*|\s+)100\s*mL|kg\s*(?:\/|·|\s)\s*m(?:3|³|\s*[-−⁻]?3)|mg\s*(?:\/|·|\s)\s*kg(?:\s*[-−⁻]?1|¹)?|mg\s*(?:\/|·|\s)\s*L(?:\s*[-−⁻]?1|¹)?|g\s*(?:\/|·|\s)\s*L(?:\s*[-−⁻]?1|¹)?|µg\s*(?:\/|·|\s)\s*L(?:\s*[-−⁻]?1|¹)?|μg\s*(?:\/|·|\s)\s*L(?:\s*[-−⁻]?1|¹)?|ng\s*(?:\/|·|\s)\s*L(?:\s*[-−⁻]?1|¹)?|m³|cm³|mm³|m²|cm²|mm²|MLD|MGD|mmol|µmol|μmol|nmol|mM|µM|μM|nM|kPa|MPa|kHz|MHz|mV|mA|kW|kJ|kWh|mmHg|rpm|mol(?:\s*[·.]?\s*[A-Za-zµμ]+)?|kg|mg|µg|μg|ng|pg|mL|µL|μL|km|cm|mm|µm|μm|nm|Pa|bar|atm|Hz|dB|Wh|eV|°\s*[CF]|℃|℉|%|‰|K|V|A|W|J|M|L|g|m)`;
+const PREC_SKIP_CONTEXT=/\b(?:doi|isbn|issn|pmid|pmcid|cas|figure|fig\.?|table|equation|eq\.?|section|appendix|version|model\s+no|serial|catalog|postcode|zip|latitude|longitude|coordinates?|standard|guideline|regulatory|limit|threshold|specification|according\s+to|reported\s+by|literature|previous(?:ly)?\s+reported)\b/i;
+
+function precisionIssue(out,cat,msg,s,idx=0,len=0){ out.push({cat,msg,snippet:s&&len?numSnip(s,idx,len):""}); }
+function dominantDecimal(vals){
+  const counts=new Map(); vals.forEach(v=>counts.set(nDec(v),(counts.get(nDec(v))||0)+1));
+  const sorted=[...counts.entries()].sort((a,b)=>b[1]-a[1]);
+  return {dp:sorted.length?sorted[0][0]:0,count:sorted.length?sorted[0][1]:0,unique:sorted.map(x=>x[0])};
+}
+function shouldFlagMixedPrecision(vals){
+  if(vals.length<3) return false;
+  const ds=vals.map(nDec), u=[...new Set(ds)]; if(u.length<2) return false;
+  const dom=dominantDecimal(vals);
+  // Flag strong dominant-pattern outliers, or a spread of at least two decimal places.
+  return dom.count/vals.length>=0.67 || Math.max(...u)-Math.min(...u)>=2;
+}
+function looksDefinedOrLiterature(s){ return PREC_SKIP_CONTEXT.test(s)||/\[[0-9,–\-\s]+\]\s*[.!?]?\s*$/.test(s)||/\([A-Z][A-Za-z'’\-]+(?:\s+et al\.?)?,?\s*(?:19|20)\d{2}[a-z]?\)/.test(s); }
+
+function precisionBodyCheck(text){
+  const out=[]; const sents=splitIntoSentences(text);
+  sents.forEach(s=>{
+    let m;
+    // Value ± uncertainty: same decimal place; uncertainty normally one or two significant digits.
+    const unc=new RegExp(`([+−-]?\\d+(?:\\.\\d+)?)\\s*[±]\\s*(\\d+(?:\\.\\d+)?)(?:\\s*(${PREC_UNIT}))?`,'gi');
+    while((m=unc.exec(s))){
+      if(nDec(m[1])!==nDec(m[2])) precisionIssue(out,"uncertainty",`Value and uncertainty end at different decimal places (${m[1]} ± ${m[2]}). Verify the underlying precision and report them to compatible decimal positions.`,s,m.index,m[0].length);
+      if(nSig(m[2])>2) precisionIssue(out,"uncertainty",`Uncertainty ${m[2]} has more than two significant digits. Verify the field convention; uncertainties are commonly reported with one or two significant digits, then the measured value is rounded to the same decimal place.`,s,m.index,m[0].length);
+    }
+
+    // Numerical ranges with an explicit unit. Ignore likely years and identifiers.
+    const range=new RegExp(`([+−-]?\\d+(?:\\.\\d+)?)\\s*[–—-]\\s*([+−-]?\\d+(?:\\.\\d+)?)\\s*(${PREC_UNIT})(?![A-Za-zµμ])`,'gi');
+    while((m=range.exec(s))){
+      if(nDec(m[1])!==nDec(m[2]) && !looksDefinedOrLiterature(s)) precisionIssue(out,"range",`Range endpoints use different decimal precision (${m[1]} and ${m[2]} ${m[3]}). Verify the source resolution and use compatible precision if these endpoints are directly comparable.`,s,m.index,m[0].length);
+    }
+
+    // p-values: never report p = 0.000; review excessive software precision.
+    const pv=/\bp\s*=\s*(0?\.\d+)/ig;
+    while((m=pv.exec(s))){
+      if(/^0?\.0{3,}$/.test(m[1])) precisionIssue(out,"pvalue","Do not report an exact p-value as 0.000. If the computed value is below the reporting threshold, use an inequality such as p < 0.001 according to the selected style.",s,m.index,m[0].length);
+      else if(nDec(m[1])>4) precisionIssue(out,"pvalue",`p = ${m[1]} is reported with unusually high precision. Verify the journal/statistical reporting convention rather than reproducing software output unchanged.`,s,m.index,m[0].length);
+    }
+
+    // Direct numerical lists sharing one trailing unit, e.g. 12.4, 18.72, 21.358, 15.6 mg/L.
+    const listRe=new RegExp(`((?:[+−-]?\\d+(?:\\.\\d+)?\\s*(?:(?:,|;)\\s*(?:and\\s+)?|\\band\\s+|&\\s*)){2,}[+−-]?\\d+(?:\\.\\d+)?)\\s*(${PREC_UNIT})(?![A-Za-zµμ])`,'gi');
+    while((m=listRe.exec(s))){
+      if(looksDefinedOrLiterature(s)) continue;
+      const vals=m[1].match(/[+−-]?\d+(?:\.\d+)?/g)||[];
+      if(shouldFlagMixedPrecision(vals)){
+        const d=dominantDecimal(vals);
+        precisionIssue(out,"precision",`Directly compared values (${vals.join(", ")} ${m[2]}) use mixed numerical precision. Verify analytical resolution before standardising; the dominant pattern in this group uses ${d.dp} decimal place${d.dp===1?"":"s"}.`,s,m.index,m[0].length);
+      }
+    }
+
+    // Comparable percentages listed in the same sentence.
+    const per=[...s.matchAll(/([+−-]?\d+(?:\.\d+)?)\s*%/g)];
+    if(per.length>=3 && !looksDefinedOrLiterature(s)){
+      const vals=per.map(x=>x[1]);
+      if(shouldFlagMixedPrecision(vals)) precisionIssue(out,"percent",`Comparable percentages in this sentence use mixed precision (${vals.map(v=>v+"%").join(", ")}). Verify that they arise from the same analysis and use scientifically justified consistent precision if so.`,s,per[0].index,per[per.length-1].index+per[per.length-1][0].length-per[0].index);
+    }
+
+    // Scientific notation: compare significant figures only within a direct same-sentence series.
+    const sci=[...s.matchAll(/([+−-]?\d+(?:\.\d+)?)\s*[×x]\s*10\s*(?:\^\s*)?[−-]?\d+/g)];
+    if(sci.length>=3 && !looksDefinedOrLiterature(s)){
+      const sig=sci.map(x=>nSig(x[1])); const uniq=[...new Set(sig)];
+      if(uniq.length>1 && Math.max(...uniq)-Math.min(...uniq)>=2) precisionIssue(out,"scientific",`Scientific-notation values in the same comparison use substantially different significant figures (${sig.join(", ")}). Verify whether equivalent measurement precision is intended.`,s,sci[0].index,sci[sci.length-1].index+sci[sci.length-1][0].length-sci[0].index);
+    }
+
+    // Obvious calculator-like precision in a measured value with a unit. This is review-only.
+    const over=new RegExp(`([+−-]?\\d+\\.(\\d{7,}))\\s*(${PREC_UNIT})(?![A-Za-zµμ])`,'gi');
+    while((m=over.exec(s))){ if(!looksDefinedOrLiterature(s)) precisionIssue(out,"precision",`${m[1]} ${m[3]} contains many reported decimal digits. Verify whether this precision is supported by the measurement or calculation; do not retain software-generated digits automatically.`,s,m.index,m[0].length); }
+  });
+  return out;
+}
+
+function tableHeader(rows,col){
+  for(let r=0;r<Math.min(3,rows.length);r++){
+    const t=(rows[r][col]||"").replace(/\s+/g," ").trim();
+    if(t) return t;
+  }
+  return `column ${col+1}`;
+}
+function tableScalar(cell){
+  const t=(cell||"").trim(); if(!t) return null;
+  // Single scalar, optionally followed by a unit/percent. Exclude ranges, ±, inequalities, dates and embedded text.
+  if(/[±<>≤≥]/.test(t)||/\d\s*[–—-]\s*\d/.test(t)) return null;
+  const m=t.match(/^([+−-]?\d+(?:\.\d+)?)(?:\s*([%A-Za-zµμ°℃℉\/·.⁻¹⁻²⁻³\-0-9 ]{0,24}))?$/);
+  if(!m) return null;
+  return {raw:m[1],unit:nNormUnit(m[2]||"")};
+}
+function precisionTableCheck(tables){
+  const out=[];
+  (tables||[]).forEach(tbl=>{
+    const rows=tbl.rows||[]; if(rows.length<4) return;
+    const maxCols=Math.max(...rows.map(r=>r.length));
+    for(let c=0;c<maxCols;c++){
+      const header=tableHeader(rows,c);
+      if(/\b(?:sl\.?\s*no|serial|ref\.?|reference|year|date|id|sample\s*id|site\s*id|stp\s*id|number|no\.?|rank|n\s*=|count)\b/i.test(header)) continue;
+      const vals=[];
+      for(let r=1;r<rows.length;r++){
+        const x=tableScalar(rows[r][c]); if(x) vals.push(x);
+      }
+      if(vals.length<3) continue;
+      const units=[...new Set(vals.map(v=>v.unit).filter(Boolean))];
+      if(units.length>1) continue; // mixed units are not safely comparable without conversion metadata
+      const raw=vals.map(v=>v.raw);
+      const decs=raw.map(nDec);
+      if(decs.every(d=>d===0)) continue; // likely counts/exact integers, no artificial decimals
+      if(!shouldFlagMixedPrecision(raw)) continue;
+      const dom=dominantDecimal(raw);
+      // Need a meaningful dominant pattern for a table warning; otherwise do not force visual uniformity.
+      if(dom.count/raw.length<0.60 && Math.max(...dom.unique)-Math.min(...dom.unique)<2) continue;
+      const examples=raw.slice(0,8).join(", ")+(raw.length>8?", …":"");
+      out.push({cat:"table",msg:`Word table ${tbl.index}, ${header}: numeric values use mixed decimal precision (${examples}). Values in one parameter column are usually directly comparable, but verify measurement resolution before standardising. Dominant reporting uses ${dom.dp} decimal place${dom.dp===1?"":"s"}.`,snippet:""});
+    }
+  });
+  return out;
+}
+
+function numberCheck(text,tables=[]){
   const out=[]; const sents=splitIntoSentences(text); const phDec=[];
   sents.forEach(s=>{
     let m;
@@ -1217,8 +2102,7 @@ function numberCheck(text){
     while((m=lz.exec(s))) out.push({cat:"zero",msg:`Add a leading zero: write 0${m[0]} instead of ${m[0]}.`,snippet:numSnip(s,m.index,m[0].length)});
     const st=s.replace(/^["'\u201C(\[]+/,""); const off=s.length-st.length;
     if(/^(\d[\d.,]*)\s+[A-Za-z]/.test(st)){
-      const affiliation=/^\d{1,2}[.)]?\s+[A-Z]/.test(st) &&
-        /\b(Department|School|Institute|Institution|University|College|Faculty|Centre|Center|Laborator(?:y|ies)|Division|Hospital|Ministry|Corporation|Academy|Organi[sz]ation|Council|Board|Authority|Foundation|Society)\b/i.test(st);
+      const affiliation=/^\d{1,2}[.)]?\s+[A-Z]/.test(st) && /\b(Department|School|Institute|Institution|University|College|Faculty|Centre|Center|Laborator(?:y|ies)|Division|Hospital|Ministry|Corporation|Academy|Organi[sz]ation|Council|Board|Authority|Foundation|Society)\b/i.test(st);
       if(!affiliation) out.push({cat:"start",msg:"Avoid beginning a sentence with a numeral; restructure the sentence rather than spelling out a measurement.",snippet:numSnip(s,off,Math.min(38,st.length))});
     }
     const nc=/(^|[^\w.,\-\u2013<>=\u00B1~\u00D7xX$\/])([0-9])\s+([a-z][a-z]+)\b/g;
@@ -1231,16 +2115,34 @@ function numberCheck(text){
     }
   });
   const dd=[...new Set(phDec)];
-  if(dd.length>1) out.push({cat:"pH",msg:`Measured pH values use mixed decimal precision (${dd.sort().join(" and ")} places). Use consistent precision where the measurement justifies it.`,snippet:""});
-  return out;
+  if(dd.length>1) out.push({cat:"pH",msg:`Measured pH values use mixed decimal precision (${dd.sort().join(" and ")} places). Use consistent precision only where the measurements are directly comparable and the analytical resolution justifies it.`,snippet:""});
+
+  out.push(...precisionBodyCheck(text));
+  out.push(...precisionTableCheck(tables));
+
+  // Deduplicate identical findings generated by overlapping conservative rules.
+  const seen=new Set();
+  return out.filter(f=>{ const k=f.cat+"|"+f.msg+"|"+f.snippet; if(seen.has(k)) return false; seen.add(k); return true; });
 }
 function renderNumReport(findings){
-  const cats=[{k:"pH",label:"pH reporting"},{k:"zero",label:"Missing leading zero"},{k:"count",label:"Small counts in prose (spell out 0 to 9)"},{k:"start",label:"Sentence begins with a numeral"}];
-  $("num-report-sub").textContent = findings.length ? `${findings.length} item${findings.length===1?"":"s"} to review` : "No number or pH issues detected.";
+  const cats=[
+    {k:"pH",label:"pH reporting",kind:"warn"},
+    {k:"zero",label:"Missing leading zero",kind:"warn"},
+    {k:"count",label:"Small counts in prose (spell out 0 to 9)",kind:"info"},
+    {k:"start",label:"Sentence begins with a numeral",kind:"info"},
+    {k:"precision",label:"Numeric precision and comparable series",kind:"warn"},
+    {k:"table",label:"Word-table column precision",kind:"warn"},
+    {k:"uncertainty",label:"Value ± uncertainty precision",kind:"warn"},
+    {k:"range",label:"Range endpoint precision",kind:"warn"},
+    {k:"percent",label:"Percentage precision",kind:"warn"},
+    {k:"pvalue",label:"p-value precision",kind:"warn"},
+    {k:"scientific",label:"Scientific-notation significant figures",kind:"warn"}
+  ];
+  $("num-report-sub").textContent = findings.length ? `${findings.length} item${findings.length===1?"":"s"} to review` : "No number, pH, or numeric-precision issues detected.";
   let html="";
   cats.forEach(c=>{
     const items=findings.filter(f=>f.cat===c.k); if(!items.length) return;
-    const kind=(c.k==="pH"||c.k==="zero")?"warn":"info", sym=kind==="warn"?"!":"i";
+    const kind=c.kind||"info", sym=kind==="warn"?"!":"i";
     html+=`<p class="sec-label">${c.label} · ${items.length}</p>`;
     items.slice(0,300).forEach(it=>{ html+=`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg">${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${it.snippet}</div>`:""}</div></div>`; });
   });
@@ -1263,10 +2165,10 @@ $("run").onclick=async()=>{
   try{
     btn.disabled=true;
     DECLARED_ABBRS=new Set();
-    const usingUpload=$("tab-upload").getAttribute("aria-selected")==="true";
-    if(usingUpload && currentFile){ status("Reading file…"); text=await readFile(currentFile); }
-    else text=$("paste").value;
-    if(!text || text.trim().length<20){ status("Add your manuscript first (paste it or upload a file).",true); btn.disabled=false; return; }
+    if(!currentFile){ status("Upload a Microsoft Word .docx manuscript first.",true); btn.disabled=false; return; }
+    status("Reading Word file…");
+    text=await readFile(currentFile);
+    if(!text || text.trim().length<20){ status("The .docx file did not contain enough readable manuscript text.",true); btn.disabled=false; return; }
     extractDeclaredAbbrs(text).forEach(k=>DECLARED_ABBRS.add(k));
 
     // Abbreviations (from the manuscript)
@@ -1294,24 +2196,24 @@ $("run").onclick=async()=>{
       }
     }catch(e){ console.error("reference check failed:",e); }
 
-    // Numbers & pH (manuscript body only: references, tables, and headings removed)
+    // Numbers, pH & precision (references and headings excluded; Word tables checked separately by column)
     try{
-      status("Checking numbers and pH…");
-      let nb=excludeReferences(text,true).text; nb=excludeTables(nb,true).text; nb=stripHeadings(nb).text;
-      renderNumReport(numberCheck(nb));
+      status("Checking numbers, pH and precision…");
+      let nb=excludeReferences(text,true).text; nb=stripHeadings(nb).text;
+      renderNumReport(numberCheck(nb,DOCX_NUMERIC_TABLES));
     }catch(e){ console.error("number check failed:",e); }
 
     $("results-tabs").hidden=false;
     showTab(currentTab||"abbr");
     $("results-tabs").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
     status("");
-  }catch(err){ console.error(err); status(err.message||"Something went wrong reading that file. Try pasting the text instead.",true); }
+  }catch(err){ console.error(err); status(err.message||"Something went wrong reading the Word file. Please verify that it is a valid .docx file.",true); }
   finally{ btn.disabled=false; }
 };
 
 $("clear").onclick=()=>{
   currentFile=null; fileInput.value=""; chip.style.display="none";
-  $("paste").value=""; $("title").value=""; $("ref-style").value="";
+  $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
   currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null;
