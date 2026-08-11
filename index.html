@@ -306,7 +306,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="ref" hidden>
   <section class="card" id="ref-report" hidden aria-live="polite">
-      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. Applicability is style/type aware, so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
+      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. Wrapped Word reference paragraphs are rejoined before parsing, and dominant compact titleless conventions are inferred list-wide so comma-bearing journal names are not mistaken for article titles. Applicability is style/type aware, so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
       <div id="ref-ledger-wrap"></div>
       <p class="disclaimer">The reference ledger reports whether key bibliographic components are detected in each entry. Field applicability is inferred from the reference type and the dominant structure of the reference list. Detection is heuristic, so ambiguous entries should still be checked manually.</p>
@@ -4872,9 +4872,9 @@ $("print").onclick=()=>window.print();
 /* Author parser revision: supports surname+initials, initials+surname, complex surnames and corporate authors. */
 function refSplitList(text){
   const t=text.replace(/\r/g,"").trim();
-  // Prefer reference numbers at paragraph/line starts. Do not split at bracketed numbers inside titles.
+
+  // Prefer bracketed numbers at paragraph/line starts.
   let bmarks=[...t.matchAll(/^\s*\[(\d{1,4})\]\s*/gm)];
-  // Fallback for Word extraction that may lose some reference line boundaries, retained only when there is a plausible increasing run.
   if(bmarks.length<2){
     const all=[...t.matchAll(/\[(\d{1,4})\]\s+/g)];
     const inc=all.length>=3 && all.slice(1).every((m,i)=>+m[1]>=+all[i][1]);
@@ -4888,26 +4888,69 @@ function refSplitList(text){
     }
     return {style:"numbered", marker:"bracket", entries};
   }
+
   const leadNum=l=>{
     let m;
-    if((m=l.match(/^\((\d{1,3})\)\s*(.*)$/))) return {num:+m[1],rest:m[2]};        // (30)
-    if((m=l.match(/^\[(\d{1,3})\]\s*(.*)$/))) return {num:+m[1],rest:m[2]};        // [30]
-    if((m=l.match(/^(\d{1,3})[.)]\s+(.*)$/))) return {num:+m[1],rest:m[2]};        // 30. / 30)
-    if((m=l.match(/^(\d{1,3})\t+\s*(.*)$/))) return {num:+m[1],rest:m[2]};         // 30<tab>
-    if((m=l.match(/^(\d{1,3})\s{2,}(.*)$/))) return {num:+m[1],rest:m[2]};         // 30<2+ spaces>
-    if((m=l.match(/^(\d{1,3})\s+([\p{Lu}].*)$/u))) return {num:+m[1],rest:m[2]};   // 30 Author
+    if((m=l.match(/^\((\d{1,4})\)\s*(.*)$/))) return {num:+m[1],rest:m[2]};
+    if((m=l.match(/^\[(\d{1,4})\]\s*(.*)$/))) return {num:+m[1],rest:m[2]};
+    if((m=l.match(/^(\d{1,4})[.)]\s+(.*)$/))) return {num:+m[1],rest:m[2]};
+    if((m=l.match(/^(\d{1,4})\t+\s*(.*)$/))) return {num:+m[1],rest:m[2]};
+    if((m=l.match(/^(\d{1,4})\s{2,}(.*)$/))) return {num:+m[1],rest:m[2]};
+    if((m=l.match(/^(\d{1,4})\s+([\p{Lu}].*)$/u))) return {num:+m[1],rest:m[2]};
     return null;
   };
-  const rawLines=t.split(/\n/).map(l=>l.trim());
-  const starts=l=>!!leadNum(l)||refStartsAuthor(l);
+
+  const rawLines=t.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  const explicit=rawLines.map((l,i)=>({i,hit:leadNum(l)})).filter(x=>x.hit);
+
+  // Explicitly numbered lists: ONLY a new numeric marker starts a new reference.
+  // Wrapped continuation lines often begin with another author name and must not
+  // be split into a second entry.
+  if(explicit.length>=2){
+    const entries=[]; let cur=null;
+    for(const l of rawLines){
+      const hit=leadNum(l);
+      if(hit){
+        if(cur) entries.push(cur);
+        cur={num:hit.num,raw:hit.rest.trim()};
+      }else if(cur){
+        cur.raw=(cur.raw+" "+l).replace(/\s+/g," ").trim();
+      }
+    }
+    if(cur) entries.push(cur);
+    return {style:"numbered",marker:"number",entries};
+  }
+
+  // Unnumbered/Word-numbering-lost lists. Start a new author-led entry only
+  // after the accumulated reference already has a plausible bibliographic tail.
+  // This preserves wrapped author lists split across Word paragraphs.
+  const complete=s=>{
+    const x=String(s||"").replace(/\s+/g," ").trim();
+    if(!/\b(?:19|20)\d{2}[a-z]?\b/i.test(x)) return false;
+    if(/10\.\d{4,9}\//i.test(x)) return true;
+    if(/\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,20}\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i.test(x)) return true;
+    if(/\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)\s*[,;:]?\s*[A-Za-z]?\d/i.test(x)) return true;
+    if(/\bpp?\.?\s*[A-Za-z]?\d+(?:\s*[-–—]\s*[A-Za-z]?\d+)?/i.test(x)) return true;
+    return refScore(x)>=5 && /[.;)]\s*$/.test(x);
+  };
+
   const merged=[]; let cur="";
-  for(const l of rawLines){ if(!l) continue; if(starts(l)){ if(cur) merged.push(cur.trim()); cur=l; } else { cur=cur?cur+" "+l:l; } }
-  if(cur.trim()) merged.push(cur.trim());
-  const numbered=merged.filter(e=>leadNum(e)).length>=Math.max(3, merged.length*0.6);
+  for(const l of rawLines){
+    const begins=refStartsAuthor(l);
+    if(!cur){ cur=l; continue; }
+    if(begins && complete(cur)){
+      merged.push(cur.replace(/\s+/g," ").trim());
+      cur=l;
+    }else{
+      cur=(cur+" "+l).replace(/\s+/g," ").trim();
+    }
+  }
+  if(cur) merged.push(cur.replace(/\s+/g," ").trim());
+
   return {
-    style: numbered?"numbered":"author–year",
-    marker: numbered?"number":"none",
-    entries: merged.map(e=>{ const ln=leadNum(e); return ln?{num:ln.num,raw:ln.rest.trim()}:{num:null,raw:e}; })
+    style:"author–year",
+    marker:"none",
+    entries:merged.map(e=>({num:null,raw:e}))
   };
 }
 /* ---- Robust author-region detection, independent from entry segmentation ---- */
@@ -4961,7 +5004,15 @@ function refLooksLikeJournalAbbrevCandidate(text, parsed){
   // A token such as "J. Mater. Chem. A" superficially resembles "J. Smith".
   // If the apparent surname is immediately followed by another dotted source token,
   // treat it as a journal abbreviation rather than an author name.
-  return /^\.\s*[\p{Lu}][\p{L}]{1,}\.?/u.test(tail);
+  if(/^\.\s*[\p{Lu}][\p{L}]{1,}\.?/u.test(tail)) return true;
+
+  // A final abbreviated journal token can look exactly like an initials-first
+  // personal name, e.g. "J. Lumin." or "RSC Adv.". When that apparent name is
+  // followed immediately by a publication tail YEAR, VOLUME, LOCATOR, it is a
+  // source/container, not another author.
+  if(/^\.\s*,?\s*(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,20}\))?\s*[,;:]\s*[A-Za-z]?\d/i.test(tail))
+    return true;
+  return false;
 }
 
 function refGenericCorporateAuthor(text){
@@ -5480,8 +5531,13 @@ function detectTitleRegion(raw, authorInfo){
 function inferTitleConvention(parsed){
   const j=parsed.filter(p=>p.type==="journal article" && p.year);
   if(j.length<3) return "uncertain";
-  const omitted=j.filter(p=>p.rscCompact).length;
-  const titled=j.filter(p=>p.hasTitle).length;
+
+  // compactSource is inferred from the complete author→source→year→volume→locator
+  // structure and is therefore stronger evidence than an accidental title/source
+  // split inside a comma-bearing journal name.
+  const omitted=j.filter(p=>p.compactSource || p.rscCompact).length;
+  const titled=j.filter(p=>p.hasTitle && !p.compactSource).length;
+
   if(omitted/j.length>=0.7) return "omitted";
   if(titled/j.length>=0.7) return "included";
   if(omitted>=2 && titled>=2) return "mixed";
@@ -5846,9 +5902,16 @@ function refSplitTitleSource(prefix){
   // so evaluate ALL boundaries and select the strongest complete source suffix.
   for(let i=0;i<p.length-1;i++){
     if(p[i]!=="." || !/\s/.test(p[i+1])) continue;
-    const left=refCleanField(p.slice(0,i+1)), right=refCleanField(p.slice(i+1));
+    const rawLeft=p.slice(0,i+1);
+    const left=refCleanField(rawLeft), right=refCleanField(p.slice(i+1));
     const ts=refTitleScore(left), ss=refSourceScore(right,true);
-    if(ts>0 && ss>0) candidates.push({title:left,source:right,score:ts+ss+2.5,sourceScore:ss});
+    if(ts>0 && ss>0){
+      const rightWords=right.split(/\s+/).filter(Boolean).length;
+      // Do not split inside an abbreviated journal name such as "Nat. Commun."
+      // merely because the final token alone also looks source-like.
+      const insideAbbrevPenalty=(rightWords===1 && /\b[\p{Lu}][\p{L}]{1,12}\.\s*$/u.test(rawLeft))?6:0;
+      candidates.push({title:left,source:right,score:ts+ss+2.5-insideAbbrevPenalty,sourceScore:ss});
+    }
   }
 
   if(candidates.length){
@@ -6132,6 +6195,32 @@ function refParseStructuredFields(raw, authorInfo, type){
   };
 }
 
+
+function refCompactTitlelessSource(raw,authorInfo){
+  /*
+    Detect the compact journal form:
+      AUTHORS, JOURNAL/SOURCE, YEAR, VOLUME, PAGES-or-ARTICLE
+    without assuming a publisher or journal name.
+
+    The entire pre-year span must be short and source-like. This deliberately
+    rejects ordinary article-title prose, which is generally much longer.
+  */
+  const rest=refStripDoiUrl(refRestAfterAuthors(raw,authorInfo));
+  const tail=rest.match(/,\s*(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\(\s*[^)]{1,20}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i);
+  if(!tail) return null;
+  const source=refCleanField(rest.slice(0,tail.index));
+  if(!source || source.length>180) return null;
+  const words=source.split(/\s+/).filter(Boolean);
+  if(words.length>8) return null;
+
+  let score=refSourceScore(source,true);
+  // Journal/container qualifiers are structural source syntax, not article titles.
+  if(/,\s*(?:part|section|series)\s+[A-Za-z0-9]+\.?$/i.test(source)) score+=4;
+  if(/,\s*[A-Z]\.?$/u.test(source) && words.length<=5) score+=3;
+
+  return score>=4 ? source : null;
+}
+
 function refParseEntry(raw){
   const rawTrim=raw.trim();
   const doi=refExtractDoi(raw);
@@ -6142,6 +6231,7 @@ function refParseEntry(raw){
   const firstAuthor=authorInfo.firstAuthorSurname||null;
 
   const type=refType(raw);
+  const compactSource=type==="journal article"?refCompactTitlelessSource(raw,authorInfo):null;
   const structured=refParseStructuredFields(raw,authorInfo,type);
   const bookFields=type==="book"?detectBookFields(raw,authorInfo):null;
 
@@ -6177,7 +6267,7 @@ function refParseEntry(raw){
   // Compact titleless journal form is inferred only when the complete
   // title/source prefix resolves as a source and no title was found.
   const compactCommaTail=/,\s*(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\(\d+\))?(?:\s*[,;:]\s*[eE]?\d+(?:\s*[-–—]\s*\d+)?)?\s*\.?\s*$/i.test(refStripDoiUrl(rawTrim));
-  const rscCompact=compactCommaTail && !hasTitle && !!sourceRegion;
+  const rscCompact=(compactCommaTail && !hasTitle && !!sourceRegion) || (!!compactSource && !hasTitle);
 
   const wordCount=(raw.match(/[A-Za-zÀ-ÖØ-öø-ÿ]{3,}/g)||[]).length;
   return {
@@ -6189,7 +6279,7 @@ function refParseEntry(raw){
     authorConfidence:authorInfo.confidence,
     hasSource, sourceRegion,
     hasTitle, title,
-    rscCompact, wordCount, firstAuthor, type,
+    rscCompact, compactSource, wordCount, firstAuthor, type,
     structured
   };
 }
@@ -6313,6 +6403,22 @@ function refCheck(refText, bodyText){
   const {style, marker, entries}=refSplitList(refText);
   const parsed=entries.map(e=>({...e, ...refParseEntry(e.raw)}));
   const titleConvention=inferTitleConvention(parsed);
+
+  // If the bibliography as a whole uses a compact titleless convention,
+  // resolve each structurally compact entry as SOURCE rather than fabricating an
+  // article title from commas/periods inside the journal name.
+  if(titleConvention==="omitted"){
+    parsed.forEach(p=>{
+      if(p.type!=="journal article" || !p.compactSource) return;
+      p.title=null;
+      p.hasTitle=false;
+      p.sourceRegion=p.compactSource;
+      p.hasSource=true;
+      p.rscCompact=true;
+      if(p.structured) p.structured.source=p.compactSource;
+    });
+  }
+
   const doiConvention=inferDoiConvention(parsed);
   const issues=[];
   const withDoi=parsed.filter(p=>p.doi).length;
@@ -6338,7 +6444,7 @@ function refCheck(refText, bodyText){
     // three-state field flags (present / required-absent="no" / not-applicable="na")
     p._authorState = p.hasAuthors?"yes":"no";
     p._yearState = p.year?"yes":"no";
-    p._titleState = (isArt && titleConvention==="omitted")?"na":(p.hasTitle?"yes":(titleReq?"no":"na"));
+    p._titleState = p.hasTitle?"yes":((isArt && titleConvention==="omitted")?"na":(titleReq?"no":"na"));
     p._sourceState = p.hasSource?"yes":(sourceReq?"no":"na");
     p._pagesState = p.hasPages?"yes":(na.pages?"na":"no");
     p._volState = p.hasVolume?"yes":(na.vol?"na":"no");
