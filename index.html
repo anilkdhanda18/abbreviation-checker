@@ -233,7 +233,7 @@
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans manuscript prose for abbreviation definition and use. It checks first-use definition, undefined abbreviations, use before definition, title use, and repeated/standard forms. Recognized units are not treated as abbreviations; References and configured table/numeric blocks are excluded." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. The paper title, section/subsection headings (including ALL-CAPS and Title Case headings), author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, Word tables, equations, and References are excluded. Recognized units are not treated as abbreviations." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
@@ -242,7 +242,7 @@
     <div id="infos-wrap"></div>
     <div id="ledger-wrap"></div>
     <div id="std-wrap"></div>
-    <p class="disclaimer">This is a heuristic aid, not a substitute for a careful read. Detection of acronyms, definitions, and section boundaries is pattern-based and can still miss cases or over-flag chemical formulae and all-caps words. Definitions are recognised when the acronym sits beside its parenthetical (either order), including phrasings like "hereafter" or "abbreviated as". Requirements vary by journal, so always confirm against your target journal's author guidelines.</p>
+    <p class="disclaimer">This is a heuristic aid, not a substitute for a careful read. Detection of abbreviations and definitions is pattern-based and can still miss unusual cases. All-caps paper titles and other excluded front matter are not treated as abbreviation sources. Definitions are recognised when the acronym sits beside its parenthetical (either order), including phrasings like "hereafter" or "abbreviated as". Requirements vary by journal, so always confirm against your target journal's author guidelines.</p>
     <div class="report-actions">
       <button class="btn btn-ghost" id="download">Download report (.txt)</button>
       <button class="btn btn-ghost" id="print">Print or save as PDF</button>
@@ -255,13 +255,13 @@
       <li><b>Define at first use.</b> Every non-standard abbreviation should be spelled out in full the first time it appears, with the short form in parentheses.</li>
       <li><b>Do not use before defining.</b> The full form must appear at or before the first use, not later.</li>
       <li><b>Earn the abbreviation.</b> Defined terms that are then used only once or twice are flagged.</li>
-      <li><b>No abbreviations in the title</b> unless universally recognised (checked when a title is provided).</li>
+      <li><b>Titles and headings excluded.</b> The paper title and section/subsection headings, including numbered, ALL-CAPS, and Title Case headings, are not used for abbreviation-definition checks.</li><li><b>Front matter excluded.</b> Author/affiliation blocks, correspondence details, and Keywords/Index terms are not used for abbreviation-definition checks.</li>
       <li><b>Plurals without apostrophes.</b> <code>MFCs</code>, not <code>MFC's</code>.</li>
       <li><b>Do not begin a sentence with an abbreviation.</b></li>
       <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
       <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Tables are skipped</b> by default. Word tables are removed directly, and numeric data blocks extracted from the Word manuscript are filtered where appropriate.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks.</li>
     </ol>
   </details>
 
@@ -1227,8 +1227,15 @@ function engExcludeNonBodyMaterial(text){
     }
   }
 
-  // Section headings should not create grammar, capitalization or terminology findings.
-  lines=lines.map(l=>engLooksHeadingForScan(l)?"":l);
+  // Captions, generated table blocks, and displayed equation-only lines are
+  // structural content, not manuscript prose.
+  lines=lines.map(l=>{
+    const s=l.replace(/\s+/g," ").trim();
+    if(/^\s*(?:figure|fig\.?|table)\s*[Ss]?\d+(?:\.\d+)?\s*[:.\-]/i.test(s)) return "";
+    if(/⟦TABLE_BLOCK⟧/.test(s)) return "";
+    if(/^\s*(?:⟦MATH:[^⟧]*⟧\s*)+(?:\(?\s*(?:eq\.?\s*)?\d+(?:\.\d+)?\s*\)?)?\s*$/i.test(s)) return "";
+    return engLooksHeadingForScan(l)?"":l;
+  });
   body=lines.join("\n");
 
   // Structurally extracted Word headers, footers, footnotes and endnotes.
@@ -1247,10 +1254,9 @@ function engPrepareText(text){
   let body=excludeReferences(text||"",true).text;
   body=engExcludeNonBodyMaterial(body);
 
-  // Mathematical variables and expressions are not English prose. Preserve an
-  // atomic boundary so words on opposite sides can never collapse together.
-  body=body.replace(/⟦MATH:[^⟧]*⟧/g," ⟦MATH⟧ ")
-           .replace(/⟦FIELD⟧/g," ⟦FIELD⟧ ");
+  // Mathematical variables and expressions are preserved for context display,
+  // but remain protected from all prose grammar/style rules.
+  body=body.replace(/⟦FIELD⟧/g," ⟦FIELD⟧ ");
 
   // Citations are bibliographic structures, not prose formatting.
   body=body.replace(/\[[0-9\s,;–—-]{1,80}\]/g,m=>m.replace(/[^\n]/g," "))
@@ -1263,17 +1269,39 @@ function engPrepareText(text){
   return body;
 }
 
+
+function engProtectedRangeAt(text,index){
+  const s=String(text||"");
+  const left=s.lastIndexOf("⟦",index);
+  if(left<0) return false;
+  const right=s.indexOf("⟧",left);
+  if(right<index) return false;
+  return /^(?:⟦MATH:|⟦FIELD⟧|⟦TABLE_BLOCK⟧)/.test(s.slice(left,right+1));
+}
+function engMaskProtected(text){
+  return String(text||"").replace(/⟦MATH:[^⟧]*⟧|⟦FIELD⟧|⟦TABLE_BLOCK⟧/g,m=>"¤".repeat(m.length));
+}
+
 function engFindOccurrences(text,word){
   const out=[];
   const re=new RegExp(`(^|[^\\p{L}])(${engEscapeRegex(word)})(?=$|[^\\p{L}])`,"giu");
   let m;
   while((m=re.exec(text))){
     const lead=m[1]||"";
-    out.push({index:m.index+lead.length,length:m[2].length,raw:m[2]});
+    const hitIndex=m.index+lead.length;
+    if(engProtectedRangeAt(text,hitIndex)) continue;
+    out.push({index:hitIndex,length:m[2].length,raw:m[2]});
     if(m[0].length===0) re.lastIndex++;
   }
   return out;
 }
+
+function engDisplayProtectedText(s){
+  return String(s||"")
+    .replace(/⟦MATH:([^⟧]*)⟧/g,"$1")
+    .replace(/⟦FIELD⟧|⟦TABLE_BLOCK⟧/g," ");
+}
+
 function engContext(text,index,len){
   const max=230;
   let start=Math.max(0,index-150), end=Math.min(text.length,index+len+150);
@@ -1286,9 +1314,9 @@ function engContext(text,index,len){
     right.indexOf(". "),right.indexOf("? "),right.indexOf("! "),right.indexOf("\n")
   ].filter(x=>x>=0);
   if(candidates.length) end=index+len+Math.min(...candidates)+1;
-  let before=text.slice(start,index).replace(/\s+/g," ").trimStart();
-  let hit=text.slice(index,index+len);
-  let after=text.slice(index+len,end).replace(/\s+/g," ").trimEnd();
+  let before=engDisplayProtectedText(text.slice(start,index)).replace(/\s+/g," ").trimStart();
+  let hit=engDisplayProtectedText(text.slice(index,index+len));
+  let after=engDisplayProtectedText(text.slice(index+len,end)).replace(/\s+/g," ").trimEnd();
   let html=`${escapeHtml(before)}<mark>${escapeHtml(hit)}</mark>${escapeHtml(after)}`;
   const plain=(before+hit+after);
   if(plain.length>max){
@@ -1539,6 +1567,7 @@ function engPersonSense(def,text,index,length){
 }
 
 function engFindPersonUsage(text){
+  text=engMaskProtected(text);
   const hits=[];
   ENG_PERSON_FORMS.forEach(def=>{
     const re=new RegExp(def.re.source,def.re.flags);
@@ -1577,7 +1606,7 @@ function engFindPersonUsage(text){
 }
 
 function engWordCount(s){
-  s=String(s||"").replace(/⟦MATH(?::[^⟧]*)?⟧|⟦FIELD⟧/g," ");
+  s=String(s||"").replace(/⟦MATH:[^⟧]*⟧|⟦FIELD⟧|⟦TABLE_BLOCK⟧/g," ");
   const m=s.match(/\b[\p{L}\p{N}][\p{L}\p{N}'’\-–]*\b/gu);
   return m?m.length:0;
 }
@@ -1852,7 +1881,12 @@ function engPresentTenseCheck(text){
     is used to narrate a completed manuscript-specific experimental action,
     procedure, measurement, or observation.
   */
-  const body=engPrepareText(text);
+  // Keep two synchronized text streams:
+  //   displayBody = original prose with recoverable Word-math symbols retained
+  //   body        = same-length protected copy used only for tense detection
+  // This prevents protected math placeholders from appearing in report snippets.
+  const displayBody=engPrepareText(text);
+  const body=engMaskProtected(displayBody);
   const issues=[];
   const seen=new Set();
 
@@ -2172,7 +2206,7 @@ function engPresentTenseCheck(text){
         index:abs,
         msg:`Present-tense verb "${raw}" appears to describe a completed manuscript-specific action or observation.`,
         suggestion:`Consider past tense if this sentence reports work already performed. A possible verb form is "${engMatchCase(raw,suggested)}". Keep present tense if the statement is intentionally expressing a general or continuing scientific fact.`,
-        snippet:engContext(body,abs,raw.length)
+        snippet:engContext(displayBody,abs,raw.length)
       });
     }
   });
@@ -2277,7 +2311,7 @@ function engGrammarBody(text){
   // This preserves character positions while preventing prose regexes from
   // joining words across a mathematical expression. For example:
   //   x and m  must never collapse to  and and
-  b=b.replace(/⟦MATH(?::[^⟧]*)?⟧|⟦FIELD⟧/g,m=>"¤".repeat(m.length));
+  b=engMaskProtected(b);
 
   // Mask common in-text citation structures so they do not interfere with
   // mechanics/grammar heuristics. Preserve length/newlines for locations.
@@ -2353,6 +2387,7 @@ function engSafeGrammarStyleCheck(text,inference){
 }
 
 function engGrammarStyleCheck(text,inference){
+  const displayBody=engPrepareText(text||"");
   const body=engGrammarBody(text);
   const grammar=[], punctuation=[], clarity=[], consistency=[], passive=[];
   const seen=new Set();
@@ -2361,7 +2396,7 @@ function engGrammarStyleCheck(text,inference){
     const key=`${code}:${index}:${String(token).toLowerCase()}`;
     if(seen.has(key))return;
     seen.add(key);
-    engStyleIssue(arr,body,category,severity,code,index,length,msg,suggestion,token);
+    engStyleIssue(arr,displayBody,category,severity,code,index,length,msg,suggestion,token);
   };
 
   // ----------------------------------------------------------
@@ -2688,8 +2723,6 @@ function engGrammarStyleCheck(text,inference){
     "supplementary","appendix"
   ]);
 
-  // Normal capitalization at the first lexical word of a sentence is not a
-  // terminology-format inconsistency.
   const sentenceInitialPositions=new Set();
   sentences.forEach(s=>{
     const first=/[\p{L}][\p{L}'’\-]*/u.exec(s.text);
@@ -2698,13 +2731,13 @@ function engGrammarStyleCheck(text,inference){
 
   while((wm=wordRe.exec(body))){
     const raw=wm[0], low=raw.toLowerCase();
-    if(capExclusions.has(low) || raw===raw.toUpperCase())continue;
+    if(capExclusions.has(low) || raw===raw.toUpperCase()) continue;
     const kind=/^[A-Z]/.test(raw)?"cap":"lower";
 
-    if(kind==="cap" && sentenceInitialPositions.has(wm.index)) continue;
     if(kind==="cap"){
+      if(sentenceInitialPositions.has(wm.index)) continue;
       let j=wm.index-1;
-      while(j>=0 && /[\s"'“”‘’(\[]/.test(body[j]))j--;
+      while(j>=0 && /[\s"'“”‘’(\[]/.test(body[j])) j--;
       if(j<0 || /[.!?\n]/.test(body[j])) continue;
     }
 
@@ -2712,13 +2745,15 @@ function engGrammarStyleCheck(text,inference){
     rec[kind].push({raw,index:wm.index});
     capMap.set(low,rec);
   }
+
   capMap.forEach((r,low)=>{
-    if(r.cap.length && r.lower.length && r.cap.length+r.lower.length>=3){
+    // One isolated capital form is too weak. Require repeated internal evidence.
+    if(r.cap.length>=2 && r.lower.length>=1){
       const x=r.cap[0];
       push(consistency,"Consistency & terminology","info","CAPITALIZATION_INCONSISTENT",
         x.index,x.raw.length,
-        `"${x.raw}" and "${r.lower[0].raw}" both occur with different capitalization inside manuscript sentences.`,
-        "Check whether these internal uses intentionally require different capitalization. Sentence-initial capitalization is excluded automatically.",x.raw);
+        `"${x.raw}" and "${r.lower[0].raw}" are used with different capitalization within body prose.`,
+        "Review whether these internal uses refer to the same term. Sentence starts, titles, captions, Word tables, equations/math, citations, headers/footers, footnotes/endnotes, and References are excluded.",x.raw);
     }
   });
 
@@ -2888,7 +2923,7 @@ function renderEnglishReport(res){
   renderWritingSection("Punctuation & mechanics",wchk.punctuation,
     "Checks repeated punctuation, spaces before punctuation, missing spaces after commas/semicolons/colons, and unmatched bracket structures in prose. Equations and citation-like structures are protected where possible.");
   renderWritingSection("Consistency & terminology",wchk.consistency,
-    "Checks repeated technical terms for mixed hyphenation, open/closed variants, and internal capitalization within prose. Normal sentence-initial capitalization is ignored, and citations plus Word equations/math are excluded from formatting checks.");
+    "Checks repeated technical terms within body prose only. Sentence starts, titles, section headings, figure/table captions, Word tables, equations/math, citations and citation-manager fields, headers/footers, footnotes/endnotes, and References are excluded.");
   renderWritingSection("Clarity & conciseness",wchk.clarity,
     "Review items for wordiness, redundancy, informal wording, contractions, sentences longer than 30 words, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.");
 
@@ -3219,28 +3254,146 @@ function excludeTables(text,enabled){
 function stripHeadings(text){
   const lines=text.split(/\n/);
   let removed=0;
-  const kept=lines.filter(line=>{
-    const l=line.trim();
-    if(!l) return true;
+
+  const isHeadingLine=line=>{
+    const l=String(line||"").replace(/\s+/g," ").trim();
+    if(!l) return false;
+
     const upper=(l.match(/[A-Z]/g)||[]).length;
     const lower=(l.match(/[a-z]/g)||[]).length;
-    if(upper+lower<2) return true;
+    if(upper+lower<2) return false;
+
     const words=l.split(/\s+/).filter(Boolean);
-    const noTerminal=!/[.!?]["'\u2019)\]]?$/.test(l);   // headings do not end like a sentence
-    const capsHeading = words.length<=12 && upper>=2 && lower/(upper+lower)<=0.15 && /[A-Z]{2,}/.test(l);
-    const numbered = /^\d+(\.\d+)*\.?\s+[A-Z]/.test(l) && words.length<=10 && noTerminal;
-    const capWords = words.filter(w=>/^[("\u2018\u2019]?[A-Z]/.test(w)).length;
-    const titleHeading = /\b[A-Z]{2,}\b/.test(l) && words.length>=2 && words.length<=8 &&
-                         noTerminal && !/[,;]$/.test(l) && capWords/words.length>=0.7;
-    if(capsHeading || numbered || titleHeading){ removed++; return false; }
+    const alphaWords=words.filter(w=>/[A-Za-z]/.test(w));
+    const noTerminal=!/[.!?]["'\u2019)\]]?$/.test(l);
+
+    // Common manuscript section labels, numbered or unnumbered.
+    if(/^(?:\d+(?:\.\d+){0,5}\.?\s+)?(?:abstract|introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+section)?|results?|discussion|results?\s+and\s+discussion|conclusions?|summary|recommendations?|acknowledg(?:e)?ments?|funding|data\s+availability|author\s+contributions?|conflicts?\s+of\s+interest|competing\s+interests?|declarations?|supplementary\s+(?:material|materials|information)|supporting\s+information|appendix|appendices|nomenclature|references?)\s*:?\s*$/i.test(l))
+      return true;
+
+    // Numbered headings such as:
+    // 2 NON-ORDINARY STATE BASED (NOSB) PERIDYNAMIC FRAMEWORK
+    // 4.1 Numerical Model
+    // 5.2 Shear band evolution in geomaterials
+    if(/^\d+(?:\.\d+){0,5}\.?\s+\S+/.test(l) && noTerminal && words.length<=24)
+      return true;
+
+    // ALL-CAPS headings. Allow longer scientific headings because conference
+    // templates commonly use long uppercase section names.
+    const capsRatio=upper/(upper+lower);
+    if(noTerminal && words.length<=24 && upper>=3 && capsRatio>=0.88)
+      return true;
+
+    // Title Case headings/subheadings. Function words may be lowercase.
+    if(noTerminal && words.length>=1 && words.length<=16 && alphaWords.length){
+      const functionWord=/^(?:a|an|and|as|at|by|for|from|in|into|of|on|or|the|to|with|without|via|versus|vs\.?)$/i;
+      const titleLike=alphaWords.filter(w=>{
+        const clean=w.replace(/^[("'‘’\[]+|[)"'‘’\],:;]+$/g,"");
+        return functionWord.test(clean) || /^[A-Z][A-Za-z0-9-]*$/.test(clean) || /^[A-Z0-9-]{2,}$/.test(clean);
+      }).length;
+      if(titleLike/alphaWords.length>=0.85 && !/[,;]$/.test(l))
+        return true;
+    }
+
+    return false;
+  };
+
+  const kept=lines.filter(line=>{
+    if(isHeadingLine(line)){ removed++; return false; }
     return true;
   });
   return {text:kept.join("\n"), removed};
 }
 
+
+/* Remove manuscript material that should not participate in abbreviation
+   definition/use checking. The abbreviation checker is a BODY-PROSE checker:
+   title, authors, affiliations, correspondence, keywords, headers/footers,
+   footnotes/endnotes, captions, displayed equations, tables and References
+   must not create abbreviation findings. */
+function prepareAbbreviationBody(rawText){
+  let text=String(rawText||"");
+
+  // Remove Word header/footer/footnote/endnote text captured structurally.
+  // engFlexibleRemove is a function declaration and is therefore available here.
+  try{
+    (DOCX_ENGLISH_EXCLUDE_TEXTS||[]).forEach(x=>{
+      if(x) text=engFlexibleRemove(text,x);
+    });
+  }catch(e){}
+
+  let lines=text.split(/\n/);
+
+  // Front matter: begin abbreviation scanning at the Abstract when available.
+  // Keep the Abstract prose itself, but remove the heading label and everything
+  // before it (paper title, author block, affiliations, correspondence, keywords).
+  let bodyStart=-1;
+  for(let i=0;i<Math.min(lines.length,180);i++){
+    const s=lines[i].replace(/[*_`#>]/g,"").trim();
+    if(/^(?:\d+(?:\.\d+)*\.?\s*)?abstract\b\s*(?:[.:\-–—]\s*|\s*$)/i.test(s)){
+      bodyStart=i;
+      break;
+    }
+  }
+
+  if(bodyStart>=0){
+    for(let i=0;i<bodyStart;i++) lines[i]="";
+    lines[bodyStart]=lines[bodyStart].replace(
+      /^\s*(?:\d+(?:\.\d+)*\.?\s*)?abstract\b\s*(?:[.:\-–—]\s*)?/i,""
+    );
+  }else{
+    // Conservative fallback for manuscripts without an Abstract: begin at an
+    // explicit Introduction heading if one is found near the front.
+    for(let i=0;i<Math.min(lines.length,180);i++){
+      const s=lines[i].replace(/[*_`#>]/g,"").trim();
+      if(/^(?:1(?:\.0)?\.?\s+)?introduction\s*:?\s*$/i.test(s)){
+        for(let j=0;j<i;j++) lines[j]="";
+        lines[i]="";
+        break;
+      }
+    }
+  }
+
+  // Metadata/structural lines that may still occur later.
+  lines=lines.map(line=>{
+    const s=line.replace(/\s+/g," ").trim();
+    if(!s) return line;
+
+    if(/^(?:keywords?|key\s+words?|index\s+terms?)\s*(?:[:.\-–—]|$)/i.test(s))
+      return "";
+
+    // Figure/table captions are handled by their dedicated structural module.
+    if(/^(?:figure|fig\.?|table)\s*[Ss]?\d+(?:\.\d+)?\s*[:.\-–—]/i.test(s))
+      return "";
+
+    // Explicit section/subsection headings must never create abbreviation
+    // candidates simply because the journal capitalizes them.
+    const upper=(s.match(/[A-Z]/g)||[]).length;
+    const lower=(s.match(/[a-z]/g)||[]).length;
+    const words=s.split(/\s+/).filter(Boolean);
+    const noTerminal=!/[.!?]["'\u2019)\]]?$/.test(s);
+
+    if(/^\d+(?:\.\d+){0,5}\.?\s+\S+/.test(s) && noTerminal && words.length<=24)
+      return "";
+
+    if(noTerminal && words.length<=24 && upper>=3 && upper/(Math.max(1,upper+lower))>=0.88)
+      return "";
+
+    // Pure displayed-equation lines or protected math/table markers.
+    if(/⟦TABLE_BLOCK⟧|⟦FIELD⟧/.test(s)) return "";
+    if(/^\s*(?:⟦MATH:[^⟧]*⟧\s*)+(?:\(?\s*(?:eq\.?\s*)?\d+(?:\.\d+)?\s*\)?)?\s*$/i.test(s))
+      return "";
+
+    return line;
+  });
+
+  return lines.join("\n");
+}
+
 /* ---------- Core analysis ---------- */
 function analyze(rawText, title, standardSet, skipRefs, skipTables){
-  const ref = excludeReferences(rawText, skipRefs);
+  const scoped = prepareAbbreviationBody(rawText);
+  const ref = excludeReferences(scoped, skipRefs);
   const tab = excludeTables(ref.text, skipTables);
   const head = stripHeadings(tab.text);
   const text = head.text;
@@ -3277,15 +3430,6 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
   });
 
   const isStd = k => standardSet.has(k);
-
-  const titleAbbrs = new Set();
-  if(title && title.trim()){
-    let tm; acroRe.lastIndex=0;
-    while((tm=acroRe.exec(title))!==null){
-      const k=norm(tm[1]);
-      if(!STOPWORDS.has(k) && !isStd(k)) titleAbbrs.add(k);
-    }
-  }
 
   const hasList = text.split(/\n/).some(line=>{
     const t=line.trim();
@@ -3354,13 +3498,8 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           infos.push({abbr:disp, msg:`Defined ${ss.length} times. Define once at first use. A separate definition in the abstract and the main text is acceptable, but avoid repeating it otherwise.`, snip:null});
       }
 
-      if(titleAbbrs.has(g.key)){
-        if(status==="ok") status="warn";
-        warnings.push({abbr:disp, msg:`Appears in the title. Avoid abbreviations in titles unless universally recognised.`, snip:null});
-      }
-
       if(!std){
-        rows.push({base:disp, longForm, count, firstUseOK, inTitle:titleAbbrs.has(g.key), status});
+        rows.push({base:disp, longForm, count, firstUseOK, status});
       }
     });
 
@@ -3443,11 +3582,10 @@ function ledger(rows){
     const dot=`<span class="dot ${x.status}"></span>`;
     const long=x.longForm?`<span class="t-long">${escapeHtml(x.longForm)}</span>`:`<span class="t-long none">not defined</span>`;
     const fu=x.longForm?(x.firstUseOK?`<span class="yn y">yes</span>`:`<span class="yn n">no</span>`):`<span class="yn na">—</span>`;
-    const tt=x.inTitle?`<span class="yn n">yes</span>`:`<span class="yn na">no</span>`;
-    return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${fu}</td><td>${tt}</td></tr>`;
+    return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${fu}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("Lists each detected non-standard abbreviation, its inferred full form, number of uses, whether it was defined at first use, and whether it appears in the manuscript title. A dash means the field is not applicable because no full form was detected.","Explain Abbreviation Ledger")}</p>
-    <table class="ledger"><thead><tr><th>Abbrev.</th><th>Full form</th><th>Uses</th><th>Defined at first use</th><th>In title</th></tr></thead>
+  return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("Lists each detected non-standard abbreviation in manuscript body prose, its inferred full form, number of uses, and whether it was defined at first use. Front matter, captions, tables, equations, citations and References are outside this scan.","Explain Abbreviation Ledger")}</p>
+    <table class="ledger"><thead><tr><th>Abbrev.</th><th>Full form</th><th>Uses</th><th>Defined at first use</th></tr></thead>
     <tbody>${body}</tbody></table>`;
 }
 
@@ -3465,8 +3603,8 @@ function reportText(r){
   const blk=(t,arr)=>{ if(!arr.length) return; L.push(t.toUpperCase()); arr.forEach(i=>L.push(`  - ${i.abbr&&i.abbr!=="units"?"["+i.abbr+"] ":""}${i.msg}`)); L.push(""); };
   blk("Must fix",r.errors); blk("Warnings",r.warnings); blk("Suggestions",r.infos);
   L.push("ABBREVIATION LEDGER");
-  L.push("  Abbrev | Full form | Uses | First-use defined | In title");
-  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.longForm?(x.firstUseOK?"yes":"no"):"-"} | ${x.inTitle?"yes":"no"}`));
+  L.push("  Abbrev | Full form | Uses | First-use defined");
+  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.longForm?(x.firstUseOK?"yes":"no"):"-"}`));
   if(r.standardSeen.length){ L.push(""); L.push("Treated as standard: "+r.standardSeen.join(", ")); }
   return L.join("\n");
 }
@@ -3540,6 +3678,10 @@ async function extractDocxEnglishText(buf){
 
     const ns=node.namespaceURI||"";
     const ln=node.localName||node.nodeName||"";
+
+    // Word tables are not prose for English/grammar/style analysis. This also
+    // excludes displayed equations laid out in borderless Word tables.
+    if(ns===W && ln==="tbl") return "\n ⟦TABLE_BLOCK⟧ \n";
 
     if(ns===M && (ln==="oMath" || ln==="oMathPara")){
       const mt=mathText(node);
@@ -4020,7 +4162,7 @@ async function readFile(file){
     (DOCX_FTE_BLOCKS||[]).forEach(b=>{
       if(b?.type!=="p" || !b.text) return;
       const st=String(b.style||"");
-      if(/(?:^|\b)(?:title|subtitle|heading\s*[1-9]?|heading[1-9]|header|footer|footnote|endnote)(?:\b|$)/i.test(st)){
+      if(/(?:^|\b)(?:title|subtitle|heading\s*[1-9]?|heading[1-9]|header|footer|footnote|endnote|caption|figure|table)(?:\b|$)/i.test(st)){
         const t=String(b.text).replace(/\s+/g," ").trim();
         if(t && !DOCX_ENGLISH_EXCLUDE_TEXTS.some(x=>x.toLowerCase()===t.toLowerCase())) DOCX_ENGLISH_EXCLUDE_TEXTS.push(t);
       }
@@ -4132,7 +4274,7 @@ function issueHelpText(code,msg=""){
     ENGLISH_VARIANT_CONTRADICTION:"The manuscript's dominant US or British spelling convention is inferred first. This code marks a spelling that contradicts that established majority pattern.",
     FIRST_PERSON_USAGE:"A candidate first-person form is flagged only after contextual analysis confirms that it is functioning personally rather than as a technical symbol, acronym, unit-like token, or noun sense.",
     SECOND_PERSON_USAGE:"A candidate second-person form is flagged only when context indicates that the manuscript is addressing the reader directly.",
-    TENSE_CONTEXT_REVIEW:"Tense is checked only after the token is confirmed to function as a finite verb. Present tense is allowed for general truths, continuing properties, current limitations, definitions, and valid interpretations; review items focus on completed manuscript-specific actions.",
+    TENSE_CONTEXT_REVIEW:"Tense is checked only after the token is confirmed to function as a finite verb. Present tense is allowed for general truths, continuing properties, current limitations, definitions, and valid interpretations; review items focus on completed manuscript-specific actions. Word mathematical variables and expressions are protected from tense logic but retained in the displayed sentence snippet.",
     PROBABLE_MISSPELLING:"A high-confidence common spelling error was detected. Scientific terminology and US/British variants are protected from this rule where possible.",
     DUPLICATED_WORD:"The same prose word appears twice consecutively and may be accidental. Inline mathematical symbols/variables are preserved as protected tokens so expressions such as “x and m” do not collapse into false duplicate-word findings.",
     ARTICLE_A_AN:"The checker found a possible mismatch between a/an and the following word. Because pronunciation has exceptions, this remains a review item.",
@@ -4341,7 +4483,7 @@ function detectAuthorRegion(reference){
   const firstSurname=first.surname;
   while(pos<raw.length){
     const rest=raw.slice(pos);
-    const sep=rest.match(/^\s*(?:,|;|&|\band\b)\s*/i);
+    const sep=rest.match(/^\s*(?:[,;]\s*(?:(?:and|&)\s*)?|&\s*|\band\b\s*)/i);
     if(!sep) break;
     const candidate=raw.slice(pos+sep[0].length);
 
@@ -4559,6 +4701,26 @@ function detectSourceRegion(raw, authorInfo){
   let rest=refRestAfterAuthors(raw,authorInfo);
   rest=rest.replace(/(?:\s+(?:https?:\/\/(?:dx\.)?doi\.org\/)?10\.\d{4,9}\/\S+|\s+https?:\/\/\S+)\s*$/i,"").trim();
 
+  // IEEE/numbered style: quoted Title, Journal/source, vol. N, ...
+  let qsrc=rest.match(/^\s*[,.;:]?\s*[“"][^”"]+[”"]\s*,?\s*(.+)$/u);
+  if(qsrc){
+    const tail=qsrc[1].trim().replace(/^[,.;:\s]+/,"");
+    const cut=tail.search(/\s*,\s*(?:vol\.?|no\.?|pp?\.?|art(?:icle)?\.?|(?:19|20)\d{2}\b)/i);
+    const cand=(cut>=0?tail.slice(0,cut):tail).trim().replace(/^[,.;:\s“”‘’"']+|[,.;:\s“”‘’"']+$/g,"");
+    if(cand && (refLooksLikeSourceName(cand,true) || cand.split(/\s+/).length<=10)) return cand;
+  }
+
+  // Unquoted numbered style: final source span before ", vol. N".
+  let vm=rest.match(/,\s*vol\.?\s*\d+\b/i);
+  if(vm){
+    const prefix=rest.slice(0,vm.index).trim();
+    const commas=[]; for(let i=0;i<prefix.length;i++) if(prefix[i]===",") commas.push(i);
+    for(let k=commas.length-1;k>=0;k--){
+      const cand=prefix.slice(commas[k]+1).trim().replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+      if(refLooksLikeSourceName(cand,true)) return cand;
+    }
+  }
+
   // Author-year family: YEAR. Title. Source, volume/pages...
   let m=rest.match(/^\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\s*[,;]?\s*(.+?)\.\s+(.+)$/u);
   if(m){
@@ -4642,6 +4804,14 @@ function detectTitleRegion(raw, authorInfo){
   const rest=refRestAfterAuthors(raw,authorInfo);
   if(!rest) return null;
 
+  // Quoted titles are a strong, publisher-independent structural signal.
+  let qm=rest.match(/^\s*[,.;:]?\s*[“"]([^”"]{4,600})[”"]\s*[,.;:]?/u);
+  if(!qm) qm=rest.match(/^\s*[,.;:]?\s*[‘']([^’']{4,600})[’']\s*[,.;:]?/u);
+  if(qm){
+    const cand=qm[1].trim().replace(/[.,;:\s]+$/g,"");
+    if(refPlausibleTitle(cand)) return cand;
+  }
+
   // Book/chapter or database-export form: Authors, Title, in: Source, Publisher, YEAR: pages.
   // Everything before the explicit "in:" marker is the work title, and commas inside it are valid.
   let im=rest.match(/,\s*in:\s*/i);
@@ -4656,6 +4826,20 @@ function detectTitleRegion(raw, authorInfo){
     const cand=m[2].trim();
     const after=m[3].trim();
     if(refPlausibleTitle(cand) && (refLooksLikeSourceName(after.split(/[,;]|\b\d{1,5}\s*\(/)[0],true) || /\b\d{1,5}\b/.test(after))) return cand;
+  }
+
+  // Unquoted title followed directly by an explicit volume/issue tail.
+  m=rest.match(/^(.+?)(?=,\s*vol\.?\s*\d+\b|,\s*no\.?\s*\d+\b)/iu);
+  if(m){
+    const cand=m[1].trim().replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+    if(refPlausibleTitle(cand) && !refLooksLikeSourceName(cand,false)) return cand;
+  }
+
+  // Sparse monograph: Authors, Book title. YEAR. DOI...
+  m=rest.match(/^(.+?)\.\s+(?:19|20)\d{2}[a-z]?\.\s*(?=(?:doi\s*:|https?:\/\/|10\.\d{4,9}\/|$))/iu);
+  if(m){
+    const cand=m[1].trim().replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
+    if(refPlausibleTitle(cand)) return cand;
   }
 
   // Chicago/notes-style family: Authors, “Title,” Source VOLUME, no. ISSUE (YEAR): PAGES.
@@ -4833,8 +5017,14 @@ function detectPublicationYear(raw, authorInfo, sourceRegion){
 
 function refType(s){
   if(/\b(arxiv|biorxiv|medrxiv|chemrxiv|ssrn|preprint|research\s+square|preprints\.org)\b/i.test(s)) return "preprint";
+
+  if(!/[“"][^”"]+[”"]/.test(s) &&
+     /\.\s*(?:19|20)\d{2}[a-z]?\.\s*(?:doi\s*:|https?:\/\/|10\.\d{4,9}\/)/i.test(s) &&
+     !/\bvol\.?\s*\d+|\bpp?\.?\s*\d+|\bno\.?\s*\d+/i.test(s)){
+    return "book";
+  }
   if(/\b(thesis|dissertation|doctoral)\b/i.test(s)) return "thesis";
-  if(/\b(proceedings|conference|symposium|congress|workshop)\b/i.test(s)||/\bin:\s/i.test(s)) return "conference paper";
+  if(/\b(proceedings|conference|symposium|symp\.?|congress|workshop)\b/i.test(s)||/\bin:\s/i.test(s)) return "conference paper";
   if(/\b(ISO|ASTM|IEC|BS\s?EN|EN)\s?\d{2,}/.test(s)) return "standard";
   if(/\b(u\.?s\.?\s?patent|patent\s+no|pat\.\s?no)\b/i.test(s)) return "patent";
   if(/\b(technical\s+report|tech\.?\s?rep|working\s+paper|white\s+paper|guidance|bulletin|report\s+no|US\s?EPA|USEPA|\bEPA\b|\bWHO\b|\bOECD\b|\bIPCC\b|\bITRC\b|\bUNEP\b|\bFAO\b|\bIEA\b|\bNIST\b)\b/.test(s) && !/10\.\d{4,9}\//.test(s) && !/\b\d{1,4}\s*\(\d{4}[a-z]?\)\s*\d/.test(s)) return "report";
@@ -4936,56 +5126,555 @@ function refHasVolume(raw, year, sourceRegion){
   return /;\s*\d+\s*[:(]/.test(t) || /\b\d+\s*:\s*\d+/.test(t);
 }
 
+
+/* =====================================================================
+   STRUCTURAL REFERENCE FIELD PARSER
+   =====================================================================
+
+   This layer intentionally does NOT depend on publisher names or a fixed
+   citation style. It works from bibliographic landmarks:
+
+     AUTHORS | TITLE | SOURCE | YEAR | VOLUME | ISSUE | PAGES/ARTICLE | DOI
+
+   The order and punctuation may vary. The parser first identifies high-
+   confidence right-side landmarks (DOI, publication year, volume/issue and
+   locator), then resolves TITLE versus SOURCE from the remaining text.
+
+   This handles, among others:
+     Title, Journal, 2020, 62, 48-57
+     Title. Journal, 2016, 50(4), 1982-1989
+     Title, Journal, 2019, 9(7), 450
+     "Title," Journal, vol. 43, no. 1, pp. 77-96, 2019
+     Title. Journal 300 (2022) 134489
+     2020. Title. Journal, 62(1), 48-57
+     titleless compact journal styles
+*/
+
+function refCleanField(s){
+  return String(s||"")
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g," ")
+    .replace(/^[\s,.;:“”‘’"'()]+|[\s,.;:“”‘’"']+$/g,"")
+    .trim();
+}
+
+
+function refCleanStructuralPrefix(s){
+  return String(s||"")
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g," ")
+    .replace(/^[\s,.;:]+|[\s,.;:]+$/g,"")
+    .trim();
+}
+
+function refStripDoiUrl(s){
+  let t=String(s||"");
+  const doi=refExtractDoi(t);
+  if(doi){
+    const esc=doi.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    t=t.replace(new RegExp("(?:doi\\s*:\\s*|https?:\\/\\/(?:dx\\.)?doi\\.org\\/)?\\s*"+esc,"i")," ");
+  }
+  // Remaining terminal DOI/URL labels should not participate in field parsing.
+  t=t.replace(/\bdoi\s*:\s*$/i," ")
+     .replace(/https?:\/\/(?:dx\.)?doi\.org\/\S+/ig," ")
+     .replace(/\bhttps?:\/\/\S+/ig," ");
+  return t.replace(/\s+/g," ").trim();
+}
+
+function refOutsidePositions(s, chars){
+  // Return delimiter positions outside quotes/parentheses/brackets.
+  const out=[];
+  let par=0, br=0, quote=null;
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(quote){
+      if(ch===quote || (quote==="“"&&ch==="”") || (quote==="‘"&&ch==="’")) quote=null;
+      continue;
+    }
+    if(ch==='"'||ch==="“"||ch==="‘"){ quote=ch; continue; }
+    if(ch==="(") par++;
+    else if(ch===")") par=Math.max(0,par-1);
+    else if(ch==="[") br++;
+    else if(ch==="]") br=Math.max(0,br-1);
+    else if(par===0 && br===0 && chars.includes(ch)) out.push(i);
+  }
+  return out;
+}
+
+function refSourceScore(text, structural=true){
+  const t=refCleanField(text);
+  if(!t || t.length>180 || /10\.\d{4,9}\//i.test(t)) return -99;
+  const hasYear=/\b(?:19|20)\d{2}[a-z]?\b/i.test(t);
+  const yearAllowedContainer=/\b(?:conference|conf\.?|symposium|symp\.?|proceedings|proc\.?|congress|workshop|meeting|annual|society|transactions|trans\.?|series)\b/i.test(t);
+  if(hasYear && !(structural && yearAllowedContainer)) return -99;
+  const words=t.split(/\s+/).filter(Boolean);
+  if(!words.length || words.length>14) return -99;
+
+  let score=0;
+  score += words.length<=8 ? 3 : (words.length<=12 ? 1 : -2);
+
+  const dotted=(t.match(/\b[\p{L}]{1,12}\./gu)||[]).length;
+  score += Math.min(7,dotted*1.5);
+
+  if(/[&]/.test(t)) score+=1.5;
+  if(/\b(?:journal|j\.?|science|sci\.?|technology|technol\.?|engineering|eng\.?|chemistry|chem\.?|materials?|mater\.?|biotechnology|biotechnol\.?|environmental|environ\.?|mechanics?|mech\.?|physics?|phys\.?|medicine|med\.?|biology|biol\.?|research|res\.?|review|rev\.?|proceedings|proc\.?|conference|conf\.?|symposium|symp\.?|congress|workshop|meeting|transactions|trans\.?|geotechnique|geomechanics?|geomech\.?|biomedical|biomed\.?|behavior|behav\.?|opinion|opin\.?|communications?|commun\.?|letters?|lett\.?|advances?|adv\.?|international|int\.?|applied|appl\.?|analytical|anal\.?|energy|water|sustainability|minerals|chemosphere|langmuir|nanoscale|carbon|vacuum|nature|lancet|heliyon)\b/i.test(t)) score+=4;
+
+  const lexical=words.filter(w=>/[\p{L}]{2,}/u.test(w));
+  const caps=lexical.filter(w=>/^[\p{Lu}]/u.test(w.replace(/^[("'‘’]+/,""))).length;
+  if(lexical.length && caps/lexical.length>=0.55) score+=1.5;
+
+  // Lowercase abbreviated journal names are common, e.g. "Curr. opin. biotechnol."
+  if(dotted>=2 && words.length<=8) score+=3;
+
+  // A one-word container immediately before a publication year can be a valid
+  // source: Minerals, Chemosphere, Nature, Heliyon, Cell, etc. However, a very
+  // short Title-Case abbreviation such as "Res.", "Eng.", or "Sci." should not
+  // outrank a fuller multi-token abbreviation such as "Environ. Res.".
+  if(structural && words.length===1 && /^[\p{L}][\p{L}\d&'’\-]{1,}\.?$/u.test(t)){
+    const bare=t.replace(/\.$/,"");
+    const allCaps=/^[A-Z0-9]{2,6}$/.test(bare);
+    if(bare.length>=5 || allCaps) score+=4;
+    else score+=0.5;
+  }
+
+  // Sentence/title-like prose is unlikely to be part of the source name.
+  // Apply this only to longer candidates so legitimate concise journal names
+  // such as "Water Research" or "Environmental Science & Technology" remain valid.
+  if(/\b(?:is|are|was|were|has|have|had|using|used|based|showed|shows|investigated|evaluated|optimization|effect|effects|analysis|modeling|modelling|behavior|behaviour|obtained|produced|toward|towards|through|from|with|treatment|recovery|production|removal|adsorption|evaluation)\b/i.test(t) && words.length>=7)
+    score-=4;
+
+  // A comma plus a sentence boundary inside a proposed source is strong
+  // evidence that the candidate still contains the end of the article title,
+  // e.g. "ammonia recovery, and power production. Environ. Res."
+  if(/,\s+/.test(t) && /\.\s+[\p{Lu}]/u.test(t) && words.length>=6)
+    score-=6;
+
+  // A bibliographic source almost never begins with a coordinating/prepositional
+  // continuation of an article title. This prevents internal title commas from
+  // being mistaken as title/source boundaries:
+  //   "... wastewater treatment, ammonia recovery, and power production.
+  //    Environ. Res."
+  if(/^(?:and|or|of|for|with|from|through|using|on|in|to|toward|towards)\b/i.test(t)){
+    score-=10;
+    if(/\.\s+[\p{Lu}]/u.test(t)) score-=4;
+  }
+
+  return score;
+}
+
+function refTitleScore(text){
+  const t=refCleanField(text);
+  if(!refPlausibleTitle(t)) return -99;
+  const words=t.split(/\s+/).filter(Boolean);
+  let score=2;
+  if(words.length>=4) score+=3;
+  if(words.length>=8) score+=1;
+  if(/[?:]/.test(t)) score+=1;
+  const lower=words.filter(w=>/^[a-zà-öø-ÿ]/iu.test(w)).length;
+  if(lower>=1) score+=1;
+  return score;
+}
+
+function refSplitTitleSource(prefix){
+  const rawP=String(prefix||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+  if(!rawP) return {title:null,source:null,confidence:0};
+
+  // Explicit quoted title MUST be resolved before refCleanField(), because the
+  // generic cleaner intentionally strips surrounding quotation punctuation.
+  // Bibliographies commonly place the comma inside the closing quote:
+  //   “Article title,” Journal...
+  // or
+  //   "Article title," Journal...
+  let q=rawP.match(/^[“"]([^”"]{4,700})[”"]\s*[,.;:]?\s*(.+)$/u);
+  if(!q) q=rawP.match(/^[‘']([^’']{4,700})[’']\s*[,.;:]?\s*(.+)$/u);
+  if(q){
+    const title=refCleanField(q[1]);
+    const source=refCleanField(q[2]);
+    if(refTitleScore(title)>0 && refSourceScore(source,true)>0)
+      return {title,source,confidence:0.995};
+  }
+
+  const p=refCleanField(rawP);
+  if(!p) return {title:null,source:null,confidence:0};
+
+  // A short, heavily abbreviated span can itself be the complete journal/source
+  // in titleless compact styles. Resolve this BEFORE testing period boundaries,
+  // otherwise "Chem. Eng. J." can be incorrectly split into title="Chem. Eng"
+  // and source="J".
+  const wholeWords=p.split(/\s+/).filter(Boolean);
+  const wholeDots=(p.match(/\b[\p{L}]{1,12}\./gu)||[]).length;
+  const wholeSourceEarly=refSourceScore(p,true);
+  if(wholeWords.length<=8 && wholeDots>=2 && wholeSourceEarly>=7)
+    return {title:null,source:p,confidence:0.96};
+
+  // Explicit chapter/container marker.
+  const im=p.match(/^(.*?)\s*,?\s+\bin\s*:\s*(.+)$/i);
+  if(im && refTitleScore(im[1])>0)
+    return {title:refCleanField(im[1]),source:refCleanField(im[2]),confidence:0.97};
+
+  const candidates=[];
+
+  // Comma and semicolon boundaries.
+  for(const pos of refOutsidePositions(p,",;")){
+    const left=refCleanField(p.slice(0,pos)), right=refCleanField(p.slice(pos+1));
+    const ts=refTitleScore(left), ss=refSourceScore(right,true);
+    if(ts>0 && ss>0) candidates.push({title:left,source:right,score:ts+ss+2,sourceScore:ss});
+  }
+
+  // Period + whitespace boundaries. Abbreviated journal names contain periods,
+  // so evaluate ALL boundaries and select the strongest complete source suffix.
+  for(let i=0;i<p.length-1;i++){
+    if(p[i]!=="." || !/\s/.test(p[i+1])) continue;
+    const left=refCleanField(p.slice(0,i+1)), right=refCleanField(p.slice(i+1));
+    const ts=refTitleScore(left), ss=refSourceScore(right,true);
+    if(ts>0 && ss>0) candidates.push({title:left,source:right,score:ts+ss+2.5,sourceScore:ss});
+  }
+
+  if(candidates.length){
+    candidates.sort((a,b)=>
+      b.score-a.score ||
+      b.sourceScore-a.sourceScore ||
+      b.source.length-a.source.length ||
+      b.title.length-a.title.length
+    );
+    return {...candidates[0],confidence:0.92};
+  }
+
+  // No title/source split. If the complete span is strongly source-like,
+  // this is a valid titleless compact reference.
+  const wholeSourceLate=refSourceScore(p,true);
+  if(wholeSourceLate>=6) return {title:null,source:p,confidence:0.90};
+
+  // Otherwise preserve a plausible title and leave source unresolved rather
+  // than inventing a journal/source from ordinary title text.
+  if(refTitleScore(p)>0) return {title:p,source:null,confidence:0.65};
+
+  return {title:null,source:null,confidence:0};
+}
+
+function refFindYearLandmark(rest){
+  const s=String(rest||"");
+  const all=[...s.matchAll(/\b((?:19|20)\d{2}[a-z]?)\b/gi)];
+  if(!all.length) return null;
+
+  let best=null;
+  for(const m of all){
+    const idx=m.index, year=m[1];
+    const before=s.slice(Math.max(0,idx-35),idx);
+    const after=s.slice(idx+m[0].length,idx+m[0].length+80);
+    let score=0;
+
+    // Author-year style.
+    if(/^[\s,.;:(]*$/.test(s.slice(0,idx))) score+=11;
+
+    // Year followed by volume / volume(issue).
+    if(/^\s*[,;:.]?\s*\d{1,6}(?:\s*\(\s*\d{1,6}\s*\))?(?:\s*[,;:])/i.test(after)) score+=10;
+
+    // Volume (YEAR) locator.
+    if(/\d{1,6}\s*\(\s*$/.test(before) && /^\s*\)\s*[,;:]?\s*(?:[eE]?\d|\d+\s*[-–—])/i.test(after)) score+=11;
+
+    // Year near DOI/end in sparse references.
+    if(/^\s*[.,;:]?\s*(?:doi\b|https?:\/\/|$)/i.test(after)) score+=5;
+
+    // Parenthesized year is a bibliographic cue.
+    if(/\(\s*$/.test(before) && /^\s*\)/.test(after)) score+=3;
+
+    // Prefer later year when evidence is otherwise equal, because years
+    // occurring inside article titles are usually earlier than the publication tail.
+    const cand={year,index:idx,length:m[0].length,score};
+    if(!best || score>best.score || (score===best.score && idx>best.index)) best=cand;
+  }
+  return best;
+}
+
+function refParseLocatorFields(rest, yearInfo){
+  const s=refStripDoiUrl(rest);
+  let volume=null, issue=null, locator=null, locatorKind=null;
+
+  let m=s.match(/\bvol(?:ume)?\.?\s*(\d{1,6})\b/i);
+  if(m) volume=m[1];
+
+  m=s.match(/\b(?:no\.?|issue)\s*(\d{1,6})\b/i);
+  if(m) issue=m[1];
+
+  m=s.match(/\bpp?\.?\s*([eE]?\d{1,8}(?:\s*[-–—]\s*[eE]?\d{1,8})?)\b/i);
+  if(m){ locator=m[1]; locatorKind=/[-–—]/.test(locator)?"pages":"locator"; }
+
+  if(!locator){
+    m=s.match(/\b(?:article|art\.?|e-location|elocation)\s*(?:no\.?|number|id)?\s*:?\s*([eE]?\d{2,10})\b/i);
+    if(m){ locator=m[1]; locatorKind="article"; }
+  }
+
+  // Parenthetical publication designators occurring after the volume.
+  // Examples:
+  //   50(4)
+  //   262 (Pt 1)
+  //   18 (Part 2)
+  //   44 (Suppl 1)
+  //   12 (Supplement 3)
+  //   9 (S1)
+  //
+  // The designator itself is not a page/article locator. It is consumed only
+  // so the following bibliographic locator can be identified correctly.
+  const issueDesignator = String.raw`(?:\s*\(\s*(?:(?:pt|part|suppl?|supplement|issue|no\.?)\s*)?([A-Za-z]?\d+[A-Za-z]?)\s*\))?`;
+  const locatorToken = String.raw`([A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)`;
+
+  if(yearInfo){
+    const y=yearInfo.year.replace(/[a-z]$/i,"");
+
+    // YEAR, VOLUME(ISSUE/PART/SUPPLEMENT), LOCATOR
+    let re=new RegExp(
+      "\\b"+y+"[a-z]?\\b\\s*[,;:]\\s*(\\d{1,6})"+
+      issueDesignator+
+      "\\s*[,;:]\\s*"+locatorToken,
+      "i"
+    );
+    m=s.match(re);
+    if(m){
+      volume=volume||m[1];
+      issue=issue||m[2]||null;
+      locator=locator||m[3];
+      locatorKind=locatorKind||(
+        /[-–—]/.test(m[3]) ? "pages" :
+        (/^[eE]\d+/i.test(m[3]) || /^\d{5,10}$/.test(m[3]) ? "article" : "locator")
+      );
+    }
+
+    // VOLUME(ISSUE/PART/SUPPLEMENT), LOCATOR, YEAR
+    re=new RegExp(
+      "(\\d{1,6})"+
+      issueDesignator+
+      "\\s*[,;:]\\s*"+locatorToken+
+      "\\s*[,;:]\\s*"+y+"[a-z]?\\b",
+      "i"
+    );
+    m=s.match(re);
+    if(m){
+      volume=volume||m[1];
+      issue=issue||m[2]||null;
+      locator=locator||m[3];
+      locatorKind=locatorKind||(
+        /[-–—]/.test(m[3]) ? "pages" :
+        (/^[eE]\d+/i.test(m[3]) || /^\d{5,10}$/.test(m[3]) ? "article" : "locator")
+      );
+    }
+
+    // VOLUME (YEAR) LOCATOR
+    re=new RegExp(
+      "(\\d{1,6})\\s*\\(\\s*"+y+"[a-z]?\\s*\\)\\s*[,;:]?\\s*"+
+      locatorToken,
+      "i"
+    );
+    m=s.match(re);
+    if(m){
+      volume=volume||m[1];
+      locator=locator||m[2];
+      locatorKind=locatorKind||(
+        /[-–—]/.test(m[2]) ? "pages" :
+        (/^[eE]\d+/i.test(m[2]) || /^\d{5,10}$/.test(m[2]) ? "article" : "locator")
+      );
+    }
+  }
+
+  // Generic VOLUME(ISSUE/PART/SUPPLEMENT), LOCATOR anywhere. This catches
+  // author-year styles and references where the year is structurally earlier.
+  let genericDesignatorRe=new RegExp(
+    "(?:^|[,;.\\s])(\\d{1,6})"+
+    issueDesignator+
+    "\\s*[,;:]\\s*"+locatorToken
+  );
+  m=s.match(genericDesignatorRe);
+  if(m){
+    const publicationYear=yearInfo ? yearInfo.year.replace(/[a-z]$/i,"") : null;
+    const volumeCandidate=m[1];
+    // A four-digit publication year must never be reinterpreted as a volume.
+    if(!(publicationYear && volumeCandidate===publicationYear)){
+      volume=volume||volumeCandidate;
+      issue=issue||m[2]||null;
+      locator=locator||m[3];
+      locatorKind=locatorKind||(
+        /[-–—]/.test(m[3]) ? "pages" :
+        (/^[eE]\d+/i.test(m[3]) || /^\d{5,10}$/.test(m[3]) ? "article" : "locator")
+      );
+    }
+  }
+
+  // Terminal VOLUME, LOCATOR without an issue. Require the pair to be at the
+  // bibliography tail so numbers mentioned inside an article title are not
+  // misclassified as publication fields.
+  m=s.match(/(?:^|[,;])\s*(\d{1,6})\s*[,;:]\s*([eE]?\d{1,10}(?:\s*[-–—]\s*[eE]?\d{1,10})?)\s*[.]?\s*$/);
+  if(m){
+    volume=volume||m[1];
+    locator=locator||m[2];
+    locatorKind=locatorKind||(/[-–—]/.test(m[2])?"pages":(/[eE]/i.test(m[2])||m[2].length>=5?"article":"locator"));
+  }
+
+  // Generic volume(issue) anywhere when not already resolved.
+  if(!volume){
+    m=s.match(/(?:^|[,;.\s])(\d{1,6})\s*\(\s*(\d{1,6})\s*\)(?=\s*[,;:.])/);
+    if(m){ volume=m[1]; issue=issue||m[2]; }
+  }
+
+  return {volume,issue,locator,locatorKind};
+}
+
+function refPrefixBeforePublicationTail(rest, yearInfo, locatorFields){
+  let s=refStripDoiUrl(rest);
+  if(!yearInfo) return refCleanStructuralPrefix(s);
+
+  const y=yearInfo.year.replace(/[a-z]$/i,"");
+  const yi=yearInfo.index;
+
+  // Author-year: publication year comes before title/source.
+  if(/^[\s,.;:(]*$/.test(s.slice(0,yi))) return null;
+
+  let prefix=s.slice(0,yi);
+
+  // If year is inside VOLUME(YEAR), remove the volume from the title/source prefix.
+  const vm=prefix.match(/(?:[,;:\s]|^)(?:vol(?:ume)?\.?\s*)?(\d{1,6})\s*\(\s*$/i);
+  if(vm) prefix=prefix.slice(0,prefix.length-vm[0].length);
+
+  // If explicit volume/issue/page fields precede a year-at-end style, cut at
+  // the first such bibliographic locator so only TITLE + SOURCE remains.
+  const explicit=prefix.search(/\s*[,;]\s*(?:vol(?:ume)?\.?|no\.?|issue|pp?\.?|article|art\.?|e-location)\b/i);
+  if(explicit>=0) prefix=prefix.slice(0,explicit);
+
+  return refCleanStructuralPrefix(prefix);
+}
+
+function refParseStructuredFields(raw, authorInfo, type){
+  const rest0=refRestAfterAuthors(raw,authorInfo);
+  if(!rest0) return null;
+
+  const rest=refStripDoiUrl(rest0);
+  const yearInfo=refFindYearLandmark(rest);
+  const loc=refParseLocatorFields(rest,yearInfo);
+
+  let title=null, source=null, confidence=0, layout="unknown";
+
+  if(yearInfo && /^[\s,.;:(]*$/.test(rest.slice(0,yearInfo.index))){
+    // Author-year / APA/IWA family:
+    // YEAR. Title. Source, VOLUME(ISSUE), LOCATOR
+    layout="author-year";
+    const afterYear=rest.slice(yearInfo.index+yearInfo.length)
+      .replace(/^\s*\)?\s*[.,;:]?\s*/,"")
+      .trim();
+
+    // Cut before the first strong volume/locator tail.
+    let cut=afterYear.length;
+    const patterns=[
+      /\s*[,;]\s*(?:vol(?:ume)?\.?\s*)?\d{1,6}(?:\s*\(\s*\d{1,6}\s*\))?\s*[,;:]/i,
+      /\s+\d{1,6}\s*\(\s*\d{1,6}\s*\)\s*[,;:]/,
+      /\s*[,;]\s*pp?\.?\s*\d/i
+    ];
+    for(const re of patterns){ const m=afterYear.match(re); if(m && m.index<cut) cut=m.index; }
+    const prefix=refCleanStructuralPrefix(afterYear.slice(0,cut));
+    const split=refSplitTitleSource(prefix);
+    title=split.title; source=split.source; confidence=split.confidence;
+  }else{
+    // Title/source before publication-year tail.
+    const prefix=refPrefixBeforePublicationTail(rest,yearInfo,loc);
+    if(prefix){
+      const split=refSplitTitleSource(prefix);
+      title=split.title; source=split.source; confidence=split.confidence;
+      layout="title-source-year";
+    }
+  }
+
+  // If the source/title split did not resolve but a quoted title exists,
+  // retain it and parse the following source up to the publication tail.
+  if(!title){
+    let q=rest.match(/^[\s,.;:]*[“"]([^”"]{4,700})[”"]\s*[,.;:]?\s*(.+)$/u);
+    if(!q) q=rest.match(/^[\s,.;:]*[‘']([^’']{4,700})[’']\s*[,.;:]?\s*(.+)$/u);
+    if(q && refTitleScore(q[1])>0){
+      title=refCleanField(q[1]);
+      let qtail=q[2];
+      if(yearInfo){
+        const yy=qtail.search(/\b(?:19|20)\d{2}[a-z]?\b/i);
+        if(yy>=0) qtail=qtail.slice(0,yy);
+      }
+      source=refCleanField(qtail.replace(/\s*[,;]\s*(?:vol(?:ume)?\.?|no\.?|issue|pp?\.?).*$/i,""));
+      confidence=Math.max(confidence,0.97);
+    }
+  }
+
+  return {
+    year:yearInfo?.year||null,
+    title:title||null,
+    source:source||null,
+    volume:loc.volume||null,
+    issue:loc.issue||null,
+    locator:loc.locator||null,
+    locatorKind:loc.locatorKind||null,
+    confidence,
+    layout
+  };
+}
+
 function refParseEntry(raw){
   const rawTrim=raw.trim();
   const doi=refExtractDoi(raw);
 
-  // Author-field parsing is independent of reference-entry segmentation.
   const authorInfo=detectAuthorRegion(rawTrim);
   const hasAuthors=authorInfo.hasAuthors;
   const hasCorporateAuthor=authorInfo.authorType==="corporate";
   const firstAuthor=authorInfo.firstAuthorSurname||null;
 
   const type=refType(raw);
+  const structured=refParseStructuredFields(raw,authorInfo,type);
   const bookFields=type==="book"?detectBookFields(raw,authorInfo):null;
 
-  // Detect source/publisher before year so title-internal years are not mistaken for publication years.
-  const sourceRegion=bookFields?.publisher||detectSourceRegion(raw,authorInfo);
-  const year=bookFields?.year||detectPublicationYear(raw,authorInfo,sourceRegion);
-  const yr=year&&/^\d/.test(year)?year.replace(/[a-z]$/i,""):null;
-  const rawNoDoi=doi?raw.replace(doi,""):raw;
-  const rawNoYear=yr?raw.replace(new RegExp("\\b"+yr+"\\b")," "):raw;
+  // Prefer structural landmark parsing; use legacy detectors only when a
+  // field remains unresolved.
+  const sourceRegion=structured?.source || bookFields?.publisher || detectSourceRegion(raw,authorInfo);
+  const year=structured?.year || bookFields?.year || detectPublicationYear(raw,authorInfo,sourceRegion);
+  const title=structured?.title || bookFields?.title || detectTitleRegion(raw,authorInfo);
 
-  const volArt=/\b(\d{1,3})\s*,\s*(\d{3,6})\b/.exec(rawNoDoi);
-  const hasArticleNo=
-    /\be\d{4,}\b/i.test(raw) ||
-    /\b(article|art|paper|e-location|elocation)\.?\s*(no\.?|number|id)?\s*:?\s*[eE]?\d+/i.test(raw) ||
-    /\(\d+\)\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||
-    /,\s*\d{1,4}\s*,\s*\d{2,7}\.?\s*$/.test(rawTrim) ||
-    /\(\d{4}[a-z]?\)\s*:?\s*\d{1,7}(?:\s*[-–]\s*\d{1,7})?/.test(raw) ||
-    (volArt && !/^(?:19|20)\d{2}$/.test(volArt[2])) ||
-    (new RegExp("\\b\\d{5,7}\\b").test(yr?rawNoDoi.replace(new RegExp("\\b"+yr+"\\b","g"),""):rawNoDoi));
-  // A bare label such as "Article." without an identifier is intentionally NOT counted
-  // as an article number. The ledger should show the field as missing rather than inventing
-  // an identifier from the DOI.
-  const hasPageRange=/\b\d+\s*[-–—]\s*\d+\b/.test(raw)||/\bpp?\.\s*\d+/i.test(raw)||/:\s*\d+\s*[-–]\s*\d+/.test(raw);
-  const hasPages=hasPageRange||hasArticleNo;
-  const hasVolume=refHasVolume(raw,year,sourceRegion);
-  const hasIssue=/\b\d+\s*\(\s*\d+\s*\)/.test(raw) || /\bno\.\s*\d+/i.test(raw) || /\biss(?:ue)?\.?\s*\d+/i.test(raw);
-  // Compact comma-tail signature. It is considered titleless only after title parsing confirms no title.
-  const compactCommaTail=/,\s*(?:19|20)\d{2}[a-z]?\s*,\s*\d+(?:\s*,\s*(?:\d+\s*[-–—]\s*\d+|[eE]?\d+))?\s*\.?\s*$/.test(rawTrim);
-  const hasSource=!!sourceRegion ||
-    /(?:[A-Z][a-z]{1,}\.\s*){1,}[A-Z]?[A-Za-z]*\.?/.test(raw) ||
-    /\b(Journal|Proc\.|Trans\.|Rev\.|Bull\.|Ann\.|Adv\.|Environ|Water|Energy|Chem|Sci|Eng|Technol|Mater|Bioresour|Biosens(?:ors)?|Bioelectron|Electrochim|Catal|Nature|Science|Renew|Sustain|Ecol|Biol|Phys|Anal|Membr|Sep|Purif|Clean|Prod|Acta|Rep)\b/i.test(raw);
-  const title=bookFields?.title||detectTitleRegion(raw,authorInfo);
   const hasTitle=!!title;
-  const rscCompact=compactCommaTail && !hasTitle;
+  const hasSource=!!sourceRegion;
 
-  const wordCount=(raw.match(/[A-Za-z]{3,}/g)||[]).length;
-  return {raw, year, doi, hasPages, hasArticleNo, hasVolume, hasIssue, hasAuthors, hasCorporateAuthor,
-          authorType:authorInfo.authorType, authorRegion:authorInfo.authorRegion, authorCount:authorInfo.authorCount,
-          authorConfidence:authorInfo.confidence, hasSource, sourceRegion, hasTitle, title, rscCompact, wordCount, firstAuthor, type};
+  const hasVolume=!!structured?.volume || refHasVolume(raw,year,sourceRegion);
+  const hasIssue=!!structured?.issue ||
+    /\b\d+\s*\(\s*\d+\s*\)/.test(refStripDoiUrl(raw)) ||
+    /\bno\.?\s*\d+/i.test(raw) ||
+    /\biss(?:ue)?\.?\s*\d+/i.test(raw);
+
+  // Pages/Art. means a publication locator, not necessarily a range.
+  // A single page, article number, e-location, or page range all qualify.
+  let hasPages=!!structured?.locator;
+  let hasArticleNo=structured?.locatorKind==="article";
+
+  if(!hasPages){
+    const clean=refStripDoiUrl(raw);
+    const pageRange=/\b(?:pp?\.?\s*)?\d{1,8}\s*[-–—]\s*\d{1,8}\b/i.test(clean);
+    const explicitArticle=/\b(?:article|art\.?|e-location|elocation)\s*(?:no\.?|number|id)?\s*:?\s*[eE]?\d{1,10}\b/i.test(clean);
+    const eLocator=/\b[eE]\d{4,10}\b/.test(clean);
+    hasPages=pageRange||explicitArticle||eLocator;
+    hasArticleNo=explicitArticle||eLocator;
+  }
+
+  // Compact titleless journal form is inferred only when the complete
+  // title/source prefix resolves as a source and no title was found.
+  const compactCommaTail=/,\s*(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\(\d+\))?(?:\s*[,;:]\s*[eE]?\d+(?:\s*[-–—]\s*\d+)?)?\s*\.?\s*$/i.test(refStripDoiUrl(rawTrim));
+  const rscCompact=compactCommaTail && !hasTitle && !!sourceRegion;
+
+  const wordCount=(raw.match(/[A-Za-zÀ-ÖØ-öø-ÿ]{3,}/g)||[]).length;
+  return {
+    raw, year, doi, hasPages, hasArticleNo, hasVolume, hasIssue,
+    hasAuthors, hasCorporateAuthor,
+    authorType:authorInfo.authorType,
+    authorRegion:authorInfo.authorRegion,
+    authorCount:authorInfo.authorCount,
+    authorConfidence:authorInfo.confidence,
+    hasSource, sourceRegion,
+    hasTitle, title,
+    rscCompact, wordCount, firstAuthor, type,
+    structured
+  };
 }
+
 /* Reference-likelihood of a single entry, from several independent signals */
 function refScore(s){
   let sc=0;
@@ -5115,7 +5804,7 @@ function refCheck(refText, bodyText){
     "thesis":{vol:1,issue:1,pages:1,doi:1},
     "preprint":{vol:1,issue:1,pages:1},
     "book":{vol:1,issue:1,pages:1,doi:1},
-    "conference paper":{vol:1,issue:1},
+    "conference paper":{vol:1,issue:1,pages:1},
     "standard":{vol:1,issue:1,pages:1},
     "patent":{vol:1,issue:1,pages:1}
   };
@@ -5238,7 +5927,7 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style. Entry/type shows the parsed reference type; Journal/source means the journal, book publisher, report issuer, website, or other bibliographic container; Pages/Art. accepts either a page range or article/e-location identifier when applicable." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style. Entry/type shows the parsed reference type; Journal/source means the journal, book publisher, report issuer, website, or other bibliographic container; Pages/Art. means any valid publication locator: a page range, a single page/starting page, article number, or e-location. Volume part/supplement designators such as (Pt 1), (Part 2), or (Suppl 1) are treated as publication descriptors and do not prevent detection of the following locator." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
