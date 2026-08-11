@@ -152,7 +152,7 @@
   </header>
 
   <section class="card" id="input-card">
-    <h2>Your manuscript</h2>
+    <h2 class="help-row">Your manuscript <button type="button" class="info-help inline-auto-help" data-help="The tool reads only Microsoft Word .docx manuscripts. Different modules use the Word structure differently: references are isolated from the bibliography section; affiliations are excluded from Units and English checks; Word tables are retained for table-specific precision/unit checks; figures, tables, and equations use Word document order where available." aria-label="Explain manuscript scanning" title="What is scanned?">i</button></h2>
     <p class="sub">Upload your complete manuscript as a Microsoft Word <b>.docx</b> file. The checker is intentionally restricted to Word files so paragraph boundaries, headings, lists, and reference structure can be read more reliably. Legacy <b>.doc</b>, PDF, TXT, MD, and pasted manuscript text are not accepted.</p>
 
     <div class="panel" id="panel-upload">
@@ -203,7 +203,7 @@
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2>Proofing report</h2>
+    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans manuscript prose for abbreviation definition and use. It checks first-use definition, undefined abbreviations, use before definition, title use, and repeated/standard forms. Recognized units are not treated as abbreviations; References and configured table/numeric blocks are excluded." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
@@ -239,7 +239,7 @@
 
   <div class="result-group" data-group="ref" hidden>
   <section class="card" id="ref-report" hidden aria-live="polite">
-      <h2>Reference report</h2>
+      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. Applicability is style/type aware, so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
       <div id="ref-ledger-wrap"></div>
       <p class="disclaimer">The reference ledger reports whether key bibliographic components are detected in each entry. Field applicability is inferred from the reference type and the dominant structure of the reference list. Detection is heuristic, so ambiguous entries should still be checked manually.</p>
@@ -352,7 +352,7 @@
 
   <div class="result-group" data-group="fte" hidden>
   <section class="card" id="fte-report" hidden aria-live="polite">
-    <h2>Figures, tables &amp; equations report</h2>
+    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
     <p class="sub" id="fte-report-sub"></p>
     <div id="fte-summary"></div>
     <div id="fte-findings"></div>
@@ -912,9 +912,12 @@ function renderUnitReport(res){
     const pre=res.issues.filter(x=>x.code==="UNIT_PRECISION_INCONSISTENT");
     const draw=(title,a)=>{
       if(!a.length)return;
-      ih+=`<p class="sec-label">${title} · ${a.length}</p>`;
+      const sectionHelp=title==="Unit-format consistency"
+        ?"Checks whether the same repeated unit is written consistently. It does not compare unrelated units and does not force SI notation. Equivalent exponent typography such as m2, m^2, and m² is normalized."
+        :"Checks whether directly comparable values using the same unit/context follow a consistent decimal-place pattern.";
+      ih+=`<p class="sec-label">${title} ${inlineHelpButton(sectionHelp,`Explain ${title}`)} · ${a.length}</p>`;
       a.slice(0,250).forEach(it=>{
-        ih+=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,420))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;
+        ih+=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,420))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;
       });
     };
     draw("Unit-format consistency",fmt);
@@ -2737,7 +2740,7 @@ function renderEnglishReport(res){
     items.slice(0,300).forEach(it=>{
       const badge=it.severity==="warn"?"warn":"info";
       html+=`<div class="issue"><span class="badge ${badge}">${it.severity==="warn"?"!":"i"}</span><div class="body">
-        <p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p>
+        <p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p>
         <div class="snip">${it.snippet}</div>
         <p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>
       </div></div>`;
@@ -2774,7 +2777,7 @@ function renderEnglishReport(res){
   if(paraIssues.length){
     paraIssues.slice(0,300).forEach(it=>{
       html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
-        <p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p>
+        <p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p>
         <div class="snip">${it.snippet}</div>
         <p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>
       </div></div>`;
@@ -3275,13 +3278,18 @@ function renderReport(r){
   document.getElementById("infos-wrap").innerHTML=section("Suggestions",r.infos,"info");
   document.getElementById("ledger-wrap").innerHTML=ledger(r.rows);
   document.getElementById("std-wrap").innerHTML=
-    r.standardSeen.length?`<p class="std-note"><b>Treated as standard (definition not required):</b> ${r.standardSeen.map(s=>`<code>${escapeHtml(s)}</code>`).join("")}</p>`:"";
+    r.standardSeen.length?`<p class="std-note"><b>Treated as standard (definition not required):</b> ${inlineHelpButton("These tokens were recognized as standard/allowed terms and were intentionally excluded from undefined-abbreviation findings. The list comes from the built-in standard registry plus any user-supplied whitelist.","Explain standard terms")} ${r.standardSeen.map(s=>`<code>${escapeHtml(s)}</code>`).join("")}</p>`:"";
 
   const rep=document.getElementById("report"); rep.hidden=false;
 }
 function section(label,items,kind){
   if(!items.length) return "";
   const sym=kind==="info"?"i":"!";
+  const helpMap={
+    "Must fix":"High-confidence abbreviation problems such as missing first-use definitions or use before definition. References and configured table/numeric blocks are excluded from this analysis.",
+    "Warnings":"Potential abbreviation consistency problems that should be reviewed in context before editing.",
+    "Suggestions":"Lower-severity abbreviation/style observations. These are not automatically treated as errors."
+  };
   const rows=items.map(it=>`
     <div class="issue">
       <span class="badge ${kind}">${sym}</span>
@@ -3290,7 +3298,7 @@ function section(label,items,kind){
         ${it.snip?`<div class="snip">${it.snip}</div>`:""}
       </div>
     </div>`).join("");
-  return `<p class="sec-label">${label}</p>${rows}`;
+  return `<p class="sec-label">${label} ${inlineHelpButton(helpMap[label]||"Explains this abbreviation finding group.",`Explain ${label}`)}</p>${rows}`;
 }
 function ledger(rows){
   if(!rows.length) return "";
@@ -3301,7 +3309,7 @@ function ledger(rows){
     const tt=x.inTitle?`<span class="yn n">yes</span>`:`<span class="yn na">no</span>`;
     return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${fu}</td><td>${tt}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Abbreviation ledger</p>
+  return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("Lists each detected non-standard abbreviation, its inferred full form, number of uses, whether it was defined at first use, and whether it appears in the manuscript title. A dash means the field is not applicable because no full form was detected.","Explain Abbreviation Ledger")}</p>
     <table class="ledger"><thead><tr><th>Abbrev.</th><th>Full form</th><th>Uses</th><th>Defined at first use</th><th>In title</th></tr></thead>
     <tbody>${body}</tbody></table>`;
 }
@@ -3599,7 +3607,7 @@ function ftePanelCheck(figures,issues){
     const letters=[...(it.caption||"").matchAll(/\(([a-z])\)/gi)].map(m=>m[1].toLowerCase());
     if(letters.length<2) return;
     const dups=[...new Set(letters.filter((x,i)=>letters.indexOf(x)!==i))];
-    if(dups.length) fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} has duplicated panel identifier(s): ${dups.join(", ")}.`,`Check the panel labels and caption lettering.`,it.caption,"warn");
+    if(dups.length) fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} has duplicated panel identifier(s): ${dups.join(", ")}.`,`A duplicated panel identifier means the same panel letter, such as (d), was detected more than once within this multipanel figure context. Check the actual figure labels and caption lettering; if each panel is labeled only once, review whether repeated caption mentions caused the detection.`,it.caption,"warn");
     const nums=letters.map(x=>x.charCodeAt(0)-96), max=Math.max(...nums); const miss=[]; for(let n=1;n<=max;n++) if(!nums.includes(n))miss.push(String.fromCharCode(96+n));
     if(miss.length) fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} appears to skip panel identifier(s): ${miss.join(", ")}.`,`Check that panels follow a, b, c… without unintended gaps.`,it.caption,"warn");
   });
@@ -3712,11 +3720,11 @@ function renderFteReport(res){
     ["Tables",res.tables.length,fteStatus(res,"table","numbering"),fteStatus(res,"table","cited"),fteStatus(res,"table","resolve"),fteStatus(res,"table","before")],
     ["Equations",res.equations.length,fteStatus(res,"equation","numbering"),fteStatus(res,"equation","cited"),fteStatus(res,"equation","resolve"),fteStatus(res,"equation","citeorder")]
   ];
-  $("fte-summary").innerHTML=`<p class="sec-label">Manuscript-level validation</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Category</th><th>Detected</th><th>Numbering</th><th>Cited/ref.</th><th>Cross-refs resolve</th><th>Order / placement</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="t-abbr">${r[0]}</td><td class="t-num">${r[1]}</td><td>${fteYN(r[2])}</td><td>${fteYN(r[3])}</td><td>${fteYN(r[4])}</td><td>${fteYN(r[5])}</td></tr>`).join("")}</tbody></table></div>${res.unverified?`<p class="std-note">${res.unverified} figure placement${res.unverified===1?"":"s"} could not be tied confidently to a Word drawing; citation-before-appearance was not asserted for those figure${res.unverified===1?"":"s"}.</p>`:""}`;
+  $("fte-summary").innerHTML=`<p class="sec-label">Manuscript-level validation ${inlineHelpButton("Summary of structural checks for Figures, Tables, and Equations. Detected = number of items found; Numbering = no gaps/duplicates/order problems; Cited/ref. = each item has a matching in-text reference where expected; Cross-refs resolve = cited identifiers correspond to detected items; Order/placement = citation and physical order checks passed where Word structure is reliable.","Explain manuscript-level validation")}</p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Category</th><th>Detected</th><th>Numbering</th><th>Cited/ref.</th><th>Cross-refs resolve</th><th>Order / placement</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="t-abbr">${r[0]}</td><td class="t-num">${r[1]}</td><td>${fteYN(r[2])}</td><td>${fteYN(r[3])}</td><td>${fteYN(r[4])}</td><td>${fteYN(r[5])}</td></tr>`).join("")}</tbody></table></div>${res.unverified?`<p class="std-note">${res.unverified} figure placement${res.unverified===1?"":"s"} could not be tied confidently to a Word drawing; citation-before-appearance was not asserted for those figure${res.unverified===1?"":"s"}.</p>`:""}`;
   if(!res.issues.length) $("fte-findings").innerHTML=`<p class="verdict clean">No figure, table, or numbered-equation consistency issues detected.</p>`;
   else{
     const order=["figure","table","equation"]; let html="";
-    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
+    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, cross-reference resolution, and first-reference order."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
     $("fte-findings").innerHTML=html;
   }
   $("fte-report").hidden=false;
@@ -3802,6 +3810,96 @@ function bindInfoHelp(buttonId,helpId){
 }
 function infoButton(id,label="Explain this section"){
   return `<button type="button" class="info-help" id="${id}" aria-label="${escapeHtml(label)}" aria-expanded="false" title="${escapeHtml(label)}">i</button>`;
+}
+
+function inlineHelpButton(help,label="Explain this item"){
+  if(!help) return "";
+  return `<button type="button" class="info-help inline-auto-help" data-help="${escapeHtml(help)}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">i</button>`;
+}
+
+function issueHelpText(code,msg=""){
+  code=String(code||"");
+  msg=String(msg||"");
+
+  // Figure / table / equation checks
+  if(code==="FIGURE_PANEL_SEQUENCE"){
+    if(/duplicated panel identifier/i.test(msg)){
+      return "For a multipanel figure, panel labels such as (a), (b), (c), and (d) are expected to identify different panels. “Duplicated panel identifier” means the checker detected the same panel letter more than once within the same figure-caption context, for example (a), (b), (c), (d), (d). Review the actual figure and caption because repeated descriptive mentions can occasionally resemble duplicate labels.";
+    }
+    if(/skip panel identifier/i.test(msg)){
+      return "The checker detected a gap in the panel-letter sequence of a multipanel figure. For example, (a), (b), and (d) would suggest that panel (c) is missing or mislabeled. Confirm the actual panel labels and caption lettering.";
+    }
+    return "Checks panel lettering within a multipanel figure. Repeated or skipped identifiers such as (a), (b), (b) or (a), (c) are reported for review.";
+  }
+  if(/_DUPLICATE_NUMBER$/.test(code))
+    return "The same figure, table, or equation number was detected more than once. Numbering sequences are checked independently for Figures, Tables, and Equations.";
+  if(/_MISSING_NUMBER$/.test(code))
+    return "A gap was detected in the numbering sequence, for example Figure 1 followed by Figure 3. Supplementary S-numbered sequences are checked separately.";
+  if(/_OUT_OF_ORDER$/.test(code))
+    return "The physical order of numbered items does not match their numerical order, or simple and section-based numbering appear to be mixed.";
+  if(/_CITATION_WITHOUT_/.test(code) || code==="EQUATION_REFERENCE_WITHOUT_EQUATION")
+    return "An in-text cross-reference was detected, but the corresponding numbered figure, table, or equation was not located in the Word document.";
+  if(/_NOT_CITED$/.test(code) || code==="EQUATION_NOT_REFERENCED")
+    return "A numbered item was detected in the manuscript, but no matching in-text cross-reference was found. Caption text itself does not count as a prior in-text citation.";
+  if(/_APPEARS_BEFORE_FIRST_CITATION$/.test(code))
+    return "The figure or table appears physically in the Word document before its first in-text citation. The checker uses Word document order and applies this only when placement can be resolved reliably.";
+  if(code==="EQUATION_FIRST_CITATION_ORDER")
+    return "The checker compares the first explicit in-text equation reference with the displayed numbered equation. This is reported conservatively because journal styles differ on whether equations must be introduced before display.";
+  if(/_CITED_BEFORE_PREVIOUS_/.test(code))
+    return "The first citations of sequential items appear out of numerical order, for example Figure 3 is first cited before Figure 2. Each main and supplementary sequence is evaluated separately.";
+
+  // Unit consistency
+  if(code==="UNIT_FORMAT_INCONSISTENT")
+    return "The same repeated unit is written in more than one meaningful notation format. Harmless exponent typography such as m2, m^2, and m² is normalized as equivalent.";
+  if(code==="UNIT_SPACING_INCONSISTENT")
+    return "The same unit is attached to numerical values using more than one spacing pattern. The checker enforces manuscript consistency rather than one universal spacing style.";
+  if(code==="UNIT_PERCENT_SPACING_INCONSISTENT")
+    return "Both styles, such as 25% and 25 %, are accepted individually. A finding is generated only when the manuscript mixes the two percentage-spacing conventions.";
+  if(code==="UNIT_PRECISION_INCONSISTENT")
+    return "The same parameter/context with the same unit is reported using different decimal-place patterns. The tool compares only genuinely comparable values and does not force unrelated quantities to match.";
+
+  // English / grammar / style
+  const englishHelp={
+    ENGLISH_VARIANT_CONTRADICTION:"The manuscript's dominant US or British spelling convention is inferred first. This code marks a spelling that contradicts that established majority pattern.",
+    FIRST_PERSON_USAGE:"A candidate first-person form is flagged only after contextual analysis confirms that it is functioning personally rather than as a technical symbol, acronym, unit-like token, or noun sense.",
+    SECOND_PERSON_USAGE:"A candidate second-person form is flagged only when context indicates that the manuscript is addressing the reader directly.",
+    TENSE_CONTEXT_REVIEW:"Tense is checked only after the token is confirmed to function as a finite verb. Present tense is allowed for general truths, continuing properties, current limitations, definitions, and valid interpretations; review items focus on completed manuscript-specific actions.",
+    PROBABLE_MISSPELLING:"A high-confidence common spelling error was detected. Scientific terminology and US/British variants are protected from this rule where possible.",
+    DUPLICATED_WORD:"The same word appears twice consecutively in prose and may be an accidental repetition.",
+    ARTICLE_A_AN:"The checker found a possible mismatch between a/an and the following word. Because pronunciation has exceptions, this remains a review item.",
+    SUBJECT_VERB_AGREEMENT:"A high-confidence singular/plural subject–verb mismatch was detected using common scientific noun patterns.",
+    REDUNDANT_COMPARATIVE:"Two comparative or superlative markers appear to be combined unnecessarily, such as “more higher”.",
+    COMPARISON_THAN:"A comparison appears to use “then” where “than” is normally expected.",
+    CONFUSED_WORD:"A selected commonly confused word or phrase was detected in a context where another form is usually intended.",
+    PREPOSITION_USAGE:"A selected verb/adjective construction appears to use a nonstandard preposition, for example “superior than” instead of “superior to”.",
+    INFORMAL_USAGE:"A construction is acceptable conversationally but may be less suitable for formal scientific prose.",
+    SPACE_BEFORE_PUNCTUATION:"A space was detected immediately before punctuation such as a comma, semicolon, colon, question mark, or exclamation mark.",
+    MISSING_SPACE_AFTER_PUNCTUATION:"Ordinary prose punctuation appears to be followed immediately by a word without a separating space. Chemical/ratio-like patterns are protected where possible.",
+    REPEATED_PUNCTUATION:"The same punctuation mark appears repeatedly, for example “,, ” or “;;”, and may be accidental.",
+    UNMATCHED_BRACKET:"Opening and closing parentheses/brackets/braces appear unbalanced or misordered within prose.",
+    WORDY_PHRASE:"A conventional wordy expression was detected. The suggested shorter form is optional and should be used only if scientific meaning is unchanged.",
+    REDUNDANT_EXPRESSION:"Two words may repeat the same meaning, for example “each and every”. Treat this as a style review item.",
+    INFORMAL_EXPRESSION:"A colloquial expression was detected and may benefit from a more precise scientific alternative.",
+    CONTRACTION_IN_FORMAL_PROSE:"A contraction such as “isn't” or “can't” was detected. The full form may be preferable depending on journal style.",
+    LONG_SENTENCE:"The sentence exceeds the readability threshold used by the tool. This does not mean it is grammatically wrong; review whether splitting improves clarity.",
+    VAGUE_THIS:"A sentence begins with “This” followed by a reporting verb, and the antecedent may be unclear. Naming the specific result or observation can improve clarity.",
+    PARALLEL_STRUCTURE:"Coordinated list items appear to use different grammatical forms. Review whether they should be parallel.",
+    REPEATED_SENTENCE_OPENING:"Several consecutive sentences begin with the same word or phrase. This is a style observation rather than a grammatical error.",
+    REPEATED_TRANSITION:"The same transition word is used several times in one paragraph and may sound repetitive.",
+    TERMINOLOGY_VARIANT:"The same technical concept appears in more than one open/closed/hyphenated form. Review whether the variation is intentional.",
+    HYPHENATION_INCONSISTENT:"Both a hyphenated and closed form of what appears to be the same technical term occur in the manuscript.",
+    CAPITALIZATION_INCONSISTENT:"The same repeated term appears with inconsistent internal capitalization outside ordinary sentence-initial capitalization.",
+    PARAGRAPH_TOO_SHORT:"A main-text prose paragraph contains fewer than 100 words under the selected manuscript rule. Abstract, References, headings, captions, equations, and table-like structures are excluded.",
+    PARAGRAPH_TOO_LONG:"A main-text prose paragraph contains more than 300 words under the selected manuscript rule. Consider splitting only at a logical transition."
+  };
+  if(englishHelp[code]) return englishHelp[code];
+
+  return "";
+}
+
+function issueHelpButton(code,msg=""){
+  const help=issueHelpText(code,msg);
+  return help ? inlineHelpButton(help,`Explain ${code}`) : "";
 }
 
 let currentFile=null;
@@ -4871,7 +4969,7 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style. Entry/type shows the parsed reference type; Journal/source means the journal, book publisher, report issuer, website, or other bibliographic container; Pages/Art. accepts either a page range or article/e-location identifier when applicable." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
@@ -5243,24 +5341,24 @@ function numberCheck(text,tables=[]){
 }
 function renderNumReport(findings){
   const cats=[
-    {k:"pH",label:"pH reporting",kind:"warn"},
-    {k:"zero",label:"Missing leading zero",kind:"warn"},
-    {k:"count",label:"Small counts in prose (spell out 0 to 9)",kind:"info"},
-    {k:"start",label:"Sentence begins with a numeral",kind:"info"},
-    {k:"precision",label:"Numeric precision and comparable series",kind:"warn"},
-    {k:"table",label:"Word-table column precision",kind:"warn"},
-    {k:"uncertainty",label:"Value ± uncertainty precision",kind:"warn"},
-    {k:"range",label:"Range endpoint precision",kind:"warn"},
-    {k:"percent",label:"Percentage precision",kind:"warn"},
-    {k:"pvalue",label:"p-value precision",kind:"warn"},
-    {k:"scientific",label:"Scientific-notation significant figures",kind:"warn"}
+    {k:"pH",label:"pH reporting",kind:"warn",help:"Checks measured/adjusted/target pH formatting and manuscript-wide pH precision. Comparable forms such as pH 7 and pH 7.0 are reported together when inconsistent."},
+    {k:"zero",label:"Missing leading zero",kind:"warn",help:"Flags genuine decimal values written without a leading zero, such as .25 instead of 0.25. In-text numbered citations are protected from this rule."},
+    {k:"count",label:"Small counts in prose (spell out 0 to 9)",kind:"info",help:"Checks ordinary whole-number counts in prose. Measurements, units, statistics, ratios, dates, identifiers, pH, and labels remain numerals."},
+    {k:"start",label:"Sentence begins with a numeral",kind:"info",help:"Flags prose sentences beginning directly with a numeral so the wording can be reviewed. Equations, labels, headings, and similar structures are excluded where possible."},
+    {k:"precision",label:"Numeric precision and comparable series",kind:"warn",help:"Looks for inconsistent decimal-place/significant-figure patterns only among values inferred to be genuinely comparable. Unrelated quantities are not forced to match."},
+    {k:"table",label:"Word-table column precision",kind:"warn",help:"Checks precision patterns vertically within genuinely comparable Word-table measurement columns. Predefined threshold/category LB/UB tables and externally defined limits are excluded."},
+    {k:"uncertainty",label:"Value ± uncertainty precision",kind:"warn",help:"Checks only whether the reported value and its ± variation/uncertainty end at the same decimal place, for example 12.40 ± 0.35. No separate 1–2 significant-digit rule is imposed on uncertainty."},
+    {k:"range",label:"Range endpoint precision",kind:"warn",help:"Checks whether the two endpoints of the same numerical range use compatible decimal precision when they represent the same quantity."},
+    {k:"percent",label:"Percentage precision",kind:"warn",help:"Checks decimal precision among directly comparable percentage values. Percentage spacing itself is handled as a consistency rule in the Units module."},
+    {k:"pvalue",label:"p-value precision",kind:"warn",help:"Checks selected p-value reporting patterns, including impossible forms such as p = 0.000 and excessive decimal precision."},
+    {k:"scientific",label:"Scientific-notation significant figures",kind:"warn",help:"Checks significant-figure consistency for directly comparable values written in scientific notation."}
   ];
   $("num-report-sub").textContent = findings.length ? `${findings.length} item${findings.length===1?"":"s"} to review` : "No number, pH, or numeric-precision issues detected.";
   let html="";
   cats.forEach(c=>{
     const items=findings.filter(f=>f.cat===c.k); if(!items.length) return;
     const kind=c.kind||"info", sym=kind==="warn"?"!":"i";
-    html+=`<p class="sec-label">${c.label} · ${items.length}</p>`;
+    html+=`<p class="sec-label">${c.label} ${inlineHelpButton(c.help,`Explain ${c.label}`)} · ${items.length}</p>`;
     items.slice(0,300).forEach(it=>{ html+=`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg">${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${it.snippet}</div>`:""}</div></div>`; });
   });
   $("num-findings").innerHTML=html;
