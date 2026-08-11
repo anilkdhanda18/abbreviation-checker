@@ -418,10 +418,10 @@
       </p>
     </div>
     <p class="visitor-stat">
-      <span class="visitor-label">Site visits:</span>
-      <span class="visitor-value" id="visitor-count-value" aria-live="polite">…</span>
+      <span class="visitor-label">Site views:</span>
+      <span class="visitor-value" id="visitor-count-value" aria-live="polite"></span>
       <button type="button" class="info-help inline-auto-help"
-        data-help="GoatCounter is used only for website-visit analytics. This integration does not send uploaded manuscript files, manuscript text, filenames, analysis results, or generated reports to GoatCounter. The visible total may update with a delay."
+        data-help="This displays the site-wide page-view total recorded by GoatCounter. The counter can be cached for up to four hours, so new visits may not appear immediately. Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter."
         aria-label="Explain visitor count" title="What does this visitor count track?">i</button>
     </p>
     <p class="credit-tag">Manuscript analysis runs locally in your browser · Manuscript content is not sent to GoatCounter analytics</p>
@@ -5661,33 +5661,35 @@ document.addEventListener("click",e=>{
 })();
 
 
-/* ---------- Public GoatCounter site-total display ---------- */
-(function(){
-  const el=document.getElementById("visitor-count-value");
-  if(!el) return;
-
-  fetch("https://anildhanda.goatcounter.com/counter/TOTAL.json", {method:"GET", mode:"cors"})
-    .then(r=>{
-      if(!r.ok) throw new Error("Counter unavailable");
-      return r.json();
-    })
-    .then(data=>{
-      el.textContent=(data && data.count) ? data.count : "—";
-      el.title="GoatCounter site total";
-    })
-    .catch(()=>{
-      // Public counters must be enabled in GoatCounter settings.
-      // Analytics tracking itself can still function even if this display is unavailable.
-      el.textContent="—";
-      el.title="Visitor total is not currently available for public display";
-    });
-})();
-
 </script>
 
 
 <!-- GoatCounter privacy-friendly page-visit analytics.
      The endpoint below tracks website visits; manuscript content is not sent. -->
+<script>
+(function(){
+  var tries=0;
+  var timer=setInterval(function(){
+    tries++;
+    if(window.goatcounter && window.goatcounter.visit_count){
+      clearInterval(timer);
+      var target=document.getElementById("visitor-count-value");
+      if(target) target.innerHTML="";
+      window.goatcounter.visit_count({
+        append:"#visitor-count-value",
+        path:"TOTAL",
+        no_branding:true,
+        attr:{width:"auto",height:"auto"},
+        style:"div { border: 0; padding: 0; margin: 0; background: transparent; font: inherit; color: inherit; } #gcvc-for, #gcvc-by { display:none; } #gcvc-views { font: inherit; color: inherit; }"
+      });
+    }else if(tries>=100){
+      clearInterval(timer);
+      var target=document.getElementById("visitor-count-value");
+      if(target) target.textContent="—";
+    }
+  },100);
+})();
+</script>
 <script data-goatcounter="https://anildhanda.goatcounter.com/count"
         async src="https://gc.zgo.at/count.js"></script>
 
