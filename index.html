@@ -126,6 +126,19 @@
   .credit-links .sep{color:var(--hair-strong);margin:0 10px}
   .credit-tag{color:var(--faint);font-size:12px;margin:22px 0 0}
 
+  .visitor-stat{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    margin:16px 0 0;
+    color:var(--muted);
+    font-size:12.5px;
+  }
+  .visitor-stat .visitor-label{font-weight:600;color:var(--pencil)}
+  .visitor-stat .visitor-value{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700}
+  .visitor-stat .info-help{width:17px;height:17px;font-size:10px;margin-left:2px}
+
   .info-help{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;border:1px solid var(--hair-strong);color:var(--pencil);font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;background:#fff;vertical-align:middle;margin-left:7px;padding:0}
   .info-help:hover,.info-help:focus{background:var(--pencil-soft);outline:none}
   .ledger-help{margin:8px 0 14px;padding:12px 14px;border:1px solid var(--hair);border-radius:8px;background:#f8fafc;color:var(--muted);font-size:13px;line-height:1.55}
@@ -404,7 +417,14 @@
         <a href="https://www.linkedin.com/in/ani018/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </p>
     </div>
-    <p class="credit-tag">Runs entirely in your browser · No text leaves this page</p>
+    <p class="visitor-stat">
+      <span class="visitor-label">Site visits:</span>
+      <span class="visitor-value" id="visitor-count-value" aria-live="polite">…</span>
+      <button type="button" class="info-help inline-auto-help"
+        data-help="GoatCounter is used only for website-visit analytics. This integration does not send uploaded manuscript files, manuscript text, filenames, analysis results, or generated reports to GoatCounter. The visible total may update with a delay."
+        aria-label="Explain visitor count" title="What does this visitor count track?">i</button>
+    </p>
+    <p class="credit-tag">Manuscript analysis runs locally in your browser · Manuscript content is not sent to GoatCounter analytics</p>
     <p class="dev-note">This tool is still under development. We have tried our best to make its checks accurate, but it can still miss issues or flag things incorrectly. Authors are strongly advised to verify every item manually and not to rely on the tool alone.</p>
   </footer>
 </div>
@@ -5640,7 +5660,36 @@ document.addEventListener("click",e=>{
   });
 })();
 
+
+/* ---------- Public GoatCounter site-total display ---------- */
+(function(){
+  const el=document.getElementById("visitor-count-value");
+  if(!el) return;
+
+  fetch("https://anildhanda.goatcounter.com/counter/TOTAL.json", {method:"GET", mode:"cors"})
+    .then(r=>{
+      if(!r.ok) throw new Error("Counter unavailable");
+      return r.json();
+    })
+    .then(data=>{
+      el.textContent=(data && data.count) ? data.count : "—";
+      el.title="GoatCounter site total";
+    })
+    .catch(()=>{
+      // Public counters must be enabled in GoatCounter settings.
+      // Analytics tracking itself can still function even if this display is unavailable.
+      el.textContent="—";
+      el.title="Visitor total is not currently available for public display";
+    });
+})();
+
 </script>
+
+
+<!-- GoatCounter privacy-friendly page-visit analytics.
+     The endpoint below tracks website visits; manuscript content is not sent. -->
+<script data-goatcounter="https://anildhanda.goatcounter.com/count"
+        async src="https://gc.zgo.at/count.js"></script>
 
 </body>
 </html>
