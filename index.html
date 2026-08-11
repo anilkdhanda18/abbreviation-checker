@@ -162,27 +162,17 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   }
   .visitor-stat .visitor-label{font-weight:600;color:var(--pencil)}
   .visitor-stat .visitor-value{
-    display:inline-flex;
-    align-items:center;
-    min-width:18px;
-    height:18px;
+    display:inline;
+    min-width:0;
+    height:auto;
+    padding:0;
+    margin:0;
+    background:transparent;
+    border:0;
     font-variant-numeric:tabular-nums;
     color:var(--ink);
     font-weight:700;
-    line-height:18px;
-  }
-  .visitor-stat .visitor-value iframe{
-    display:block !important;
-    width:58px !important;
-    max-width:58px !important;
-    height:18px !important;
-    min-height:18px !important;
-    border:0 !important;
-    margin:0 !important;
-    padding:0 !important;
-    overflow:hidden !important;
-    background:transparent !important;
-    vertical-align:middle !important;
+    line-height:inherit;
   }
   .visitor-stat .info-help{width:17px;height:17px;font-size:10px;margin-left:2px}
 
@@ -465,10 +455,10 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       </p>
     </div>
     <p class="visitor-stat">
-      <span class="visitor-label">Site views:</span>
+      <span class="visitor-label">Site visits:</span>
       <span class="visitor-value" id="visitor-count-value" aria-live="polite"></span>
       <button type="button" class="info-help inline-auto-help"
-        data-help="This displays the site-wide page-view total recorded by GoatCounter. The counter can be cached for up to four hours, so new visits may not appear immediately. Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter."
+        data-help="This displays GoatCounter’s site-wide visit total as plain text. GoatCounter may cache the displayed total for up to four hours, so a new visit may not appear immediately. Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter."
         aria-label="Explain visitor count" title="What does this visitor count track?">i</button>
     </p>
     <p class="credit-tag">Manuscript analysis runs locally in your browser · Manuscript content is not sent to GoatCounter analytics</p>
@@ -6515,32 +6505,53 @@ document.addEventListener("click",e=>{
 
 <!-- GoatCounter privacy-friendly page-visit analytics.
      The endpoint below tracks website visits; manuscript content is not sent. -->
-<script>
-(function(){
-  var tries=0;
-  var timer=setInterval(function(){
-    tries++;
-    if(window.goatcounter && window.goatcounter.visit_count){
-      clearInterval(timer);
-      var target=document.getElementById("visitor-count-value");
-      if(target) target.innerHTML="";
-      window.goatcounter.visit_count({
-        append:"#visitor-count-value",
-        path:"TOTAL",
-        no_branding:true,
-        attr:{width:"58",height:"18",scrolling:"no"},
-        style:"html,body{margin:0!important;padding:0!important;width:auto!important;height:18px!important;overflow:hidden!important;background:transparent!important;} div{display:inline!important;border:0!important;padding:0!important;margin:0!important;background:transparent!important;font:inherit!important;color:inherit!important;line-height:18px!important;white-space:nowrap!important;} #gcvc-for,#gcvc-by{display:none!important;} #gcvc-views{display:inline!important;font:inherit!important;color:inherit!important;line-height:18px!important;}"
-      });
-    }else if(tries>=100){
-      clearInterval(timer);
-      var target=document.getElementById("visitor-count-value");
-      if(target) target.textContent="—";
-    }
-  },100);
-})();
-</script>
 <script data-goatcounter="https://anildhanda.goatcounter.com/count"
         async src="https://gc.zgo.at/count.js"></script>
+<script>
+(function(){
+  const target=document.getElementById("visitor-count-value");
+  if(!target) return;
+
+  target.textContent="…";
+
+  // GoatCounter's documented JSON counter returns:
+  // { "count": "1,234", "count_unique": "1,234" }
+  // TOTAL is the reserved site-wide counter path.
+  const url="https://anildhanda.goatcounter.com/counter/TOTAL.json";
+
+  fetch(url,{method:"GET",mode:"cors",cache:"no-store"})
+    .then(function(response){
+      if(!response.ok) throw new Error("GoatCounter counter returned "+response.status);
+      return response.json();
+    })
+    .then(function(data){
+      const count=data && data.count!=null ? String(data.count).trim() : "";
+      target.textContent=count || "—";
+      target.title=count ? "Site-wide GoatCounter visits" : "Visitor count unavailable";
+    })
+    .catch(function(){
+      // XHR fallback for browsers/environments where fetch is blocked.
+      try{
+        const xhr=new XMLHttpRequest();
+        xhr.addEventListener("load",function(){
+          try{
+            const data=JSON.parse(xhr.responseText||"{}");
+            const count=data && data.count!=null ? String(data.count).trim() : "";
+            target.textContent=count || "—";
+          }catch(e){
+            target.textContent="—";
+          }
+        });
+        xhr.addEventListener("error",function(){ target.textContent="—"; });
+        xhr.open("GET",url,true);
+        xhr.send();
+      }catch(e){
+        target.textContent="—";
+      }
+    });
+})();
+</script>
+
 
 </body>
 </html>
