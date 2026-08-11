@@ -306,7 +306,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="ref" hidden>
   <section class="card" id="ref-report" hidden aria-live="polite">
-      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. Wrapped Word reference paragraphs are rejoined before parsing, and dominant compact titleless conventions are inferred list-wide so comma-bearing journal names are not mistaken for article titles. Applicability is style/type aware, so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
+      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. Journal/source detection includes a final publication-tail recovery pass, so a visible source before patterns such as “482 (2021): 228949” is not discarded by earlier parsing heuristics. Wrapped Word reference paragraphs are rejoined before parsing; an author-led entry whose reference number was lost during extraction is recovered only when the preceding reference already has a complete bibliographic tail. Dominant compact titleless conventions are inferred list-wide so comma-bearing journal names are not mistaken for article titles. Applicability is style/type aware, so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
       <div id="ref-ledger-wrap"></div>
       <p class="disclaimer">The reference ledger reports whether key bibliographic components are detected in each entry. Field applicability is inferred from the reference type and the dominant structure of the reference list. Detection is heuristic, so ambiguous entries should still be checked manually.</p>
@@ -4873,6 +4873,42 @@ $("print").onclick=()=>window.print();
 function refSplitList(text){
   const t=text.replace(/\r/g,"").trim();
 
+  // A reference is considered structurally complete when it already ends in a
+  // plausible publication tail. This is used only to decide whether a following
+  // author-led line is a continuation or a new reference whose number/marker was
+  // lost during Word/text extraction.
+  const complete=s=>{
+    const x=String(s||"").replace(/\s+/g," ").trim();
+    if(!/\b(?:19|20)\d{2}[a-z]?\b/i.test(x)) return false;
+    if(/10\.\d{4,9}\//i.test(x)) return true;
+    if(/\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,20}\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i.test(x)) return true;
+    if(/\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)\s*[,;:]?\s*[A-Za-z]?\d/i.test(x)) return true;
+    if(/\bpp?\.?\s*[A-Za-z]?\d+(?:\s*[-–—]\s*[A-Za-z]?\d+)?/i.test(x)) return true;
+    return refScore(x)>=5 && /[.;)]\s*$/.test(x);
+  };
+
+  // Split a marker-delimited chunk further only when a later line clearly begins
+  // with a new author list AND the accumulated preceding reference is already
+  // bibliographically complete. This safely recovers a missing/lost reference
+  // number without breaking ordinary wrapped author lines.
+  const splitLostMarker=(raw,num)=>{
+    const lines=String(raw||"").split(/\n/).map(l=>l.trim()).filter(Boolean);
+    if(!lines.length) return [];
+    const out=[];
+    let cur={num,raw:lines[0]};
+    for(let i=1;i<lines.length;i++){
+      const l=lines[i];
+      if(refStartsAuthor(l) && complete(cur.raw)){
+        out.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
+        cur={num:null,raw:l};
+      }else{
+        cur.raw=(cur.raw+" "+l).replace(/\s+/g," ").trim();
+      }
+    }
+    out.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
+    return out;
+  };
+
   // Prefer bracketed numbers at paragraph/line starts.
   let bmarks=[...t.matchAll(/^\s*\[(\d{1,4})\]\s*/gm)];
   if(bmarks.length<2){
@@ -4884,7 +4920,8 @@ function refSplitList(text){
     const entries=[];
     for(let i=0;i<bmarks.length;i++){
       const s=bmarks[i].index, e=i+1<bmarks.length?bmarks[i+1].index:t.length;
-      entries.push({num:parseInt(bmarks[i][1],10), raw:t.slice(s,e).replace(/^\s*\[\d{1,4}\]\s*/,"").replace(/\s+/g," ").trim()});
+      const raw=t.slice(s,e).replace(/^\s*\[\d{1,4}\]\s*/,"").trim();
+      entries.push(...splitLostMarker(raw,parseInt(bmarks[i][1],10)));
     }
     return {style:"numbered", marker:"bracket", entries};
   }
@@ -4894,6 +4931,10 @@ function refSplitList(text){
     if((m=l.match(/^\((\d{1,4})\)\s*(.*)$/))) return {num:+m[1],rest:m[2]};
     if((m=l.match(/^\[(\d{1,4})\]\s*(.*)$/))) return {num:+m[1],rest:m[2]};
     if((m=l.match(/^(\d{1,4})[.)]\s+(.*)$/))) return {num:+m[1],rest:m[2]};
+    // Some Word/reference exports collapse the space after the reference number:
+    // "7.D. Campanella..." or "7)D. Campanella...". Accept this only when the
+    // following text starts like an author initial, avoiding decimal-number confusion.
+    if((m=l.match(/^(\d{1,4})[.)]\s*(?=[\p{Lu}]\.)\s*(.*)$/u))) return {num:+m[1],rest:m[2]};
     if((m=l.match(/^(\d{1,4})\t+\s*(.*)$/))) return {num:+m[1],rest:m[2]};
     if((m=l.match(/^(\d{1,4})\s{2,}(.*)$/))) return {num:+m[1],rest:m[2]};
     if((m=l.match(/^(\d{1,4})\s+([\p{Lu}].*)$/u))) return {num:+m[1],rest:m[2]};
@@ -4903,37 +4944,33 @@ function refSplitList(text){
   const rawLines=t.split(/\n/).map(l=>l.trim()).filter(Boolean);
   const explicit=rawLines.map((l,i)=>({i,hit:leadNum(l)})).filter(x=>x.hit);
 
-  // Explicitly numbered lists: ONLY a new numeric marker starts a new reference.
-  // Wrapped continuation lines often begin with another author name and must not
-  // be split into a second entry.
+  // Explicitly numbered lists: a marker normally starts each reference.
+  // If a marker is accidentally lost, recover the next reference only when the
+  // current one is already complete and the next line independently starts like
+  // an author list. Wrapped author lines remain attached to the current entry.
   if(explicit.length>=2){
     const entries=[]; let cur=null;
     for(const l of rawLines){
       const hit=leadNum(l);
       if(hit){
-        if(cur) entries.push(cur);
+        if(cur) entries.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
         cur={num:hit.num,raw:hit.rest.trim()};
       }else if(cur){
-        cur.raw=(cur.raw+" "+l).replace(/\s+/g," ").trim();
+        if(refStartsAuthor(l) && complete(cur.raw)){
+          entries.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
+          cur={num:null,raw:l};
+        }else{
+          cur.raw=(cur.raw+" "+l).replace(/\s+/g," ").trim();
+        }
       }
     }
-    if(cur) entries.push(cur);
+    if(cur) entries.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
     return {style:"numbered",marker:"number",entries};
   }
 
   // Unnumbered/Word-numbering-lost lists. Start a new author-led entry only
   // after the accumulated reference already has a plausible bibliographic tail.
   // This preserves wrapped author lists split across Word paragraphs.
-  const complete=s=>{
-    const x=String(s||"").replace(/\s+/g," ").trim();
-    if(!/\b(?:19|20)\d{2}[a-z]?\b/i.test(x)) return false;
-    if(/10\.\d{4,9}\//i.test(x)) return true;
-    if(/\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,20}\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i.test(x)) return true;
-    if(/\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)\s*[,;:]?\s*[A-Za-z]?\d/i.test(x)) return true;
-    if(/\bpp?\.?\s*[A-Za-z]?\d+(?:\s*[-–—]\s*[A-Za-z]?\d+)?/i.test(x)) return true;
-    return refScore(x)>=5 && /[.;)]\s*$/.test(x);
-  };
-
   const merged=[]; let cur="";
   for(const l of rawLines){
     const begins=refStartsAuthor(l);
@@ -5951,8 +5988,19 @@ function refFindYearLandmark(rest){
     // Author-year style.
     if(/^[\s,.;:(]*$/.test(s.slice(0,idx))) score+=11;
 
-    // Year followed by volume / volume(issue).
-    if(/^\s*[,;:.]?\s*\d{1,6}(?:\s*\(\s*\d{1,6}\s*\))?(?:\s*[,;:])/i.test(after)) score+=10;
+    // A four-digit number that is one end of a page range is not the
+    // publication year: 1982–1989, 2016.
+    const inNumericRange=/[-–—]\s*$/.test(before) || /^\s*[-–—]/.test(after);
+    if(inNumericRange) score-=20;
+
+    // Year followed by volume / volume(issue). Do not award this cue when the
+    // following numeric token is itself another plausible publication year.
+    // This prevents the end of a page range from outranking the real year.
+    const nextField=after.match(/^\s*[,;:.]?\s*(\d{1,6})(?:\s*\(\s*\d{1,6}\s*\))?(?:\s*[,;:])/i);
+    if(nextField){
+      if(!/^(?:19|20)\d{2}$/.test(nextField[1])) score+=10;
+      else score-=2;
+    }
 
     // Volume (YEAR) locator.
     if(/\d{1,6}\s*\(\s*$/.test(before) && /^\s*\)\s*[,;:]?\s*(?:[eE]?\d|\d+\s*[-–—])/i.test(after)) score+=11;
@@ -6071,10 +6119,17 @@ function refParseLocatorFields(rest, yearInfo){
   if(m){
     const publicationYear=yearInfo ? yearInfo.year.replace(/[a-z]$/i,"") : null;
     const volumeCandidate=m[1];
-    // A four-digit publication year must never be reinterpreted as a volume.
+    const issueCandidate=m[2]||null;
+
+    // A four-digit publication year must never be reinterpreted as a volume
+    // or an issue. This matters for styles such as:
+    //   Journal of Power Sources 482 (2021): 228949
+    // where (2021) is the publication year, not issue 2021.
     if(!(publicationYear && volumeCandidate===publicationYear)){
       volume=volume||volumeCandidate;
-      issue=issue||m[2]||null;
+      if(!(publicationYear && issueCandidate===publicationYear)){
+        issue=issue||issueCandidate;
+      }
       locator=locator||m[3];
       locatorKind=locatorKind||(
         /[-–—]/.test(m[3]) ? "pages" :
@@ -6122,6 +6177,16 @@ function refPrefixBeforePublicationTail(rest, yearInfo, locatorFields){
   // the first such bibliographic locator so only TITLE + SOURCE remains.
   const explicit=prefix.search(/\s*[,;]\s*(?:vol(?:ume)?\.?|no\.?|issue|pp?\.?|article|art\.?|e-location)\b/i);
   if(explicit>=0) prefix=prefix.slice(0,explicit);
+
+  // Numeric year-at-end variants may omit labels:
+  //   Title, Journal, 147(4), 04021012, 2021
+  //   Title, Journal, 50, 1982-1989, 2016
+  // Strip only a terminal bibliographic volume/locator sequence, never numbers
+  // occurring inside the article title.
+  const numericTail=prefix.match(
+    /\s*[,;]\s*\d{1,6}(?:\s*\(\s*\d{1,6}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[,;:]?\s*$/
+  );
+  if(numericTail) prefix=prefix.slice(0,numericTail.index);
 
   return refCleanStructuralPrefix(prefix);
 }
@@ -6221,6 +6286,71 @@ function refCompactTitlelessSource(raw,authorInfo){
   return score>=4 ? source : null;
 }
 
+
+function refRecoverSourceFromTail(raw,authorInfo,title,year){
+  let rest=refRestAfterAuthors(raw,authorInfo);
+  if(!rest) return null;
+  rest=refStripDoiUrl(rest)
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+
+  // Remove the article title from the left side when it is known. Prefer
+  // structural quoted-title removal, then a normalized literal-title match.
+  let afterTitle=rest;
+
+  let q=afterTitle.match(/^\s*[,.;:]?\s*[“"]([^”"]{4,1000})[”"]\s*[,.;:]?\s*(.*)$/u);
+  if(!q) q=afterTitle.match(/^\s*[,.;:]?\s*[‘']([^’']{4,1000})[’']\s*[,.;:]?\s*(.*)$/u);
+  if(q){
+    afterTitle=q[2].trim();
+  }else if(title){
+    const normSpace=s=>String(s||"").replace(/\s+/g," ").trim();
+    const rt=normSpace(afterTitle), tt=normSpace(title);
+    const pos=rt.toLocaleLowerCase().indexOf(tt.toLocaleLowerCase());
+    if(pos>=0){
+      afterTitle=rt.slice(pos+tt.length).replace(/^[\s,.;:“”‘’"'–—-]+/,"").trim();
+    }
+  }
+
+  const candidates=[];
+
+  // SOURCE VOLUME (YEAR): ARTICLE/PAGES
+  let m=afterTitle.match(
+    /^(.+?)\s+(\d{1,6})\s*\(\s*((?:19|20)\d{2}[a-z]?)\s*\)\s*[,;:]?\s*([A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)(?:\s*[.,;:]|$)/i
+  );
+  if(m) candidates.push(m[1]);
+
+  // SOURCE, YEAR, VOLUME(ISSUE/PART), LOCATOR
+  m=afterTitle.match(
+    /^(.+?)\s*[,;]\s*((?:19|20)\d{2}[a-z]?)\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,24}\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?/i
+  );
+  if(m) candidates.push(m[1]);
+
+  // SOURCE, VOLUME(ISSUE), LOCATOR, YEAR
+  m=afterTitle.match(
+    /^(.+?)\s*[,;]\s*\d{1,6}(?:\s*\(\s*\d{1,6}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[,;]\s*((?:19|20)\d{2}[a-z]?)/i
+  );
+  if(m) candidates.push(m[1]);
+
+  // SOURCE VOLUME (YEAR) LOCATOR without colon/comma.
+  m=afterTitle.match(
+    /^(.+?)\s+(\d{1,6})\s*\(\s*((?:19|20)\d{2}[a-z]?)\s*\)\s+([A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)/i
+  );
+  if(m) candidates.push(m[1]);
+
+  for(const cand0 of candidates){
+    const cand=refCleanField(cand0);
+    if(!cand) continue;
+    // Reject candidates that still look like title prose; require positive
+    // bibliographic-source evidence or an explicit "Journal..." construction.
+    const score=refSourceScore(cand,true);
+    if(score>0 || /^journal\b/i.test(cand) || /\b(?:j\.|rev\.|trans\.|lett\.|acta|chem\.|sci\.|mater\.|phys\.|res\.|sources?)\b/i.test(cand))
+      return cand;
+  }
+  return null;
+}
+
 function refParseEntry(raw){
   const rawTrim=raw.trim();
   const doi=refExtractDoi(raw);
@@ -6237,16 +6367,35 @@ function refParseEntry(raw){
 
   // Prefer structural landmark parsing; use legacy detectors only when a
   // field remains unresolved.
-  const sourceRegion=structured?.source || bookFields?.publisher || detectSourceRegion(raw,authorInfo);
-  const year=structured?.year || bookFields?.year || detectPublicationYear(raw,authorInfo,sourceRegion);
+  let sourceRegion=structured?.source || bookFields?.publisher || detectSourceRegion(raw,authorInfo);
+  let year=structured?.year || bookFields?.year || detectPublicationYear(raw,authorInfo,sourceRegion);
   const title=structured?.title || bookFields?.title || detectTitleRegion(raw,authorInfo);
+
+  // Final structural recovery for journal/source. This is intentionally
+  // independent of earlier title/source splitting so Word run boundaries,
+  // italics, line wrapping, or NBSPs cannot leave a clearly present journal
+  // marked as missing in the ledger.
+  if(!sourceRegion && type==="journal article"){
+    sourceRegion=refRecoverSourceFromTail(raw,authorInfo,title,year);
+    if(sourceRegion && structured) structured.source=sourceRegion;
+    if(!year) year=detectPublicationYear(raw,authorInfo,sourceRegion);
+  }
 
   const hasTitle=!!title;
   const hasSource=!!sourceRegion;
 
   const hasVolume=!!structured?.volume || refHasVolume(raw,year,sourceRegion);
+
+  // Numeric parentheses after a volume normally indicate an issue, e.g. 50(4).
+  // However, in VOLUME (YEAR) styles such as 482 (2021): 228949, the
+  // parenthesized value is the publication year and must not be counted as issue.
+  const cleanNoDoi=refStripDoiUrl(raw);
+  const pubYear=year?String(year).replace(/[a-z]$/i,""):null;
+  const numericParenIssue=[...cleanNoDoi.matchAll(/\b(\d{1,6})\s*\(\s*(\d{1,6})\s*\)/g)]
+    .some(m=>!(pubYear && m[2]===pubYear));
+
   const hasIssue=!!structured?.issue ||
-    /\b\d+\s*\(\s*\d+\s*\)/.test(refStripDoiUrl(raw)) ||
+    numericParenIssue ||
     /\bno\.?\s*\d+/i.test(raw) ||
     /\biss(?:ue)?\.?\s*\d+/i.test(raw);
 
@@ -6289,7 +6438,7 @@ function refScore(s){
   let sc=0;
   if(/\b(?:19|20)\d{2}[a-z]?\b/.test(s)) sc+=2;
   if(/10\.\d{4,9}\/\S+/.test(s) || /\bdoi\b/i.test(s)) sc+=3;
-  if(/^\s*(\[\d{1,3}\]|\(\d{1,3}\)|\d{1,3}[.)])\s/.test(s)) sc+=2;
+  if(/^\s*(?:\[\d{1,3}\]|\(\d{1,3}\)|\d{1,3}[.)](?=\s|[A-Z]\.))/.test(s)) sc+=2;
   if(refStartsAuthor(s)) sc+=2;
   if(/\bet al\.?/i.test(s)) sc+=2;
   if(/\b\d+\s*\(\d+\)\s*[,:]?\s*\d+/.test(s) || /\b\d+\s*:\s*\d+\s*[-–]\s*\d+/.test(s)) sc+=2;
@@ -6439,6 +6588,19 @@ function refCheck(refText, bodyText){
     const na=NA_FIELDS[p.type]||{};
     const isArt=p.type==="journal article";
     const isBook=p.type==="book";
+
+    // Defensive final pass: the ledger must not report Journal/source = no when
+    // a structurally recoverable source is visibly present in a journal entry.
+    if(isArt && !p.hasSource){
+      const ai=detectAuthorRegion(p.raw);
+      const recovered=refRecoverSourceFromTail(p.raw,ai,p.title,p.year);
+      if(recovered){
+        p.sourceRegion=recovered;
+        p.hasSource=true;
+        if(p.structured) p.structured.source=recovered;
+      }
+    }
+
     const titleReq = (isArt && titleConvention==="included") || isBook;
     const sourceReq = isArt || isBook;
     // three-state field flags (present / required-absent="no" / not-applicable="na")
@@ -6517,7 +6679,7 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style. Entry/type shows the parsed reference type; Journal/source means the journal, book publisher, report issuer, website, or other bibliographic container; Pages/Art. means any valid publication locator: a page range, a single page/starting page, article number, or e-location. Volume part/supplement designators such as (Pt 1), (Part 2), or (Suppl 1) are treated as publication descriptors and do not prevent detection of the following locator." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style. Entry/type shows the parsed reference type; Journal/source means the journal, book publisher, report issuer, website, or other bibliographic container; Pages/Art. means any valid publication locator: a page range, a single page/starting page, article number, or e-location. Volume part/supplement designators such as (Pt 1), (Part 2), or (Suppl 1) are treated as publication descriptors. In styles such as 482 (2021): 228949, the parenthesized publication year is recognised as a year rather than an issue number." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
