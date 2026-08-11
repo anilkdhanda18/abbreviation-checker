@@ -3811,6 +3811,106 @@ async function extractDocxEnglishExclusions(buf){
   return out;
 }
 
+
+function fteEquationNumberOnly(text){
+  const t=String(text||"")
+    .replace(/[\u00A0\u202F]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+
+  let m=t.match(/^\(\s*(?:Eq(?:uation)?\.?\s*)?([Ss]?\d+(?:\.\d+)?)\s*\)\s*[.;:]?$/i);
+  if(!m) m=t.match(/^(?:Eq(?:uation)?\.?)\s*\(?\s*([Ss]?\d+(?:\.\d+)?)\s*\)?\s*[.;:]?$/i);
+  return m?fteCanonId(m[1]):null;
+}
+
+function fteClassifyEquationLayoutRows(rows){
+  /*
+    Detect Word tables used only to align a displayed equation with its number.
+    A row qualifies only when it has:
+      - 2 to 4 meaningful cells;
+      - exactly one equation-number-only cell, e.g. (2);
+      - Word math in a different cell.
+    Genuine data tables may contain inline math, but they do not have an
+    equation-number-only cell in every meaningful row.
+  */
+  const meaningful=(rows||[]).filter(r=>
+    (r.cells||[]).some(c=>String(c.text||"").trim() || c.hasMath)
+  );
+  if(!meaningful.length) return {isEquationLayout:false,rows:[]};
+
+  const parsed=[];
+  const labels=new Set();
+
+  for(const r of meaningful){
+    const cells=(r.cells||[]).filter(c=>String(c.text||"").trim() || c.hasMath);
+    if(cells.length<2 || cells.length>4) return {isEquationLayout:false,rows:[]};
+
+    const labelCells=[];
+    cells.forEach((c,ci)=>{
+      const id=fteEquationNumberOnly(c.text);
+      if(id) labelCells.push({ci,id});
+    });
+    if(labelCells.length!==1) return {isEquationLayout:false,rows:[]};
+
+    const label=labelCells[0];
+    const mathCells=cells.map((c,ci)=>({c,ci})).filter(x=>x.c.hasMath && x.ci!==label.ci);
+    if(!mathCells.length) return {isEquationLayout:false,rows:[]};
+
+    const mathCount=mathCells.reduce((n,x)=>n+(x.c.mathCount||0),0);
+    const mathParaCount=mathCells.reduce((n,x)=>n+(x.c.mathParaCount||0),0);
+    if(mathCount<1 && mathParaCount<1) return {isEquationLayout:false,rows:[]};
+
+    const nonLabelText=cells
+      .filter((c,ci)=>ci!==label.ci)
+      .map(c=>String(c.text||""))
+      .join(" ")
+      .replace(/\s+/g," ")
+      .trim();
+    const proseWords=(nonLabelText.match(/\b[\p{L}]{3,}\b/gu)||[]);
+    if(mathParaCount===0 && proseWords.length>18) return {isEquationLayout:false,rows:[]};
+
+    if(labels.has(label.id)) return {isEquationLayout:false,rows:[]};
+    labels.add(label.id);
+
+    parsed.push({
+      id:label.id,
+      text:String(r.text||"").replace(/\s+/g," ").trim(),
+      mathCount:r.mathCount||mathCount,
+      mathParaCount:r.mathParaCount||mathParaCount,
+      hasMath:true
+    });
+  }
+
+  return {isEquationLayout:parsed.length===meaningful.length,rows:parsed};
+}
+
+function fteWordTableRowSummaries(tbl){
+  const rows=[...tbl.getElementsByTagNameNS(FTE_W_NS,"tr")];
+  return rows.map(r=>{
+    const cells=[...r.childNodes].filter(n=>
+      n.nodeType===1 &&
+      (n.localName||"").toLowerCase()==="tc" &&
+      (n.namespaceURI||"")===FTE_W_NS
+    ).map(tc=>{
+      const mathCount=tc.getElementsByTagNameNS(FTE_M_NS,"oMath").length;
+      const mathParaCount=tc.getElementsByTagNameNS(FTE_M_NS,"oMathPara").length;
+      return {
+        text:fteXmlText(tc),
+        hasMath:mathCount>0 || mathParaCount>0,
+        mathCount,
+        mathParaCount
+      };
+    });
+
+    return {
+      text:fteXmlText(r),
+      cells,
+      mathCount:cells.reduce((n,c)=>n+(c.mathCount||0),0),
+      mathParaCount:cells.reduce((n,c)=>n+(c.mathParaCount||0),0)
+    };
+  });
+}
+
 async function extractDocxStructure(buf){
   if(typeof JSZip==="undefined") throw new Error("Structured Word reader failed to load.");
   const zip=await JSZip.loadAsync(buf);
@@ -3831,10 +3931,36 @@ async function extractDocxStructure(buf){
       const hasMath=mathCount>0 || hasMathPara;
       blocks.push({type:"p",pos:pos++,text,style,hasDrawing,hasMath,hasMathPara,mathCount});
     }else if(ln==="tbl"){
-      const rows=[...el.getElementsByTagNameNS(FTE_W_NS,"tr")];
-      let maxCols=0;
-      rows.forEach(r=>{ maxCols=Math.max(maxCols,r.getElementsByTagNameNS(FTE_W_NS,"tc").length); });
-      blocks.push({type:"table",pos:pos++,text:fteXmlText(el).slice(0,500),rows:rows.length,cols:maxCols,style:"",hasDrawing:false,hasMath:false});
+      const rowSummaries=fteWordTableRowSummaries(el);
+      const eqLayout=fteClassifyEquationLayoutRows(rowSummaries);
+
+      if(eqLayout.isEquationLayout){
+        // Word often uses a borderless layout table solely to align the
+        // equation expression at left and its number at right.
+        eqLayout.rows.forEach((r,ri)=>{
+          const anchor=`equation-table:${pos}:row:${ri}`;
+          blocks.push({
+            type:"p",pos:pos++,text:r.text,style:"EquationLayout",
+            hasDrawing:false,hasMath:true,
+            hasMathPara:(r.mathParaCount||0)>0,
+            mathCount:r.mathCount||0,
+            fromEquationTable:true,
+            physicalAnchor:anchor
+          });
+        });
+      }else{
+        const rows=[...el.getElementsByTagNameNS(FTE_W_NS,"tr")];
+        let maxCols=0;
+        rows.forEach(r=>{ maxCols=Math.max(maxCols,r.getElementsByTagNameNS(FTE_W_NS,"tc").length); });
+        const mathCount=el.getElementsByTagNameNS(FTE_M_NS,"oMath").length;
+        const mathParaCount=el.getElementsByTagNameNS(FTE_M_NS,"oMathPara").length;
+        blocks.push({
+          type:"table",pos:pos++,text:fteXmlText(el).slice(0,500),
+          rows:rows.length,cols:maxCols,style:"",
+          hasDrawing:false,hasMath:mathCount>0||mathParaCount>0,
+          mathCount,mathParaCount,isEquationLayout:false
+        });
+      }
     }
   });
   return blocks;
@@ -3879,6 +4005,63 @@ function fteFigureCaption(text){
 function fteTableCaption(text){
   const m=(text||"").match(/^\s*Table\.?\s*([Ss]?\d+(?:\.\d+)?)(?=\s|[.:;–—-]|$)/i);
   return m?{id:fteCanonId(m[1]),raw:m[0]}:null;
+}
+
+function fteCaptionEvidence(text,label,kind,style="",distance=99){
+  const t=String(text||"");
+  const raw=String(label?.raw||"");
+  const at=t.indexOf(raw);
+  const after=at>=0?t.slice(at+raw.length):"";
+  const trimmed=after.trimStart();
+  const firstWord=(trimmed.match(/^["'“”‘’(\[]*([A-Za-z]+)/)||[])[1]||"";
+
+  let score=0;
+  const capStyle=/(?:caption|figure|table)/i.test(style||"");
+  if(capStyle) score+=120;
+
+  // Punctuation immediately after Figure/Table number is strong caption evidence.
+  if(/^[.:;–—-]/.test(trimmed)) score+=45;
+
+  if(distance===0) score+=35;
+  else if(distance===1) score+=28;
+  else if(distance===2) score+=18;
+  else if(distance===3) score+=10;
+
+  // "Figure 5 illustrates..." and analogous constructions are prose citations.
+  const proseVerb=/^(?:illustrates?|shows?|showed|depicts?|presents?|demonstrates?|describes?|summari[sz]es?|compares?|provides?|indicates?|reveals?|displays?|represents?|highlights?|contains?|gives?|reports?|suggests?|confirms?|is|are|was|were|has|have|had|can|could|may|might|will|would|should)\b/i;
+  if(proseVerb.test(firstWord)) score-=100;
+
+  // Modest support for common caption-like noun-phrase openings.
+  if(firstWord && !proseVerb.test(firstWord) &&
+     /^(?:effect|effects|variation|variations|comparison|comparisons|relationship|relationships|schematic|overview|distribution|distributions|profile|profiles|image|images|micrograph|micrographs|photograph|photographs|workflow|framework|mechanism|mechanisms|evolution|development|response|responses|performance|characteristics?|results?|experimental|numerical|conceptual|spatial|temporal|shear|strain|stress|model|models|system|systems|process|processes|values?|parameters?|properties|configuration|configurations)\b/i.test(firstWord))
+    score+=12;
+
+  return {score,capStyle,firstWord,after:trimmed};
+}
+
+function fteChooseCaptionCandidate(candidates,kind,objectIndex){
+  if(!candidates.length) return null;
+  const scored=candidates.map(c=>{
+    const distance=Math.abs(c.i-objectIndex);
+    const ev=fteCaptionEvidence(c.b.text,c.label,kind,c.b.style||"",distance);
+    return {...c,_captionScore:ev.score,_captionEvidence:ev};
+  }).sort((a,b)=>{
+    if(b._captionScore!==a._captionScore) return b._captionScore-a._captionScore;
+    const da=Math.abs(a.i-objectIndex), db=Math.abs(b.i-objectIndex);
+    if(da!==db) return da-db;
+    if(kind==="figure"){
+      const af=a.i>=objectIndex?0:1, bf=b.i>=objectIndex?0:1;
+      if(af!==bf) return af-bf;
+    }else if(kind==="table"){
+      const af=a.i<=objectIndex?0:1, bf=b.i<=objectIndex?0:1;
+      if(af!==bf) return af-bf;
+    }
+    return a.i-b.i;
+  });
+
+  const best=scored[0];
+  if(!best._captionEvidence.capStyle && best._captionScore<20) return null;
+  return best;
 }
 function fteNormalizeCrossRefText(text){
   // Normalize whitespace around cross-reference labels without forcing one punctuation style.
@@ -4021,8 +4204,16 @@ function fteSequenceCheck(kind,items,issues){
   const seen=new Map();
   items.forEach(it=>{
     const k=kind==="figure"?it.id+"|"+(it.panel||""):it.id;
-    if(seen.has(k)) fteIssue(issues,kind,it.id,`${prefix}_DUPLICATE_NUMBER`,`Duplicate ${fteDisplay(kind,it.id)} detected.`,"Renumber one of the duplicated items and update its cross-references.",it.caption||it.context,"err");
-    else seen.set(k,it);
+    if(seen.has(k)){
+      const prev=seen.get(k);
+      if(prev?.physicalAnchor && it?.physicalAnchor && prev.physicalAnchor===it.physicalAnchor) return;
+      fteIssue(
+        issues,kind,it.id,`${prefix}_DUPLICATE_NUMBER`,
+        `Duplicate ${fteDisplay(kind,it.id)} detected as a separate numbered ${kind}.`,
+        "Renumber one of the genuinely duplicated items and update its cross-references.",
+        it.caption||it.context,"err"
+      );
+    }else seen.set(k,it);
   });
   const parents=[]; items.slice().sort((a,b)=>a.pos-b.pos).forEach(it=>{ if(!parents.some(x=>x.id===it.id)) parents.push(it); });
   for(let i=1;i<parents.length;i++){
@@ -4063,26 +4254,82 @@ function fteAnalyze(blocks){
   const issues=[];
   if(!blocks||!blocks.length) return {reliable:false,issues,figures:[],tables:[],equations:[],citations:{figure:[],table:[],equation:[]},unverified:0};
   const refStart=fteRefStart(blocks), active=blocks.slice(0,refStart);
-  const figCaps=[],tabCaps=[],captionBlocks=new Set(),eqBlocks=new Set();
+  const figCandidates=[],tabCandidates=[],captionBlocks=new Set(),eqBlocks=new Set();
+
+  // Collect possible labels first. A paragraph starting with "Figure 5" is not
+  // automatically a caption; it may be an ordinary in-text citation.
   active.forEach((b,i)=>{
     if(b.type!=="p"||!b.text) return;
-    const fc=fteFigureCaption(b.text),tc=fteTableCaption(b.text), capStyle=/caption/i.test(b.style||"");
-    if(fc){ const near=fteNearbyIndex(active,i,x=>x.type==="p"&&x.hasDrawing,3); if(capStyle||near!=null){ figCaps.push({i,b,label:fc,draw:near}); captionBlocks.add(i); } }
-    if(tc){ const near=fteNearbyIndex(active,i,x=>x.type==="table",2); if(capStyle||near!=null){ tabCaps.push({i,b,label:tc,table:near}); captionBlocks.add(i); } }
+    const fc=fteFigureCaption(b.text), tc=fteTableCaption(b.text);
+    if(fc){
+      const near=fteNearbyIndex(active,i,x=>x.type==="p"&&x.hasDrawing,3);
+      const styled=/(?:caption|figure)/i.test(b.style||"");
+      if(styled||near!=null) figCandidates.push({i,b,label:fc,draw:near});
+    }
+    if(tc){
+      const near=fteNearbyIndex(active,i,x=>x.type==="table",2);
+      const styled=/(?:caption|table)/i.test(b.style||"");
+      if(styled||near!=null) tabCandidates.push({i,b,label:tc,table:near});
+    }
   });
-  const figures=figCaps.map(c=>({kind:"figure",id:c.label.id,panel:c.label.panel,pos:c.draw!=null?active[c.draw].pos:c.b.pos,caption:c.b.text,context:c.b.text,placementReliable:c.draw!=null}));
-  const tables=[]; const usedCap=new Set();
+
+  // Associate only the best caption candidate with each physical drawing.
+  const figures=[];
+  const drawingIndices=active.map((b,i)=>b.type==="p"&&b.hasDrawing?i:null).filter(i=>i!=null);
+  const usedFigCaps=new Set();
+
+  drawingIndices.forEach(di=>{
+    const candidates=figCandidates.filter(c=>c.draw===di && !usedFigCaps.has(c.i));
+    const c=fteChooseCaptionCandidate(candidates,"figure",di);
+    if(!c) return;
+    usedFigCaps.add(c.i);
+    captionBlocks.add(c.i);
+    figures.push({
+      kind:"figure",id:c.label.id,panel:c.label.panel,pos:active[di].pos,
+      caption:c.b.text,context:c.b.text,placementReliable:true,
+      physicalAnchor:`drawing:${di}`,captionIndex:c.i
+    });
+  });
+
+  // Styled captions without an accessible drawing are still valid captions,
+  // although their physical placement cannot be asserted confidently.
+  figCandidates.filter(c=>c.draw==null && /(?:caption|figure)/i.test(c.b.style||"")).forEach(c=>{
+    if(usedFigCaps.has(c.i)) return;
+    usedFigCaps.add(c.i);
+    captionBlocks.add(c.i);
+    figures.push({
+      kind:"figure",id:c.label.id,panel:c.label.panel,pos:c.b.pos,
+      caption:c.b.text,context:c.b.text,placementReliable:false,
+      physicalAnchor:`caption:${c.i}`,captionIndex:c.i
+    });
+  });
+
+  const tables=[]; const usedTabCaps=new Set();
   active.forEach((b,i)=>{
-    if(b.type!=="table"||b.rows<2||b.cols<2) return;
-    const candidates=tabCaps.filter(c=>Math.abs(c.i-i)<=2 && !usedCap.has(c.i)).sort((a,c)=>{const da=Math.abs(a.i-i),dc=Math.abs(c.i-i); if(da!==dc)return da-dc; return a.i<i?-1:1;});
-    if(candidates.length){ const c=candidates[0]; usedCap.add(c.i); tables.push({kind:"table",id:c.label.id,pos:b.pos,caption:c.b.text,context:c.b.text,placementReliable:true}); }
-    else fteIssue(issues,"table","?","TABLE_MISSING_NUMBER","A Word table was found without a nearby numbered Table caption.","Add or verify a numbered table caption if this is a manuscript table.",b.text,"warn");
+    if(b.type!=="table"||b.isEquationLayout||b.rows<2||b.cols<2) return;
+    const candidates=tabCandidates.filter(c=>Math.abs(c.i-i)<=2 && !usedTabCaps.has(c.i));
+    const c=fteChooseCaptionCandidate(candidates,"table",i);
+    if(c){
+      usedTabCaps.add(c.i);
+      captionBlocks.add(c.i);
+      tables.push({
+        kind:"table",id:c.label.id,pos:b.pos,caption:c.b.text,context:c.b.text,
+        placementReliable:true,physicalAnchor:`table:${i}`,captionIndex:c.i
+      });
+    }else{
+      fteIssue(issues,"table","?","TABLE_MISSING_NUMBER","A Word table was found without a nearby numbered Table caption.","Add or verify a numbered table caption if this is a manuscript table.",b.text,"warn");
+    }
   });
   const equations=[];
   active.forEach((b,i)=>{
     const id=fteDisplayedEquationId(b); if(!id) return;
     eqBlocks.add(i);
-    equations.push({kind:"equation",id,pos:b.pos,caption:b.text,context:b.text,placementReliable:!!(b.hasMathPara||/equation/i.test(b.style||""))});
+    equations.push({
+      kind:"equation",id,pos:b.pos,caption:b.text,context:b.text,
+      placementReliable:!!(b.hasMathPara||/equation/i.test(b.style||"")),
+      physicalAnchor:b.physicalAnchor||`equation:${i}`,
+      fromEquationTable:!!b.fromEquationTable
+    });
   });
 
   fteSequenceCheck("figure",figures,issues); fteSequenceCheck("table",tables,issues); fteSequenceCheck("equation",equations,issues); ftePanelCheck(figures,issues);
@@ -4171,7 +4418,7 @@ function renderFteReport(res){
   if(!res.issues.length) $("fte-findings").innerHTML=`<p class="verdict clean">No figure, table, or numbered-equation consistency issues detected.</p>`;
   else{
     const order=["figure","table","equation"]; let html="";
-    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, cross-reference resolution, and first-reference order."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
+    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution. Borderless Word layout tables used only to align displayed equations with equation numbers are classified as equation containers and excluded from Table findings.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, cross-reference resolution, and first-reference order."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
     $("fte-findings").innerHTML=html;
   }
   $("fte-report").hidden=false;
@@ -4306,7 +4553,7 @@ function issueHelpText(code,msg=""){
     return "Checks panel lettering within a multipanel figure. Repeated or skipped identifiers such as (a), (b), (b) or (a), (c) are reported for review.";
   }
   if(/_DUPLICATE_NUMBER$/.test(code))
-    return "The same figure, table, or equation number was detected more than once. Numbering sequences are checked independently for Figures, Tables, and Equations.";
+    return "A duplicate number is reported only when the same identifier is attached to two distinct numbered objects/captions. Ordinary prose references such as “Figure 5 illustrates…” or “as shown in Figure 5” are citations and do not count as a second figure.";
   if(/_MISSING_NUMBER$/.test(code))
     return "A gap was detected in the numbering sequence, for example Figure 1 followed by Figure 3. Supplementary S-numbered sequences are checked separately.";
   if(/_OUT_OF_ORDER$/.test(code))
