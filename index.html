@@ -1143,30 +1143,96 @@ function engExcludeAffiliations(text){
   for(let i=0;i<limit;i++){
     const l=lines[i];
     if(aff.test(l)||contact.test(l)){
-      affiliationBlock=true;
-      lines[i]="";
-      continue;
+      affiliationBlock=true; lines[i]=""; continue;
     }
     if(affiliationBlock){
-      // Once affiliations begin in front matter, suppress address/contact continuations
-      // until the Abstract heading, while leaving the title and author line(s) above intact.
       if(abs>=0 || /\b(?:india|china|usa|u\.?s\.?a\.?|united states|united kingdom|uk|australia|canada|germany|france|japan|korea|italy|spain)\b/i.test(l) ||
-         /\b\d{5,6}\b/.test(l) || /^\s*[\d,*†‡§]+\s*/.test(l)){
-        lines[i]="";
-      }
+         /\b\d{5,6}\b/.test(l) || /^\s*[\d,*†‡§]+\s*/.test(l)) lines[i]="";
     }
   }
   return lines.join("\n");
 }
+
+function engFlexibleRemove(text,phrase){
+  phrase=String(phrase||"").replace(/\s+/g," ").trim();
+  if(phrase.length<2) return text;
+  const pattern=phrase.split(/\s+/).map(engEscapeRegex).join("\\s+");
+  try{
+    return String(text||"").replace(new RegExp(pattern,"gi"),m=>m.replace(/[^\n]/g," "));
+  }catch(e){ return text; }
+}
+
+function engLooksHeadingForScan(line){
+  const s=String(line||"").replace(/\s+/g," ").trim();
+  if(!s || s.length>180) return false;
+  if(/[.!?]["'’)\]]?$/.test(s)) return false;
+
+  if(/^(?:abstract|keywords?|key\s+words?|index\s+terms?|highlights?|graphical\s+abstract|introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+section)?|results?|discussion|results?\s+and\s+discussion|conclusions?|summary|recommendations?|acknowledg(?:e)?ments?|funding|data\s+availability|author\s+contributions?|conflicts?\s+of\s+interest|competing\s+interests?|declarations?|supplementary\s+(?:material|materials|information)|supporting\s+information|appendix|appendices|nomenclature)\s*:?\s*$/i.test(s))
+    return true;
+
+  if(/^\d+(?:\.\d+){0,4}\.?\s+\S+/.test(s) && s.split(/\s+/).length<=18) return true;
+  if(/^[A-Z0-9][A-Z0-9 ,;:/&()\-–—]+$/.test(s) && s.split(/\s+/).length<=18) return true;
+
+  const words=s.split(/\s+/);
+  if(words.length>=1 && words.length<=10){
+    const content=words.filter(w=>!/^(?:and|or|of|the|a|an|in|on|for|to|with|by|from)$/i.test(w));
+    if(content.length && content.every(w=>/^[A-Z][A-Za-z0-9()\-–—/]*$/.test(w))) return true;
+  }
+  return false;
+}
+
+function engExcludeNonBodyMaterial(text){
+  let body=String(text||"");
+  let lines=body.split(/\n/);
+
+  // Everything before the explicit Abstract heading is front matter.
+  const abs=lines.findIndex((l,i)=>i<160 && /^\s*(?:\d+(?:\.\d+)*\.?\s*)?abstract\s*:?\s*$/i.test(l.replace(/[*_`#>]/g,"").trim()));
+  if(abs>=0){
+    for(let i=0;i<abs;i++) lines[i]="";
+  }
+
+  // Keywords / Key words / Index terms are metadata, not prose.
+  for(let i=0;i<lines.length;i++){
+    const s=lines[i].replace(/\s+/g," ").trim();
+    if(/^(?:keywords?|key\s+words?|index\s+terms?)\s*[:—–-]/i.test(s)){
+      lines[i]=""; continue;
+    }
+    if(/^(?:keywords?|key\s+words?|index\s+terms?)\s*:?\s*$/i.test(s)){
+      lines[i]="";
+      let j=i+1; while(j<lines.length && !lines[j].trim()) j++;
+      if(j<lines.length){
+        const nxt=lines[j].replace(/\s+/g," ").trim();
+        if(nxt && nxt.split(/\s+/).length<=35 && !engLooksHeadingForScan(nxt)) lines[j]="";
+      }
+    }
+  }
+
+  // Section headings should not create grammar, capitalization or terminology findings.
+  lines=lines.map(l=>engLooksHeadingForScan(l)?"":l);
+  body=lines.join("\n");
+
+  // Structurally extracted Word headers, footers, footnotes and endnotes.
+  (DOCX_ENGLISH_EXCLUDE_TEXTS||[]).forEach(x=>{ body=engFlexibleRemove(body,x); });
+
+  // Optional typed title is an additional fallback if the DOCX has no Abstract heading.
+  try{
+    const typedTitle=($("title")?.value||"").replace(/\s+/g," ").trim();
+    if(typedTitle) body=engFlexibleRemove(body,typedTitle);
+  }catch(e){}
+
+  return body;
+}
+
 function engPrepareText(text){
   let body=excludeReferences(text||"",true).text;
+  body=engExcludeNonBodyMaterial(body);
   body=engExcludeAffiliations(body);
-  // URLs/e-mails can contain arbitrary spellings and should not influence style.
   body=body.replace(/\bhttps?:\/\/\S+/gi," ")
            .replace(/\bwww\.\S+/gi," ")
            .replace(/\b[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}\b/g," ");
   return body;
 }
+
 function engFindOccurrences(text,word){
   const out=[];
   const re=new RegExp(`(^|[^\\p{L}])(${engEscapeRegex(word)})(?=$|[^\\p{L}])`,"giu");
@@ -2767,10 +2833,10 @@ function renderEnglishReport(res){
     "High-confidence rule-based checks for probable typos, duplicated words, article use, clear subject–verb disagreement, redundant comparatives, and selected confused-word or usage patterns. Scientific terminology and dialect variants are not treated as spelling errors merely because they are uncommon.");
   renderWritingSection("Punctuation & mechanics",wchk.punctuation,
     "Checks repeated punctuation, spaces before punctuation, missing spaces after commas/semicolons/colons, and unmatched bracket structures in prose. Equations and citation-like structures are protected where possible.");
-  renderWritingSection("Clarity & conciseness",wchk.clarity,
-    "Review items for wordiness, redundancy, informal wording, contractions, sentences longer than 30 words, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.");
   renderWritingSection("Consistency & terminology",wchk.consistency,
     "Checks repeated technical terms for mixed hyphenation, open/closed variants, and internal capitalization. A finding means the manuscript uses more than one form and should be reviewed for intentional versus accidental variation.");
+  renderWritingSection("Clarity & conciseness",wchk.clarity,
+    "Review items for wordiness, redundancy, informal wording, contractions, sentences longer than 30 words, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.");
 
   html+=`<p class="sec-label">Readability <button type="button" class="info-help inline-auto-help" data-help="Passive voice is permitted and is not flagged. Readability is calculated from prose sentences detected paragraph-by-paragraph using language-aware sentence segmentation where available. Headings, captions, equations, tables, affiliations, and references are excluded. These indicators do not measure scientific quality." aria-label="Explain Readability" title="Explain this section">i</button></p>`;
   const met=wchk.metrics||{};
@@ -2832,7 +2898,7 @@ function englishReportText(res){
     `Terminology/consistency items: ${(res.writingChecks?.consistency||[]).length}`,
     `Paragraph-length items: ${(res.paragraphIssues||[]).length}`,
     `Prose paragraphs checked: ${res.proseParagraphs||0}`,
-    "Scope: English consistency excludes affiliations and references; paragraph-length checking additionally excludes the Abstract and non-prose structural lines.",""
+    "Scope: English/grammar/style checks exclude the paper title, Keywords/Index terms, affiliations, Word page headers/footers, footnotes/endnotes, section headings, and References. Paragraph-length checking additionally excludes the Abstract and non-prose structural lines.",""
   ];
   if(res.issues.length){
     L.push("SPELLING CONTRADICTIONS");
@@ -2862,8 +2928,8 @@ function englishReportText(res){
   [
     ["GRAMMAR & SPELLING",wc.grammar],
     ["PUNCTUATION & MECHANICS",wc.punctuation],
-    ["CLARITY & CONCISENESS",wc.clarity],
-    ["CONSISTENCY & TERMINOLOGY",wc.consistency]
+    ["CONSISTENCY & TERMINOLOGY",wc.consistency],
+    ["CLARITY & CONCISENESS",wc.clarity]
   ].forEach(([title,items])=>{
     if(items&&items.length){
       L.push(title);
@@ -3354,6 +3420,7 @@ function reportText(r){
 /* Numeric table structure retained from the currently loaded Word file. */
 let DOCX_NUMERIC_TABLES=[];
 let DOCX_FTE_BLOCKS=[];
+let DOCX_ENGLISH_EXCLUDE_TEXTS=[];
 let LAST_FTE=null;
 let LAST_UNIT=null;
 let LAST_ENG=null;
@@ -3381,6 +3448,37 @@ function ftePStyle(p){
   if(!ps) return "";
   return ps.getAttributeNS(FTE_W_NS,"val")||ps.getAttribute("w:val")||ps.getAttribute("val")||"";
 }
+
+async function extractDocxEnglishExclusions(buf){
+  if(typeof JSZip==="undefined") return [];
+  const zip=await JSZip.loadAsync(buf);
+  const out=[];
+  const add=t=>{
+    t=String(t||"").replace(/\s+/g," ").trim();
+    if(t.length>=2 && !out.some(x=>x.toLowerCase()===t.toLowerCase())) out.push(t);
+  };
+  const files=Object.keys(zip.files);
+  for(const name of files){
+    if(!/^word\/(?:header\d+|footer\d+|footnotes|endnotes)\.xml$/i.test(name)) continue;
+    const f=zip.file(name); if(!f) continue;
+    try{
+      const xml=await f.async("string");
+      const d=new DOMParser().parseFromString(xml,"application/xml");
+      if(d.getElementsByTagName("parsererror").length) continue;
+      if(/footnotes\.xml$/i.test(name)){
+        [...d.getElementsByTagNameNS(FTE_W_NS,"footnote")].forEach(n=>add(fteXmlText(n)));
+      }else if(/endnotes\.xml$/i.test(name)){
+        [...d.getElementsByTagNameNS(FTE_W_NS,"endnote")].forEach(n=>add(fteXmlText(n)));
+      }else{
+        [...d.getElementsByTagNameNS(FTE_W_NS,"p")].forEach(p=>add(fteXmlText(p)));
+      }
+    }catch(e){
+      console.warn("Could not read Word non-body part:",name,e);
+    }
+  }
+  return out;
+}
+
 async function extractDocxStructure(buf){
   if(typeof JSZip==="undefined") throw new Error("Structured Word reader failed to load.");
   const zip=await JSZip.loadAsync(buf);
@@ -3769,10 +3867,38 @@ async function readFile(file){
     const box=document.createElement("div");
     box.innerHTML=res.value;
     protectNumericCitationSuperscripts(box);
+
+    DOCX_ENGLISH_EXCLUDE_TEXTS=[];
+    box.querySelectorAll('[id^="footnote-"],[id^="endnote-"],li[id*="footnote"],li[id*="endnote"]').forEach(el=>{
+      const t=(el.textContent||"").replace(/\s+/g," ").trim();
+      if(t && !DOCX_ENGLISH_EXCLUDE_TEXTS.some(x=>x.toLowerCase()===t.toLowerCase())) DOCX_ENGLISH_EXCLUDE_TEXTS.push(t);
+    });
+
     DOCX_NUMERIC_TABLES=[];
     DOCX_FTE_BLOCKS=[];
+    const htmlEnglishExclusions=[...(DOCX_ENGLISH_EXCLUDE_TEXTS||[])];
+    try{
+      const structuralEnglishExclusions=await extractDocxEnglishExclusions(buf);
+      DOCX_ENGLISH_EXCLUDE_TEXTS=[...htmlEnglishExclusions];
+      structuralEnglishExclusions.forEach(t=>{
+        if(!DOCX_ENGLISH_EXCLUDE_TEXTS.some(x=>x.toLowerCase()===t.toLowerCase())) DOCX_ENGLISH_EXCLUDE_TEXTS.push(t);
+      });
+    }catch(e){
+      console.warn("Word header/footer/footnote exclusion extraction unavailable.",e);
+      DOCX_ENGLISH_EXCLUDE_TEXTS=htmlEnglishExclusions;
+    }
+
     try{ DOCX_FTE_BLOCKS=await extractDocxStructure(buf); }
     catch(e){ console.warn("Structured DOCX extraction unavailable; using HTML fallback.",e); DOCX_FTE_BLOCKS=extractHtmlStructure(box); }
+
+    (DOCX_FTE_BLOCKS||[]).forEach(b=>{
+      if(b?.type!=="p" || !b.text) return;
+      const st=String(b.style||"");
+      if(/(?:^|\b)(?:title|subtitle|heading\s*[1-9]?|heading[1-9]|header|footer|footnote|endnote)(?:\b|$)/i.test(st)){
+        const t=String(b.text).replace(/\s+/g," ").trim();
+        if(t && !DOCX_ENGLISH_EXCLUDE_TEXTS.some(x=>x.toLowerCase()===t.toLowerCase())) DOCX_ENGLISH_EXCLUDE_TEXTS.push(t);
+      }
+    });
     // Retain Word table structure for the numeric-precision checker. Tables are still removed from manuscript text below.
     // Extract a "List of Abbreviations" table (abbr | full form) so those abbreviations count as defined
     box.querySelectorAll("table").forEach((tbl,tableIndex)=>{
@@ -5466,11 +5592,11 @@ $("run").onclick=async()=>{
 };
 
 $("clear").onclick=()=>{
-  currentFile=null; fileInput.value=""; chip.style.display="none";
+  currentFile=null; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; fileInput.value=""; chip.style.display="none";
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
-  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[];
+  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[]; DOCX_ENGLISH_EXCLUDE_TEXTS=[];
 };
 
 $("ref-download").onclick=()=>{ if(!LAST_REF_OUT) return; const blob=new Blob([refReportText(LAST_REF_OUT.res,LAST_REF_OUT.cross)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reference-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
