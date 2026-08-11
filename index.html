@@ -306,7 +306,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="ref" hidden>
   <section class="card" id="ref-report" hidden aria-live="polite">
-      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. A secondary embedded journal/source database is used to confirm or recover journal names after structural parsing. If Journal/source is missing and text currently classified as Title matches a known full journal title or high-confidence abbreviation, that text is reclassified as Journal/source. Full journal titles remain usable even when the database provides no abbreviation. The database never invents a missing journal and absence from the database does not make a structurally valid source incorrect. Wrapped Word reference paragraphs are rejoined before parsing, and applicability is style/type aware so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
+      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. A secondary embedded journal/source database is used during author-boundary protection, structural parsing, and final source recovery. It prevents known journal abbreviations from being consumed as author names and can recover a database-confirmed journal immediately before a publication year/volume tail even when pages or an article number are absent. If Journal/source is missing and text currently classified as Title matches a known full journal title or high-confidence abbreviation, that text is reclassified as Journal/source. Full journal titles remain usable even when the database provides no abbreviation. The database never invents a missing journal and absence from the database does not make a structurally valid source incorrect. Wrapped Word reference paragraphs are rejoined before parsing, and applicability is style/type aware so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
       <div id="ref-ledger-wrap"></div>
       <p class="disclaimer">The reference ledger reports whether key bibliographic components are detected in each entry. Field applicability is inferred from the reference type and the dominant structure of the reference list. Detection is heuristic, so ambiguous entries should still be checked manually.</p>
@@ -321,7 +321,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <ol>
         <li><b>Reference ledger.</b> Each entry is assessed for author, year, title, source, pages or article number, volume, and DOI.</li>
         <li><b>Style-aware applicability.</b> Fields intentionally omitted by the dominant reference-list convention are shown as <code>n/a</code> rather than as errors.</li>
-        <li><b>Reference type.</b> Journal articles and non-journal sources are distinguished so inapplicable journal fields are not treated as required.</li><li><b>Journal database cross-check.</b> A secondary embedded database of 113,081 normalized full source titles and 27,100 abbreviation forms is used to confirm or recover journal/source labels. Entries with no abbreviation remain matchable by their full title. Database absence is not treated as an error.</li>
+        <li><b>Reference type.</b> Journal articles and non-journal sources are distinguished so inapplicable journal fields are not treated as required.</li><li><b>Journal database cross-check.</b> A secondary embedded database of 113,081 normalized full source titles and 27,100 abbreviation forms protects author/source boundaries, confirms parsed journals, and performs conservative raw-reference suffix recovery before publication year/volume tails. Missing pages or article numbers do not prevent an otherwise identifiable journal from being recognised. Entries with no abbreviation remain matchable by their full title. Database absence is not treated as an error.</li>
         <li><b>Ledger-only report.</b> The References tab displays the field-status ledger without separate warning or suggestion sections.</li>
       </ol>
     </details>
@@ -5037,18 +5037,41 @@ function refParsePersonalAuthorAt(text){
 
 function refLooksLikeJournalAbbrevCandidate(text, parsed){
   if(!parsed || parsed.kind!=="initials_first") return false;
-  const tail=(text||"").trimStart().slice(parsed.length);
+
+  const raw=(text||"").trimStart();
+  const tail=raw.slice(parsed.length);
+
+  // refParsePersonalAuthorAt() stops before a terminal period used as a boundary.
+  // Include that period when testing the apparent name against the journal database.
+  let apparentRaw=raw.slice(0,parsed.length);
+  if(/^\./.test(tail)) apparentRaw+=".";
+  const apparent=refCleanField(apparentRaw);
+
   // A token such as "J. Mater. Chem. A" superficially resembles "J. Smith".
   // If the apparent surname is immediately followed by another dotted source token,
   // treat it as a journal abbreviation rather than an author name.
   if(/^\.\s*[\p{Lu}][\p{L}]{1,}\.?/u.test(tail)) return true;
 
-  // A final abbreviated journal token can look exactly like an initials-first
-  // personal name, e.g. "J. Lumin." or "RSC Adv.". When that apparent name is
-  // followed immediately by a publication tail YEAR, VOLUME, LOCATOR, it is a
-  // source/container, not another author.
-  if(/^\.\s*,?\s*(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,20}\))?\s*[,;:]\s*[A-Za-z]?\d/i.test(tail))
-    return true;
+  // Publication tails are allowed to stop after the volume. Pages/article numbers
+  // may be genuinely absent, which must not cause the journal to be consumed as an
+  // additional author. Examples:
+  //   J. Alloys Compd., 2022, 901.
+  //   J. Hazard. Mater., 2023, 452, 131279.
+  const publicationTail=/^\.\s*[,;]?\s*(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,24}\))?(?:\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)?(?=\s*(?:[,.;]|$))/i.test(tail);
+
+  // Database evidence is authoritative for an apparent author/source collision.
+  // Requiring a publication tail prevents ordinary personal names from being
+  // reclassified merely because their text happens to resemble a source name.
+  if(publicationTail && JOURNAL_DB_LOADED){
+    const db=journalDbMatch(apparent,true);
+    if(db.matched) return true;
+  }
+
+  // Database-independent fallback for heavily abbreviated source names. Require at
+  // least two dotted tokens so a real final author such as "J. Sun" is not rejected.
+  const dotted=(apparentRaw.match(/\b[\p{L}]{1,12}\./gu)||[]).length;
+  if(publicationTail && dotted>=2) return true;
+
   return false;
 }
 
@@ -5819,7 +5842,11 @@ function journalDbLooseKey(s){
     biotechnology:"biotechnol",biotechnol:"biotechnol",
     medicine:"med",medical:"med",med:"med",
     biology:"biol",biological:"biol",biol:"biol",
-    proceedings:"proc",proceeding:"proc",proc:"proc"
+    proceedings:"proc",proceeding:"proc",proc:"proc",
+    // Low-risk singular/plural and standard abbreviation equivalences that occur
+    // frequently in journal titles and bibliographic abbreviations.
+    alloy:"alloy",alloys:"alloy",
+    compound:"compd",compounds:"compd",compd:"compd"
   };
   return n.split(" ").filter(Boolean).map(t=>map[t]||t).join(" ");
 }
@@ -6419,9 +6446,14 @@ function refCompactTitlelessSource(raw,authorInfo){
     Detect a titleless journal form directly after the author block.
 
     Supported publication tails include:
+      SOURCE, YEAR, VOLUME
       SOURCE, YEAR, VOLUME, PAGES/ARTICLE
       SOURCE VOLUME (YEAR): ARTICLE
       SOURCE, VOLUME(ISSUE), LOCATOR, YEAR
+
+    The locator is deliberately optional in the first family. A missing page range
+    or article number is a separate bibliographic deficiency and must not erase a
+    journal/source that is otherwise structurally identifiable.
 
     This is a recovery/classification signal, not a publisher-specific rule.
     It is used only when the ordinary parser has NOT independently resolved a
@@ -6444,7 +6476,14 @@ function refCompactTitlelessSource(raw,authorInfo){
     `(?:\\s*\\(\\s*[^)]{1,24}\\s*\\))?\\s*[,;:]\\s*${locator}\\s*[.]?\\s*$`,
     "i"
   ));
-  if(m) candidates.push(m[1]);
+  if(m) candidates.push({text:m[1],strict:false});
+
+  // SOURCE, YEAR, VOLUME(ISSUE/PART) with no locator. This is intentionally
+  // stricter because TITLE + SOURCE can otherwise be swallowed as one field.
+  m=rest.match(
+    /^(.+?)\s*[,;]\s*(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\(\s*[^)]{1,24}\s*\))?\s*[.]?\s*$/i
+  );
+  if(m) candidates.push({text:m[1],strict:true});
 
   // SOURCE VOLUME (YEAR): LOCATOR
   m=rest.match(new RegExp(
@@ -6452,7 +6491,7 @@ function refCompactTitlelessSource(raw,authorInfo){
     `\\s*[,;:]?\\s*${locator}\\s*[.]?\\s*$`,
     "i"
   ));
-  if(m) candidates.push(m[1]);
+  if(m) candidates.push({text:m[1],strict:false});
 
   // SOURCE, VOLUME(ISSUE), LOCATOR, YEAR
   m=rest.match(new RegExp(
@@ -6460,16 +6499,17 @@ function refCompactTitlelessSource(raw,authorInfo){
     `\\s*[,;:]\\s*${locator}\\s*[,;]\\s*(?:19|20)\\d{2}[a-z]?\\s*[.]?\\s*$`,
     "i"
   ));
-  if(m) candidates.push(m[1]);
+  if(m) candidates.push({text:m[1],strict:false});
 
-  for(const rawSource of candidates){
-    const source=refCleanField(rawSource);
+  for(const item of candidates){
+    const source=refCleanField(item.text);
     if(!source || source.length>180) continue;
 
     const words=source.split(/\s+/).filter(Boolean);
     if(words.length>12) continue;
 
     let score=refSourceScore(source,true);
+    const db=journalDbMatch(source,true);
 
     // Journal/container qualifiers are structural source syntax, not titles.
     if(/,\s*(?:part|section|series)\s+[A-Za-z0-9]+\.?$/i.test(source)) score+=4;
@@ -6484,11 +6524,11 @@ function refCompactTitlelessSource(raw,authorInfo){
     if(/[?!]\s+|\.\s+[\p{Lu}][\p{Ll}]{2,}\s+/u.test(source) && words.length>=6)
       score-=8;
 
-    if(score>=4) return source;
+    if(!item.strict && score>=4) return source;
+    if(item.strict && (db.matched || (score>=8 && abbrevTokens>=2))) return source;
   }
   return null;
 }
-
 
 function refRecoverSourceFromTail(raw,authorInfo,title,year){
   let rest=refRestAfterAuthors(raw,authorInfo);
@@ -6552,6 +6592,99 @@ function refRecoverSourceFromTail(raw,authorInfo,title,year){
       return cand;
   }
   return null;
+}
+
+
+function refRecoverSourceFromDbSuffix(raw,title){
+  /*
+    Last-resort journal recovery that is independent of the detected author boundary.
+    This matters when a journal abbreviation itself resembles "initial + surname" and
+    was accidentally consumed by the author parser. The raw reference is preserved,
+    so a database-confirmed terminal source immediately before a publication tail can
+    still be recovered safely.
+  */
+  if(!JOURNAL_DB_LOADED) return null;
+
+  let s=refStripDoiUrl(raw)
+    .replace(/^\s*(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s*/,"")
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+  if(!s) return null;
+
+  const years=[...s.matchAll(/\b((?:19|20)\d{2}[a-z]?)\b/gi)];
+  if(!years.length) return null;
+
+  const titleNorm=title?journalDbNormalize(title):"";
+  const found=[];
+
+  // Prefer publication years from right to left because article titles can contain
+  // historical years that are not the bibliographic year.
+  for(let yi=years.length-1;yi>=0;yi--){
+    const ym=years[yi], idx=ym.index;
+    const before=s.slice(0,idx);
+    const after=s.slice(idx+ym[0].length);
+
+    let prefix=null;
+
+    // Common SOURCE, YEAR, VOLUME[, LOCATOR] family.
+    if(/^\s*[,;:.]?\s*\d{1,6}(?:\s*\([^)]{1,24}\))?(?:\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)?/i.test(after)){
+      prefix=before;
+    }else{
+      // SOURCE VOLUME (YEAR): LOCATOR family. Remove the volume and opening
+      // parenthesis from the prefix before searching for the source suffix.
+      const vm=before.match(/(?:^|[,;:\s])\d{1,6}\s*\(\s*$/);
+      if(vm && /^\s*\)\s*[,;:]?\s*[A-Za-z]?\d/i.test(after))
+        prefix=before.slice(0,vm.index);
+    }
+
+    if(prefix==null) continue;
+    prefix=prefix.replace(/[\s,;:]+$/g,"").trim();
+    if(!prefix) continue;
+
+    const starts=new Set([0]);
+
+    // Strong bibliographic delimiters.
+    for(const p of refOutsidePositions(prefix,",;")) starts.add(p+1);
+
+    // Sentence boundary before a journal in title-included styles:
+    // "Article title. J. Hazard. Mater., 2023, ..."
+    for(const m of prefix.matchAll(/\.\s+(?=[\p{Lu}\d])/gu)) starts.add(m.index+m[0].length);
+
+    // Also test short terminal token windows so corrupted punctuation or Word run
+    // joins do not defeat an otherwise exact database match.
+    const toks=[...prefix.matchAll(/\S+/g)];
+    for(let n=1;n<=Math.min(10,toks.length);n++) starts.add(toks[toks.length-n].index);
+
+    for(const st of starts){
+      const cand=refCleanField(prefix.slice(st));
+      if(!cand || cand.length>180) continue;
+      const words=cand.split(/\s+/).filter(Boolean);
+      if(!words.length || words.length>10) continue;
+
+      const db=journalDbMatch(cand,true);
+      if(!db.matched) continue;
+
+      // If the separately parsed article title is exactly this text, leave the
+      // existing title/source reconciliation logic to decide rather than duplicating it.
+      if(titleNorm && journalDbNormalize(cand)===titleNorm) continue;
+
+      const typePriority=db.type==="full-title"||db.type==="abbreviation"?3:2;
+      found.push({source:cand,match:db,typePriority,words:words.length,start:st});
+    }
+
+    if(found.length) break;
+  }
+
+  if(!found.length) return null;
+  found.sort((a,b)=>
+    b.typePriority-a.typePriority ||
+    b.words-a.words ||
+    b.start-a.start ||
+    b.source.length-a.source.length
+  );
+  return found[0];
 }
 
 function refParseEntry(raw){
@@ -6653,6 +6786,23 @@ function refParseEntry(raw){
   if(type==="journal article" && sourceRegion && !sourceDbMatch){
     const confirmed=journalDbMatch(sourceRegion,true);
     if(confirmed.matched) sourceDbMatch=confirmed.type;
+  }
+
+  // Database-backed raw-suffix recovery runs before the generic structural
+  // fallback and does not depend on the detected author boundary. This repairs
+  // cases where a journal abbreviation was accidentally consumed as another author.
+  if(!sourceRegion && type==="journal article"){
+    const dbRecovered=refRecoverSourceFromDbSuffix(raw,title);
+    if(dbRecovered){
+      sourceRegion=dbRecovered.source;
+      sourceDbMatch=dbRecovered.match.type;
+      if(structured){
+        structured.source=sourceRegion;
+        structured.confidence=Math.max(structured.confidence||0,0.995);
+        if(!structured.title) structured.layout="source-year-titleless-db-suffix";
+      }
+      if(!year) year=detectPublicationYear(raw,authorInfo,sourceRegion);
+    }
   }
 
   // Final structural recovery for journal/source. This is intentionally
