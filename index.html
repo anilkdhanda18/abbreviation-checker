@@ -140,6 +140,23 @@
 
   .dev-note{max-width:640px;margin:14px auto 0;padding:12px 16px;background:var(--pencil-soft);border:1px solid var(--hair);border-radius:9px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:left}
   @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#eng-report,#fte-report{box-shadow:none;border:0;padding:0}}
+
+  .home-title-link{
+    color:inherit;
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .home-title-link:hover,
+  .home-title-link:focus{
+    color:inherit;
+    text-decoration:none;
+  }
+  .home-title-link:focus-visible{
+    outline:2px solid currentColor;
+    outline-offset:4px;
+    border-radius:3px;
+  }
+
 </style>
 </head>
 <body>
@@ -147,7 +164,7 @@
 
   <header class="masthead">
     <p class="eyebrow">Manuscript Proofing</p>
-    <h1>Manuscript Check<span class="rule"></span></h1>
+    <h1><a href="#" id="home-title-link" class="home-title-link" aria-label="Return to Manuscript Check home and start a fresh submission" title="Start a fresh manuscript check">Manuscript Check</a><span class="rule"></span></h1>
     <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, units, English/grammar/style consistency, and figure/table/equation consistency.</p>
   </header>
 
@@ -342,7 +359,7 @@
       <li><b>Paragraph length.</b> Main-text prose paragraphs should contain <b>100–300 words</b>. Paragraphs below 100 or above 300 words are flagged. The Abstract and References are excluded, as are obvious headings, captions, equations, and table-like structural lines.</li>
       <li><b>Grammar and spelling.</b> Checks high-confidence issues such as common scientific typos, duplicated words, article misuse, clear subject–verb disagreement, redundant comparative forms, and selected commonly confused constructions.</li>
       <li><b>Punctuation and mechanics.</b> Checks repeated punctuation, spaces before punctuation, missing spaces after commas/semicolons/colons, and unmatched brackets in prose.</li>
-      <li><b>Clarity and conciseness.</b> Flags selected wordy phrases, redundant expressions, informal contractions/phrases, very long sentences, repeated sentence openings, overused transition words, vague sentence-opening <code>This</code>, and limited high-confidence parallel-structure problems.</li>
+      <li><b>Clarity and conciseness.</b> Flags selected wordy phrases, redundant expressions, informal contractions/phrases, sentences longer than 30 words, repeated sentence openings, overused transition words, vague sentence-opening <code>This</code>, and limited high-confidence parallel-structure problems.</li>
       <li><b>Terminology consistency.</b> Detects mixed hyphenation, open/closed variants such as <code>wastewater</code>/<code>waste water</code>, and repeated technical terms with inconsistent internal capitalization.</li>
       <li><b>Readability.</b> Passive constructions are reported as informational review items, not automatic errors. The report also gives sentence-length indicators rather than treating readability as a measure of scientific quality.</li>
       <li><b>No forced rewriting.</b> The checker does not change the manuscript. It reports the dominant convention, flags first/second-person usage, and provides a concise revision suggestion.</li>
@@ -2197,7 +2214,7 @@ function engReadabilityFallback(text,errorMessage=""){
     const wc=engWordCount(s.text);
     totalWords+=wc;
     longest=Math.max(longest,wc);
-    if(wc>40) longCount++;
+    if(wc>30) longCount++;
     if(wc>65) veryLong++;
   });
 
@@ -2442,7 +2459,7 @@ function engGrammarStyleCheck(text,inference){
   sentences.forEach(s=>{
     const wc=engWordCount(s.text);
     totalWords+=wc; longest=Math.max(longest,wc);
-    if(wc>40){
+    if(wc>30){
       longCount++;
       if(wc>65)veryLong++;
       push(clarity,"Clarity & conciseness",wc>65?"warn":"info","LONG_SENTENCE",
@@ -2751,7 +2768,7 @@ function renderEnglishReport(res){
   renderWritingSection("Punctuation & mechanics",wchk.punctuation,
     "Checks repeated punctuation, spaces before punctuation, missing spaces after commas/semicolons/colons, and unmatched bracket structures in prose. Equations and citation-like structures are protected where possible.");
   renderWritingSection("Clarity & conciseness",wchk.clarity,
-    "Review items for wordiness, redundancy, informal wording, contractions, very long sentences, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.");
+    "Review items for wordiness, redundancy, informal wording, contractions, sentences longer than 30 words, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.");
   renderWritingSection("Consistency & terminology",wchk.consistency,
     "Checks repeated technical terms for mixed hyphenation, open/closed variants, and internal capitalization. A finding means the manuscript uses more than one form and should be reviewed for intentional versus accidental variation.");
 
@@ -2762,7 +2779,7 @@ function renderEnglishReport(res){
     <b>Sentences checked</b><span>${met.sentences||0}</span>
     <b>Average sentence length</b><span>${Number(met.averageSentenceWords||0).toFixed(1)} words</span>
     <b>Longest sentence</b><span>${met.longestSentenceWords||0} words</span>
-    <b>Sentences over 40 words</b><span>${met.longSentences||0}</span>
+    <b>Sentences over 30 words</b><span>${met.longSentences||0}</span>
   </div></div>`;
   if((met.sentences||0)===0 && (met.sourceWords||0)>0){
     html+=`<p class="verdict"><b>Sentence extraction warning:</b> manuscript prose was detected, but no sentence boundaries could be resolved reliably. Readability statistics are therefore unavailable for this run.</p>`;
@@ -2863,7 +2880,7 @@ function englishReportText(res){
       `Sentences checked: ${wc.metrics.sentences||0}`,
       `Average sentence length: ${Number(wc.metrics.averageSentenceWords||0).toFixed(1)} words`,
       `Longest sentence: ${wc.metrics.longestSentenceWords||0} words`,
-      `Sentences >40 words: ${wc.metrics.longSentences||0}`,
+      `Sentences >30 words: ${wc.metrics.longSentences||0}`,
       "");
   }
   if((res.paragraphIssues||[]).length){
@@ -3881,7 +3898,7 @@ function issueHelpText(code,msg=""){
     REDUNDANT_EXPRESSION:"Two words may repeat the same meaning, for example “each and every”. Treat this as a style review item.",
     INFORMAL_EXPRESSION:"A colloquial expression was detected and may benefit from a more precise scientific alternative.",
     CONTRACTION_IN_FORMAL_PROSE:"A contraction such as “isn't” or “can't” was detected. The full form may be preferable depending on journal style.",
-    LONG_SENTENCE:"The sentence exceeds the readability threshold used by the tool. This does not mean it is grammatically wrong; review whether splitting improves clarity.",
+    LONG_SENTENCE:"The sentence exceeds the 30-word readability threshold used by the tool. This does not mean it is grammatically wrong; review whether splitting improves clarity.",
     VAGUE_THIS:"A sentence begins with “This” followed by a reporting verb, and the antecedent may be unclear. Naming the specific result or observation can improve clarity.",
     PARALLEL_STRUCTURE:"Coordinated list items appear to use different grammatical forms. Review whether they should be parallel.",
     REPEATED_SENTENCE_OPENING:"Several consecutive sentences begin with the same word or phrase. This is a style observation rather than a grammatical error.",
@@ -5487,6 +5504,16 @@ document.addEventListener("click",e=>{
   d.textContent=b.dataset.help||"";
   b.parentElement.insertAdjacentElement("afterend",d);
 });
+
+(function(){
+  const link=document.getElementById("home-title-link");
+  if(!link) return;
+  link.addEventListener("click",function(e){
+    e.preventDefault();
+    window.location.reload();
+  });
+})();
+
 </script>
 
 </body>
