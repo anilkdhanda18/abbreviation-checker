@@ -1,8 +1,30 @@
+<!--
+Manuscript Check
+Copyright © 2026 Anil Dhanda. All rights reserved.
+
+Original project material authored by Anil Dhanda is licensed under:
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
+SPDX-License-Identifier: CC-BY-NC-ND-4.0
+https://creativecommons.org/licenses/by-nc-nd/4.0/
+
+Under this licence, unmodified copies may be shared for non-commercial
+purposes with appropriate attribution. Adapted/modified versions may not
+be shared under this licence.
+
+Third-party libraries, services, fonts, APIs, and other externally owned
+materials remain subject to their respective licences and terms.
+
+Project source and public version history:
+https://github.com/anilkdhanda18/manuscriptchecker/
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="copyright" content="Copyright © 2026 Anil Dhanda" />
+<meta name="author" content="Anil Dhanda" />
+<link rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" />
 <title>Manuscript Check — Manuscript Proofing</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
@@ -125,6 +147,9 @@
   .credit-links a:hover{text-decoration:underline}
   .credit-links .sep{color:var(--hair-strong);margin:0 10px}
   .credit-tag{color:var(--faint);font-size:12px;margin:22px 0 0}
+  .legal-note{color:var(--faint);font-size:12px;line-height:1.55;margin:10px auto 0;max-width:760px;text-align:center}
+  .legal-note a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--hair-strong)}
+  .legal-note a:hover,.legal-note a:focus{color:var(--ink);border-bottom-color:var(--ink)}
 
   .visitor-stat{
     display:flex;
@@ -425,6 +450,13 @@
         aria-label="Explain visitor count" title="What does this visitor count track?">i</button>
     </p>
     <p class="credit-tag">Manuscript analysis runs locally in your browser · Manuscript content is not sent to GoatCounter analytics</p>
+    <p class="legal-note">
+      © 2026 Anil Dhanda ·
+      <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-ND 4.0</a>
+      ·
+      <a href="https://github.com/anilkdhanda18/manuscriptchecker/" target="_blank" rel="noopener noreferrer">Source &amp; version history</a>
+    </p>
+    <p class="legal-note">Non-commercial sharing of unmodified copies is permitted with attribution. Modified versions may not be shared under this licence. Third-party components remain under their own licences.</p>
     <p class="dev-note">This tool is still under development. We have tried our best to make its checks accurate, but it can still miss issues or flag things incorrectly. Authors are strongly advised to verify every item manually and not to rely on the tool alone.</p>
   </footer>
 </div>
