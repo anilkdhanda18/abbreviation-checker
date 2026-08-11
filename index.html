@@ -270,7 +270,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. The paper title, section/subsection headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, Word tables, equations, and References are excluded. Compact table-note definitions such as "CE: Coulombic efficiency" are recognised. If the full term already appeared earlier in prose, the checker instead asks for "coulombic efficiency (CE)" at that earlier first prose mention." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
@@ -298,7 +298,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
       <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks.</li><li><b>Dedicated abbreviation lists are authoritative.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are accepted even when the body prose does not repeat the full form. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
     </ol>
   </details>
 
@@ -3089,22 +3089,86 @@ const FORMULA_FOLLOW=/^[\u2080-\u2089\u2070-\u2079\u00B2\u00B3\u00B9\u207A\u207B
 
 /* Abbreviations the author declares in a "List of Abbreviations" table or section */
 let DECLARED_ABBRS=new Set();
+let DECLARED_ABBR_MAP=new Map();
+let DECLARED_ABBR_LIST_FOUND=false;
+let DECLARED_ABBR_SECTIONS=[];
+
+const ABBR_LIST_HEAD_RE=/^(?:\d+(?:\.\d+)*\.?\s*)?(?:(?:list\s+of\s+)?abbreviations?|(?:list\s+of\s+)?acronyms?|abbreviations?\s*(?:and|&|\/)\s*acronyms?|acronyms?\s*(?:and|&|\/)\s*abbreviations?|abbreviations?\s*(?:and|&|\/)\s*symbols?|symbols?\s*(?:and|&|\/)\s*abbreviations?|nomenclature|glossary)\s*:?\s*$/i;
+
+const ABBR_LIST_STOP_RE=/^(?:\d+(?:\.\d+)*\.?\s*)?(?:abstract|introduction|background|literature\s+review|methodology|methods?|materials?\s+and\s+methods?|results?|discussion|conclusions?|summary|acknowledg(?:e)?ments?|references?|bibliography|chapter\b.*|list\s+of\s+figures|list\s+of\s+tables|table\s+of\s+contents|contents)\b/i;
+
+function abbrListClean(s){
+  return String(s||"")
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function abbrListKey(s){
+  return norm(String(s||"").replace(/^[*#$%^&†‡§¶]+\s*/,"").trim());
+}
+function abbrLooksListShort(s){
+  const raw=abbrListClean(s).replace(/^[*#$%^&†‡§¶]+\s*/,"").replace(/[,:;]+$/,"").trim();
+  if(!raw || raw.length>20) return false;
+  if(/^(?:abbreviation|abbrev\.?|acronym|symbol|short\s*form|term|code)$/i.test(raw)) return false;
+  if(/\s{2,}/.test(raw)) return false;
+  // Allow common forms: BOD, NOSB-PD, WQI, pH, CI, UASB, MLD.
+  return /^[A-Za-z][A-Za-z0-9]*(?:[./\-][A-Za-z0-9]+)*$/.test(raw) &&
+         (/[A-Z]/.test(raw) || /^[a-z]{1,6}$/.test(raw));
+}
+function abbrLooksListLong(s,shortForm=""){
+  const raw=abbrListClean(s);
+  if(!raw || raw.length<2 || raw.length>220) return false;
+  if(/^(?:full\s*form|expansion|meaning|definition|description)$/i.test(raw)) return false;
+  if(abbrListKey(raw)===abbrListKey(shortForm)) return false;
+  return /[A-Za-z]/.test(raw);
+}
+function abbrRegisterListDefinition(map,shortForm,longForm,meta={}){
+  const sf=abbrListClean(shortForm).replace(/^[*#$%^&†‡§¶]+\s*/,"").replace(/[,:;]+$/,"").trim();
+  const lf=abbrListClean(longForm).replace(/^[–—:=\-\s]+/,"").replace(/[.;,\s]+$/,"").trim();
+  if(!abbrLooksListShort(sf) || !abbrLooksListLong(lf,sf)) return false;
+  const key=abbrListKey(sf);
+  if(!key) return false;
+
+  const rec={key,form:sf,long:lf,source:"abbreviation-list",section:meta.section||"Abbreviations",location:meta.location||""};
+  const prev=map.get(key);
+  if(!prev || lf.length>prev.long.length) map.set(key,rec);
+  return true;
+}
+
+/* Text fallback for non-table abbreviation lists.
+   Supports:
+     BOD  Biochemical Oxygen Demand
+     BOD: Biochemical Oxygen Demand
+     BOD = Biochemical Oxygen Demand
+     BOD – Biochemical Oxygen Demand
+*/
 function extractDeclaredAbbrs(text){
-  const lines=text.split(/\n/); let inSec=false; const out=new Set();
-  const HEAD=/^(?:\d+\.?\s*)?(list of abbreviations|abbreviations|nomenclature|acronyms|glossary|abbreviations and acronyms)\s*:?\s*$/i;
-  const OTHER=/^(?:\d+\.?\s*)?(introduction|abstract|contents|table of contents|references|methodology|objectives?|results|discussion|conclusion|summary|acknowledge?ments)\b/i;
+  const lines=String(text||"").split(/\n/);
+  const map=new Map();
+  let inSec=false, found=false, section="";
+
   for(let i=0;i<lines.length;i++){
-    const bare=lines[i].replace(/[*_`#>]/g,"").trim();
-    if(HEAD.test(bare)){ inSec=true; continue; }
+    const bare=abbrListClean(lines[i].replace(/[*_`#>]/g,""));
+    if(ABBR_LIST_HEAD_RE.test(bare)){
+      inSec=true; found=true; section=bare||"Abbreviations"; continue;
+    }
     if(!inSec) continue;
     if(!bare) continue;
-    if(OTHER.test(bare)) break;
-    if(/^\|?\s*-{2,}/.test(lines[i].trim())) continue;                 // markdown separator row
-    if(/^\|?\s*(abbreviation|acronym|symbol|full form|meaning|definition|expansion)\b/i.test(bare)) continue; // header row
-    const mm=lines[i].trim().match(/^\|?\s*([A-Za-z][A-Za-z0-9\/.\-]{0,13})\s*(?:\||\t|\s{2,}|\s[-–—:=]\s)\s*([A-Za-z].{2,})/);
-    if(mm && /[A-Z]/.test(mm[1])) out.add(mm[1].replace(/[^A-Za-z0-9]/g,"").toUpperCase());
+    if(ABBR_LIST_STOP_RE.test(bare) && !ABBR_LIST_HEAD_RE.test(bare)){ inSec=false; continue; }
+    if(/^\|?\s*-{2,}/.test(lines[i].trim())) continue;
+    if(/^(?:abbreviation|abbrev\.?|acronym|symbol|short\s*form)\b/i.test(bare) &&
+       /\b(?:full\s*form|expansion|meaning|definition|description)\b/i.test(bare)) continue;
+
+    let m=bare.match(/^([A-Za-z][A-Za-z0-9./\-]{0,19})\s*(?:\t+|\s{2,}|[:=]\s*|\s+[–—-]\s+)(.{2,220})$/);
+    if(!m){
+      // Conservative single-space fallback only when the first token is
+      // unmistakably abbreviation-like and the expansion has >= 2 words.
+      m=bare.match(/^([A-Z][A-Z0-9./\-]{1,19})\s+([A-Za-z][A-Za-z'’\-]*(?:\s+[A-Za-z][A-Za-z'’\-]*){1,15})$/);
+    }
+    if(m) abbrRegisterListDefinition(map,m[1],m[2],{section,location:`text line ${i+1}`});
   }
-  return out;
+  return {found,map};
 }
 /* ---------- Helpers ---------- */
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -3487,10 +3551,11 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
 
   const isStd = k => standardSet.has(k);
 
-  const hasList = text.split(/\n/).some(line=>{
-    const t=line.trim();
-    return t.length>0 && t.length<45 && /^(list of abbreviations|abbreviations|nomenclature|acronyms|glossary)\b/i.test(t);
-  });
+  const hasList = DECLARED_ABBR_LIST_FOUND || DECLARED_ABBR_MAP.size>0 ||
+    text.split(/\n/).some(line=>{
+      const t=line.trim();
+      return t.length>0 && t.length<80 && ABBR_LIST_HEAD_RE.test(t);
+    });
 
   const errors=[], warnings=[], infos=[], rows=[], standardSeen=[], declaredSeen=[];
 
@@ -3505,32 +3570,42 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     .forEach(g=>{
       const disp=displayForm(g);
       const std=isStd(g.key);
-      const declared=DECLARED_ABBRS.has(g.key);
+      const listDef=DECLARED_ABBR_MAP.get(g.key)||null;
+      const declared=DECLARED_ABBRS.has(g.key)||!!listDef;
       const count=g.occ.length;
       const defined=g.defs.length>0;
       if(!std && !defined && !declared && g.occ.every(o=>o.inParen)) return;
+
       const firstSent=Math.min(...g.occ.map(o=>o.sent));
       const orderedDefs=defined?[...g.defs].sort((a,b)=>a.sent-b.sent):[];
       const firstDef=orderedDefs[0]||null;
       const defSent=firstDef?firstDef.sent:Infinity;
-      const longForm=firstDef?firstDef.long:null;
+      const longForm=firstDef?.long || listDef?.long || null;
       const snippet=buildSnippet(sentences[firstSent]||"", disp);
       const reverseDefined=!!firstDef && /^reverse/.test(firstDef.kind||"");
-      const earlierLong=reverseDefined ? findEarlierLongForm(sentences,longForm,defSent) : null;
+      const earlierLong=(!listDef && reverseDefined) ? findEarlierLongForm(sentences,longForm,defSent) : null;
 
       let status="ok";
-      const usedBefore=defined && firstSent<defSent;
-      const firstUseOK=std || (defined && !usedBefore && !earlierLong);
+      // A dedicated Abbreviations/Acronyms/Nomenclature list is treated as an
+      // authoritative declaration. It therefore satisfies the definition check
+      // even if the same short form appears in body prose before a parenthetical definition.
+      const usedBefore=!listDef && defined && firstSent<defSent;
+      const firstUseOK=std || !!listDef || (defined && !usedBefore && !earlierLong);
+      const definitionSource=std?"standard":(listDef?"list":(defined?"prose":(declared?"declared":"none")));
 
-      if(std){ standardSeen.push(disp); }
-      else if(declared && !defined){ declaredSeen.push(disp); }
-      else if(!defined){
+      if(std){
+        standardSeen.push(disp);
+      }else if(listDef){
+        declaredSeen.push(disp);
+      }else if(declared && !defined){
+        declaredSeen.push(disp);
+      }else if(!defined){
         status="err";
         errors.push({abbr:disp, msg:`Not defined anywhere. Spell it out in full at first use, for example "full term (${disp})".`, snip:snippet});
-      } else if(usedBefore){
+      }else if(usedBefore){
         status="err";
         errors.push({abbr:disp, msg:`Used before it is defined. It appears in the text before its full form is given. Spell it out in full at the first use.`, snip:snippet});
-      } else if(earlierLong){
+      }else if(earlierLong){
         status="err";
         errors.push({
           abbr:disp,
@@ -3539,6 +3614,8 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         });
       }
 
+      // Do not issue low-use warnings for an abbreviation intentionally included
+      // in an explicit abbreviation list.
       if(!std && !declared && defined && count<=2 && !reverseDefined){
         if(status==="ok") status="warn";
         warnings.push({abbr:disp, msg:`Used only ${count} time${count===1?"":"s"}. Abbreviate only terms that recur; otherwise spell it out each time.`, snip:null});
@@ -3566,12 +3643,18 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       }
 
       if(!std){
-        rows.push({base:disp, longForm, count, firstUseOK, status});
+        rows.push({base:disp, longForm, count, firstUseOK, status, definitionSource});
       }
     });
 
   const nonStd=rows.length;
-  if(nonStd>=8 && !hasList){
+  if(hasList && DECLARED_ABBR_MAP.size){
+    infos.unshift({
+      abbr:null,
+      msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. Listed abbreviations are treated as defined and are not reported as undefined or used-before-definition errors.`,
+      snip:null
+    });
+  }else if(nonStd>=8 && !hasList){
     infos.push({abbr:null, msg:`You use ${nonStd} non-standard abbreviations but no "List of Abbreviations" or "Nomenclature" section was detected. Consider adding one for the reader's reference.`, snip:null});
   }
 
@@ -3579,6 +3662,8 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           standardSeen:[...new Set(standardSeen)].sort(),
           declaredSeen:[...new Set(declaredSeen)].sort(),
           totalAbbr:nonStd, hasList,
+          listDefinitionCount:DECLARED_ABBR_MAP.size,
+          listSections:[...new Set([...(DOCX_ABBR_LIST_SECTIONS||[])])],
           sentenceCount:sentences.length,
           refExcluded:ref.excluded, refRequested:skipRefs,
           tableLinesRemoved:tab.removed, tablesRequested:skipTables};
@@ -3648,11 +3733,15 @@ function ledger(rows){
   const body=rows.map(x=>{
     const dot=`<span class="dot ${x.status}"></span>`;
     const long=x.longForm?`<span class="t-long">${escapeHtml(x.longForm)}</span>`:`<span class="t-long none">not defined</span>`;
-    const fu=x.longForm?(x.firstUseOK?`<span class="yn y">yes</span>`:`<span class="yn n">no</span>`):`<span class="yn na">—</span>`;
-    return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${fu}</td></tr>`;
+    let def;
+    if(x.definitionSource==="list") def=`<span class="yn y">list</span>`;
+    else if(x.definitionSource==="prose") def=x.firstUseOK?`<span class="yn y">prose</span>`:`<span class="yn n">late prose</span>`;
+    else if(x.definitionSource==="declared") def=`<span class="yn y">declared</span>`;
+    else def=x.longForm?(x.firstUseOK?`<span class="yn y">yes</span>`:`<span class="yn n">no</span>`):`<span class="yn na">—</span>`;
+    return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${def}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("Lists each detected non-standard abbreviation in manuscript body prose, its inferred full form, number of uses, and whether it was defined at first use. Front matter, captions, tables, equations, citations and References are outside this scan.","Explain Abbreviation Ledger")}</p>
-    <table class="ledger"><thead><tr><th>Abbrev.</th><th>Full form</th><th>Uses</th><th>Defined at first use</th></tr></thead>
+  return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("Lists each detected non-standard abbreviation in manuscript body prose, its full form, number of uses, and definition source. “list” means the abbreviation was defined in a recognised Abbreviations, Acronyms, Nomenclature, or Glossary section; those entries are accepted as defined. Front matter, captions, ordinary data tables, equations, citations, and References are outside the prose scan.","Explain Abbreviation Ledger")}</p>
+    <table class="ledger"><thead><tr><th>Abbrev.</th><th>Full form</th><th>Uses</th><th>Definition</th></tr></thead>
     <tbody>${body}</tbody></table>`;
 }
 
@@ -3670,8 +3759,8 @@ function reportText(r){
   const blk=(t,arr)=>{ if(!arr.length) return; L.push(t.toUpperCase()); arr.forEach(i=>L.push(`  - ${i.abbr&&i.abbr!=="units"?"["+i.abbr+"] ":""}${i.msg}`)); L.push(""); };
   blk("Must fix",r.errors); blk("Warnings",r.warnings); blk("Suggestions",r.infos);
   L.push("ABBREVIATION LEDGER");
-  L.push("  Abbrev | Full form | Uses | First-use defined");
-  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.longForm?(x.firstUseOK?"yes":"no"):"-"}`));
+  L.push("  Abbrev | Full form | Uses | Definition");
+  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.definitionSource==="list"?"list":(x.definitionSource==="prose"?(x.firstUseOK?"prose":"late prose"):(x.longForm?(x.firstUseOK?"yes":"no"):"-"))}`));
   if(r.standardSeen.length){ L.push(""); L.push("Treated as standard: "+r.standardSeen.join(", ")); }
   return L.join("\n");
 }
@@ -3681,6 +3770,9 @@ let DOCX_NUMERIC_TABLES=[];
 let DOCX_FTE_BLOCKS=[];
 let DOCX_ENGLISH_EXCLUDE_TEXTS=[];
 let DOCX_ENGLISH_TEXT="";
+let DOCX_ABBR_LIST=new Map();
+let DOCX_ABBR_LIST_FOUND=false;
+let DOCX_ABBR_LIST_SECTIONS=[];
 let LAST_FTE=null;
 let LAST_UNIT=null;
 let LAST_ENG=null;
@@ -3709,6 +3801,121 @@ function ftePStyle(p){
   return ps.getAttributeNS(FTE_W_NS,"val")||ps.getAttribute("w:val")||ps.getAttribute("val")||"";
 }
 
+
+
+async function extractDocxAbbreviationDefinitions(buf){
+  if(typeof JSZip==="undefined") return {found:false,map:new Map(),sections:[]};
+  const zip=await JSZip.loadAsync(buf);
+  const f=zip.file("word/document.xml");
+  if(!f) return {found:false,map:new Map(),sections:[]};
+
+  const xml=await f.async("string");
+  const d=new DOMParser().parseFromString(xml,"application/xml");
+  if(d.getElementsByTagName("parsererror").length) return {found:false,map:new Map(),sections:[]};
+
+  const W="http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+  const body=d.getElementsByTagNameNS(W,"body")[0];
+  if(!body) return {found:false,map:new Map(),sections:[]};
+
+  const map=new Map(), sections=[];
+  let inSection=false, sectionName="", sectionIndex=-1;
+
+  const directText=node=>{
+    let out="";
+    const walk=n=>{
+      if(n.nodeType!==1) return;
+      const ln=(n.localName||"").toLowerCase(), ns=n.namespaceURI||"";
+      if(ns===W && ln==="t"){ out+=n.textContent||""; return; }
+      if(ns===W && ln==="tab"){ out+="\t"; return; }
+      if(ns===W && (ln==="br"||ln==="cr")){ out+=" "; return; }
+      [...n.childNodes].forEach(walk);
+    };
+    walk(node);
+    return String(out).replace(/\u00a0/g," ").replace(/[ ]{2,}/g," ").trim();
+  };
+
+  const cellText=tc=>{
+    const paras=[...tc.getElementsByTagNameNS(W,"p")].map(p=>directText(p)).filter(Boolean);
+    return abbrListClean(paras.join(" "));
+  };
+
+  const addPair=(sf,lf,location)=>{
+    return abbrRegisterListDefinition(map,sf,lf,{section:sectionName||"Abbreviations",location});
+  };
+
+  const parseRowCells=(cells,rowNo,tableNo)=>{
+    const c=cells.map(abbrListClean);
+    if(c.length<2) return 0;
+
+    // Skip obvious header rows.
+    const joined=c.join(" ").toLowerCase();
+    if(/\b(?:abbreviation|abbrev|acronym|symbol|short form)\b/.test(joined) &&
+       /\b(?:full form|expansion|meaning|definition|description)\b/.test(joined)) return 0;
+
+    let added=0;
+
+    // Multi-pair row: [abbr, full form, abbr, full form, ...].
+    if(c.length>=4){
+      for(let j=0;j+1<c.length;j+=2){
+        if(addPair(c[j],c[j+1],`table ${tableNo}, row ${rowNo}, columns ${j+1}-${j+2}`)) added++;
+      }
+      if(added) return added;
+    }
+
+    // Standard 2-column table, or 3-column table with notes in the final cell.
+    if(addPair(c[0],c[1],`table ${tableNo}, row ${rowNo}`)) added++;
+    return added;
+  };
+
+  const parseDefinitionParagraph=(raw,location)=>{
+    const s=abbrListClean(raw);
+    if(!s) return 0;
+
+    let m=s.match(/^([A-Za-z][A-Za-z0-9./\-]{0,19})\s*(?:\t+|\s{2,}|[:=]\s*|\s+[–—-]\s+)(.{2,220})$/);
+    if(!m) m=s.match(/^([A-Z][A-Z0-9./\-]{1,19})\s+([A-Za-z][A-Za-z'’\-]*(?:\s+[A-Za-z][A-Za-z'’\-]*){1,15})$/);
+    return m && addPair(m[1],m[2],location) ? 1 : 0;
+  };
+
+  let tableNo=0;
+  const children=[...body.childNodes].filter(n=>n.nodeType===1);
+
+  children.forEach((node,nodeIndex)=>{
+    const ln=(node.localName||"").toLowerCase();
+    if(ln==="p"){
+      const t=abbrListClean(directText(node));
+      if(ABBR_LIST_HEAD_RE.test(t)){
+        inSection=true;
+        sectionName=t||"Abbreviations";
+        sectionIndex=nodeIndex;
+        sections.push(sectionName);
+        return;
+      }
+
+      if(inSection && t && ABBR_LIST_STOP_RE.test(t) && !ABBR_LIST_HEAD_RE.test(t)){
+        inSection=false; sectionName=""; sectionIndex=-1;
+        return;
+      }
+
+      if(inSection && t){
+        parseDefinitionParagraph(t,`paragraph ${nodeIndex+1}`);
+      }
+      return;
+    }
+
+    if(ln==="tbl"){
+      tableNo++;
+      if(!inSection) return;
+
+      const rows=[...node.getElementsByTagNameNS(W,"tr")];
+      rows.forEach((tr,ri)=>{
+        const cells=[...tr.getElementsByTagNameNS(W,"tc")].map(cellText);
+        parseRowCells(cells,ri+1,tableNo);
+      });
+    }
+  });
+
+  return {found:sections.length>0,map,sections};
+}
 
 async function extractDocxEnglishText(buf){
   /*
@@ -4456,6 +4663,23 @@ async function readFile(file){
     DOCX_NUMERIC_TABLES=[];
     DOCX_FTE_BLOCKS=[];
     DOCX_ENGLISH_TEXT="";
+    DOCX_ABBR_LIST=new Map();
+    DOCX_ABBR_LIST_FOUND=false;
+    DOCX_ABBR_LIST_SECTIONS=[];
+
+    try{
+      const abList=await extractDocxAbbreviationDefinitions(buf);
+      DOCX_ABBR_LIST=abList.map||new Map();
+      DOCX_ABBR_LIST_FOUND=!!abList.found;
+      DOCX_ABBR_LIST_SECTIONS=abList.sections||[];
+      DOCX_ABBR_LIST.forEach((rec,key)=>{
+        DECLARED_ABBRS.add(key);
+        DECLARED_ABBR_MAP.set(key,rec);
+      });
+    }catch(e){
+      console.warn("Structured abbreviation-list extraction unavailable; using text fallback.",e);
+    }
+
     try{ DOCX_ENGLISH_TEXT=await extractDocxEnglishText(buf); }
     catch(e){ console.warn("OMML-aware English text extraction unavailable; using converted text.",e); DOCX_ENGLISH_TEXT=""; }
     const htmlEnglishExclusions=[...(DOCX_ENGLISH_EXCLUDE_TEXTS||[])];
@@ -4481,21 +4705,13 @@ async function readFile(file){
         if(t && !DOCX_ENGLISH_EXCLUDE_TEXTS.some(x=>x.toLowerCase()===t.toLowerCase())) DOCX_ENGLISH_EXCLUDE_TEXTS.push(t);
       }
     });
-    // Retain Word table structure for the numeric-precision checker. Tables are still removed from manuscript text below.
-    // Extract a "List of Abbreviations" table (abbr | full form) so those abbreviations count as defined
+    // Retain Word table structure for the numeric-precision checker.
+    // Abbreviation definitions are extracted separately from raw Word XML only
+    // when they occur inside a recognised Abbreviations/Acronyms/Nomenclature section.
     box.querySelectorAll("table").forEach((tbl,tableIndex)=>{
       const rows=[...tbl.querySelectorAll("tr")].map(tr=>[...tr.querySelectorAll("td,th")].map(td=>(td.textContent||"").replace(/\s+/g," ").trim()));
       const numericRows=rows.filter(r=>r.some(c=>c));
       if(numericRows.length>=2) DOCX_NUMERIC_TABLES.push({index:tableIndex+1,rows:numericRows});
-      const two=rows.filter(r=>r.length>=2);
-      if(two.length<3) return;
-      const header=(two[0]||[]).join(" ").toLowerCase();
-      const headHint=/(abbrev|acronym|symbol|nomenclature|full form|expansion|meaning|definition)/.test(header);
-      const data=two.slice(headHint?1:0);
-      let good=0; data.forEach(r=>{ const a=r[0],bb=r[1]; if(a&&bb&&a.length<=14&&bb.length>=a.length&&/[A-Za-z]/.test(a)&&/[A-Z]/.test(a)&&/[A-Za-z]/.test(bb)) good++; });
-      if(headHint || good>=Math.max(3, data.length*0.6)){
-        data.forEach(r=>{ const a=r[0]; if(!a) return; const k=a.replace(/[^A-Za-z0-9]/g,"").toUpperCase(); if(k) DECLARED_ABBRS.add(k); (a.match(/[A-Z]{2,}/g)||[]).forEach(x=>DECLARED_ABBRS.add(x.replace(/[^A-Za-z0-9]/g,"").toUpperCase())); });
-      }
     });
     box.querySelectorAll("table").forEach(t=>t.remove());   // drop Word tables entirely
     const KEEPHEAD=/^\s*(\d+\.?\s*)?(references?|reference list|bibliography|works cited|literature cited|cited literature|references cited|notes\s+and\s+references|references\s+and\s+notes|appendix|appendices|supplementary|supporting information|acknowledge?ments?|data availability|funding|conflicts?\s+of\s+interest|competing\s+interests?|author\s+contributions?|declarations?)\b/i;
@@ -4636,7 +4852,7 @@ fileInput.onchange=()=>{ if(fileInput.files.length) setFile(fileInput.files[0]);
 function setFile(f){
   const name=(f&&f.name||"").toLowerCase();
   if(!name.endsWith(".docx")){
-    currentFile=null; DOCX_NUMERIC_TABLES=[]; DOCX_FTE_BLOCKS=[]; fileInput.value=""; chip.style.display="none";
+    currentFile=null; DOCX_NUMERIC_TABLES=[]; DOCX_FTE_BLOCKS=[]; DOCX_ABBR_LIST=new Map(); DOCX_ABBR_LIST_FOUND=false; DOCX_ABBR_LIST_SECTIONS=[]; fileInput.value=""; chip.style.display="none";
     status(name.endsWith(".doc") ? "Legacy .doc files are not supported. Save the manuscript as .docx and upload that file." : "Only Microsoft Word .docx files are accepted.", true);
     return;
   }
@@ -6607,11 +6823,24 @@ $("run").onclick=async()=>{
   try{
     btn.disabled=true;
     DECLARED_ABBRS=new Set();
+    DECLARED_ABBR_MAP=new Map();
+    DECLARED_ABBR_LIST_FOUND=false;
+    DECLARED_ABBR_SECTIONS=[];
     if(!currentFile){ status("Upload a Microsoft Word .docx manuscript first.",true); btn.disabled=false; return; }
     status("Reading Word file…");
     text=await readFile(currentFile);
     if(!text || text.trim().length<20){ status("The .docx file did not contain enough readable manuscript text.",true); btn.disabled=false; return; }
-    extractDeclaredAbbrs(text).forEach(k=>DECLARED_ABBRS.add(k));
+
+    // Fallback for paragraph-based lists that survive Word-to-text conversion.
+    const textList=extractDeclaredAbbrs(text);
+    if(textList.found) DECLARED_ABBR_LIST_FOUND=true;
+    textList.map.forEach((rec,key)=>{
+      DECLARED_ABBRS.add(key);
+      if(!DECLARED_ABBR_MAP.has(key)) DECLARED_ABBR_MAP.set(key,rec);
+    });
+    DECLARED_ABBR_SECTIONS=[
+      ...new Set([...(DOCX_ABBR_LIST_SECTIONS||[]), ...(DECLARED_ABBR_SECTIONS||[])])
+    ];
 
     // Abbreviations (from the manuscript)
     try{
