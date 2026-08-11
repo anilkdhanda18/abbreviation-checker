@@ -270,7 +270,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. The paper title, section/subsection headings (including ALL-CAPS and Title Case headings), author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, Word tables, equations, and References are excluded. Recognized units are not treated as abbreviations." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. The paper title, section/subsection headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, Word tables, equations, and References are excluded. Compact table-note definitions such as "CE: Coulombic efficiency" are recognised. If the full term already appeared earlier in prose, the checker instead asks for "coulombic efficiency (CE)" at that earlier first prose mention." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
@@ -298,7 +298,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
       <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
     </ol>
   </details>
 
@@ -455,10 +455,10 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       </p>
     </div>
     <p class="visitor-stat">
-      <span class="visitor-label">Site visits:</span>
+      <span class="visitor-label">Site views:</span>
       <span class="visitor-value" id="visitor-count-value" aria-live="polite"></span>
       <button type="button" class="info-help inline-auto-help"
-        data-help="This displays GoatCounter’s site-wide visit total as plain text. GoatCounter may cache the displayed total for up to four hours, so a new visit may not appear immediately. Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter."
+        data-help="This displays the GoatCounter count recorded for the Manuscript Check website using one stable tracking path (/manuscriptchecker/). The same path is used for both analytics tracking and the visible number so URL variants do not split the count. Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter."
         aria-label="Explain visitor count" title="What does this visitor count track?">i</button>
     </p>
     <p class="credit-tag">Manuscript analysis runs locally in your browser · Manuscript content is not sent to GoatCounter analytics</p>
@@ -619,7 +619,6 @@ function unitParseExpression(raw,opts={}){
   const notationFamily=(raw.includes("/")?"solidus":raw.includes("·")||raw.includes("⋅")?"negative_exponent_dot":/[⁻−]|\^-/.test(raw)?"negative_exponent_space":"product_space");
   return {raw:raw.trim(),valid:true,recognized:true,normalized,dim,dimKey:unitDimKey(dim),scale,scaleKey:unitScaleKey(scale),offset:0,notationFamily,analyte,flags,components,nonstandard:(!!aliasCanonical&&!unitName)||!!flags.nonstandardToken,unitName,domain:components.some(c=>UNIT_REGISTRY[c.canonical]&&UNIT_REGISTRY[c.canonical].domain)};
 }
-function isUnitComponent(c){return !!unitParseComponent(c);}
 function isUnitExpr(tok){const p=unitParseExpression(tok);return !!(p&&p.valid&&p.recognized);}
 function unitIsChemicalLike(s){return /^(?:H2O|CO2|O2|NH4\+?|NH3|NO[23][−-]?|SO4(?:2[−-]|²⁻)?|Fe[23](?:\+|⁺)|Cr\(?VI\)?|TiO2|MnO2|g-?C3N4|PM2\.5|C\d+H\d+)/i.test((s||"").replace(/\s+/g,""));}
 function unitStrongUnknown(s){s=(s||"").trim();return !!s&&!unitIsChemicalLike(s)&&(s.includes("/")||/[µμ°%²³⁻]/.test(s)||/^[a-z]{1,4}$/.test(s));}
@@ -672,8 +671,6 @@ function unitExtractQuantities(text,context="body"){
   }
   return out;
 }
-function unitIssue(code,severity,msg,q,suggestion=""){return {code,severity,msg,parameter:q?.parameter||"",context:q?.context||"",snippet:q?.snippet||"",suggestion};}
-
 function unitConsistencyKey(q){
   if(!q?.parsed?.valid)return null;
   // Same physical unit and scale. This is used only to identify alternate
@@ -1789,19 +1786,6 @@ const ENG_PRESENT_MODALS = [
   ["can","could"],["may","might"],["will","would"]
 ];
 
-function engSentenceRanges(text){
-  const out=[];
-  const re=/[^.!?\n]+(?:[.!?]+(?=\s|$)|\n|$)/g;
-  let m;
-  while((m=re.exec(text))){
-    const raw=m[0];
-    const trimmed=raw.trim();
-    if(!trimmed) continue;
-    const lead=raw.indexOf(trimmed);
-    out.push({text:trimmed,index:m.index+(lead<0?0:lead)});
-  }
-  return out;
-}
 function engLooksNonProseSentence(s){
   const t=String(s||"").trim();
   if(!t)return true;
@@ -2382,10 +2366,6 @@ function engFindPhraseAll(text,phrase){
   }
   return out;
 }
-function engFiniteVerbLikely(s){
-  return /\b(?:was|were|had|did|became|remained|showed|indicated|suggested|demonstrated|revealed|confirmed|presented|described|illustrated|explained|reported|provided|contained|consisted|represented|comprised|included|existed|occurred|depended|increased|decreased|improved|enhanced|reduced|affected|influenced|resulted|led|formed|produced|generated|exhibited|achieved|required|used|enabled|allowed|measured|observed|analysed|analyzed|evaluated|determined|calculated|collected|prepared|performed|conducted|obtained|found|developed|applied|investigated|examined|selected|compared|concluded)\b/i.test(s);
-}
-
 function engReadabilityFallback(text,errorMessage=""){
   const body=engGrammarBody(text);
   const sentences=engReadableSentences(body);
@@ -3182,14 +3162,40 @@ function collectDefs(sent,si,add){
     for(const c of cand){
       if(STOPWORDS.has(norm(c))) continue;
       const lf=validLongForm(c, tailWords(pre, letters(c)+7));
-      if(lf){ add(c,lf,si); matchedA=true; }
+      if(lf){ add(c,lf,si,"parenthetical"); matchedA=true; }
     }
     if(matchedA) continue;
     const preTok=(pre.trim().split(/\s+/).pop()||"").replace(/[^A-Za-z0-9-]/g,"");
     if(/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(preTok) && !STOPWORDS.has(norm(preTok)) && /\s/.test(inner) && /[A-Za-z]/.test(inner[0])){
-      const lf=validLongForm(preTok,inner); if(lf) add(preTok,lf,si);
+      const lf=validLongForm(preTok,inner); if(lf) add(preTok,lf,si,"parenthetical");
     }
   }
+}
+
+function collectReverseDefs(sent,si,add){
+  const pairRe=/(?:^|[,;]\s*)([A-Z][A-Z0-9\/-]{1,13})\s*(?:[:=]\s*|\s+[–—-]\s+)([^,;]{2,120}?)(?=(?:[,;]\s*[A-Z][A-Z0-9\/-]{1,13}\s*(?:[:=]|[–—-]))|$)/g;
+  const hits=[]; let m;
+  while((m=pairRe.exec(sent))!==null){
+    const sf=m[1].trim();
+    if(STOPWORDS.has(norm(sf))) continue;
+    const candidate=m[2].trim().replace(/[.;:\s]+$/g,"");
+    const lf=validLongForm(sf,candidate);
+    if(lf) hits.push({sf,lf});
+  }
+  if(!hits.length) return;
+  const kind=hits.length>=2?"reverse-list":"reverse";
+  hits.forEach(x=>add(x.sf,x.lf,si,kind));
+}
+
+function findEarlierLongForm(sentences,longForm,beforeSent){
+  if(!longForm || !Number.isFinite(beforeSent) || beforeSent<=0) return null;
+  const words=String(longForm).trim().split(/\s+/).filter(Boolean);
+  if(!words.length) return null;
+  const phrase=new RegExp("\\b"+words.map(escapeRegExp).join("\\s+")+"\\b","i");
+  for(let i=0;i<beforeSent;i++){
+    if(phrase.test(sentences[i])) return {sent:i,text:sentences[i]};
+  }
+  return null;
 }
 
 /* Remove the references / bibliography section */
@@ -3467,10 +3473,16 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       const inParen=spans.some(sp=> m.index>=sp[0] && m.index<sp[1]);
       const g=G(key); g.occ.push({sent:si,initial,inParen}); bump(g,raw);
     }
-    collectDefs(sent,si,(sf,lf,s2)=>{
+    const addDef=(sf,lf,s2,kind="parenthetical")=>{
       const key=norm(sf); if(STOPWORDS.has(key)) return;
-      const g=G(key); g.defs.push({form:sf,long:lf,sent:s2}); bump(g,sf);
-    });
+      const g=G(key);
+      if(!g.defs.some(d=>d.sent===s2 && d.long.toLowerCase()===lf.toLowerCase())){
+        g.defs.push({form:sf,long:lf,sent:s2,kind});
+        bump(g,sf);
+      }
+    };
+    collectDefs(sent,si,addDef);
+    collectReverseDefs(sent,si,addDef);
   });
 
   const isStd = k => standardSet.has(k);
@@ -3498,13 +3510,17 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       const defined=g.defs.length>0;
       if(!std && !defined && !declared && g.occ.every(o=>o.inParen)) return;
       const firstSent=Math.min(...g.occ.map(o=>o.sent));
-      const defSent=defined?Math.min(...g.defs.map(d=>d.sent)):Infinity;
-      const longForm=defined?[...g.defs].sort((a,b)=>a.sent-b.sent)[0].long:null;
+      const orderedDefs=defined?[...g.defs].sort((a,b)=>a.sent-b.sent):[];
+      const firstDef=orderedDefs[0]||null;
+      const defSent=firstDef?firstDef.sent:Infinity;
+      const longForm=firstDef?firstDef.long:null;
       const snippet=buildSnippet(sentences[firstSent]||"", disp);
+      const reverseDefined=!!firstDef && /^reverse/.test(firstDef.kind||"");
+      const earlierLong=reverseDefined ? findEarlierLongForm(sentences,longForm,defSent) : null;
 
       let status="ok";
       const usedBefore=defined && firstSent<defSent;
-      const firstUseOK=std || (defined && !usedBefore);
+      const firstUseOK=std || (defined && !usedBefore && !earlierLong);
 
       if(std){ standardSeen.push(disp); }
       else if(declared && !defined){ declaredSeen.push(disp); }
@@ -3514,9 +3530,16 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       } else if(usedBefore){
         status="err";
         errors.push({abbr:disp, msg:`Used before it is defined. It appears in the text before its full form is given. Spell it out in full at the first use.`, snip:snippet});
+      } else if(earlierLong){
+        status="err";
+        errors.push({
+          abbr:disp,
+          msg:`The full term "${longForm}" appears earlier in manuscript prose before ${disp} is introduced. If ${disp} will be used later, define it at that first prose mention as "${longForm} (${disp})". A later table note may repeat the definition for table readability.`,
+          snip:buildSnippet(earlierLong.text,longForm)
+        });
       }
 
-      if(!std && !declared && defined && count<=2){
+      if(!std && !declared && defined && count<=2 && !reverseDefined){
         if(status==="ok") status="warn";
         warnings.push({abbr:disp, msg:`Used only ${count} time${count===1?"":"s"}. Abbreviate only terms that recur; otherwise spell it out each time.`, snip:null});
       }
@@ -4263,10 +4286,6 @@ function bindInfoHelp(buttonId,helpId){
     b.setAttribute("aria-expanded",String(open));
   };
 }
-function infoButton(id,label="Explain this section"){
-  return `<button type="button" class="info-help" id="${id}" aria-label="${escapeHtml(label)}" aria-expanded="false" title="${escapeHtml(label)}">i</button>`;
-}
-
 function inlineHelpButton(help,label="Explain this item"){
   if(!help) return "";
   return `<button type="button" class="info-help inline-auto-help" data-help="${escapeHtml(help)}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">i</button>`;
@@ -4681,13 +4700,6 @@ function refExtractSourceFromPrefix(prefix, structural=true){
   const strongContainer=/\b(?:Journal|J\.?|Review|Rev\.?|Proceedings|Proc\.?|Transactions|Trans\.?|Nature|Nat\.?|Science|Sci\.?|Research|Res\.?|Chem(?:istry)?|Eng(?:ineering)?|Technol(?:ogy)?|Mater(?:ials)?|Microbiol(?:ogy)?|Nanotechnol(?:ogy)?|Bioresour|Electrochim|Catal|Acta|Reports?|Soc(?:iety)?|Appl(?:ied)?|Langmuir|Chemosphere|Nanoscale|Vacuum|Heliyon|Bioelectrochemistry)\b/i.test(p);
   if(refLooksLikeSourceName(p,structural) && (pw.length<=6 || strongContainer)) return {source:p,start:0,titlePrefix:""};
   return null;
-}
-
-function refTitleBeforeSource(prefix){
-  const hit=refExtractSourceFromPrefix(prefix,true);
-  if(!hit) return null;
-  const title=hit.titlePrefix.replace(/^[,.;:\s]+|[,.;:\s]+$/g,"");
-  return refPlausibleTitle(title)?title:null;
 }
 
 function refRestAfterAuthors(raw, authorInfo){
@@ -5911,35 +5923,6 @@ function refCheck(refText, bodyText){
   const segLowConfidence = parsed.length<=2 && bibLines>=6;
   return {style, marker, count:parsed.length, parsed, issues, doiCoverage, doiConvention, titleConvention, cross, hadBody:!!bodyText, segLowConfidence};
 }
-async function refCrossref(parsed, onProgress){
-  const base="https://api.crossref.org/works", out=[], cap=Math.min(parsed.length,40);
-  for(let i=0;i<cap;i++){
-    const p=parsed[i]; onProgress&&onProgress(i+1,cap);
-    try{
-      if(p.doi){
-        const res=await fetch(`${base}/${encodeURIComponent(p.doi)}`);
-        if(res.status===200){
-          const it=(await res.json()).message;
-          const cy=it.issued&&it.issued["date-parts"]&&it.issued["date-parts"][0]&&it.issued["date-parts"][0][0];
-          if(p.year&&cy&&String(cy)!==String(parseInt(p.year))) out.push({idx:i,level:"warn",msg:`DOI resolves, but CrossRef year (${cy}) differs from the entry year (${p.year}).`});
-          else out.push({idx:i,level:"ok",msg:"DOI verified on CrossRef."});
-        } else if(res.status===404) out.push({idx:i,level:"err",msg:"DOI not found on CrossRef; it may be incorrect."});
-        else out.push({idx:i,level:"info",msg:`Could not verify DOI (CrossRef returned ${res.status}).`});
-      } else {
-        const res=await fetch(`${base}?query.bibliographic=${encodeURIComponent(p.raw.slice(0,300))}&rows=1&select=DOI,score`);
-        if(res.status===200){
-          const items=(await res.json()).message.items||[];
-          const top=items[0];
-          if(top&&top.DOI) out.push({idx:i,level:"info",msg:`Possible DOI from CrossRef: ${top.DOI} (match score ${Math.round(top.score||0)}). Verify before adding.`});
-          else out.push({idx:i,level:"info",msg:"No DOI match found on CrossRef."});
-        } else out.push({idx:i,level:"info",msg:`CrossRef lookup returned ${res.status}.`});
-      }
-    }catch(e){ out.push({idx:i,level:"info",msg:"Online check failed (network or rate limit)."}); }
-    await new Promise(r=>setTimeout(r,250));
-  }
-  return out;
-}
-
 let LAST_REF_OUT=null;
 function renderRefReport(res, cross){
   $("ref-report-sub").textContent =
@@ -5953,12 +5936,6 @@ function renderRefReport(res, cross){
   $("ref-ledger-wrap").innerHTML=refLedger(res.parsed);
   bindInfoHelp("ref-report-info","ref-report-help");
   $("ref-report").hidden=false;
-}
-function refIssueSection(label, items, kind){
-  if(!items.length) return "";
-  const sym=kind==="info"?"i":"!";
-  const rows=items.map(it=>`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.label)}</span> ${escapeHtml(it.msg)}</p></div></div>`).join("");
-  return `<p class="sec-label">${label}</p>${rows}`;
 }
 function refLedger(parsed){
   if(!parsed.length) return "";
@@ -6503,8 +6480,16 @@ document.addEventListener("click",e=>{
 </script>
 
 
-<!-- GoatCounter privacy-friendly page-visit analytics.
-     The endpoint below tracks website visits; manuscript content is not sent. -->
+<!-- GoatCounter privacy-friendly site analytics.
+     Tracking and the visible counter deliberately use the SAME stable path so
+     GitHub Pages URL variants such as /manuscriptchecker/, index.html, query
+     strings, or hash fragments do not fragment the displayed count. -->
+<script>
+window.goatcounter = window.goatcounter || {};
+window.goatcounter.path = function(){
+  return "/manuscriptchecker/";
+};
+</script>
 <script data-goatcounter="https://anildhanda.goatcounter.com/count"
         async src="https://gc.zgo.at/count.js"></script>
 <script>
@@ -6512,43 +6497,60 @@ document.addEventListener("click",e=>{
   const target=document.getElementById("visitor-count-value");
   if(!target) return;
 
+  const stablePath="/manuscriptchecker/";
+  const counterURL=
+    "https://anildhanda.goatcounter.com/counter/" +
+    encodeURIComponent(stablePath) +
+    ".json";
+
   target.textContent="…";
 
-  // GoatCounter's documented JSON counter returns:
-  // { "count": "1,234", "count_unique": "1,234" }
-  // TOTAL is the reserved site-wide counter path.
-  const url="https://anildhanda.goatcounter.com/counter/TOTAL.json";
+  function showCount(data){
+    const count=data && data.count!=null ? String(data.count).trim() : "";
+    if(!count) throw new Error("No count returned");
+    target.textContent=count;
+    target.title="Recorded views of Manuscript Check";
+  }
 
-  fetch(url,{method:"GET",mode:"cors",cache:"no-store"})
-    .then(function(response){
-      if(!response.ok) throw new Error("GoatCounter counter returned "+response.status);
-      return response.json();
-    })
-    .then(function(data){
-      const count=data && data.count!=null ? String(data.count).trim() : "";
-      target.textContent=count || "—";
-      target.title=count ? "Site-wide GoatCounter visits" : "Visitor count unavailable";
-    })
-    .catch(function(){
-      // XHR fallback for browsers/environments where fetch is blocked.
-      try{
-        const xhr=new XMLHttpRequest();
-        xhr.addEventListener("load",function(){
-          try{
-            const data=JSON.parse(xhr.responseText||"{}");
-            const count=data && data.count!=null ? String(data.count).trim() : "";
-            target.textContent=count || "—";
-          }catch(e){
-            target.textContent="—";
-          }
-        });
-        xhr.addEventListener("error",function(){ target.textContent="—"; });
-        xhr.open("GET",url,true);
-        xhr.send();
-      }catch(e){
+  function loadWithXHR(){
+    try{
+      const xhr=new XMLHttpRequest();
+      xhr.addEventListener("load",function(){
+        try{
+          if(xhr.status<200 || xhr.status>=300) throw new Error("HTTP "+xhr.status);
+          showCount(JSON.parse(xhr.responseText||"{}"));
+        }catch(e){
+          target.textContent="—";
+          target.title="Visitor count could not be loaded";
+        }
+      });
+      xhr.addEventListener("error",function(){
         target.textContent="—";
-      }
-    });
+        target.title="Visitor count could not be loaded";
+      });
+      xhr.open("GET",counterURL+"?t="+Date.now(),true);
+      xhr.send();
+    }catch(e){
+      target.textContent="—";
+      target.title="Visitor count could not be loaded";
+    }
+  }
+
+  // Give count.js a moment to submit the current page view, then retrieve the
+  // same stable path. The cache-busting query avoids a stale browser cache.
+  setTimeout(function(){
+    fetch(counterURL+"?t="+Date.now(),{
+      method:"GET",
+      mode:"cors",
+      cache:"no-store"
+    })
+      .then(function(response){
+        if(!response.ok) throw new Error("HTTP "+response.status);
+        return response.json();
+      })
+      .then(showCount)
+      .catch(loadWithXHR);
+  },1200);
 })();
 </script>
 
