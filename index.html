@@ -9183,7 +9183,7 @@ function refHasVolume(raw, year, sourceRegion){
   if(sourceRegion){
     const esc=sourceRegion.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
     try{
-      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6})(?=\\s*(?:,|;|:|\\(|\\bno\\.?\\b|\\bissue\\b))","i");
+      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6})(?=\\s*(?:,|;|:|\\.|\\(|\\bno\\.?\\b|\\bissue\\b|$))","i");
       if(re.test(t)) return true;
     }catch(e){}
   }
@@ -9655,24 +9655,12 @@ function refParseLocatorFields(rest, yearInfo){
     if(m){ locator=m[1]; locatorKind="article"; }
   }
 
-  // Parenthetical publication designators occurring after the volume.
-  // Examples:
-  //   50(4)
-  //   262 (Pt 1)
-  //   18 (Part 2)
-  //   44 (Suppl 1)
-  //   12 (Supplement 3)
-  //   9 (S1)
-  //
-  // The designator itself is not a page/article locator. It is consumed only
-  // so the following bibliographic locator can be identified correctly.
   const issueDesignator = String.raw`(?:\s*\(\s*((?:(?:pt|part|suppl?|supplement|issue|no\.?|special\s+issue)\s*)?[A-Za-z]?\d+[A-Za-z]?(?:\s*(?:[-–—/,]|&|and)\s*[A-Za-z]?\d+[A-Za-z]?)*?)\s*\))?`;
   const locatorToken = String.raw`([A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)`;
 
   if(yearInfo){
     const y=yearInfo.year.replace(/[a-z]$/i,"");
 
-    // YEAR, VOLUME(ISSUE/PART/SUPPLEMENT), LOCATOR
     let re=new RegExp(
       "\\b"+y+"[a-z]?\\b\\s*[,;:]\\s*(\\d{1,6})"+
       issueDesignator+
@@ -9690,7 +9678,6 @@ function refParseLocatorFields(rest, yearInfo){
       );
     }
 
-    // VOLUME(ISSUE/PART/SUPPLEMENT), LOCATOR, YEAR
     re=new RegExp(
       "(\\d{1,6})"+
       issueDesignator+
@@ -9709,7 +9696,6 @@ function refParseLocatorFields(rest, yearInfo){
       );
     }
 
-    // VOLUME (YEAR) LOCATOR
     re=new RegExp(
       "(\\d{1,6})\\s*\\(\\s*"+y+"[a-z]?\\s*\\)\\s*[,;:]?\\s*"+
       locatorToken,
@@ -9726,8 +9712,6 @@ function refParseLocatorFields(rest, yearInfo){
     }
   }
 
-  // Generic VOLUME(ISSUE/PART/SUPPLEMENT), LOCATOR anywhere. This catches
-  // author-year styles and references where the year is structurally earlier.
   let genericDesignatorRe=new RegExp(
     "(?:^|[,;.\\s])(\\d{1,6})"+
     issueDesignator+
@@ -9738,16 +9722,9 @@ function refParseLocatorFields(rest, yearInfo){
     const publicationYear=yearInfo ? yearInfo.year.replace(/[a-z]$/i,"") : null;
     const volumeCandidate=m[1];
     const issueCandidate=m[2]||null;
-
-    // A four-digit publication year must never be reinterpreted as a volume
-    // or an issue. This matters for styles such as:
-    //   Journal of Power Sources 482 (2021): 228949
-    // where (2021) is the publication year, not issue 2021.
     if(!(publicationYear && volumeCandidate===publicationYear)){
       volume=volume||volumeCandidate;
-      if(!(publicationYear && issueCandidate===publicationYear)){
-        issue=issue||issueCandidate;
-      }
+      if(!(publicationYear && issueCandidate===publicationYear)) issue=issue||issueCandidate;
       locator=locator||m[3];
       locatorKind=locatorKind||(
         /[-–—]/.test(m[3]) ? "pages" :
@@ -9756,9 +9733,6 @@ function refParseLocatorFields(rest, yearInfo){
     }
   }
 
-  // Terminal VOLUME, LOCATOR without an issue. Require the pair to be at the
-  // bibliography tail so numbers mentioned inside an article title are not
-  // misclassified as publication fields.
   m=s.match(/(?:^|[,;])\s*(\d{1,6})\s*[,;:]\s*([eE]?\d{1,10}(?:\s*[-–—]\s*[eE]?\d{1,10})?)\s*[.]?\s*$/);
   if(m){
     volume=volume||m[1];
@@ -9766,7 +9740,30 @@ function refParseLocatorFields(rest, yearInfo){
     locatorKind=locatorKind||(/[-–—]/.test(m[2])?"pages":(/[eE]/i.test(m[2])||m[2].length>=5?"article":"locator"));
   }
 
-  // Generic volume(issue) anywhere when not already resolved.
+  // Period-delimited journal tails, e.g. "Journal. 239. 122025.".
+  // This rule is anchored to the bibliography tail after DOI/URL removal.
+  if(!volume || !locator){
+    m=s.match(/(?:^|\.)\s*(\d{1,6})\s*\.\s*([eE]?\d{1,10}(?:\s*[-–—]\s*[eE]?\d{1,10})?)\s*\.?\s*$/);
+    if(m){
+      const py=yearInfo?yearInfo.year.replace(/[a-z]$/i,""):null;
+      if(!(py && m[1]===py)){
+        volume=volume||m[1];
+        locator=locator||m[2];
+        locatorKind=locatorKind||(/[-–—]/.test(m[2])?"pages":(/[eE]/i.test(m[2])||m[2].length>=5?"article":"locator"));
+      }
+    }
+  }
+
+  // Period-delimited terminal volume with no explicit locator, e.g.
+  // "Molecules. 27.". Do not infer an article number from a DOI suffix.
+  if(!volume){
+    m=s.match(/(?:^|\.)\s*(\d{1,6})\s*\.?\s*$/);
+    if(m){
+      const py=yearInfo?yearInfo.year.replace(/[a-z]$/i,""):null;
+      if(!(py && m[1]===py)) volume=m[1];
+    }
+  }
+
   if(!volume){
     m=s.match(/(?:^|[,;.\s])(\d{1,6})\s*\(\s*((?:(?:pt|part|suppl?|supplement|issue|no\.?|special\s+issue)\s*)?[A-Za-z]?\d+[A-Za-z]?(?:\s*(?:[-–—/,]|&|and)\s*[A-Za-z]?\d+[A-Za-z]?)*?)\s*\)(?=\s*[,;:.])/i);
     if(m){
@@ -10132,11 +10129,16 @@ function refRecoverSourceFromDbSuffix(raw,title){
 function refTrimPublicationTailFromSource(source){
   let s=refCleanField(source||"");
   if(!s) return s;
-  // Strip only a strong bibliographic tail: separator + volume + optional
-  // issue/designator + separator + page/article locator. This prevents values
-  // such as 47(7-8), 409-428 from becoming part of the journal/source name.
-  const tail=/\s*[,;]\s*\d{1,6}(?:\s*\(\s*[^()]{1,40}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i;
-  const cleaned=s.replace(tail,"").replace(/[\s,;:.]+$/g,"").trim();
+
+  const commaTail=/\s*[,;]\s*\d{1,6}(?:\s*\(\s*[^()]{1,40}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i;
+  let cleaned=s.replace(commaTail,"");
+
+  // Period-delimited publication tails:
+  //   Materials Chemistry and Physics. 239. 122025
+  //   Chemical Engineering Journal. 388
+  cleaned=cleaned.replace(/\s*\.\s*\d{1,6}(?:\s*\(\s*[^()]{1,40}\s*\))?(?:\s*\.\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)?\s*[.]?\s*$/i,"");
+
+  cleaned=cleaned.replace(/[\s,;:.]+$/g,"").trim();
   return cleaned || s;
 }
 
