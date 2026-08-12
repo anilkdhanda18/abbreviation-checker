@@ -701,7 +701,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
           <div class="limit-label-row">
             <label class="limit-label" for="sentence-max">Sentence maximum</label>
             <button type="button" class="info-help inline-auto-help limit-info"
-              data-help="The maximum number of words allowed in one prose sentence before it is flagged for readability review. A sentence with exactly this many words passes; only sentences above the selected value are reported. Headings, captions, equations, tables, affiliations, and references are excluded from the sentence-length check."
+              data-help="Sentences containing more words than this limit will be flagged for readability review."
               aria-label="Explain sentence maximum" title="What does sentence maximum mean?">i</button>
           </div>
           <div class="limit-input-row">
@@ -714,7 +714,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
           <div class="limit-label-row">
             <label class="limit-label" for="paragraph-min">Paragraph minimum</label>
             <button type="button" class="info-help inline-auto-help limit-info"
-              data-help="The lower word-count guideline for substantive body-prose paragraphs. A paragraph below this value is reviewed only when it occurs within a developed section containing multiple substantive paragraphs. Single-paragraph sections, very short sections, captions, tables, equations, references, and intentionally concise statement sections are not penalised merely for being shorter than this value."
+              data-help="Paragraphs containing fewer words than this limit will be flagged when the paragraph-length rule applies. Section-aware exclusions remain active."
               aria-label="Explain paragraph minimum" title="What does paragraph minimum mean?">i</button>
           </div>
           <div class="limit-input-row">
@@ -727,7 +727,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
           <div class="limit-label-row">
             <label class="limit-label" for="paragraph-max">Paragraph maximum</label>
             <button type="button" class="info-help inline-auto-help limit-info"
-              data-help="The maximum number of words recommended for one substantive body-prose paragraph. Paragraphs above this value are flagged for readability review even when the paragraph is the only paragraph in its section. Structural content such as headings, captions, equations, tables, affiliations, and references is excluded."
+              data-help="Paragraphs containing more words than this limit will be flagged for readability review."
               aria-label="Explain paragraph maximum" title="What does paragraph maximum mean?">i</button>
           </div>
           <div class="limit-input-row">
@@ -807,7 +807,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="ref" hidden>
   <section class="card" id="ref-report" hidden aria-live="polite">
-      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. A secondary embedded journal/source database is used during author-boundary protection, structural parsing, and final source recovery. It prevents known journal abbreviations from being consumed as author names and can recover a database-confirmed journal immediately before a publication year/volume tail even when pages or an article number are absent. If Journal/source is missing and text currently classified as Title matches a known full journal title or high-confidence abbreviation, that text is reclassified as Journal/source. Full journal titles remain usable even when the database provides no abbreviation. The database never invents a missing journal and absence from the database does not make a structurally valid source incorrect. Wrapped Word reference paragraphs are rejoined before parsing, and applicability is style/type aware so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
+      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. A secondary embedded journal/source database is used during author-boundary protection, structural parsing, and final source recovery. It prevents known journal abbreviations from being consumed as author names and can recover a database-confirmed journal immediately before a publication year/volume tail even when pages or an article number are absent. If Journal/source is missing and text currently classified as Title matches a known full journal title or high-confidence abbreviation, that text is reclassified as Journal/source. Full journal titles remain usable even when the database provides no abbreviation. The database never invents a missing journal and absence from the database does not make a structurally valid source incorrect. Wrapped Word reference paragraphs are rejoined before parsing, abbreviated long-author lists using three dots or a Unicode ellipsis before the final author are preserved as one author block, and applicability is style/type aware so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
       <nav class="report-subnav" id="ref-subnav" aria-label="Reference report sections" hidden></nav>
       <div id="ref-ledger-wrap"></div>
@@ -924,7 +924,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="fte" hidden>
   <section class="card" id="fte-report" hidden aria-live="polite">
-    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Equation detection distinguishes genuine displayed equations from prose that merely ends with an Equation/Eq. citation, and supports Office Math, Equation styles, equation-layout tables, and strongly equation-like formatted text with terminal numbering. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
+    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Equation detection distinguishes genuine displayed equations from prose citations, supports Office Math, Equation styles, equation-layout tables, figure/equation objects stored in Word layout containers, and grouped sub-equations. A parent citation such as Eq. 2 is accepted when the manuscript contains Eq. 2a and Eq. 2b. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
     <p class="sub" id="fte-report-sub"></p>
     <nav class="report-subnav" id="fte-subnav" aria-label="Figures tables and equations report sections" hidden></nav>
     <div id="fte-summary"></div>
@@ -7320,7 +7320,7 @@ function renderFteReport(res){
   if(!res.issues.length) $("fte-findings").innerHTML=`<p class="verdict clean">No figure, table, or numbered-equation consistency issues detected.</p>`;
   else{
     const order=["figure","table","equation"]; let html="";
-    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering. Entries in a Word-generated or manually headed List of Figures are excluded from figure detection and citation-order checks.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution. Entries in a Word-generated or manually headed List of Tables are excluded from table detection and citation-order checks. Borderless Word layout tables used only to align displayed equations with equation numbers are classified as equation containers and excluded from Table findings.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, cross-reference resolution, and first-reference order. The detector separates prose citations such as \"can be calculated using Equation 2.3\" from actual displayed equations, and supports Office Math, equation-layout tables, Equation-styled paragraphs, and strongly equation-like formatted text even when Word did not store it as OMML."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
+    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering. Entries in a Word-generated or manually headed List of Figures are excluded from figure detection and citation-order checks.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution. Entries in a Word-generated or manually headed List of Tables are excluded from table detection and citation-order checks. Borderless Word layout tables used only to align displayed equations with equation numbers are classified as equation containers and excluded from Table findings.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, parent-to-sub-equation references such as Eq. 2 referring to Eq. 2a and Eq. 2b, cross-reference resolution, and first-reference order. The detector separates prose citations such as \"can be calculated using Equation 2.3\" from actual displayed equations, and supports Office Math, equation-layout tables, Equation-styled paragraphs, and strongly equation-like formatted text even when Word did not store it as OMML."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
     $("fte-findings").innerHTML=html;
   }
   $("fte-report").hidden=false;
@@ -7927,6 +7927,37 @@ function detectAuthorRegion(reference){
     lastGood=pos;
     count++;
     if(count>100) break;
+  }
+
+  // Long author lists are often abbreviated inside the bibliography. APA-style exports,
+  // citation managers, and Word reference fields may replace omitted middle authors with
+  // three dots or a Unicode ellipsis before the final author, for example:
+  //   Bardgett, R. D., Bullock, J. M., ... & Shi, H. (2021). Title. Journal...
+  //   Bardgett, R. D.; Bullock, J. M.; … Shi, H. (2021). Title. Journal...
+  // If the omission marker is not consumed as part of the author block, the parser sees
+  // "... & Shi, H. (2021)" at the beginning of the post-author region and can no longer
+  // recognise the author-year layout. Consume only an omission marker that occurs exactly
+  // at the parsed author boundary, then optionally consume ONE final personal author.
+  // This is deliberately structural and does not depend on any specific reference example.
+  {
+    const tail=raw.slice(lastGood);
+    const omission=tail.match(/^\s*(?:[,;]\s*)?(?:\[\s*)?(?:(?:\.\s*){3}|…|⋯)(?:\s*\])?\s*(?:[,;]\s*)?(?:(?:&|and)\s*)?/iu);
+    if(omission){
+      let end=lastGood+omission[0].length;
+      const finalAuthor=refParsePersonalAuthorAt(raw.slice(end));
+      if(finalAuthor && !refLooksLikeJournalAbbrevCandidate(raw.slice(end),finalAuthor)){
+        end+=finalAuthor.length;
+        lastGood=end;
+        count++;
+      }else{
+        // A few exports omit the final author as well and place the year immediately
+        // after the ellipsis. Accept that construction only when a publication-year
+        // landmark follows, so an ellipsis at the start of an article title is untouched.
+        const afterOmission=raw.slice(end);
+        if(/^\s*[,;]?\s*\(?\s*(?:19|20)\d{2}[a-z]?\s*\)?/iu.test(afterOmission))
+          lastGood=end;
+      }
+    }
   }
 
   // Treat a trailing "et al." as part of the author block, not as the beginning of the title.
@@ -9980,7 +10011,7 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = field detected; no = field expected but not found; n/a = not required for that reference type or inferred style. Entry/type shows the parsed reference type; Journal/source means the journal, book publisher, report issuer, website, or other bibliographic container; Pages/Art. means any valid publication locator: a page range, a single page/starting page, article number, or e-location. Volume part/supplement designators such as (Pt 1), (Part 2), or (Suppl 1) are treated as publication descriptors. In styles such as 482 (2021): 228949, the parenthesized publication year is recognised as a year rather than an issue number. Journal/source recognition also uses the embedded journal database as secondary evidence. If a field mistakenly parsed as a title matches a known full journal title or high-confidence abbreviation, it is reclassified as Journal/source." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = the field was found; no = the expected field is missing and should be added to the reference; n/a = the field is not required." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
@@ -10657,5 +10688,664 @@ window.goatcounter.path = function(){
 </script>
 
 
+
+<script id="fte-structural-registry-v3">
+/* ================================================================
+   Structural Figure/Table/Equation Registry v3
+   Generalized DOCX object detection + grouped/parent equation support.
+   ================================================================ */
+
+function fteStructuralIdParse(raw){
+  let s=String(raw||"")
+    .replace(/[\u00A0\u202F]/g," ")
+    .replace(/[−–—]/g,"-")
+    .trim()
+    .replace(/^\s*(?:Eq(?:uation)?s?\.?|Fig(?:ure)?s?\.?|Tables?)\s*/i,"")
+    .trim();
+  if(!s) return null;
+
+  // Remove only a true OUTER wrapper. Do not strip the closing parenthesis from
+  // child notation such as 2.1(a).
+  if((s.startsWith("(")&&s.endsWith(")"))||(s.startsWith("[")&&s.endsWith("]"))) s=s.slice(1,-1).trim();
+
+  // Normalize child notation: 2(a) -> 2a, 2-a -> 2a, 6.2 (b) -> 6.2b.
+  s=s.replace(/\s+/g,"");
+  const m=s.match(/^(?:(S|SI|ESI|A|B)[.-]?)?(\d+(?:\.\d+)*)(?:\(([A-Za-z])\)|-?([A-Za-z]))?$/i);
+  if(!m) return null;
+  let prefix=(m[1]||"").toUpperCase();
+  if(prefix==="SI"||prefix==="ESI") prefix="S";
+  const number=m[2];
+  const child=(m[3]||m[4]||"").toLowerCase();
+  return {
+    prefix,
+    supp:prefix==="S",
+    number,
+    parts:number.split(".").map(x=>parseInt(x,10)),
+    child,
+    canonical:`${prefix}${number}${child}`
+  };
+}
+
+fteCanonId=function(x){
+  const p=fteStructuralIdParse(x);
+  return p?p.canonical:null;
+};
+
+fteIdParts=function(id){
+  const p=fteStructuralIdParse(id);
+  return p?{supp:p.supp,prefix:p.prefix,parts:p.parts,child:p.child,number:p.number,canonical:p.canonical}:null;
+};
+
+fteCmpId=function(a,b){
+  const A=fteIdParts(a),B=fteIdParts(b); if(!A||!B) return 0;
+  if(A.prefix!==B.prefix){
+    const rank=x=>x===""?0:(x==="A"?1:(x==="B"?2:(x==="S"?9:5)));
+    const ra=rank(A.prefix),rb=rank(B.prefix); if(ra!==rb) return ra-rb;
+    return A.prefix.localeCompare(B.prefix);
+  }
+  const n=Math.max(A.parts.length,B.parts.length);
+  for(let i=0;i<n;i++){
+    const x=A.parts[i]??-1,y=B.parts[i]??-1;
+    if(x!==y) return x-y;
+  }
+  if(A.child!==B.child){
+    if(!A.child) return -1;
+    if(!B.child) return 1;
+    return A.child.localeCompare(B.child);
+  }
+  return 0;
+};
+
+function fteEquationParentId(id){
+  const p=fteIdParts(id); if(!p) return null;
+  return `${p.prefix||""}${p.number}`;
+}
+function fteEquationHasChild(id){
+  return !!fteIdParts(id)?.child;
+}
+function fteEquationCitationMatches(citationId,itemId){
+  const c=fteCanonId(citationId),i=fteCanonId(itemId);
+  if(!c||!i) return false;
+  if(c===i) return true;
+  const C=fteIdParts(c),I=fteIdParts(i);
+  // Parent citations such as Eq. 2 or Eq. 6.2 legitimately refer to grouped
+  // sub-equations 2a/2b or 6.2a/6.2b. The reverse is intentionally NOT true:
+  // a specific citation to 2c must have an actual 2c.
+  return !C.child && !!I.child && fteEquationParentId(i)===c;
+}
+function fteEquationRegistryResolves(citationId,items){
+  return (items||[]).some(it=>fteEquationCitationMatches(citationId,it.id));
+}
+function fteEquationMatchingCitations(itemId,citations){
+  return (citations||[]).filter(c=>fteEquationCitationMatches(c.id,itemId));
+}
+
+function fteEquationIdPattern(){
+  return '(?:S|SI|ESI|A|B)?[.-]?\\d+(?:\\.\\d+)*(?:\\s*(?:\\([a-z]\\)|-?[a-z]))?';
+}
+
+fteEquationLabel=function(text){
+  const t=fteNormalizeCrossRefText(text||"")
+    .replace(/[\u00A0\u202F]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+  const ID=fteEquationIdPattern();
+  let m;
+  // Parenthesized terminal number, optionally preceded by ellipsis/dot leaders.
+  m=t.match(new RegExp('(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:Eq(?:uation)?\\.?\\s*)?('+ID+')\\s*\\)\\s*[.;:]?\\s*$','i'));
+  if(m) return fteCanonId(m[1]);
+  // Explicit Eq./Equation terminal label.
+  m=t.match(new RegExp('\\b(?:Eq(?:uation)?\\.?)\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'));
+  if(m) return fteCanonId(m[1]);
+  // Math paragraphs frequently end with an ellipsis followed by a naked number.
+  m=t.match(new RegExp('(?:…|⋯|\\.{2,})\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'));
+  return m?fteCanonId(m[1]):null;
+};
+
+fteStripTerminalEquationLabel=function(text){
+  let t=String(text||"");
+  const ID=fteEquationIdPattern();
+  const pats=[
+    new RegExp('\\s*(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:Eq(?:uation)?\\.?\\s*)?'+ID+'\\s*\\)\\s*[.;:]?\\s*$','i'),
+    new RegExp('\\s*\\b(?:Eq(?:uation)?\\.?)\\s*\\(?\\s*'+ID+'\\s*\\)?\\s*[.;:]?\\s*$','i'),
+    new RegExp('\\s*(?:…|⋯|\\.{2,})\\s*\\(?\\s*'+ID+'\\s*\\)?\\s*[.;:]?\\s*$','i')
+  ];
+  for(const p of pats){ const x=t.replace(p,""); if(x!==t){ t=x; break; } }
+  return t.trim();
+};
+
+fteEquationNumberOnly=function(text){
+  const t=String(text||"").replace(/[\u00A0\u202F]/g," ").replace(/\s+/g," ").trim();
+  const ID=fteEquationIdPattern();
+  const pats=[
+    new RegExp('^\\s*(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:Eq(?:uation)?\\.?\\s*)?('+ID+')\\s*\\)\\s*[.;:]?\\s*$','i'),
+    new RegExp('^\\s*(?:Eq(?:uation)?\\.?)\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'),
+    new RegExp('^\\s*(?:…|⋯|\\.{2,})\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i')
+  ];
+  for(const p of pats){ const m=t.match(p); if(m) return fteCanonId(m[1]); }
+  return null;
+};
+
+fteExpandIds=function(expr,options={}){
+  const keepChild=!!options.keepChild;
+  const ids=[];
+  const add=x=>{
+    let id=fteCanonId(x); if(!id) return;
+    if(!keepChild && fteEquationHasChild(id)) id=fteEquationParentId(id);
+    if(id&&!ids.includes(id)) ids.push(id);
+  };
+  let e=String(expr||"")
+    .replace(/\u2212/g,"-")
+    .replace(/\b(?:Figures?\.?|Figs?\.?|Tables?\.?|Equations?\.?|Eqs?\.?)\s*/gi," ")
+    .replace(/[\u00A0\u202F]/g," ");
+
+  // Grouped child notation: 2(a-c), 6.2(a–d), S3(a-c).
+  e=e.replace(/\b((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z])\s*[-–—]\s*([a-z])\s*\)/gi,(all,parent,a,b)=>{
+    const P=fteCanonId(parent), aa=a.toLowerCase().charCodeAt(0),bb=b.toLowerCase().charCodeAt(0);
+    if(P && keepChild && bb>=aa && bb-aa<=25){ for(let n=aa;n<=bb;n++) add(P+String.fromCharCode(n)); }
+    else add(P||parent);
+    return ' '.repeat(all.length);
+  });
+
+  // Normalize 2(a) to 2a for the remaining parser.
+  e=e.replace(/\b((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z])\s*\)/gi,'$1$2');
+
+  // Child ranges: 2a-2c, 2a-c, 6.2a to 6.2d.
+  let childSource=e;
+  const childRange=/\b((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)([a-z])\s*(?:[-–—]|\bto\b|\bthrough\b)\s*(?:((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*))?([a-z])\b/gi;
+  const childSpans=[]; let r;
+  while((r=childRange.exec(e))){
+    childSpans.push([r.index,r.index+r[0].length]);
+    const p1=fteCanonId(r[1]),p2=fteCanonId(r[3]||r[1]);
+    const a=r[2].toLowerCase().charCodeAt(0),b=r[4].toLowerCase().charCodeAt(0);
+    if(p1&&p2&&p1===p2&&keepChild&&b>=a&&b-a<=25){
+      for(let n=a;n<=b;n++) add(p1+String.fromCharCode(n));
+    }else{
+      add((r[1]||'')+(r[2]||''));
+      add((r[3]||r[1]||'')+(r[4]||''));
+    }
+  }
+  if(childSpans.length){
+    const chars=[...childSource]; childSpans.forEach(([a,b])=>{for(let i=a;i<b;i++)chars[i]=' ';}); childSource=chars.join('');
+  }
+
+  // Dotted ranges must be consumed before integer ranges to prevent 3.1 to 3.3
+  // from accidentally creating 1, 2, 3.
+  let simpleSource=childSource;
+  const dotted=/\b(S?)(\d+)\.(\d+)\s*(?:[-–—]|\bto\b)\s*(S?)(\d+)\.(\d+)\b/gi;
+  const dottedSpans=[];
+  while((r=dotted.exec(childSource))){
+    dottedSpans.push([r.index,r.index+r[0].length]);
+    const p1=(r[1]||'').toUpperCase(),p2=(r[4]||'').toUpperCase();
+    const major1=+r[2],major2=+r[5],a=+r[3],b=+r[6];
+    if(p1===p2&&major1===major2&&b>=a&&b-a<=50){for(let n=a;n<=b;n++)add(p1+major1+'.'+n);}
+  }
+  if(dottedSpans.length){
+    const chars=[...simpleSource]; dottedSpans.forEach(([a,b])=>{for(let i=a;i<b;i++)chars[i]=' ';}); simpleSource=chars.join('');
+  }
+
+  const simple=/\b(S?)(\d+)\s*(?:[-–—]|\bto\b)\s*(S?)(\d+)\b/gi;
+  while((r=simple.exec(simpleSource))){
+    const p1=(r[1]||'').toUpperCase(),p2=(r[3]||'').toUpperCase(),a=+r[2],b=+r[4];
+    if(p1===p2&&b>=a&&b-a<=100){for(let n=a;n<=b;n++)add(p1+n);}
+  }
+
+  // Explicit identifiers, including child equations.
+  const explicit=/\b(?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*(?:[a-z])?\b/gi;
+  (e.match(explicit)||[]).forEach(add);
+  return ids;
+};
+
+function fteEquationSpecialCitations(text){
+  const t=fteNormalizeCrossRefText(text||"");
+  const out=[]; const seen=new Set();
+  const push=(id,index,match)=>{id=fteCanonId(id);if(!id)return;const k=id+'|'+index;if(seen.has(k))return;seen.add(k);out.push({id,index,match});};
+  let m;
+
+  // Repeated-label numeric ranges: Eq. 3.1 to Eq. 3.3.
+  const range=/\b(?:Equations?|Eqs?\.?)\s*\(?\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\)?\s*(?:to|through|[-–—])\s*(?:(?:Equations?|Eqs?\.?)\s*)?\(?\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\)?/gi;
+  while((m=range.exec(t))) fteExpandIds(`${m[1]} to ${m[2]}`,{keepChild:true}).forEach(id=>push(id,m.index,m[0]));
+
+  // Parenthesized child ranges/lists: Eq. 2(a-c), Eq. 2(a,b,d).
+  const grouped=/\b(?:Equations?|Eqs?\.?)\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z](?:\s*(?:,|and|&|to|through|[-–—])\s*[a-z])+)\s*\)/gi;
+  while((m=grouped.exec(t))){
+    const parent=fteCanonId(m[1]); if(!parent) continue;
+    const body=m[2];
+    const rr=body.match(/^\s*([a-z])\s*(?:to|through|[-–—])\s*([a-z])\s*$/i);
+    if(rr){
+      const a=rr[1].toLowerCase().charCodeAt(0),b=rr[2].toLowerCase().charCodeAt(0);
+      if(b>=a&&b-a<=25) for(let n=a;n<=b;n++) push(parent+String.fromCharCode(n),m.index,m[0]);
+    }else{
+      (body.match(/[a-z]/gi)||[]).forEach(ch=>push(parent+ch.toLowerCase(),m.index,m[0]));
+    }
+  }
+
+  // Shorthand grouped references: Eqs. 2(a) and (b), Eq. 6.2(a), (b), and (c).
+  const short=/\b(?:Equations?|Eqs?\.?)\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z])\s*\)((?:\s*(?:,|and|&)\s*\(\s*[a-z]\s*\))+)/gi;
+  while((m=short.exec(t))){
+    const parent=fteCanonId(m[1]); if(!parent) continue;
+    push(parent+m[2].toLowerCase(),m.index,m[0]);
+    (m[3].match(/\(\s*([a-z])\s*\)/gi)||[]).forEach(seg=>{
+      const mm=seg.match(/[a-z]/i); if(mm) push(parent+mm[0].toLowerCase(),m.index,m[0]);
+    });
+  }
+
+  // Compact shared-parent lists: Eqs. 2a,b,c or Equations 6.2a, b and c.
+  const compact=/\b(?:Equations?|Eqs?\.?)\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)([a-z])((?:\s*,\s*[a-z])+(?:\s*(?:and|&)\s*[a-z])?|\s*(?:and|&)\s*[a-z])/gi;
+  while((m=compact.exec(t))){
+    const parent=fteCanonId(m[1]); if(!parent) continue;
+    push(parent+m[2].toLowerCase(),m.index,m[0]);
+    (m[3].match(/[a-z]/gi)||[]).forEach(ch=>{
+      if(/^(?:a|n|d)$/i.test(ch) && /\band\b/i.test(m[3])) return;
+      push(parent+ch.toLowerCase(),m.index,m[0]);
+    });
+  }
+  return out;
+}
+
+fteCitations=function(text,kind){
+  text=fteNormalizeCrossRefText(text||"");
+  const out=[];
+  const sep='(?:\\s*,\\s*(?:and\\s+)?|\\s+and\\s+|\\s*&\\s*|\\s+to\\s+|\\s+through\\s+|\\s*[-–—]\\s*)';
+  let token,head,expr,keepChild=false;
+  if(kind==="figure"){
+    token='[Ss]?\\d+(?:\\.\\d+)?(?:[a-z]|\\s*\\([a-z]\\))?';
+    head='(?:Fig(?:ure)?s?\\s*\\.?)';
+    expr=token+'(?:'+sep+token+')*';
+  }else if(kind==="table"){
+    token='[Ss]?\\d+(?:\\.\\d+)?';
+    head='(?:Tables?)';
+    expr=token+'(?:'+sep+token+')*';
+  }else{
+    keepChild=true;
+    token='\\(?(?:S|SI|ESI)?[.-]?\\d+(?:\\.\\d+)*(?:\\s*(?:\\([a-z]\\)|-?[a-z]))?\\)?';
+    head='(?:Equations?\\.?|Eqs?\\.?)';
+    const repeatedHead='(?:Equations?\\.?|Eqs?\\.?)';
+    expr=token+'(?:'+sep+'(?:'+repeatedHead+'\\s*)?'+token+')*';
+  }
+  const re=new RegExp('\\b'+head+'\\s*('+expr+')','gi'); let m;
+  while((m=re.exec(text))){
+    fteExpandIds(m[1],{keepChild}).forEach(id=>out.push({id,index:m.index,match:m[0]}));
+  }
+  if(kind==="equation"){
+    const special=fteEquationSpecialCitations(text);
+    special.forEach(c=>{if(!out.some(x=>x.id===c.id&&x.index===c.index))out.push(c);});
+    // A grouped child expression such as Eqs. 2(a-c) must represent 2a, 2b,
+    // 2c, not a separate citation to parent Eq. 2. Remove a parent token that
+    // arose only because the generic parser stopped at the opening parenthesis.
+    const groupedParents=new Set(special.filter(c=>fteEquationHasChild(c.id)).map(c=>fteEquationParentId(c.id)));
+    groupedParents.forEach(parent=>{
+      const esc=parent.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      if(new RegExp('\\b'+esc+'\\s*\\(','i').test(text)) {
+        for(let i=out.length-1;i>=0;i--) if(out[i].id===parent) out.splice(i,1);
+      }
+    });
+  }
+  // Repeated labels/range recovery can discover the same identifier twice. One
+  // occurrence per identifier is enough for structural resolution in a paragraph.
+  const uniq=[]; const seenIds=new Set();
+  out.sort((a,b)=>a.index-b.index || fteCmpId(a.id,b.id));
+  out.forEach(x=>{if(!seenIds.has(x.id)){seenIds.add(x.id);uniq.push(x);}});
+  return uniq;
+};
+
+fteEquationCitationsLoose=function(text){
+  return fteEquationSpecialCitations(text);
+};
+
+extractDocxStructure=async function(buf){
+  if(typeof JSZip==="undefined") throw new Error("Structured Word reader failed to load.");
+  const zip=await JSZip.loadAsync(buf);
+  const f=zip.file("word/document.xml"); if(!f) throw new Error("Word document XML was not found.");
+  const xml=await f.async("string");
+  const doc=new DOMParser().parseFromString(xml,"application/xml");
+  if(doc.getElementsByTagName("parsererror").length) throw new Error("Word document XML could not be parsed.");
+  const body=doc.getElementsByTagNameNS(FTE_W_NS,"body")[0]; if(!body) return [];
+  const blocks=[]; let pos=0;
+
+  const paragraphBlock=(el,extra={})=>{
+    const text=fteXmlText(el),style=ftePStyle(el),seqCaptionType=fteSeqCaptionType(el);
+    const hasDrawing=el.getElementsByTagNameNS(FTE_W_NS,"drawing").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"pict").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"object").length>0;
+    const mathCount=el.getElementsByTagNameNS(FTE_M_NS,"oMath").length;
+    const hasMathPara=el.getElementsByTagNameNS(FTE_M_NS,"oMathPara").length>0;
+    const hasMath=mathCount>0||hasMathPara;
+    const pPr=el.getElementsByTagNameNS(FTE_W_NS,"pPr")[0];
+    const outlineEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"outlineLvl")[0]:null;
+    const outlineRaw=outlineEl?(outlineEl.getAttributeNS(FTE_W_NS,"val")||outlineEl.getAttribute("w:val")||outlineEl.getAttribute("val")):null;
+    const outlineLvl=outlineRaw!=null&&/^\d+$/.test(String(outlineRaw))?parseInt(outlineRaw,10):null;
+    const numPr=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"numPr")[0]:null;
+    const ilvlEl=numPr?numPr.getElementsByTagNameNS(FTE_W_NS,"ilvl")[0]:null;
+    const ilvlRaw=ilvlEl?(ilvlEl.getAttributeNS(FTE_W_NS,"val")||ilvlEl.getAttribute("w:val")||ilvlEl.getAttribute("val")):null;
+    const ilvl=ilvlRaw!=null&&/^\d+$/.test(String(ilvlRaw))?parseInt(ilvlRaw,10):null;
+    const tabCount=el.getElementsByTagNameNS(FTE_W_NS,"tab").length;
+    const jcEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"jc")[0]:null;
+    const textAlign=jcEl?(jcEl.getAttributeNS(FTE_W_NS,"val")||jcEl.getAttribute("w:val")||jcEl.getAttribute("val")||""):"";
+    const tabsEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"tabs")[0]:null;
+    const rightTabStop=!!(tabsEl&&[...tabsEl.getElementsByTagNameNS(FTE_W_NS,"tab")].some(t=>/^(?:right|decimal)$/i.test(t.getAttributeNS(FTE_W_NS,"val")||t.getAttribute("w:val")||t.getAttribute("val")||"")));
+    return {type:"p",pos:pos++,text,style,seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,hasNumbering:!!numPr,ilvl,tabCount,textAlign,rightTabStop,...extra};
+  };
+
+  const addEmbeddedCaptionBlocks=(p,containerAnchor)=>{
+    const boxes=[...p.getElementsByTagNameNS(FTE_W_NS,"txbxContent")];
+    boxes.forEach((box,bi)=>{
+      const t=fteXmlText(box,{includeEmbedded:true}).replace(/\s+/g," ").trim();
+      if(!t) return;
+      const fc=fteFigureCaption(t),tc=fteTableCaption(t),eq=fteEquationNumberOnly(t)||fteEquationLabel(t);
+      if(fc||tc||eq){
+        blocks.push({type:"p",pos:pos++,text:t,style:"TextBoxStructural",seqCaptionType:fc?"figure":tc?"table":"",hasDrawing:false,hasMath:false,hasMathPara:false,mathCount:0,outlineLvl:null,hasNumbering:false,ilvl:null,tabCount:0,textAlign:"",rightTabStop:false,fromTextBox:true,physicalAnchor:`${containerAnchor}:textbox:${bi}`});
+      }
+    });
+  };
+
+  [...body.childNodes].forEach(el=>{
+    if(el.nodeType!==1) return;
+    const ln=(el.localName||"").toLowerCase();
+    if(ln==="p"){
+      const anchor=`paragraph:${pos}`;
+      const b=paragraphBlock(el,{physicalAnchor:anchor}); blocks.push(b);
+      if(b.hasDrawing) addEmbeddedCaptionBlocks(el,anchor);
+      return;
+    }
+    if(ln!=="tbl") return;
+
+    const rowSummaries=fteWordTableRowSummaries(el);
+    const eqLayout=fteClassifyEquationLayoutRows(rowSummaries);
+    if(eqLayout.isEquationLayout){
+      eqLayout.rows.forEach((r,ri)=>{
+        const anchor=`equation-table:${pos}:row:${ri}`;
+        blocks.push({type:"p",pos:pos++,text:r.text,style:"EquationLayout",hasDrawing:false,hasMath:true,hasMathPara:(r.mathParaCount||0)>0,mathCount:r.mathCount||0,fromEquationTable:true,physicalAnchor:anchor,seqCaptionType:"",outlineLvl:null,hasNumbering:false,ilvl:null,tabCount:0,textAlign:"",rightTabStop:true});
+      });
+      return;
+    }
+
+    const rows=[...el.getElementsByTagNameNS(FTE_W_NS,"tr")];
+    let maxCols=0; rows.forEach(r=>{maxCols=Math.max(maxCols,r.getElementsByTagNameNS(FTE_W_NS,"tc").length);});
+    const drawCount=el.getElementsByTagNameNS(FTE_W_NS,"drawing").length+el.getElementsByTagNameNS(FTE_W_NS,"pict").length+el.getElementsByTagNameNS(FTE_W_NS,"object").length;
+    const internalPs=[...el.getElementsByTagNameNS(FTE_W_NS,"p")];
+    const hasFigureCaption=internalPs.some(p=>!!fteFigureCaption(fteXmlText(p)) || fteSeqCaptionType(p)==="figure");
+
+    // Word authors frequently place an image and its caption inside a 1-column
+    // borderless table. Treat this as a figure layout container, not as a data
+    // table, and preserve EACH internal paragraph so captions and following prose
+    // are not concatenated or lost.
+    const figureLayout=drawCount>0 && (hasFigureCaption || maxCols<=1);
+    if(figureLayout){
+      const anchor=`figure-table:${pos}`;
+      internalPs.forEach((p,pi)=>{
+        const b=paragraphBlock(p,{fromFigureTable:true,containerAnchor:anchor,physicalAnchor:`${anchor}:p:${pi}`});
+        blocks.push(b);
+        if(b.hasDrawing) addEmbeddedCaptionBlocks(p,anchor);
+      });
+      return;
+    }
+
+    const mathCount=el.getElementsByTagNameNS(FTE_M_NS,"oMath").length;
+    const mathParaCount=el.getElementsByTagNameNS(FTE_M_NS,"oMathPara").length;
+    blocks.push({type:"table",pos:pos++,text:fteXmlText(el).slice(0,500),rows:rows.length,cols:maxCols,style:"",hasDrawing:drawCount>0,hasMath:mathCount>0||mathParaCount>0,mathCount,mathParaCount,isEquationLayout:false,physicalAnchor:`table:${pos-1}`});
+  });
+  return blocks;
+};
+
+fteSequenceCheck=function(kind,items,issues){
+  const prefix=kind.toUpperCase();
+  const seen=new Map();
+  items.forEach(it=>{
+    const exact=fteCanonId(it.id)||it.id;
+    const k=kind==="figure"?exact+"|"+(it.panel||""):exact;
+    if(seen.has(k)){
+      const prev=seen.get(k);
+      if(prev?.physicalAnchor&&it?.physicalAnchor&&prev.physicalAnchor===it.physicalAnchor) return;
+      fteIssue(issues,kind,it.id,`${prefix}_DUPLICATE_NUMBER`,`Duplicate ${fteDisplay(kind,it.id)} detected as a separate numbered ${kind}.`,`Renumber one of the genuinely duplicated items and update its cross-references.`,it.caption||it.context,"err");
+    }else seen.set(k,it);
+  });
+
+  const unique=[];
+  items.slice().sort((a,b)=>a.pos-b.pos).forEach(it=>{if(!unique.some(x=>x.id===it.id))unique.push(it);});
+  for(let i=1;i<unique.length;i++){
+    if(fteCmpId(unique[i-1].id,unique[i].id)>0){
+      if(kind!=="equation"||(unique[i-1].placementReliable&&unique[i].placementReliable)){
+        fteIssue(issues,kind,unique[i].id,`${prefix}_OUT_OF_ORDER`,`${fteDisplay(kind,unique[i].id)} appears after ${fteDisplay(kind,unique[i-1].id)} even though its identifier is lower.`,`Check the item numbering and order.`,unique[i].caption||unique[i].context,"err");
+      }
+    }
+  }
+
+  // Check only INTERNAL numeric gaps. Do not invent a leading missing item before
+  // the first observed object, because users may legitimately check an excerpt.
+  const parents=[...new Set(unique.map(it=>kind==="equation"?fteEquationParentId(it.id):(fteCanonId(it.id)||it.id)))];
+  const grouped=new Map();
+  parents.forEach(id=>{
+    const p=fteIdParts(id); if(!p) return;
+    const key=`${p.prefix}|${p.parts.length}|${p.parts.length>1?p.parts.slice(0,-1).join('.'):'_'}`;
+    if(!grouped.has(key)) grouped.set(key,[]);
+    grouped.get(key).push({id,p});
+  });
+  grouped.forEach(arr=>{
+    const depths=[...new Set(arr.map(x=>x.p.parts.length))]; if(depths.length!==1) return;
+    const depth=depths[0];
+    const nums=[...new Set(arr.map(x=>x.p.parts[depth-1]))].sort((a,b)=>a-b);
+    if(nums.length<2) return;
+    for(let n=nums[0];n<=nums[nums.length-1];n++){
+      if(nums.includes(n)) continue;
+      const sample=arr[0].p;
+      const prior=sample.parts.slice(0,-1);
+      const num=[...prior,n].join('.');
+      const id=`${sample.prefix||''}${num}`;
+      fteIssue(issues,kind,id,`${prefix}_MISSING_NUMBER`,`${fteDisplay(kind,id)} is missing from the observed numbering sequence.`,`Confirm whether the item is missing or whether the numbering intentionally skips this identifier.`,"","err");
+    }
+  });
+
+  // Optional child-sequence check for grouped equations, e.g. 2a, 2b, 2c.
+  if(kind==="equation"){
+    const childGroups=new Map();
+    unique.forEach(it=>{
+      const p=fteIdParts(it.id); if(!p?.child) return;
+      const parent=fteEquationParentId(it.id);
+      if(!childGroups.has(parent))childGroups.set(parent,[]);
+      childGroups.get(parent).push(p.child);
+    });
+    childGroups.forEach((letters,parent)=>{
+      const xs=[...new Set(letters)].sort(); if(xs.length<2) return;
+      const a=xs[0].charCodeAt(0),b=xs[xs.length-1].charCodeAt(0),miss=[];
+      for(let n=a;n<=b;n++){const ch=String.fromCharCode(n);if(!xs.includes(ch))miss.push(ch);}
+      if(miss.length) fteIssue(issues,"equation",parent,"EQUATION_CHILD_SEQUENCE",`${fteDisplay("equation",parent)} sub-equations appear to skip ${miss.join(", ")}.`,`Verify the grouped sub-equation lettering.`,letters.join(", "),"warn");
+    });
+  }
+};
+
+fteAnalyze=function(blocks){
+  const issues=[];
+  if(!blocks||!blocks.length) return {reliable:false,issues,figures:[],tables:[],equations:[],citations:{figure:[],table:[],equation:[]},unverified:0};
+  const refStart=fteRefStart(blocks),active=blocks.slice(0,refStart);
+  const generatedLists=fteGeneratedFigureTableListInfo(active);
+  const figCandidates=[],tabCandidates=[],captionBlocks=new Set(),eqBlocks=new Set();
+
+  active.forEach((b,i)=>{
+    if(b.type!=="p"||!b.text) return;
+    if(fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
+    const fc=fteFigureCaption(b.text),tc=fteTableCaption(b.text);
+    if(fc){
+      const near=fteNearbyIndex(active,i,x=>x.type==="p"&&x.hasDrawing,4);
+      const styled=/(?:caption|figure)/i.test(b.style||"")||b.seqCaptionType==="figure";
+      const ev=fteCaptionEvidence(b.text,fc,"figure",b.style||"",near==null?99:Math.abs(near-i));
+      if(styled||near!=null||ev.score>=40) figCandidates.push({i,b,label:fc,draw:near,ev});
+    }
+    if(tc){
+      const near=fteNearbyIndex(active,i,x=>x.type==="table"&&!x.isEquationLayout,3);
+      const styled=/(?:caption|table)/i.test(b.style||"")||b.seqCaptionType==="table";
+      const ev=fteCaptionEvidence(b.text,tc,"table",b.style||"",near==null?99:Math.abs(near-i));
+      if(styled||near!=null||ev.score>=40) tabCandidates.push({i,b,label:tc,table:near,ev});
+    }
+  });
+
+  const figures=[],usedFigCaps=new Set();
+  const drawingIndices=active.map((b,i)=>b.type==="p"&&b.hasDrawing&&!fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)?i:null).filter(i=>i!=null);
+  drawingIndices.forEach(di=>{
+    const candidates=figCandidates.filter(c=>c.draw===di&&!usedFigCaps.has(c.i));
+    const c=fteChooseCaptionCandidate(candidates,"figure",di); if(!c) return;
+    usedFigCaps.add(c.i); captionBlocks.add(c.i);
+    figures.push({kind:"figure",id:c.label.id,panel:c.label.panel,pos:active[di].pos,caption:c.b.text,context:c.b.text,placementReliable:true,physicalAnchor:active[di].containerAnchor||active[di].physicalAnchor||`drawing:${di}`,captionIndex:c.i,objectResolved:true,confidence:.99});
+  });
+
+  // A high-confidence caption or SEQ Figure field is sufficient evidence of a
+  // real figure even when an unsupported/floating drawing cannot be resolved.
+  figCandidates.forEach(c=>{
+    if(usedFigCaps.has(c.i)) return;
+    const strong=/(?:caption|figure)/i.test(c.b.style||"")||c.b.seqCaptionType==="figure"||(c.ev?.score||0)>=40;
+    if(!strong) return;
+    usedFigCaps.add(c.i); captionBlocks.add(c.i);
+    figures.push({kind:"figure",id:c.label.id,panel:c.label.panel,pos:c.b.pos,caption:c.b.text,context:c.b.text,placementReliable:false,physicalAnchor:c.b.physicalAnchor||`caption:${c.i}`,captionIndex:c.i,objectResolved:false,confidence:.78});
+  });
+
+  const tables=[],usedTabCaps=new Set();
+  active.forEach((b,i)=>{
+    if(b.type!=="table"||b.isEquationLayout||b.rows<2||b.cols<2) return;
+    const candidates=tabCandidates.filter(c=>Math.abs(c.i-i)<=3&&!usedTabCaps.has(c.i));
+    const c=fteChooseCaptionCandidate(candidates,"table",i);
+    if(c){
+      usedTabCaps.add(c.i); captionBlocks.add(c.i);
+      tables.push({kind:"table",id:c.label.id,pos:b.pos,caption:c.b.text,context:c.b.text,placementReliable:true,physicalAnchor:b.physicalAnchor||`table:${i}`,captionIndex:c.i,objectResolved:true,confidence:.99});
+    }else{
+      fteIssue(issues,"table","?","TABLE_MISSING_NUMBER","A Word table was found without a nearby numbered Table caption.","Add or verify a numbered table caption if this is a manuscript data table.",b.text,"warn");
+    }
+  });
+  tabCandidates.forEach(c=>{
+    if(usedTabCaps.has(c.i)) return;
+    const strong=/(?:caption|table)/i.test(c.b.style||"")||c.b.seqCaptionType==="table"||(c.ev?.score||0)>=45;
+    if(!strong) return;
+    usedTabCaps.add(c.i); captionBlocks.add(c.i);
+    tables.push({kind:"table",id:c.label.id,pos:c.b.pos,caption:c.b.text,context:c.b.text,placementReliable:false,physicalAnchor:c.b.physicalAnchor||`table-caption:${c.i}`,captionIndex:c.i,objectResolved:false,confidence:.72});
+  });
+
+  const equations=[],equationConsumed=new Set();
+  active.forEach((b,i)=>{
+    if(fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
+    const id=fteDisplayedEquationId(b); if(!id) return;
+    eqBlocks.add(i); equationConsumed.add(i);
+    const expr=fteEquationExpressionEvidence(fteStripTerminalEquationLabel(b.text));
+    const structural=!!(b.fromEquationTable||b.hasMathPara||/equation/i.test(b.style||"")||b.rightTabStop||(b.tabCount||0)>0||/^(?:center|both|distribute)$/i.test(b.textAlign||""));
+    equations.push({kind:"equation",id,pos:b.pos,caption:b.text,context:b.text,placementReliable:structural||expr.score>=12,physicalAnchor:b.physicalAnchor||`equation:${i}`,fromEquationTable:!!b.fromEquationTable,mathObjectPresent:!!b.hasMath,confidence:structural?.99:.88});
+  });
+
+  active.forEach((b,i)=>{
+    if(equationConsumed.has(i)||fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
+    if(!b||b.type!=="p"||!b.text) return;
+    const id=fteEquationNumberOnly(b.text); if(!id) return;
+    const pair=fteAdjacentEquationExpression(active,i,2); if(!pair||equationConsumed.has(pair.j)) return;
+    equationConsumed.add(i); equationConsumed.add(pair.j); eqBlocks.add(i); eqBlocks.add(pair.j);
+    equations.push({kind:"equation",id,pos:Math.min(b.pos,pair.b.pos),caption:`${pair.b.text} ${b.text}`.replace(/\s+/g," ").trim(),context:`${pair.b.text} ${b.text}`.replace(/\s+/g," ").trim(),placementReliable:true,physicalAnchor:`equation-pair:${Math.min(i,pair.j)}:${Math.max(i,pair.j)}`,fromEquationTable:false,mathObjectPresent:!!pair.b.hasMath,confidence:.96});
+  });
+
+  // If a prose sentence explicitly introduces one equation and the immediately
+  // following Word block is a genuine unnumbered math object, bind the number to
+  // that object. This recovers Equation Editor/OMML cases where the number is
+  // visually present but lost in flattened text extraction.
+  active.forEach((b,i)=>{
+    if(b.type!=="p"||!b.text||eqBlocks.has(i)||captionBlocks.has(i)) return;
+    const refs=fteCitations(b.text,"equation");
+    const uniq=[...new Set(refs.map(x=>x.id))]; if(uniq.length!==1) return;
+    if(!/:\s*$/.test(b.text.trim())&&!/\b(?:using|given by|calculated from|derived from|defined by|expressed by|according to)\b/i.test(b.text)) return;
+    if(fteEquationRegistryResolves(uniq[0],equations)) return;
+    for(let d=1;d<=2;d++){
+      const j=i+d,mb=active[j]; if(!mb||mb.type!=="p") break;
+      if(!String(mb.text||"").trim()&&!mb.hasMath) continue;
+      if(fteLooksLikeUnnumberedDisplayedEquation(mb)){
+        equations.push({kind:"equation",id:uniq[0],pos:mb.pos,caption:mb.text||`[Word equation object for ${uniq[0]}]`,context:b.text,placementReliable:true,physicalAnchor:mb.physicalAnchor||`inferred-equation:${j}`,fromEquationTable:!!mb.fromEquationTable,mathObjectPresent:!!mb.hasMath,numberInferredFromIntroduction:true,confidence:.82});
+        equationConsumed.add(j); eqBlocks.add(j);
+      }
+      break;
+    }
+  });
+
+  fteSequenceCheck("figure",figures,issues); fteSequenceCheck("table",tables,issues); fteSequenceCheck("equation",equations,issues); ftePanelCheck(figures,issues);
+
+  const citations={figure:[],table:[],equation:[]};
+  active.forEach((b,i)=>{
+    if(b.type!=="p"||!b.text||captionBlocks.has(i)) return;
+    if(fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
+    for(const kind of ["figure","table","equation"]){
+      let scanText=b.text;
+      if(kind==="equation"&&eqBlocks.has(i)) scanText=fteStripTerminalEquationLabel(scanText);
+      const found=fteCitations(scanText,kind);
+      if(kind==="equation") fteEquationCitationsLoose(scanText).forEach(c=>{if(!found.some(x=>x.id===c.id&&x.index===c.index))found.push(c);});
+      found.forEach(c=>citations[kind].push({...c,pos:b.pos,context:b.text,blockIndex:i,role:"PROSE_REFERENCE"}));
+    }
+  });
+
+  const itemMap={figure:figures,table:tables,equation:equations};
+  const matchingCitations=(kind,itemId)=>kind==="equation"?fteEquationMatchingCitations(itemId,citations[kind]):citations[kind].filter(c=>c.id===itemId);
+  const resolves=(kind,cid,items)=>kind==="equation"?fteEquationRegistryResolves(cid,items):items.some(x=>x.id===cid);
+  const assignedFigureAnchors=new Set(figures.filter(x=>x.objectResolved!==false).map(x=>x.physicalAnchor).filter(Boolean));
+  const assignedEquationAnchors=new Set(equations.map(x=>x.physicalAnchor).filter(Boolean));
+  const assignedTableAnchors=new Set(tables.filter(x=>x.objectResolved!==false).map(x=>x.physicalAnchor).filter(Boolean));
+  const nearbyStructural=(kind,c)=>active.some((b,bi)=>{
+    if(Math.abs((b.pos??9999)-c.pos)>2) return false;
+    if(kind==="figure"){
+      if(!b.hasDrawing) return false;
+      const anchor=b.containerAnchor||b.physicalAnchor||`drawing:${bi}`;
+      return !assignedFigureAnchors.has(anchor);
+    }
+    if(kind==="equation"){
+      if(!(b.hasMath||b.hasMathPara||/equation/i.test(b.style||""))) return false;
+      const anchor=b.physicalAnchor||`equation:${bi}`;
+      return !assignedEquationAnchors.has(anchor);
+    }
+    if(b.type!=="table") return false;
+    const anchor=b.physicalAnchor||`table:${bi}`;
+    return !assignedTableAnchors.has(anchor);
+  });
+
+  for(const kind of ["figure","table","equation"]){
+    const prefix=kind.toUpperCase(),items=itemMap[kind];
+    const suppExists=items.some(x=>fteIdParts(x.id)?.supp);
+    citations[kind].forEach(c=>{
+      if(resolves(kind,c.id,items)) return;
+      if(fteIdParts(c.id)?.supp&&!suppExists) return;
+      if(nearbyStructural(kind,c)){
+        fteIssue(issues,kind,c.id,`${prefix}_STRUCTURAL_MATCH_REVIEW`,`${fteDisplay(kind,c.id)} is cited, and a nearby ${kind==="equation"?"Word math object":kind==="figure"?"drawing/object":"Word table"} exists, but the identifier could not be matched confidently.`,`Verify the numbering of the nearby ${kind}.`,c.context,"warn");
+      }else{
+        const code=kind==="equation"?"EQUATION_REFERENCE_WITHOUT_EQUATION":`${prefix}_CITATION_WITHOUT_${prefix}`;
+        fteIssue(issues,kind,c.id,code,`${fteDisplay(kind,c.id)} is cited in the text but no corresponding numbered ${kind} was located.`,`Verify the identifier or add the missing ${kind}.`,c.context,"err");
+      }
+    });
+
+    items.forEach(it=>{
+      const cs=matchingCitations(kind,it.id).sort((a,b)=>a.pos-b.pos),first=cs[0];
+      if(!first){
+        const code=kind==="equation"?"EQUATION_NOT_REFERENCED":`${prefix}_NOT_CITED`;
+        fteIssue(issues,kind,it.id,code,`${fteDisplay(kind,it.id)} is present but no in-text cross-reference was found.`,kind==="equation"?"Verify whether this numbered equation should be referenced under the target journal style.":`Cite ${fteDisplay(kind,it.id)} in the manuscript text before it appears.`,it.caption,"warn");
+      }else if(first.pos>=it.pos){
+        if(kind==="equation"){
+          // A citation in the immediately following explanatory paragraph is a
+          // normal scientific construction and is not an error. More distant
+          // first references are only a style note because journal practice varies.
+          if(first.pos>it.pos+1) fteIssue(issues,kind,it.id,"EQUATION_FIRST_CITATION_ORDER",`${fteDisplay(kind,it.id)} is first referred to after its display.`,`Check the target journal style only if equations are required to be introduced before display.`,first.context,"info");
+        }else if(it.placementReliable){
+          fteIssue(issues,kind,it.id,`${prefix}_APPEARS_BEFORE_FIRST_CITATION`,`${fteDisplay(kind,it.id)} appears before its first in-text citation.`,`Move or add the first citation so it occurs before the ${kind}'s first physical appearance.`,first.context,"err");
+        }
+      }
+    });
+
+    // First-citation order. For child equations, a parent citation may introduce
+    // the whole group and therefore serves as the first citation for every child.
+    for(const supp of [false,true]){
+      const ordered=[...new Set(items.filter(x=>fteIdParts(x.id)?.supp===supp).map(x=>x.id))].sort(fteCmpId);
+      for(let j=1;j<ordered.length;j++){
+        const a=matchingCitations(kind,ordered[j-1]).sort((x,y)=>x.pos-y.pos)[0];
+        const b=matchingCitations(kind,ordered[j]).sort((x,y)=>x.pos-y.pos)[0];
+        if(a&&b&&b.pos<a.pos){
+          const code=kind==="equation"?"EQUATION_FIRST_CITATION_ORDER":`${prefix}_CITED_BEFORE_PREVIOUS_${prefix}`;
+          fteIssue(issues,kind,ordered[j],code,`${fteDisplay(kind,ordered[j])} is first cited before ${fteDisplay(kind,ordered[j-1])}.`,`Check the numbering or revise the first-citation order.`,b.context,"warn");
+        }
+      }
+    }
+  }
+
+  const unverified=figures.filter(x=>!x.placementReliable).length;
+  const seen=new Set();
+  const dedup=issues.filter(x=>{const k=[x.kind,x.id,x.code,x.msg].join('|');if(seen.has(k))return false;seen.add(k);return true;});
+  return {reliable:true,issues:dedup,figures,tables,equations,citations,unverified,registryVersion:"structural-v3"};
+};
+
+</script>
 </body>
 </html>
