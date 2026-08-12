@@ -69,6 +69,111 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   input.text{width:100%;font-family:var(--sans);font-size:14.5px;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:9px;padding:11px 13px}
   input.text:focus{outline:2px solid var(--pencil);outline-offset:1px;border-color:var(--pencil)}
   .opts{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+
+  /* Compact readability controls */
+  .readability-settings{
+    margin-top:22px;
+    padding:18px;
+    border:1px solid var(--hair);
+    border-radius:11px;
+    background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);
+  }
+  .readability-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:14px;
+  }
+  .readability-title{
+    margin:0;
+    font-size:13px;
+    font-weight:750;
+    color:var(--ink);
+  }
+  .readability-sub{
+    margin:3px 0 0;
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.45;
+  }
+  .readability-defaults{
+    flex:0 0 auto;
+    font-size:11px;
+    color:var(--faint);
+    background:var(--paper);
+    border:1px solid var(--hair);
+    padding:4px 8px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .readability-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+  }
+  .limit-control{
+    min-width:0;
+    padding:12px 13px 11px;
+    border:1px solid var(--hair);
+    border-radius:9px;
+    background:var(--card);
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .limit-control:focus-within{
+    border-color:var(--pencil);
+    box-shadow:0 0 0 2px var(--pencil-soft);
+  }
+  .limit-label{
+    display:block;
+    margin:0 0 7px;
+    font-size:11px;
+    line-height:1.25;
+    font-weight:700;
+    letter-spacing:.035em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .limit-input-row{
+    display:flex;
+    align-items:baseline;
+    gap:7px;
+  }
+  .limit-input{
+    width:72px;
+    min-width:0;
+    padding:0;
+    border:0;
+    outline:0;
+    background:transparent;
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:24px;
+    font-weight:600;
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+    appearance:textfield;
+  }
+  .limit-input::-webkit-outer-spin-button,
+  .limit-input::-webkit-inner-spin-button{margin:0}
+  .limit-unit{
+    font-size:12px;
+    color:var(--faint);
+    white-space:nowrap;
+  }
+  .readability-foot{
+    margin:12px 1px 0;
+    font-size:11.5px;
+    line-height:1.45;
+    color:var(--faint);
+  }
+  @media(max-width:680px){
+    .readability-head{display:block}
+    .readability-defaults{display:inline-block;margin-top:8px}
+    .readability-grid{grid-template-columns:1fr}
+    .limit-control{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+    .limit-label{margin:0}
+  }
   .opt{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--ink);cursor:pointer}
   .opt input{width:16px;height:16px;accent-color:var(--pencil)}
   details.adv{margin-top:18px;border-top:1px solid var(--hair);padding-top:16px}
@@ -121,10 +226,95 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .dot.err{background:var(--err)}.dot.warn{background:var(--warn)}.dot.ok{background:var(--ok)}
   .yn.y{color:var(--ok);font-weight:700}.yn.n{color:var(--err);font-weight:700}.yn.na{color:var(--faint)}
   .rtype{display:inline-block;font-size:10.5px;font-weight:700;color:var(--pencil);background:var(--pencil-soft);border-radius:4px;padding:1px 6px;margin-right:2px;white-space:nowrap}
-  .rtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px}
-  .rtab{appearance:none;border:1px solid var(--hair);background:var(--card);color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;padding:10px 20px;border-radius:9px;transition:background .15s,color .15s,border-color .15s}
-  .rtab:hover{border-color:var(--hair-strong);color:var(--ink)}
+  /* Results navigation: six section headings in one row with equal spacing above and below. */
+  .rtabs{
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:8px;
+    width:100%;
+    margin:28px 0 0;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  .rtab{
+    appearance:none;
+    min-width:0;
+    min-height:54px;
+    border:1px solid var(--hair);
+    background:var(--card);
+    color:var(--muted);
+    font-family:var(--sans);
+    cursor:pointer;
+    padding:12px 10px;
+    border-radius:9px;
+    transition:background .15s,color .15s,border-color .15s,box-shadow .15s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .rtab-label{font-size:12.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .rtab:hover{border-color:var(--hair-strong);color:var(--ink);box-shadow:0 2px 8px rgba(20,22,26,.05)}
   .rtab.active{background:var(--pencil);border-color:var(--pencil);color:#fff}
+  @media(max-width:760px){
+    .rtabs{grid-template-columns:repeat(6,124px)}
+  }
+  /* In-report subheading navigation. Built automatically from each report's rendered section headings. */
+  .report-subnav{
+    position:sticky;
+    top:8px;
+    z-index:12;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    width:100%;
+    margin:16px 0 20px;
+    padding:6px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+    border:1px solid var(--hair);
+    border-radius:10px;
+    background:rgba(255,255,255,.96);
+    box-shadow:0 4px 16px -14px rgba(20,22,26,.35);
+    backdrop-filter:blur(8px);
+  }
+  .report-subnav[hidden]{display:none}
+  .report-subnav-label{
+    flex:0 0 auto;
+    padding:0 7px 0 5px;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--faint);
+    white-space:nowrap;
+  }
+  .report-subnav-btn{
+    appearance:none;
+    flex:0 0 auto;
+    border:1px solid transparent;
+    background:transparent;
+    color:var(--muted);
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:650;
+    line-height:1.2;
+    white-space:nowrap;
+    cursor:pointer;
+    padding:7px 10px;
+    border-radius:7px;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .report-subnav-btn:hover{background:var(--paper);color:var(--ink);border-color:var(--hair)}
+  .report-subnav-btn.active{background:var(--pencil-soft);color:var(--pencil);border-color:#CFD9EE}
+  .report-subnav-btn:focus-visible{outline:2px solid var(--pencil);outline-offset:1px}
+  .sec-label{scroll-margin-top:82px}
+  @media(max-width:640px){
+    .report-subnav{top:6px;margin:14px 0 18px}
+    .report-subnav-label{display:none}
+  }
   .result-group[hidden]{display:none}
   .std-note{margin-top:16px;font-size:13px;color:var(--muted)}
   .std-note code{font-family:var(--mono);background:var(--paper);border:1px solid var(--hair);border-radius:4px;padding:1px 6px;font-size:12px;color:var(--pencil);margin:0 2px;display:inline-block}
@@ -189,7 +379,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .section-help b{color:var(--ink)}
 
   .dev-note{max-width:640px;margin:14px auto 0;padding:12px 16px;background:var(--pencil-soft);border:1px solid var(--hair);border-radius:9px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:left}
-  @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#eng-report,#fte-report{box-shadow:none;border:0;padding:0}}
+  @media print{body{background:#fff}#input-card,#ref-input-card,.modebar,.report-actions,.tabs,.rtabs,.report-subnav,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#eng-report,#fte-report{box-shadow:none;border:0;padding:0}}
 
   .home-title-link{
     color:inherit;
@@ -240,27 +430,43 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <label class="opt"><input type="checkbox" id="opt-tables" checked /> Skip tables and numeric data blocks (recommended)</label>
     </div>
 
-    <div style="margin-top:16px">
-      <label class="fld" for="sentence-max">Maximum sentence length <span style="text-transform:none;font-weight:400;color:var(--faint)">(English, grammar &amp; style)</span></label>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <input class="text" id="sentence-max" type="number" inputmode="numeric" min="10" max="100" step="1" value="35" style="width:110px" aria-describedby="sentence-max-hint" />
-        <span>words per sentence</span>
+    <section class="readability-settings" aria-labelledby="readability-settings-title">
+      <div class="readability-head">
+        <div>
+          <h3 class="readability-title" id="readability-settings-title">Readability limits</h3>
+          <p class="readability-sub">Set the word-length thresholds used by the English and style checks.</p>
+        </div>
+        <span class="readability-defaults">Defaults: 35 · 100–300</span>
       </div>
-      <p class="hint" id="sentence-max-hint">Sentences containing more than this value will be flagged for readability review. Default: 35 words. Allowed range: 10–100.</p>
-    </div>
 
-    <div style="margin-top:16px">
-      <label class="fld" for="paragraph-min">Paragraph length range <span style="text-transform:none;font-weight:400;color:var(--faint)">(English, grammar &amp; style)</span></label>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span>Minimum</span>
-        <input class="text" id="paragraph-min" type="number" inputmode="numeric" min="20" max="1000" step="1" value="100" style="width:110px" aria-describedby="paragraph-range-hint" />
-        <span>words</span>
-        <span style="margin-left:8px">Maximum</span>
-        <input class="text" id="paragraph-max" type="number" inputmode="numeric" min="20" max="1000" step="1" value="300" style="width:110px" aria-describedby="paragraph-range-hint" />
-        <span>words</span>
+      <div class="readability-grid">
+        <label class="limit-control" for="sentence-max">
+          <span class="limit-label">Sentence maximum</span>
+          <span class="limit-input-row">
+            <input class="limit-input" id="sentence-max" type="number" inputmode="numeric" min="10" max="100" step="1" value="35" aria-describedby="sentence-max-hint" />
+            <span class="limit-unit">words</span>
+          </span>
+        </label>
+
+        <label class="limit-control" for="paragraph-min">
+          <span class="limit-label">Paragraph minimum</span>
+          <span class="limit-input-row">
+            <input class="limit-input" id="paragraph-min" type="number" inputmode="numeric" min="20" max="1000" step="1" value="100" aria-describedby="paragraph-range-hint" />
+            <span class="limit-unit">words</span>
+          </span>
+        </label>
+
+        <label class="limit-control" for="paragraph-max">
+          <span class="limit-label">Paragraph maximum</span>
+          <span class="limit-input-row">
+            <input class="limit-input" id="paragraph-max" type="number" inputmode="numeric" min="20" max="1000" step="1" value="300" aria-describedby="paragraph-range-hint" />
+            <span class="limit-unit">words</span>
+          </span>
+        </label>
       </div>
-      <p class="hint" id="paragraph-range-hint">Paragraph-length findings use these values after the section-aware structural checks. Defaults: 100–300 words. Allowed range: 20–1000; the maximum must be greater than the minimum.</p>
-    </div>
+
+      <p class="readability-foot"><span id="sentence-max-hint">Sentence range: 10–100.</span> <span id="paragraph-range-hint">Paragraph range: 20–1000; maximum must be greater than minimum. Section-aware exclusions still apply.</span></p>
+    </section>
 
     <details class="adv">
       <summary>Advanced: terms treated as standard (no definition required)</summary>
@@ -281,19 +487,20 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     </div>
   </section>
 
-  <div class="rtabs" id="results-tabs" role="tablist" hidden>
-    <button class="rtab active" data-tab="abbr" role="tab" aria-selected="true">Abbreviations</button>
-    <button class="rtab" data-tab="ref" role="tab" aria-selected="false">References</button>
-    <button class="rtab" data-tab="num" role="tab" aria-selected="false">Numbers, pH &amp; precision</button>
-    <button class="rtab" data-tab="unit" role="tab" aria-selected="false">Units &amp; notation</button>
-    <button class="rtab" data-tab="eng" role="tab" aria-selected="false">English, grammar &amp; style</button>
-    <button class="rtab" data-tab="fte" role="tab" aria-selected="false">Figures, tables &amp; equations</button>
+  <div class="rtabs" id="results-tabs" role="tablist" aria-label="Results" hidden>
+    <button class="rtab active" data-tab="abbr" role="tab" aria-selected="true" title="Abbreviations"><span class="rtab-label">Abbreviations</span></button>
+    <button class="rtab" data-tab="ref" role="tab" aria-selected="false" title="References"><span class="rtab-label">References</span></button>
+    <button class="rtab" data-tab="num" role="tab" aria-selected="false" title="Numbers, pH and precision"><span class="rtab-label">Numbers</span></button>
+    <button class="rtab" data-tab="unit" role="tab" aria-selected="false" title="Units and notation"><span class="rtab-label">Units</span></button>
+    <button class="rtab" data-tab="eng" role="tab" aria-selected="false" title="English, grammar and style"><span class="rtab-label">English</span></button>
+    <button class="rtab" data-tab="fte" role="tab" aria-selected="false" title="Figures, tables and equations"><span class="rtab-label">Figures/Tables</span></button>
   </div>
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
     <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. Acronym-like text is first classified from local context so commercial instrument/model/product names and manufacturer identifiers are not treated as scientific abbreviations merely because they contain capital letters. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
+    <nav class="report-subnav" id="abbr-subnav" aria-label="Abbreviation report sections" hidden></nav>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
     <div id="errors-wrap"></div>
@@ -330,6 +537,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="ref-report" hidden aria-live="polite">
       <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. A secondary embedded journal/source database is used during author-boundary protection, structural parsing, and final source recovery. It prevents known journal abbreviations from being consumed as author names and can recover a database-confirmed journal immediately before a publication year/volume tail even when pages or an article number are absent. If Journal/source is missing and text currently classified as Title matches a known full journal title or high-confidence abbreviation, that text is reclassified as Journal/source. Full journal titles remain usable even when the database provides no abbreviation. The database never invents a missing journal and absence from the database does not make a structurally valid source incorrect. Wrapped Word reference paragraphs are rejoined before parsing, and applicability is style/type aware so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
+      <nav class="report-subnav" id="ref-subnav" aria-label="Reference report sections" hidden></nav>
       <div id="ref-ledger-wrap"></div>
       <p class="disclaimer">The reference ledger reports whether key bibliographic components are detected in each entry. Field applicability is inferred from the reference type and the dominant structure of the reference list. Detection is heuristic, so ambiguous entries should still be checked manually.</p>
       <div class="report-actions">
@@ -353,6 +561,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="num-report" hidden aria-live="polite">
     <h2 class="help-row">Number, pH &amp; precision report <button type="button" class="info-help" id="num-report-info" aria-label="Explain the number, pH and precision report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="num-report-help" hidden><b>How to read this report:</b> findings are grouped by rule. The checker distinguishes ordinary number style, pH reporting, value ± variation consistency, ranges, p-values, and comparable precision patterns. Precision findings are intended for genuinely comparable data, not unrelated quantities or predefined thresholds.</div>
     <p class="sub" id="num-report-sub"></p>
+    <nav class="report-subnav" id="num-subnav" aria-label="Number report sections" hidden></nav>
     <div id="num-findings"></div>
     <p class="disclaimer">This combines numeral usage, pH reporting, and scientific numeric-precision checks. References and headings are excluded. Word tables are checked for precision patterns only within genuinely comparable measurement columns. Precision is assessed only within comparable numeric groups, including numerical series, ranges, uncertainties, percentages, p-values, and scientific notation. The checker never invents measurement resolution or silently adds or removes significant digits; uncertain cases are flagged for author review.</p>
     <div class="report-actions">
@@ -380,6 +589,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="unit-report" hidden aria-live="polite">
     <h2 class="help-row">Units &amp; notation report <button type="button" class="info-help" id="unit-report-info" aria-label="Explain the units report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="unit-report-help" hidden><b>Purpose:</b> this module checks internal consistency of repeated units and their associated numerical precision. It does <b>not</b> force SI notation and does not compare unrelated units. Affiliations and references are excluded.</div>
     <p class="sub" id="unit-report-sub"></p>
+    <nav class="report-subnav" id="unit-subnav" aria-label="Units report sections" hidden></nav>
     <div id="unit-summary"></div>
     <div id="unit-findings"></div>
     <div id="unit-ledger-wrap"></div>
@@ -409,6 +619,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="eng-report" hidden aria-live="polite">
     <h2 class="help-row">English, grammar &amp; style report <button type="button" class="info-help" id="eng-report-info" aria-label="Explain the English, grammar and style report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="eng-report-help" hidden><b>How to read this report:</b> the checker combines manuscript-specific English consistency with conservative grammar and style checks. It infers the dominant US/British convention, checks third-person and tense consistency, grammar/spelling, punctuation, clarity/conciseness, terminology consistency, readability using the user-selected sentence-length maximum (default 35 words), and a section-aware user-selected paragraph-length range (default 100–300 words). The selected minimum is applied only within sufficiently developed sections, while the selected maximum remains paragraph-specific. References and affiliations are excluded. The Abstract is additionally excluded from paragraph-length checking. Context-sensitive or uncertain cases are treated as review items rather than automatic corrections.</div>
     <p class="sub" id="eng-report-sub"></p>
+    <nav class="report-subnav" id="eng-subnav" aria-label="English report sections" hidden></nav>
     <div id="eng-summary"></div>
     <div id="eng-findings"></div>
     <div id="eng-ledger-wrap"></div>
@@ -443,6 +654,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="fte-report" hidden aria-live="polite">
     <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
     <p class="sub" id="fte-report-sub"></p>
+    <nav class="report-subnav" id="fte-subnav" aria-label="Figures tables and equations report sections" hidden></nav>
     <div id="fte-summary"></div>
     <div id="fte-findings"></div>
     <p class="disclaimer">This check uses the structure of the uploaded Word document to distinguish captions/items from ordinary cross-references. Figures, tables, equations, and supplementary items are validated as independent sequences. Placement is flagged only when the Word structure provides sufficient evidence; otherwise the report states that placement could not be verified reliably.</p>
@@ -995,6 +1207,7 @@ function unitAnalyze(text,tables){
 function unitStatusClass(s){return /mixed/.test(s)?"na":"y";}
 function renderUnitReport(res){
   LAST_UNIT=res;
+  setResultTabCount("unit",res?.issues?.length||0);
   $("unit-report-sub").textContent=res.issues.length
     ?`${res.recognized} unit-bearing quantities detected · ${res.issues.length} consistency item${res.issues.length===1?"":"s"} to review`
     :`${res.recognized} unit-bearing quantities detected · unit formats and precision are internally consistent`;
@@ -1048,6 +1261,7 @@ function renderUnitReport(res){
   bindInfoHelp("unit-report-info","unit-report-help");
   bindInfoHelp("unit-ledger-info","unit-ledger-help");
   $("unit-report").hidden=false;
+  buildReportSubnav("unit-report","unit-subnav");
 }
 function unitReportText(res){
   const L=[
@@ -3453,6 +3667,11 @@ function engAnalyze(text,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT,paragraphLimit
 }
 function renderEnglishReport(res){
   LAST_ENG=res;
+  const wcForCount=res?.writingChecks||{};
+  const englishCount=(res?.issues?.length||0)+(res?.personIssues?.length||0)+(res?.tenseIssues?.length||0)+
+    (wcForCount.grammar?.length||0)+(wcForCount.punctuation?.length||0)+(wcForCount.clarity?.length||0)+(wcForCount.consistency?.length||0)+
+    (res?.paragraphIssues?.length||0);
+  setResultTabCount("eng",englishCount);
   const inf=res.inference;
   if(inf.style==="US"||inf.style==="UK"){
     const wc=res.writingChecks||{grammar:[],punctuation:[],clarity:[],consistency:[],passive:[],metrics:{}};
@@ -3477,15 +3696,14 @@ function renderEnglishReport(res){
     <div class="score ${(res.paragraphIssues||[]).length?"warn":"ok"}"><div class="n">${(res.paragraphIssues||[]).length}</div><div class="k">Paragraph length</div></div>
   </div>`;
 
-  let html="";
+  let html=`<p class="sec-label">English convention <button type="button" class="info-help inline-auto-help" data-help="Shows the inferred US/British English convention and any spellings that contradict a clear manuscript-wide majority. If evidence is mixed or insufficient, the checker reports that uncertainty rather than guessing." aria-label="Explain English convention" title="Explain this section">i</button> · ${res.issues.length}</p>`;
   if((inf.style==="US"||inf.style==="UK")&&!res.issues.length){
-    html=`<p class="verdict clean">No contradictory US/British spelling was detected against the dominant ${escapeHtml(inf.label)} pattern.</p>`;
+    html+=`<p class="verdict clean">No contradictory US/British spelling was detected against the dominant ${escapeHtml(inf.label)} pattern.</p>`;
   }else if(inf.style==="mixed"){
-    html=`<p class="verdict">US and British markers are too evenly mixed to identify a reliable majority. Review the variant ledger and choose one convention before treating individual spellings as contradictions.</p>`;
+    html+=`<p class="verdict">US and British markers are too evenly mixed to identify a reliable majority. Review the variant ledger and choose one convention before treating individual spellings as contradictions.</p>`;
   }else if(inf.style==="insufficient"){
-    html=`<p class="verdict">Insufficient diagnostic spelling evidence. The checker will not guess a language convention from one isolated word.</p>`;
+    html+=`<p class="verdict">Insufficient diagnostic spelling evidence. The checker will not guess a language convention from one isolated word.</p>`;
   }else{
-    html+=`<p class="sec-label">Contradictory spellings <button type="button" class="info-help inline-auto-help" data-help="Shows words that use the minority US/British spelling after a clear manuscript-wide majority has been established." aria-label="Explain Contradictory spellings" title="Explain this section">i</button> · ${res.issues.length}</p>`;
     res.issues.slice(0,300).forEach(it=>{
       html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
         <p class="msg"><span class="abbr">${escapeHtml(it.word)}</span> ${escapeHtml(it.msg)}</p>
@@ -3545,8 +3763,12 @@ function renderEnglishReport(res){
   renderWritingSection("Consistency & terminology",wchk.consistency,
     "Checks repeated technical terms within body prose only. Sentence starts, titles, section headings, figure/table captions, Word tables, equations/math, citations and citation-manager fields, headers/footers, footnotes/endnotes, and References are excluded.");
   const sentenceLimit=engNormalizeSentenceLimit(wchk.metrics?.sentenceLengthLimit||res.sentenceLengthLimit||ENG_SENTENCE_LIMIT_DEFAULT);
-  renderWritingSection("Clarity & conciseness",wchk.clarity,
-    `Review items for wordiness, redundancy, informal wording, contractions, sentences longer than the selected ${sentenceLimit}-word maximum, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.`);
+  const sentenceLengthIssues=(wchk.clarity||[]).filter(it=>it.code==="LONG_SENTENCE");
+  const otherClarityIssues=(wchk.clarity||[]).filter(it=>it.code!=="LONG_SENTENCE");
+  renderWritingSection("Sentence length",sentenceLengthIssues,
+    `Shows prose sentences that exceed the user-selected ${sentenceLimit}-word maximum. A long sentence is a readability review item, not automatically a grammatical error.`);
+  renderWritingSection("Clarity & conciseness",otherClarityIssues,
+    "Review items for wordiness, redundancy, informal wording, contractions, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.");
 
   html+=`<p class="sec-label">Readability <button type="button" class="info-help inline-auto-help" data-help="Passive voice is permitted and is not flagged. Readability is calculated from prose sentences detected paragraph-by-paragraph using language-aware sentence segmentation where available. Headings, captions, equations, tables, affiliations, and references are excluded. These indicators do not measure scientific quality." aria-label="Explain Readability" title="Explain this section">i</button></p>`;
   const met=wchk.metrics||{};
@@ -3593,6 +3815,7 @@ function renderEnglishReport(res){
   $("eng-ledger-wrap").innerHTML=`<p class="sec-label">Variant evidence ledger <button type="button" class="info-help inline-auto-help" data-help="Shows which diagnostic spelling families contributed evidence toward the inferred US or British English convention." aria-label="Explain Variant evidence ledger" title="Explain this section">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Spelling family</th><th>Forms detected</th><th>US uses</th><th>British uses</th><th>Observed</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No diagnostic US/British spelling markers detected.</td></tr>'}</tbody></table></div>`;
   bindInfoHelp("eng-report-info","eng-report-help");
   $("eng-report").hidden=false;
+  buildReportSubnav("eng-report","eng-subnav");
 }
 function englishReportText(res){
   const inf=res.inference;
@@ -5083,8 +5306,63 @@ function buildSnippet(sentence, disp){
   return escapeHtml(s).replace(new RegExp("\\b("+escapeRegExp(disp)+"s?)\\b"),"<mark>$1</mark>");
 }
 
+/* ---------- In-report subheading navigation ---------- */
+const REPORT_SUBNAV_OBSERVERS=new Map();
+function reportSubnavLabel(el){
+  const txt=[...el.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent||"").join(" ").replace(/\s+/g," ").trim();
+  return txt.replace(/\s*[·|]\s*\d+\s*$/,"").trim() || (el.textContent||"").replace(/\s+/g," ").replace(/\s*[·|]\s*\d+\s*$/,"").trim();
+}
+function buildReportSubnav(reportId,navId){
+  const report=$(reportId), nav=$(navId);
+  if(!report||!nav) return;
+  if(REPORT_SUBNAV_OBSERVERS.has(navId)){
+    try{REPORT_SUBNAV_OBSERVERS.get(navId).disconnect();}catch(_e){}
+    REPORT_SUBNAV_OBSERVERS.delete(navId);
+  }
+  const headings=[...report.querySelectorAll(".sec-label")].filter(el=>!!reportSubnavLabel(el));
+  const seen=new Set();
+  const items=[];
+  const topHeading=report.querySelector("h2");
+  if(topHeading){
+    const topId=`${navId}-overview`;
+    topHeading.id=topId;
+    items.push({el:topHeading,id:topId,label:"Overview"});
+    seen.add("overview");
+  }
+  headings.forEach((el,i)=>{
+    const label=reportSubnavLabel(el);
+    if(!label) return;
+    const key=label.toLowerCase();
+    if(seen.has(key)) return;
+    seen.add(key);
+    const id=`${navId}-section-${items.length+1}`;
+    el.id=id;
+    items.push({el,id,label});
+  });
+  if(!items.length){nav.innerHTML="";nav.hidden=true;return;}
+  nav.innerHTML=`<span class="report-subnav-label">Jump to</span>`+items.map((it,i)=>`<button type="button" class="report-subnav-btn${i===0?" active":""}" data-target="${it.id}">${escapeHtml(it.label)}</button>`).join("");
+  nav.hidden=false;
+  const buttons=[...nav.querySelectorAll(".report-subnav-btn")];
+  const activate=id=>{buttons.forEach(b=>b.classList.toggle("active",b.dataset.target===id));};
+  buttons.forEach(btn=>{btn.addEventListener("click",()=>{
+    const target=document.getElementById(btn.dataset.target);
+    if(!target)return;
+    activate(btn.dataset.target);
+    target.scrollIntoView({behavior:"smooth",block:"start"});
+  });});
+  if("IntersectionObserver" in window){
+    const obs=new IntersectionObserver(entries=>{
+      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
+      if(visible.length) activate(visible[0].target.id);
+    },{root:null,rootMargin:"-86px 0px -72% 0px",threshold:0});
+    items.forEach(it=>obs.observe(it.el));
+    REPORT_SUBNAV_OBSERVERS.set(navId,obs);
+  }
+}
+
 /* ---------- Rendering ---------- */
 function renderReport(r){
+  setResultTabCount("abbr",(r.errors?.length||0)+(r.warnings?.length||0)+(r.infos?.length||0));
   const refNote = r.refExcluded ? " · references section excluded"
                  : r.refRequested ? " · no references section detected" : "";
   const tabNote = r.tableLinesRemoved ? ` · ${r.tableLinesRemoved} table line${r.tableLinesRemoved===1?"":"s"} removed` : "";
@@ -5112,6 +5390,7 @@ function renderReport(r){
     r.standardSeen.length?`<p class="std-note"><b>Treated as standard (definition not required):</b> ${inlineHelpButton("These tokens were recognized as standard/allowed terms and were intentionally excluded from undefined-abbreviation findings. The list comes from the built-in standard registry plus any user-supplied whitelist.","Explain standard terms")} ${r.standardSeen.map(s=>`<code>${escapeHtml(s)}</code>`).join("")}</p>`:"";
 
   const rep=document.getElementById("report"); rep.hidden=false;
+  buildReportSubnav("report","abbr-subnav");
 }
 function section(label,items,kind){
   if(!items.length) return "";
@@ -6225,10 +6504,11 @@ function fteStatus(res,kind,check){
 function fteYN(v){ return `<span class="yn ${v?"y":"n"}">${v?"yes":"no"}</span>`; }
 function renderFteReport(res){
   LAST_FTE=res;
+  setResultTabCount("fte",res?.issues?.length||0);
   const total=res.figures.length+res.tables.length+res.equations.length;
   $("fte-report-sub").textContent=!res.reliable?"Unable to verify document structure reliably.":`${res.issues.length} item${res.issues.length===1?"":"s"} to review · ${res.figures.length} figure${res.figures.length===1?"":"s"} · ${res.tables.length} table${res.tables.length===1?"":"s"} · ${res.equations.length} numbered equation${res.equations.length===1?"":"s"}`;
-  if(!res.reliable){ $("fte-summary").innerHTML=""; $("fte-findings").innerHTML=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg">Unable to verify placement reliably from the Word document structure.</p></div></div>`; bindInfoHelp("fte-report-info","fte-report-help");
-  $("fte-report").hidden=false; return; }
+  if(!res.reliable){ $("fte-summary").innerHTML=""; $("fte-findings").innerHTML=`<p class="sec-label">Structural verification</p><div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg">Unable to verify placement reliably from the Word document structure.</p></div></div>`; bindInfoHelp("fte-report-info","fte-report-help");
+  $("fte-report").hidden=false; buildReportSubnav("fte-report","fte-subnav"); return; }
   const rows=[
     ["Figures",res.figures.length,fteStatus(res,"figure","numbering"),fteStatus(res,"figure","cited"),fteStatus(res,"figure","resolve"),fteStatus(res,"figure","before")],
     ["Tables",res.tables.length,fteStatus(res,"table","numbering"),fteStatus(res,"table","cited"),fteStatus(res,"table","resolve"),fteStatus(res,"table","before")],
@@ -6242,6 +6522,7 @@ function renderFteReport(res){
     $("fte-findings").innerHTML=html;
   }
   $("fte-report").hidden=false;
+  buildReportSubnav("fte-report","fte-subnav");
 }
 function fteReportText(res){
   const L=["FIGURE, TABLE, AND EQUATION CONSISTENCY REPORT",""];
@@ -8872,6 +9153,7 @@ function refCheck(refText, bodyText){
 }
 let LAST_REF_OUT=null;
 function renderRefReport(res, cross){
+  setResultTabCount("ref",res.count||0);
   $("ref-report-sub").textContent =
     `Detected style: ${res.style} · ${res.count} references`+
     (res.titleConvention&&res.titleConvention!=="uncertain"?` · titles ${res.titleConvention}`:"")+
@@ -8883,6 +9165,7 @@ function renderRefReport(res, cross){
   $("ref-ledger-wrap").innerHTML=refLedger(res.parsed);
   bindInfoHelp("ref-report-info","ref-report-help");
   $("ref-report").hidden=false;
+  buildReportSubnav("ref-report","ref-subnav");
 }
 function refLedger(parsed){
   if(!parsed.length) return "";
@@ -8942,6 +9225,7 @@ function showRefNote(note){
   $("ref-report-sub").textContent=note;
   $("ref-ledger-wrap").innerHTML="";
   $("ref-report").hidden=false;
+  buildReportSubnav("ref-report","ref-subnav");
 }
 
 /* ================= Number, pH & scientific precision check ================= */
@@ -9266,6 +9550,7 @@ function numberCheck(text,tables=[]){
   return out.filter(f=>{ const k=f.cat+"|"+f.msg+"|"+f.snippet; if(seen.has(k)) return false; seen.add(k); return true; });
 }
 function renderNumReport(findings){
+  setResultTabCount("num",findings?.length||0);
   const cats=[
     {k:"pH",label:"pH reporting",kind:"warn",help:"Checks measured/adjusted/target pH formatting and manuscript-wide pH precision. Comparable forms such as pH 7 and pH 7.0 are reported together when inconsistent."},
     {k:"zero",label:"Missing leading zero",kind:"warn",help:"Flags genuine decimal values written without a leading zero, such as .25 instead of 0.25. In-text numbered citations are protected from this rule."},
@@ -9284,17 +9569,20 @@ function renderNumReport(findings){
   cats.forEach(c=>{
     const items=findings.filter(f=>f.cat===c.k); if(!items.length) return;
     const kind=c.kind||"info", sym=kind==="warn"?"!":"i";
-    html+=`<p class="sec-label">${c.label} ${inlineHelpButton(c.help,`Explain ${c.label}`)} · ${items.length}</p>`;
+    html+=`<section class="report-subsection"><p class="sec-label">${c.label} ${inlineHelpButton(c.help,`Explain ${c.label}`)} · ${items.length}</p>`;
     items.slice(0,300).forEach(it=>{ html+=`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg">${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${it.snippet}</div>`:""}</div></div>`; });
+    html+=`</section>`;
   });
   $("num-findings").innerHTML=html;
   bindInfoHelp("num-report-info","num-report-help");
   $("num-report").hidden=false;
+  buildReportSubnav("num-report","num-subnav");
 }
 
 /* ---------- single combined run ---------- */
 $("run").onclick=async()=>{
   const btn=$("run");
+  resetResultTabCounts();
   const standardSet=new Set();
   $("whitelist").value.split(/\n/).forEach(line=>{
     const s=line.trim(); if(!s || s.startsWith("#")) return;
@@ -9430,6 +9718,7 @@ $("run").onclick=async()=>{
 };
 
 $("clear").onclick=()=>{
+  resetResultTabCounts();
   currentFile=null; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null; fileInput.value=""; chip.style.display="none";
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
@@ -9448,6 +9737,15 @@ $("fte-download").onclick=()=>{ if(!LAST_FTE) return; const blob=new Blob([fteRe
 $("fte-print").onclick=()=>window.print();
 
 let currentTab="abbr";
+function setResultTabCount(which,value){
+  const el=document.getElementById(`result-count-${which}`);
+  if(!el) return;
+  const n=Number(value);
+  el.textContent=Number.isFinite(n)?String(Math.max(0,Math.round(n))):"0";
+}
+function resetResultTabCounts(){
+  ["abbr","ref","num","unit","eng","fte"].forEach(k=>setResultTabCount(k,0));
+}
 function showTab(which){
   currentTab=which;
   document.querySelectorAll(".result-group").forEach(el=>{ el.hidden = el.dataset.group!==which; });
