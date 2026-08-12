@@ -8547,8 +8547,63 @@ function refExtractDoi(raw){
   return cand||null;
 }
 
+/* General journal volume/issue recognition.
+   Volume and issue are intentionally parsed as separate concepts. Issue text may
+   be a range or journal designator, e.g. 47(7-8), 47(7–8), 47(7/8), 47(7,8),
+   47(S1), 47(Suppl 1), 47(Part 2), or 47(Special Issue 2). A failure to fully
+   interpret the parentheses must never discard an otherwise clear volume. */
+function refVolumeIssueCandidates(raw, sourceRegion){
+  const t=refStripDoiUrl(raw||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+  const out=[];
+  const seen=new Set();
+  const add=(volume,issue,source)=>{
+    volume=String(volume||"").trim(); issue=issue==null?null:String(issue).replace(/\s+/g," ").trim();
+    if(!/^\d{1,6}$/.test(volume)) return;
+    const key=volume+"|"+(issue||"")+"|"+source;
+    if(seen.has(key)) return; seen.add(key);
+    out.push({volume,issue,source});
+  };
+
+  // Parenthesized issue/designator forms. Keep the volume even if the content of
+  // the parentheses is unfamiliar; issue is recorded only when it looks like a
+  // plausible publication designator rather than a four-digit publication year.
+  const parenRe=/(?:^|[,;.\s])(\d{1,6})\s*\(\s*([^()]{1,40})\s*\)/g;
+  let m;
+  while((m=parenRe.exec(t))){
+    const inside=m[2].trim();
+    const isYear=/^(?:19|20)\d{2}[a-z]?$/i.test(inside);
+    const issueLike=/^(?:(?:pt|part|suppl?|supplement|issue|no\.?|special\s+issue)\s*)?[A-Za-z]?\d+[A-Za-z]?(?:\s*(?:[-–—/,]|&|and)\s*[A-Za-z]?\d+[A-Za-z]?)*$/i.test(inside);
+    add(m[1],(!isYear&&issueLike)?inside:null,"parenthesized");
+  }
+
+  // Explicit volume labels, with or without issue parentheses.
+  const volRe=/\bvol(?:ume)?\.?\s*(\d{1,6})\b(?:\s*\(\s*([^()]{1,40})\s*\))?/ig;
+  while((m=volRe.exec(t))) add(m[1],m[2]||null,"explicit-volume");
+
+  // Strongest fallback: a detected journal/source immediately followed by a
+  // number. This allows volume recognition even when the issue syntax is novel.
+  if(sourceRegion){
+    try{
+      const esc=String(sourceRegion).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6})(?:\\s*\\(\\s*([^()]{1,40})\\s*\\))?","ig");
+      while((m=re.exec(t))) add(m[1],m[2]||null,"source-adjacent");
+    }catch(e){}
+  }
+  return out;
+}
+function refHasIssue(raw, year, sourceRegion){
+  const pubYear=year?String(year).replace(/[a-z]$/i,""):null;
+  const cands=refVolumeIssueCandidates(raw,sourceRegion);
+  if(cands.some(c=>c.issue && !(pubYear && c.issue===pubYear))) return true;
+  const t=refStripDoiUrl(raw||"");
+  return /\b(?:no\.?|iss(?:ue)?\.?)\s*(?:[A-Za-z]?\d+[A-Za-z]?)(?:\s*[-–—/,]\s*[A-Za-z]?\d+[A-Za-z]?)*\b/i.test(t);
+}
+
 function refHasVolume(raw, year, sourceRegion){
   const t=(raw||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+
+  // General structural recognition first, including combined issue ranges.
+  if(refVolumeIssueCandidates(raw,sourceRegion).length) return true;
 
   // Explicit volume labels are unambiguous.
   if(/\bvol(?:ume)?\.?\s*\d{1,6}\b/i.test(t)) return true;
@@ -9048,7 +9103,7 @@ function refParseLocatorFields(rest, yearInfo){
   //
   // The designator itself is not a page/article locator. It is consumed only
   // so the following bibliographic locator can be identified correctly.
-  const issueDesignator = String.raw`(?:\s*\(\s*(?:(?:pt|part|suppl?|supplement|issue|no\.?)\s*)?([A-Za-z]?\d+[A-Za-z]?)\s*\))?`;
+  const issueDesignator = String.raw`(?:\s*\(\s*((?:(?:pt|part|suppl?|supplement|issue|no\.?|special\s+issue)\s*)?[A-Za-z]?\d+[A-Za-z]?(?:\s*(?:[-–—/,]|&|and)\s*[A-Za-z]?\d+[A-Za-z]?)*?)\s*\))?`;
   const locatorToken = String.raw`([A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?)`;
 
   if(yearInfo){
@@ -9150,8 +9205,12 @@ function refParseLocatorFields(rest, yearInfo){
 
   // Generic volume(issue) anywhere when not already resolved.
   if(!volume){
-    m=s.match(/(?:^|[,;.\s])(\d{1,6})\s*\(\s*(\d{1,6})\s*\)(?=\s*[,;:.])/);
-    if(m){ volume=m[1]; issue=issue||m[2]; }
+    m=s.match(/(?:^|[,;.\s])(\d{1,6})\s*\(\s*((?:(?:pt|part|suppl?|supplement|issue|no\.?|special\s+issue)\s*)?[A-Za-z]?\d+[A-Za-z]?(?:\s*(?:[-–—/,]|&|and)\s*[A-Za-z]?\d+[A-Za-z]?)*?)\s*\)(?=\s*[,;:.])/i);
+    if(m){
+      volume=m[1];
+      const py=yearInfo?yearInfo.year.replace(/[a-z]$/i,""):null;
+      if(!(py && m[2]===py)) issue=issue||m[2];
+    }
   }
 
   return {volume,issue,locator,locatorKind};
@@ -9507,6 +9566,17 @@ function refRecoverSourceFromDbSuffix(raw,title){
   return found[0];
 }
 
+function refTrimPublicationTailFromSource(source){
+  let s=refCleanField(source||"");
+  if(!s) return s;
+  // Strip only a strong bibliographic tail: separator + volume + optional
+  // issue/designator + separator + page/article locator. This prevents values
+  // such as 47(7-8), 409-428 from becoming part of the journal/source name.
+  const tail=/\s*[,;]\s*\d{1,6}(?:\s*\(\s*[^()]{1,40}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i;
+  const cleaned=s.replace(tail,"").replace(/[\s,;:.]+$/g,"").trim();
+  return cleaned || s;
+}
+
 function refParseEntry(raw){
   const rawTrim=raw.trim();
   const doi=refExtractDoi(raw);
@@ -9635,6 +9705,19 @@ function refParseEntry(raw){
     if(!year) year=detectPublicationYear(raw,authorInfo,sourceRegion);
     if(sourceRegion){
       const confirmed=journalDbMatch(sourceRegion,true);
+      if(confirmed.matched) sourceDbMatch=confirmed.type;
+    }
+  }
+
+  // Keep publication fields separate from the journal/source label. Some
+  // fallback source recoveries intentionally capture a wider suffix; once the
+  // volume/locator tail is structurally clear, remove it from sourceRegion.
+  if(type==="journal article" && sourceRegion){
+    const trimmedSource=refTrimPublicationTailFromSource(sourceRegion);
+    if(trimmedSource && trimmedSource!==sourceRegion){
+      sourceRegion=trimmedSource;
+      if(structured) structured.source=trimmedSource;
+      const confirmed=journalDbMatch(trimmedSource,true);
       if(confirmed.matched) sourceDbMatch=confirmed.type;
     }
   }
@@ -9931,6 +10014,14 @@ function refCheck(refText, bodyText){
       }
     }
 
+    // Recompute publication-field presence after all defensive journal/source
+    // recovery. Earlier parsing may have lacked sourceRegion, so retaining the
+    // old booleans here can incorrectly show Journal/source = yes but Vol. = no.
+    if(isArt){
+      p.hasVolume = !!p.hasVolume || !!p.structured?.volume || refHasVolume(p.raw,p.year,p.sourceRegion);
+      p.hasIssue = !!p.hasIssue || !!p.structured?.issue || refHasIssue(p.raw,p.year,p.sourceRegion);
+    }
+
     const titleReq = (isArt && titleConvention==="included") || isBook;
     const sourceReq = isArt || isBook;
     // three-state field flags (present / required-absent="no" / not-applicable="na")
@@ -10035,7 +10126,7 @@ function inferTemplate(ex){
     yearParen: /\((?:19|20)\d{2}[a-z]?\)/.test(ex),
     doi: !!p.doi,
     enDashPages: enDash,
-    volIssue: /\b\d+\s*\(\d+\)/.test(ex)
+    volIssue: /\b\d+\s*\(\s*(?:(?:pt|part|suppl?|supplement|issue|no\.?|special\s+issue)\s*)?[A-Za-z]?\d+[A-Za-z]?(?:\s*(?:[-–—/,]|&|and)\s*[A-Za-z]?\d+[A-Za-z]?)*\s*\)/i.test(ex)
   };
 }
 function applyTemplateChecks(res, tpl){
@@ -10050,7 +10141,7 @@ function applyTemplateChecks(res, tpl){
       res.issues.push({level:"warn",idx:i,label:L,msg:"No DOI, but your style example includes a DOI."});
     if(tpl.enDashPages && /\d+\s*-\s*\d+/.test(raw) && !/\d+\s*–\s*\d+/.test(raw))
       res.issues.push({level:"info",idx:i,label:L,msg:"Page range uses a hyphen, but your style example uses an en dash (–)."});
-    if(tpl.volIssue && p.hasPages && !/\b\d+\s*\(\d+\)/.test(raw))
+    if(tpl.volIssue && p.hasPages && !/\b\d+\s*\(\s*(?:(?:pt|part|suppl?|supplement|issue|no\.?|special\s+issue)\s*)?[A-Za-z]?\d+[A-Za-z]?(?:\s*(?:[-–—/,]|&|and)\s*[A-Za-z]?\d+[A-Za-z]?)*\s*\)/i.test(raw))
       res.issues.push({level:"info",idx:i,label:L,msg:"No volume(issue) grouping like your style example, e.g. 4(8)."});
   });
 }
