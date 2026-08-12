@@ -249,6 +249,19 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <p class="hint" id="sentence-max-hint">Sentences containing more than this value will be flagged for readability review. Default: 35 words. Allowed range: 10–100.</p>
     </div>
 
+    <div style="margin-top:16px">
+      <label class="fld" for="paragraph-min">Paragraph length range <span style="text-transform:none;font-weight:400;color:var(--faint)">(English, grammar &amp; style)</span></label>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span>Minimum</span>
+        <input class="text" id="paragraph-min" type="number" inputmode="numeric" min="20" max="1000" step="1" value="100" style="width:110px" aria-describedby="paragraph-range-hint" />
+        <span>words</span>
+        <span style="margin-left:8px">Maximum</span>
+        <input class="text" id="paragraph-max" type="number" inputmode="numeric" min="20" max="1000" step="1" value="300" style="width:110px" aria-describedby="paragraph-range-hint" />
+        <span>words</span>
+      </div>
+      <p class="hint" id="paragraph-range-hint">Paragraph-length findings use these values after the section-aware structural checks. Defaults: 100–300 words. Allowed range: 20–1000; the maximum must be greater than the minimum.</p>
+    </div>
+
     <details class="adv">
       <summary>Advanced: terms treated as standard (no definition required)</summary>
       <p class="hint">One per line. Abbreviations listed here are assumed universally known and are not flagged as undefined. The default list is deliberately short. Add your own field terms (for example COD, BOD, TSS) only if your target journal accepts them without definition.</p>
@@ -328,7 +341,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <details class="rules">
       <summary>What this checks</summary>
       <ol>
-        <li><b>Reference ledger.</b> Each entry is assessed for author, year, title, source, pages or article number, volume, and DOI.</li>
+        <li><b>Reference ledger.</b> Each entry is assessed for author, year, title, source, pages or article number, volume, and DOI. Word automatic numbering is recovered from DOCX list metadata before entry parsing, and terminal publisher labels such as <code>[CrossRef]</code> or <code>[PubMed]</code> do not hide reference boundaries.</li>
         <li><b>Style-aware applicability.</b> Fields intentionally omitted by the dominant reference-list convention are shown as <code>n/a</code> rather than as errors.</li>
         <li><b>Reference type.</b> Journal articles and non-journal sources are distinguished so inapplicable journal fields are not treated as required.</li><li><b>Journal database cross-check.</b> A secondary embedded database of 113,081 normalized full source titles and 27,100 abbreviation forms protects author/source boundaries, confirms parsed journals, and performs conservative raw-reference suffix recovery before publication year/volume tails. Missing pages or article numbers do not prevent an otherwise identifiable journal from being recognised. Entries with no abbreviation remain matchable by their full title. Database absence is not treated as an error.</li>
         <li><b>Ledger-only report.</b> The References tab displays the field-status ledger without separate warning or suggestion sections.</li>
@@ -394,7 +407,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="eng" hidden>
   <section class="card" id="eng-report" hidden aria-live="polite">
-    <h2 class="help-row">English, grammar &amp; style report <button type="button" class="info-help" id="eng-report-info" aria-label="Explain the English, grammar and style report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="eng-report-help" hidden><b>How to read this report:</b> the checker combines manuscript-specific English consistency with conservative grammar and style checks. It infers the dominant US/British convention, checks third-person and tense consistency, grammar/spelling, punctuation, clarity/conciseness, terminology consistency, readability using the user-selected sentence-length maximum (default 35 words), and the 100–300 word paragraph rule. References and affiliations are excluded. The Abstract is additionally excluded from paragraph-length checking. Context-sensitive or uncertain cases are treated as review items rather than automatic corrections.</div>
+    <h2 class="help-row">English, grammar &amp; style report <button type="button" class="info-help" id="eng-report-info" aria-label="Explain the English, grammar and style report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="eng-report-help" hidden><b>How to read this report:</b> the checker combines manuscript-specific English consistency with conservative grammar and style checks. It infers the dominant US/British convention, checks third-person and tense consistency, grammar/spelling, punctuation, clarity/conciseness, terminology consistency, readability using the user-selected sentence-length maximum (default 35 words), and a section-aware user-selected paragraph-length range (default 100–300 words). The selected minimum is applied only within sufficiently developed sections, while the selected maximum remains paragraph-specific. References and affiliations are excluded. The Abstract is additionally excluded from paragraph-length checking. Context-sensitive or uncertain cases are treated as review items rather than automatic corrections.</div>
     <p class="sub" id="eng-report-sub"></p>
     <div id="eng-summary"></div>
     <div id="eng-findings"></div>
@@ -415,7 +428,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Conservative vocabulary.</b> Ambiguous pairs such as <code>practice/practise</code>, <code>license/licence</code>, and <code>program/programme</code> are not used automatically because usage can depend on grammatical role or meaning.</li>
       <li><b>Strict third-person check.</b> Unambiguous first-person forms such as <code>I</code>, <code>we</code>, <code>our</code>, <code>my</code>, and <code>us</code>, and second-person forms such as <code>you</code> and <code>your</code>, are flagged in manuscript prose. Every potentially personal form is interpreted from context before being flagged. This prevents technical uses such as <code>Type I</code>, a mathematical/current symbol <code>I</code>, <code>US</code> for United States, unit-like <code>us</code>, acronym-like tokens, and mining-related <code>mine</code> from being confused with first- or second-person language. This is implemented as a strict manuscript-style rule rather than a universal rule of scientific English.</li>
       <li><b>Scientific tense check.</b> Tense is evaluated in context. Tense review is allowed for general truths, definitions, established properties, ongoing conditions, continuing limitations, and interpretations that remain valid. Tense review is flagged mainly when a sentence clearly narrates a completed manuscript-specific experimental action or observation that should normally be in past tense.</li>
-      <li><b>Paragraph length.</b> Main-text prose paragraphs should contain <b>100–300 words</b>. Paragraphs below 100 or above 300 words are flagged. The Abstract and References are excluded, as are obvious headings, captions, equations, and table-like structural lines.</li>
+      <li><b>Paragraph length.</b> Main-text prose uses a user-selected minimum and maximum, with defaults of <b>100–300 words</b>. The selected minimum is section-aware: a short paragraph is not flagged when it is the only substantive paragraph in its local section, when the entire local section contains no more words than the selected minimum, or when it belongs to an intentionally concise component such as a Novelty or Significance statement. The selected maximum remains paragraph-specific. The Abstract, References, headings, captions, legends, notes, equations, tables, and other structural content are excluded.</li>
       <li><b>Grammar and spelling.</b> Checks high-confidence issues such as common scientific typos, duplicated words, article misuse, clear subject–verb disagreement, redundant comparative forms, and selected commonly confused constructions.</li>
       <li><b>Punctuation and mechanics.</b> Checks repeated punctuation, spaces before punctuation, missing spaces after commas/semicolons/colons, and unmatched brackets in prose.</li>
       <li><b>Clarity and conciseness.</b> Flags selected wordy phrases, redundant expressions, informal contractions/phrases, sentences exceeding the user-selected maximum sentence length, repeated sentence openings, overused transition words, vague sentence-opening <code>This</code>, and limited high-confidence parallel-structure problems. The default maximum is <b>35 words</b>, and the user may set a value from 10 to 100 words before running the check.</li>
@@ -1065,6 +1078,13 @@ const ENG_SENTENCE_LIMIT_MIN=10;
 const ENG_SENTENCE_LIMIT_MAX=100;
 let ENG_CURRENT_SENTENCE_LIMIT=ENG_SENTENCE_LIMIT_DEFAULT;
 
+const ENG_PARAGRAPH_MIN_DEFAULT=100;
+const ENG_PARAGRAPH_MAX_DEFAULT=300;
+const ENG_PARAGRAPH_LIMIT_MIN=20;
+const ENG_PARAGRAPH_LIMIT_MAX=1000;
+let ENG_CURRENT_PARAGRAPH_MIN=ENG_PARAGRAPH_MIN_DEFAULT;
+let ENG_CURRENT_PARAGRAPH_MAX=ENG_PARAGRAPH_MAX_DEFAULT;
+
 function engNormalizeSentenceLimit(value){
   const n=Math.round(Number(value));
   if(!Number.isFinite(n)) return ENG_SENTENCE_LIMIT_DEFAULT;
@@ -1085,6 +1105,51 @@ function engInitSentenceLimit(){
   ENG_CURRENT_SENTENCE_LIMIT=n;
   const el=$("sentence-max");
   if(el) el.value=String(n);
+}
+
+function engNormalizeParagraphLimit(value,fallback){
+  const n=Math.round(Number(value));
+  if(!Number.isFinite(n)) return fallback;
+  return Math.min(ENG_PARAGRAPH_LIMIT_MAX,Math.max(ENG_PARAGRAPH_LIMIT_MIN,n));
+}
+function engValidateParagraphLimits(minValue,maxValue){
+  const min=engNormalizeParagraphLimit(minValue,ENG_PARAGRAPH_MIN_DEFAULT);
+  const max=engNormalizeParagraphLimit(maxValue,ENG_PARAGRAPH_MAX_DEFAULT);
+  if(max<=min){
+    return {valid:false,min,max,error:`Maximum paragraph length must be greater than the minimum paragraph length (${min} words).`};
+  }
+  return {valid:true,min,max,error:""};
+}
+function engReadParagraphLimits(){
+  const minEl=$("paragraph-min"), maxEl=$("paragraph-max");
+  const out=engValidateParagraphLimits(minEl?minEl.value:ENG_PARAGRAPH_MIN_DEFAULT,maxEl?maxEl.value:ENG_PARAGRAPH_MAX_DEFAULT);
+  if(minEl){ minEl.value=String(out.min); minEl.setCustomValidity(out.valid?"":out.error); minEl.setAttribute("aria-invalid",out.valid?"false":"true"); }
+  if(maxEl){ maxEl.value=String(out.max); maxEl.setCustomValidity(out.valid?"":out.error); maxEl.setAttribute("aria-invalid",out.valid?"false":"true"); }
+  if(out.valid){
+    ENG_CURRENT_PARAGRAPH_MIN=out.min;
+    ENG_CURRENT_PARAGRAPH_MAX=out.max;
+    try{
+      localStorage.setItem("manuscriptCheckParagraphMin",String(out.min));
+      localStorage.setItem("manuscriptCheckParagraphMax",String(out.max));
+    }catch(e){}
+  }
+  return out;
+}
+function engInitParagraphLimits(){
+  let minRaw=ENG_PARAGRAPH_MIN_DEFAULT, maxRaw=ENG_PARAGRAPH_MAX_DEFAULT;
+  try{
+    const savedMin=localStorage.getItem("manuscriptCheckParagraphMin");
+    const savedMax=localStorage.getItem("manuscriptCheckParagraphMax");
+    if(savedMin!=null&&savedMin!=="") minRaw=savedMin;
+    if(savedMax!=null&&savedMax!=="") maxRaw=savedMax;
+  }catch(e){}
+  let out=engValidateParagraphLimits(minRaw,maxRaw);
+  if(!out.valid) out={valid:true,min:ENG_PARAGRAPH_MIN_DEFAULT,max:ENG_PARAGRAPH_MAX_DEFAULT,error:""};
+  ENG_CURRENT_PARAGRAPH_MIN=out.min;
+  ENG_CURRENT_PARAGRAPH_MAX=out.max;
+  const minEl=$("paragraph-min"), maxEl=$("paragraph-max");
+  if(minEl){ minEl.value=String(out.min); minEl.setCustomValidity(""); minEl.setAttribute("aria-invalid","false"); }
+  if(maxEl){ maxEl.value=String(out.max); maxEl.setCustomValidity(""); maxEl.setAttribute("aria-invalid","false"); }
 }
 
 /* =====================================================================
@@ -1263,24 +1328,277 @@ function engFlexibleRemove(text,phrase){
 function engLooksHeadingForScan(line){
   const s=String(line||"").replace(/\s+/g," ").trim();
   if(!s || s.length>180) return false;
-  if(/[.!?]["'’)\]]?$/.test(s)) return false;
+  if(/[.!?]["'’\)\]]?$/.test(s)) return false;
 
-  if(/^(?:abstract|keywords?|key\s+words?|index\s+terms?|highlights?|graphical\s+abstract|introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+section)?|results?|discussion|results?\s+and\s+discussion|conclusions?|summary|recommendations?|acknowledg(?:e)?ments?|funding|data\s+availability|author\s+contributions?|conflicts?\s+of\s+interest|competing\s+interests?|declarations?|supplementary\s+(?:material|materials|information)|supporting\s+information|appendix|appendices|nomenclature)\s*:?\s*$/i.test(s))
+  // Dedicated journal components such as Novelty Statement, Significance
+  // Statement, Key Points, and Plain Language Summary are structural headings
+  // when they occur as standalone paragraphs. The definition is declared later
+  // with the paragraph-length module and is available when analysis runs.
+  try{ if(typeof engIsShortFormSectionTitle==="function" && engIsShortFormSectionTitle(s)) return true; }catch(e){}
+
+  if(/^(?:abstract|keywords?|key\s+words?|index\s+terms?|highlights?|graphical\s+abstract|introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+(?:section|analysis))?|results?|discussion|results?\s+and\s+discussion|conclusions?|summary|recommendations?|acknowledg(?:e)?ments?|funding|data\s+availability|author\s+contributions?|conflicts?\s+of\s+interest|competing\s+interests?|declarations?|supplementary\s+(?:material|materials|information)|supporting\s+information|appendix|appendices|nomenclature)\s*:?\s*$/i.test(s))
     return true;
 
-  if(/^\d+(?:\.\d+){0,4}\.?\s+\S+/.test(s) && s.split(/\s+/).length<=18) return true;
+  if(/^\d+(?:\.\d+){0,4}\.?\s+\S+/.test(s) && s.split(/\s+/).length<=22) return true;
   if(/^[A-Z0-9][A-Z0-9 ,;:/&()\-–—]+$/.test(s) && s.split(/\s+/).length<=18) return true;
 
   const words=s.split(/\s+/);
-  if(words.length>=1 && words.length<=10){
+  if(words.length>=1 && words.length<=12){
     const content=words.filter(w=>!/^(?:and|or|of|the|a|an|in|on|for|to|with|by|from)$/i.test(w));
     if(content.length && content.every(w=>/^[A-Z][A-Za-z0-9()\-–—/]*$/.test(w))) return true;
+  }
+
+  /* Short numbered subsection headings can lose their visible number during
+     DOCX-to-text conversion. Recognise the remaining short noun phrase rather
+     than treating it as a prose paragraph. */
+  if(words.length>=2 && words.length<=18 && /^[A-Z]/.test(s)){
+    const finiteVerb=/\b(?:is|are|was|were|am|be|been|being|has|have|had|does|do|did|can|could|may|might|must|shall|should|will|would|shows?|indicates?|demonstrates?|reveals?|suggests?|contains?|consists?|includes?|provides?|uses?|utilises?|utilizes?|employs?|describes?|discusses?|presents?|reports?|examines?|evaluates?|determines?|measures?|observes?|investigates?)\b/i;
+    if(!finiteVerb.test(s)){
+      const headingConnector=/[,;:]|\b(?:and|or|of|for|in|with|from|to|versus|vs\.?)\b/i;
+      const technicalShape=/\b[A-Za-z]*[A-Z][A-Za-z0-9]*[-/]?[A-Za-z0-9]+\b|\b(?:analysis|characteri[sz]ation|synthesis|methodology|methods?|materials?|operation|monitoring|assembly|setup|performance|evaluation|assessment|properties|preparation|fabrication|treatment|removal|production|application|applications|mechanism|mechanisms|kinetics|isotherms?|modelling|modeling|optimization|optimisation)\b/i;
+      if(headingConnector.test(s) || technicalShape.test(s)) return true;
+    }
   }
   return false;
 }
 
+/* ---------- Shared structural paragraph classifier ----------
+   Prose-only checks must operate on BODY_PROSE, not on raw Word paragraphs.
+   This classifier combines caption syntax, Word style/SEQ fields, media/table
+   proximity, heading structure, and caption-continuation grammar. */
+const ENG_CAPTION_STYLE_RE=/(?:^|\b)(?:caption|figure\s*(?:caption|legend)?|fig\s*caption|table\s*(?:caption|title)|scheme\s*caption|image\s*caption|photo(?:graph)?\s*caption|plate\s*caption|chart\s*caption|graph\s*caption|diagram\s*caption|flowchart\s*caption|legend|graphical\s*abstract)(?:\b|$)/i;
+const ENG_CAPTION_REPORTING_VERB_RE=/^(?:shows?|showed|illustrates?|illustrated|depicts?|depicted|presents?|presented|demonstrates?|demonstrated|describes?|described|summari[sz]es?|summari[sz]ed|compares?|compared|provides?|provided|indicates?|indicated|reveals?|revealed|displays?|displayed|represents?|represented|highlights?|highlighted|contains?|contained|gives?|gave|reports?|reported|suggests?|suggested|confirms?|confirmed|lists?|listed|is|are|was|were|has|have|had|can|could|may|might|will|would|should)\b/i;
+const ENG_CAPTION_NOTE_RE=/^(?:\(?[a-z]\)|[A-Z]\.|inset\s*:|the\s+inset\s+(?:shows?|illustrates?|depicts?)\b|inset\s+(?:shows?|illustrates?|depicts?)\b|error\s+bars?\s+(?:represent|show|indicate)\b|values?\s+(?:represent|show|indicate)\b|data\s+(?:represent|show|indicate)\b|symbols?\s+(?:represent|show|indicate)\b|(?:the\s+)?(?:dotted|dashed|solid)\s+lines?\s+(?:represent|show|indicate)\b|the\s+shaded\s+region\s+(?:represents?|indicates?)\b|colou?r(?:s)?\s+(?:represent|show|indicate)\b|arrows?\s+(?:represent|show|indicate)\b|scale\s+bars?\b|magnification\b|experimental\s+conditions?\s*:|operating\s+conditions?\s*:|reaction\s+conditions?\s*:|test\s+conditions?\s*:|conditions?\s*:|figure\s+note\s*:|legend\s*:|notes?\s*:|source(?:s)?\s*:|data\s+source\s*:|image\s+source\s*:|adapted\s+from\b|modified\s+from\b|reproduced\s+from\b|reprinted\s+from\b|abbreviations?\s*:)/i;
+const ENG_CAPTION_PROSE_PREFIX_RE=/^(?:as\s+(?:shown|presented|illustrated|depicted)\s+in|in|from|see)\s+(?:supplementary\s+)?(?:figure|fig\.?|table|scheme)\b/i;
+
+function engNormStructuralText(s){
+  return String(s||"")
+    .normalize("NFKC")
+    .replace(/[\u00A0\u202F]/g," ")
+    .replace(/[‐‑‒–—―−]/g,"-")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function engCaptionTypeKind(raw){
+  const x=String(raw||"").toLowerCase().replace(/\./g,"").replace(/\s+/g," ").trim();
+  if(/^fig(?:ure)?s?$/.test(x)) return "FIGURE_CAPTION";
+  if(/^tab(?:le)?s?$/.test(x)) return "TABLE_CAPTION";
+  if(/scheme/.test(x)) return "SCHEME_CAPTION";
+  if(/graphical abstract/.test(x)) return "GRAPHICAL_ABSTRACT";
+  return "OTHER_CAPTION";
+}
+
+function engParseCaptionLead(text){
+  const s=engNormStructuralText(text);
+  if(!s) return null;
+
+  // Graphical Abstract is structural even when it has no numeric identifier.
+  let ga=s.match(/^graphical\s+abstract\b\s*(?:[.:;,|\-]\s*)?(.*)$/i);
+  if(ga) return {raw:ga[0].slice(0,ga[0].length-(ga[1]||"").length).trim(),kind:"GRAPHICAL_ABSTRACT",type:"Graphical Abstract",id:null,rest:(ga[1]||"").trim(),strongSeparator:/^graphical\s+abstract\s*[.:;,|\-]/i.test(s),plural:false,range:false};
+
+  // Full family of caption labels used across journal and supplementary files.
+  const type=String.raw`(?:supplementary\s+)?(?:figures?|figs?\.?|tables?|tabs?\.?|reaction\s+schemes?|schemes?|plates?|charts?|graphs?|images?|photographs?|photos?|illustrations?|diagrams?|flowcharts?|algorithms?|box(?:es)?|maps?)`;
+  const idAtom=String.raw`(?:S\s*-?\s*\d+(?:\.\d+)*|SI\s*-?\s*\d+(?:\.\d+)*|ESI\s*-?\s*\d+(?:\.\d+)*|[A-Z]\s*-?\s*\d+(?:\.\d+)*|\d+(?:\.\d+)*|[IVXLCDM]+)`;
+  const range=String.raw`(?:\s*[-]\s*${idAtom})?`;
+  const panel=String.raw`(?:\s*(?:\([A-Za-z]\s*[-]\s*[A-Za-z]\)|\([A-Za-z]\)(?:\s*[-]\s*\([A-Za-z]\))?|[A-Za-z](?:\s*[-]\s*[A-Za-z])?))?`;
+  const re=new RegExp(`^(${type})\\s*(${idAtom}${range})${panel}(?=\\s|[.:;,|\\-]|$)`,`i`);
+  const m=s.match(re);
+  if(!m) return null;
+  const raw=m[0];
+  let after=s.slice(raw.length);
+  const sep=(after.match(/^\s*([.:;,|\-])\s*/)||[])[1]||"";
+  if(sep) after=after.replace(/^\s*[.:;,|\-]\s*/,"");
+  else after=after.trimStart();
+  const kind=engCaptionTypeKind(m[1]);
+  return {raw,type:m[1],id:m[2].replace(/\s+/g,""),kind,rest:after.trim(),strongSeparator:!!sep,separator:sep,plural:/\b(?:figures|figs|tables|schemes|plates|charts|graphs|images|photographs|photos|illustrations|diagrams|flowcharts|algorithms|boxes|maps)\b/i.test(m[1]),range:/[-]/.test(m[2].replace(/^S-/i,""))};
+}
+
+function engCaptionStyle(style){ return ENG_CAPTION_STYLE_RE.test(String(style||"").replace(/[_-]+/g," ")); }
+
+function engCaptionMediaDistance(blocks,i,kind){
+  const wantTable=kind==="TABLE_CAPTION";
+  let best=99;
+  for(let d=0;d<=3;d++){
+    for(const j of [i-d,i+d]){
+      if(j<0||j>=blocks.length) continue;
+      const b=blocks[j];
+      if(wantTable){ if(b?.type==="table"&&!b.isEquationLayout) best=Math.min(best,d); }
+      else { if(b?.type==="p"&&b.hasDrawing) best=Math.min(best,d); }
+    }
+  }
+  return best;
+}
+
+function engCaptionScoreForBlock(blocks,i){
+  const b=blocks[i];
+  if(!b||b.type!=="p") return {score:-999,lead:null,reasons:[]};
+  const s=engNormStructuralText(b.text);
+  const lead=engParseCaptionLead(s);
+  const reasons=[];
+  let score=0;
+  const styled=engCaptionStyle(b.style);
+  if(styled){ score+=90; reasons.push("Word caption/legend style"); }
+  if(b.seqCaptionType){ score+=100; reasons.push(`Word SEQ ${b.seqCaptionType} field`); }
+  if(lead){
+    score+=45; reasons.push("caption label and identifier");
+    if(lead.strongSeparator){ score+=30; reasons.push("caption separator"); }
+    const rest=lead.rest||"";
+    if(rest && ENG_CAPTION_REPORTING_VERB_RE.test(rest) && !lead.strongSeparator){ score-=95; reasons.push("ordinary Figure/Table reporting verb"); }
+    if(/^,?\s*which\b/i.test(rest) && !styled && !b.seqCaptionType){ score-=50; reasons.push("relative-clause prose"); }
+    if(lead.plural && lead.range && rest && ENG_CAPTION_REPORTING_VERB_RE.test(rest) && !lead.strongSeparator){ score-=25; }
+    const dist=engCaptionMediaDistance(blocks,i,lead.kind);
+    if(dist===0){ score+=35; reasons.push("contains/aligns with media object"); }
+    else if(dist===1){ score+=32; reasons.push("adjacent media/table"); }
+    else if(dist===2){ score+=20; reasons.push("near media/table"); }
+    else if(dist===3){ score+=10; reasons.push("nearby media/table"); }
+  }else if(b.seqCaptionType){
+    const kind=b.seqCaptionType==="table"?"TABLE_CAPTION":"FIGURE_CAPTION";
+    const dist=engCaptionMediaDistance(blocks,i,kind);
+    if(dist<=2){ score+=20; reasons.push("SEQ field near media/table"); }
+  }
+  // A drawing-only paragraph is media, not body prose.
+  if(b.hasDrawing && engWordCount(s)<=8){ score+=35; reasons.push("drawing container"); }
+  return {score,lead,reasons};
+}
+
+function engLooksLikeCaptionContinuation(text){
+  const s=engNormStructuralText(text);
+  if(!s) return false;
+  if(ENG_CAPTION_NOTE_RE.test(s)) return true;
+  if(/^\(?[a-z]\)\s+/i.test(s)) return true;
+  if(/^[A-Z]\.?\s+[A-Z][a-z]/.test(s) && engWordCount(s)<=70) return true;
+  return false;
+}
+
+function engClassifyStructuralBlocks(blocks){
+  const src=Array.isArray(blocks)?blocks:[];
+  const out=src.map((b,i)=>({index:i,block:b,text:engNormStructuralText(b?.text||""),type:"BODY_PROSE",confidence:0.5,reasons:[]}));
+
+  // First pass: strong intrinsic classifications.
+  out.forEach((r,i)=>{
+    const b=r.block, s=r.text;
+    if(!b){ r.type="OTHER_STRUCTURAL"; r.confidence=1; return; }
+    if(b.type==="table"){ r.type=b.isEquationLayout?"EQUATION":"TABLE"; r.confidence=1; r.reasons.push("Word table structure"); return; }
+    if(b.type!=="p"){ r.type="OTHER_STRUCTURAL"; r.confidence=1; return; }
+    if(!s && b.hasDrawing){ r.type="MEDIA"; r.confidence=1; r.reasons.push("drawing container"); return; }
+    if(!s){ r.type="EMPTY"; r.confidence=1; return; }
+    if(b.hasMathPara || (/equation/i.test(String(b.style||"")) && b.hasMath)){ r.type="EQUATION"; r.confidence=.99; r.reasons.push("displayed equation structure"); return; }
+
+    const cap=engCaptionScoreForBlock(src,i);
+    if(cap.score>=60){
+      r.type=cap.lead?.kind || (b.seqCaptionType==="table"?"TABLE_CAPTION":b.seqCaptionType?"OTHER_CAPTION":"OTHER_CAPTION");
+      r.confidence=Math.min(.999,.55+cap.score/220); r.reasons.push(...cap.reasons); return;
+    }
+    if(b.hasDrawing && engWordCount(s)<=8){ r.type="MEDIA"; r.confidence=.98; r.reasons.push("drawing container"); return; }
+
+    const st=String(b.style||"");
+    if(b.outlineLvl!=null || /(?:^|\b)(?:heading\s*[1-9]?|heading[1-9]|title|subtitle)(?:\b|$)/i.test(st)){
+      r.type="HEADING"; r.confidence=.98; r.reasons.push("Word heading/outline structure"); return;
+    }
+    if(engLooksHeadingForScan(s)){
+      r.type="HEADING"; r.confidence=.9; r.reasons.push("heading grammar"); return;
+    }
+    if(engIsParagraphMetadata(s)){
+      r.type="OTHER_STRUCTURAL"; r.confidence=.9; r.reasons.push("template/supplementary metadata"); return;
+    }
+  });
+
+  // Second pass: caption continuation, legends, notes, source lines, panel lines.
+  for(let i=0;i<out.length;i++){
+    const r=out[i];
+    if(!/(?:CAPTION|GRAPHICAL_ABSTRACT)$/.test(r.type)) continue;
+    const baseStyle=String(r.block?.style||"");
+    for(let j=i+1;j<Math.min(out.length,i+5);j++){
+      const x=out[j];
+      if(x.type==="EMPTY"||x.type==="MEDIA") continue;
+      if(x.type!=="BODY_PROSE") break;
+      const sameCaptionStyle=baseStyle && String(x.block?.style||"")===baseStyle && engCaptionStyle(baseStyle);
+      const continuation=engLooksLikeCaptionContinuation(x.text);
+      const labelOnly=engWordCount(r.text)<=5 && !engParseCaptionLead(r.text)?.rest;
+      const nounContinuation=labelOnly && engWordCount(x.text)<=120 && !/[.!?]\s+[A-Z]/.test(x.text) && !ENG_CAPTION_REPORTING_VERB_RE.test(x.text);
+      const grammaticalContinuation=engWordCount(x.text)<=120 && (
+        (!/[.!?]\s*$/.test(r.text) && !ENG_CAPTION_REPORTING_VERB_RE.test(x.text)) ||
+        /^[a-z(\[]/.test(x.text)
+      );
+      if(sameCaptionStyle || continuation || nounContinuation || grammaticalContinuation){
+        x.type=/^TABLE/.test(r.type)?"TABLE_NOTE":"CAPTION_CONTINUATION";
+        x.confidence=.93;
+        x.reasons.push(sameCaptionStyle?"same caption style":continuation?"caption-note/panel continuation":nounContinuation?"description following label-only caption":"grammatical continuation of caption");
+        continue;
+      }
+      break;
+    }
+  }
+
+  // Third pass: table/figure notes may occur after the physical table/image, not
+  // immediately after the caption paragraph. Associate note/source/legend lines
+  // with nearby structural objects without globally excluding ordinary "Note" prose.
+  for(let i=0;i<out.length;i++){
+    const r=out[i];
+    if(r.type!=="BODY_PROSE" || !ENG_CAPTION_NOTE_RE.test(r.text)) continue;
+    let tableEvidence=false, figureEvidence=false;
+    for(let d=1;d<=4;d++){
+      const j=i-d; if(j<0) break;
+      const t=out[j].type;
+      if(t==="TABLE"||t==="TABLE_CAPTION"||t==="TABLE_NOTE") tableEvidence=true;
+      if(t==="MEDIA"||t==="FIGURE_CAPTION"||t==="SCHEME_CAPTION"||t==="OTHER_CAPTION"||t==="CAPTION_CONTINUATION"||t==="FIGURE_NOTE") figureEvidence=true;
+      if(t==="HEADING" || (t==="BODY_PROSE" && engWordCount(out[j].text)>40)) break;
+    }
+    if(tableEvidence||figureEvidence){
+      r.type=tableEvidence&&!figureEvidence?"TABLE_NOTE":"FIGURE_NOTE";
+      r.confidence=.91;
+      r.reasons.push(tableEvidence?"note/source line associated with nearby table":"note/source line associated with nearby figure/caption");
+    }
+  }
+  return out;
+}
+
+function engRefreshStructuralParagraphs(){
+  try{ DOCX_STRUCTURAL_PARAGRAPHS=engClassifyStructuralBlocks(DOCX_FTE_BLOCKS||[]); }
+  catch(e){ console.warn("Structural paragraph classification unavailable.",e); DOCX_STRUCTURAL_PARAGRAPHS=[]; }
+  return DOCX_STRUCTURAL_PARAGRAPHS;
+}
+
+function engIsStructuralProseExcludedType(type){
+  return /^(?:FIGURE_CAPTION|TABLE_CAPTION|SCHEME_CAPTION|GRAPHICAL_ABSTRACT|OTHER_CAPTION|CAPTION_CONTINUATION|FIGURE_NOTE|TABLE_NOTE|MEDIA|TABLE|EQUATION|OTHER_STRUCTURAL)$/.test(String(type||""));
+}
+
+/* Single-paragraph caption check used by plain-text fallbacks. The Word-aware
+   block classifier remains authoritative whenever DOCX structure is available. */
+function engIsStandaloneCaptionParagraph(text){
+  const s=engNormStructuralText(text);
+  if(!s) return false;
+  if(ENG_CAPTION_PROSE_PREFIX_RE.test(s)) return false;
+
+  try{
+    const hit=(DOCX_STRUCTURAL_PARAGRAPHS||[]).find(r=>r.text===s && /CAPTION|TABLE_NOTE|FIGURE_NOTE/.test(r.type));
+    if(hit) return true;
+  }catch(e){}
+
+  const lead=engParseCaptionLead(s);
+  if(!lead) return false;
+  if(lead.kind==="GRAPHICAL_ABSTRACT") return true;
+  if(lead.rest && ENG_CAPTION_REPORTING_VERB_RE.test(lead.rest) && !lead.strongSeparator) return false;
+  if(/^,?\s*which\b/i.test(lead.rest||"") && !lead.strongSeparator) return false;
+  // Explicit label + identifier + separator is a caption. Without punctuation,
+  // a noun-phrase opening is also a common valid caption form.
+  return true;
+}
+
 function engExcludeNonBodyMaterial(text){
   let body=String(text||"");
+
+  // Use the shared Word-aware classification first. Preserve the master structure
+  // for figure/table checks, but mask captions, legends, notes, media containers,
+  // equations and other non-prose paragraphs in English-only text.
+  try{
+    if(!(DOCX_STRUCTURAL_PARAGRAPHS||[]).length && (DOCX_FTE_BLOCKS||[]).length) engRefreshStructuralParagraphs();
+    (DOCX_STRUCTURAL_PARAGRAPHS||[]).forEach(r=>{
+      if(engIsStructuralProseExcludedType(r.type) && r.text) body=engFlexibleRemove(body,r.text);
+    });
+  }catch(e){}
+
   let lines=body.split(/\n/);
 
   // Everything before the explicit Abstract heading is front matter.
@@ -1309,7 +1627,7 @@ function engExcludeNonBodyMaterial(text){
   // structural content, not manuscript prose.
   lines=lines.map(l=>{
     const s=l.replace(/\s+/g," ").trim();
-    if(/^\s*(?:figure|fig\.?|table)\s*[Ss]?\d+(?:\.\d+)?\s*[:.\-]/i.test(s)) return "";
+    if(engIsStandaloneCaptionParagraph(s)) return "";
     if(/⟦TABLE_BLOCK⟧/.test(s)) return "";
     if(/^\s*(?:⟦MATH:[^⟧]*⟧\s*)+(?:\(?\s*(?:eq\.?\s*)?\d+(?:\.\d+)?\s*\)?)?\s*$/i.test(s)) return "";
     return engLooksHeadingForScan(l)?"":l;
@@ -1692,6 +2010,14 @@ function engIsHeadingLike(p){
   const s=String(p||"").replace(/\s+/g," ").trim();
   if(!s)return true;
   if(s.length<3)return true;
+  try{ if(typeof engIsShortFormSectionTitle==="function" && engIsShortFormSectionTitle(s)) return true; }catch(e){}
+
+  // Reuse the broader English structural-heading detector. This catches ordinary
+  // Title Case headings such as "Introduction" and "Experimental Analysis", not
+  // only numbered or ALL-CAPS headings. Paragraph-length checking must never turn
+  // a section label into a one- or two-word prose paragraph.
+  try{ if(typeof engLooksHeadingForScan==="function" && engLooksHeadingForScan(s)) return true; }catch(e){}
+
   if(/^(?:abstract|keywords?|references?|bibliography|acknowledg(?:e)?ments?|funding|conflict of interest|competing interests|author contributions?|data availability|supplementary materials?|appendix|nomenclature)\b/i.test(s)) return true;
   if(/^(?:figure|fig\.?|table)\s*[Ss]?\d+(?:\.\d+)?\s*[:.\-]/i.test(s)) return true;
   if(/^(?:eq(?:uation)?s?\.?\s*)?\(?[Ss]?\d+(?:\.\d+)?\)?\s*$/i.test(s)) return true;
@@ -1727,45 +2053,267 @@ function engParagraphContext(p){
   if(s.length<=360)return escapeHtml(s);
   return escapeHtml(s.slice(0,175))+" … "+escapeHtml(s.slice(-150));
 }
-function engParagraphLengthCheck(text){
-  // First remove References, then front-matter affiliations/contact details,
-  // then the Abstract. The check applies to prose paragraphs only.
-  let body=excludeReferences(text||"",true).text;
-  body=unitExcludeAffiliations(body);
-  body=engStripAbstractSection(body);
 
-  const paras=body.split(/\n{1,}/).map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
-  const issues=[];
+/* Paragraph length is a MAIN-TEXT PROSE rule, not a Word-paragraph rule.
+   Publisher templates commonly contain many short structural paragraphs before
+   the manuscript body (title footnotes, ESI/DOI instructions, received/accepted
+   dates, title, author block, affiliations) and after it (funding, declarations,
+   data availability, etc.). Those must be removed as regions before counting. */
+const ENG_PARAGRAPH_MAIN_HEAD_RE=/^\s*(?:\d+(?:\.\d+){0,4}\.?\s*)?(?:introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+(?:section|analysis))?|results?|discussion|results?\s+and\s+discussion)\s*:?[.\s]*$/i;
+const ENG_PARAGRAPH_BACK_HEAD_RE=/^\s*(?:\d+(?:\.\d+){0,4}\.?\s*)?(?:acknowledg(?:e)?ments?|funding|data\s+availability(?:\s+statement)?|author(?:ship)?\s+contributions?(?:\s+statement)?|credit\s+author\s+statement|conflicts?\s+of\s+interest|competing\s+interests?|declarations?|ethics\s+(?:statement|approval)|consent\s+to\s+participate|consent\s+for\s+publication|supplementary\s+(?:material|materials|information)|supporting\s+information|appendix|appendices|nomenclature|references?|bibliography|literature\s+cited|works\s+cited)\s*:?[.\s]*$/i;
+
+function engParagraphMainTextScope(text){
+  let lines=String(text||"").replace(/\r/g,"").split(/\n/);
+  if(!lines.length) return "";
+  const clean=l=>String(l||"").replace(/[*_`#>]/g,"").replace(/\s+/g," ").trim();
+
+  // Prefer a real main-text section heading. If an Abstract exists, only search
+  // after it. If the template has no Abstract, this safely drops all publisher
+  // front matter up to Introduction/Methods/Experimental/etc.
+  let abstractAt=-1;
+  for(let i=0;i<Math.min(lines.length,220);i++){
+    const s=clean(lines[i]);
+    if(/^abstract\b(?:\s*[:.\-–—]|\s*$)/i.test(s)){ abstractAt=i; break; }
+  }
+
+  let start=-1;
+  const searchFrom=abstractAt>=0?abstractAt+1:0;
+  for(let i=searchFrom;i<Math.min(lines.length,420);i++){
+    if(ENG_PARAGRAPH_MAIN_HEAD_RE.test(clean(lines[i]))){ start=i+1; break; }
+  }
+
+  if(start<0){
+    // If there is an Abstract but no recognisable main heading, retain the older
+    // abstract-removal fallback rather than guessing a body start.
+    if(abstractAt>=0){
+      const stripped=engStripAbstractSection(lines.join("\n"));
+      lines=stripped.split(/\n/);
+      start=0;
+    }else{
+      start=0;
+    }
+  }
+
+  // Paragraph-length guidance applies to the scientific main text. Stop before
+  // publisher/back-matter sections whose short administrative paragraphs are not
+  // meaningful targets for the 100-300 word rule.
+  let end=lines.length;
+  for(let i=start;i<lines.length;i++){
+    if(ENG_PARAGRAPH_BACK_HEAD_RE.test(clean(lines[i]))){ end=i; break; }
+  }
+  return lines.slice(start,end).join("\n");
+}
+
+function engIsParagraphMetadata(p){
+  const s=String(p||"").replace(/\s+/g," ").trim();
+  if(!s) return true;
+  if(/^[†*‡§]?\s*footnotes?\s+(?:relating|related)\s+to\b/i.test(s)) return true;
+  if(/^electronic\s+supplementary\s+information\s*\(?(?:ESI)?\)?\s*(?:available|:)/i.test(s)) return true;
+  if(/^(?:received|accepted|revised|published)\b.{0,80}(?:\d{4}|20xx)\s*[,.;]?$/i.test(s)) return true;
+  if(/^(?:see\s+)?doi\s*:/i.test(s)) return true;
+  if(/^(?:corresponding\s+author|correspondence|editor|academic\s+editor|copyright|licensee)\b/i.test(s)) return true;
+
+  // Short paragraphs used only as navigational pointers to supplementary or
+  // supporting material are structural notes rather than developed prose.
+  const wc=engWordCount(s);
+  if(wc<=40 && /\b(?:supplementary|supporting)\s+(?:file|text|section|information|material|materials|data)\b/i.test(s)){
+    const pointerVerb=/\b(?:see|refer(?:red)?|available|provided|presented|reported|shown|given|included|described|discussed|detailed|found|contained|located)\b/i;
+    if(pointerVerb.test(s)) return true;
+  }
+  if(wc<=30 && /\b(?:see|refer\s+to)\s+(?:the\s+)?(?:supplementary|supporting|section|appendix|figure|fig\.?|table|text)\b/i.test(s)) return true;
+  return false;
+}
+
+
+/* The minimum paragraph-length rule is section-aware. It is intended to detect
+   fragmentation inside a sufficiently developed section, not to force concise
+   subsections or journal-specific statements to be padded to an arbitrary size. */
+const ENG_SHORT_FORM_SECTION_RE=/^(?:novelty\s+statement|statement\s+of\s+novelty|significance\s+statement|statement\s+of\s+significance|impact\s+statement|highlights?|key\s+highlights?|key\s+points?|key\s+messages?|research\s+highlights?|clinical\s+significance|practical\s+implications?|policy\s+implications?|plain[-\s]+language\s+summary|lay\s+summary|author\s+summary|synopsis|graphical\s+abstract(?:\s+text)?|take[-\s]+home\s+message|key\s+findings?|research\s+significance|innovation\s+statement|short\s+communication\s+statement|editor\s+highlights?)\s*:?[.\s]*$/i;
+const ENG_SHORT_FORM_INLINE_RE=/^\s*(?:novelty\s+statement|statement\s+of\s+novelty|significance\s+statement|statement\s+of\s+significance|impact\s+statement|key\s+message|take[-\s]+home\s+message|innovation\s+statement|clinical\s+significance|practical\s+implications?|policy\s+implications?|research\s+significance)\s*(?:[:.\-–—|]\s+|\s{2,})/i;
+
+function engParagraphHeadingLevel(r){
+  const b=r?.block||{};
+  if(Number.isInteger(b.outlineLvl) && b.outlineLvl>=0 && b.outlineLvl<=8) return b.outlineLvl+1;
+  const st=String(b.style||"");
+  const sm=st.match(/heading\s*([1-9])/i); if(sm) return +sm[1];
+  if(b.hasNumbering && Number.isInteger(b.ilvl) && b.ilvl>=0) return Math.min(9,b.ilvl+1);
+  const t=engNormStructuralText(r?.text||"");
+  const nm=t.match(/^\s*(\d+(?:\.\d+){0,8})\.?\s+/);
+  if(nm) return Math.min(9,nm[1].split('.').length);
+  return 2; // conservative level for unnumbered/manual headings
+}
+
+function engParagraphSectionTitle(text){
+  return engNormStructuralText(text||"").replace(/^\s*\d+(?:\.\d+){0,8}\.?\s+/,"").trim();
+}
+
+function engIsShortFormSectionTitle(text){
+  return ENG_SHORT_FORM_SECTION_RE.test(engParagraphSectionTitle(text||""));
+}
+
+function engIsShortFormInlineParagraph(text){
+  return ENG_SHORT_FORM_INLINE_RE.test(engNormStructuralText(text||""));
+}
+
+function engParagraphPassesContentGate(p){
+  if(!p) return false;
+  if(engIsParagraphMetadata(p)) return false;
+  if(typeof engLooksLikeProseParagraph==="function" && !engLooksLikeProseParagraph(p)) return false;
+  const wc=engWordCount(p);
+  const digitCount=(p.match(/\d/g)||[]).length;
+  const letterCount=(p.match(/\p{L}/gu)||[]).length;
+  const pipeLike=(p.match(/[|;]/g)||[]).length;
+  if(wc<12 && digitCount>letterCount/2) return false;
+  if(pipeLike>=4 && wc<80) return false;
+  if(/[=±∑∫√→←⇌]/.test(p) && wc<45) return false;
+  return true;
+}
+
+function engParagraphShortSuggestion(section,pIndex,settings){
+  const p=section.paragraphs[pIndex];
+  const neighbours=[];
+  if(pIndex>0) neighbours.push(section.paragraphs[pIndex-1]);
+  if(pIndex+1<section.paragraphs.length) neighbours.push(section.paragraphs[pIndex+1]);
+  const mergeFeasible=neighbours.some(n=>p.wordCount+n.wordCount<=settings.max);
+  if(mergeFeasible){
+    return "Review whether this relatively short paragraph could be combined with an adjacent paragraph if they address the same idea. Retain it separately when the distinction is scientifically or logically useful.";
+  }
+  return "This paragraph is relatively short compared with other prose in the subsection. Consider developing it further only if additional information is scientifically justified; otherwise retain it as a concise standalone paragraph.";
+}
+
+function engParagraphMinEligible(section,p,settings){
+  if(!p || !section) return false;
+  if(p.shortForm || section.isShortFormSection) return false;
+  if(section.paragraphs.length<=1) return false;
+  if(section.totalWords<=settings.min) return false;
+  return true;
+}
+
+function engBuildStructuralParagraphSections(classified,start,end){
+  const clean=x=>engNormStructuralText(x||"");
+  const sections=[];
+  let current={title:"Main text",level:0,isShortFormSection:false,paragraphs:[],totalWords:0};
+  const finish=()=>{
+    if(current.paragraphs.length) sections.push(current);
+  };
   let proseNo=0;
 
-  paras.forEach((p,i)=>{
-    if(engIsHeadingLike(p))return;
-    // Ignore obvious table-like/data rows and equation-heavy lines.
-    const wc=engWordCount(p);
-    const digitCount=(p.match(/\d/g)||[]).length;
-    const letterCount=(p.match(/\p{L}/gu)||[]).length;
-    const pipeLike=(p.match(/[|;]/g)||[]).length;
-    if(wc<12 && digitCount>letterCount/2)return;
-    if(pipeLike>=4 && wc<80)return;
-    if(/[=±∑∫√→←⇌]/.test(p) && wc<45)return;
-    if(/^(?:note|source)\s*:/i.test(p) && wc<80)return;
-
-    proseNo++;
-    if(wc<100 || wc>300){
-      issues.push({
-        code:wc<100?"PARAGRAPH_TOO_SHORT":"PARAGRAPH_TOO_LONG",
-        paragraph:proseNo,
-        wordCount:wc,
-        direction:wc<100?"below":"above",
-        msg:`Paragraph ${proseNo} contains ${wc} words, which is ${wc<100?"below the 100-word minimum":"above the 300-word maximum"} for this manuscript rule.`,
-        suggestion:wc<100
-          ?"Consider combining it with a closely related paragraph or developing the idea further, while preserving logical paragraph structure."
-          :"Consider splitting it into two or more focused paragraphs at a logical transition.",
-        snippet:engParagraphContext(p)
-      });
+  for(let i=start;i<end;i++){
+    const r=classified[i], p=clean(r?.text);
+    if(!r || !p) continue;
+    if(r.type==="HEADING" || (r.block?.type==="p" && engIsHeadingLike(p))){
+      finish();
+      current={
+        title:engParagraphSectionTitle(p)||p,
+        rawTitle:p,
+        level:engParagraphHeadingLevel(r),
+        isShortFormSection:engIsShortFormSectionTitle(p),
+        paragraphs:[],totalWords:0
+      };
+      continue;
     }
-  });
-  return {issues,totalProse:proseNo};
+    if(r.type!=="BODY_PROSE") continue;
+    if(!engParagraphPassesContentGate(p)) continue;
+    const wc=engWordCount(p);
+    proseNo++;
+    const rec={text:p,wordCount:wc,paragraph:proseNo,blockIndex:i,shortForm:engIsShortFormInlineParagraph(p)};
+    current.paragraphs.push(rec);
+    current.totalWords+=wc;
+  }
+  finish();
+  return {sections,totalProse:proseNo};
+}
+
+function engBuildTextParagraphSections(text){
+  const rawBody=engParagraphMainTextScope(text||"");
+  const lines=String(rawBody||"").replace(/\r/g,"").split(/\n+/).map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
+  const sections=[];
+  let current={title:"Main text",level:0,isShortFormSection:false,paragraphs:[],totalWords:0};
+  const finish=()=>{ if(current.paragraphs.length) sections.push(current); };
+  let proseNo=0;
+
+  for(const raw of lines){
+    if(engIsHeadingLike(raw)){
+      finish();
+      current={title:engParagraphSectionTitle(raw)||raw,rawTitle:raw,level:2,isShortFormSection:engIsShortFormSectionTitle(raw),paragraphs:[],totalWords:0};
+      continue;
+    }
+    if(engIsParagraphMetadata(raw)) continue;
+    if(engIsStandaloneCaptionParagraph(raw) || engLooksLikeCaptionContinuation(raw)) continue;
+    if(/^(?:note|source)\s*:/i.test(raw) && engWordCount(raw)<100) continue;
+    if(!engParagraphPassesContentGate(raw)) continue;
+
+    // Apply the shared English structural masking to the individual paragraph as
+    // a final fallback guard for headers/footers/fields that survived flattening.
+    let p=raw;
+    try{ p=engPrepareText(raw).replace(/\s+/g," ").trim(); }catch(e){}
+    if(!p || engIsHeadingLike(p) || engIsStandaloneCaptionParagraph(p)) continue;
+    const wc=engWordCount(p);
+    proseNo++;
+    const rec={text:p,wordCount:wc,paragraph:proseNo,shortForm:engIsShortFormInlineParagraph(p)};
+    current.paragraphs.push(rec); current.totalWords+=wc;
+  }
+  finish();
+  return {sections,totalProse:proseNo};
+}
+
+function engEvaluateParagraphSections(built){
+  const settings={min:ENG_CURRENT_PARAGRAPH_MIN,max:ENG_CURRENT_PARAGRAPH_MAX};
+  const issues=[];
+  for(const section of built.sections||[]){
+    section.paragraphs.forEach((p,pi)=>{
+      // Maximum length remains paragraph-specific even in a one-paragraph or
+      // intentionally concise section.
+      if(p.wordCount>settings.max){
+        issues.push({
+          code:"PARAGRAPH_TOO_LONG",paragraph:p.paragraph,wordCount:p.wordCount,direction:"above",
+          sectionTitle:section.title,sectionLevel:section.level,sectionWords:section.totalWords,sectionParagraphCount:section.paragraphs.length,
+          msg:`Paragraph ${p.paragraph} contains ${p.wordCount} words, which is above the ${settings.max}-word maximum for this manuscript rule.`,
+          suggestion:"Consider splitting it into two or more focused paragraphs at a logical transition.",
+          snippet:engParagraphContext(p.text)
+        });
+        return;
+      }
+
+      if(p.wordCount<settings.min && engParagraphMinEligible(section,p,settings)){
+        issues.push({
+          code:"PARAGRAPH_TOO_SHORT",paragraph:p.paragraph,wordCount:p.wordCount,direction:"below",
+          sectionTitle:section.title,sectionLevel:section.level,sectionWords:section.totalWords,sectionParagraphCount:section.paragraphs.length,
+          msg:`Paragraph ${p.paragraph} contains ${p.wordCount} words, below the ${settings.min}-word guideline. The subsection contains ${section.paragraphs.length} substantive paragraphs (${section.totalWords} prose words), so review whether this paragraph is overly fragmented.`,
+          suggestion:engParagraphShortSuggestion(section,pi,settings),
+          snippet:engParagraphContext(p.text)
+        });
+      }
+    });
+  }
+  return {issues,totalProse:built.totalProse||0,sections:built.sections||[]};
+}
+
+function engParagraphLengthCheck(text){
+  // Preferred DOCX path: classify structural Word blocks, establish local/leaf
+  // section boundaries, then apply paragraph-length guidance only to BODY_PROSE.
+  try{
+    if((DOCX_FTE_BLOCKS||[]).length){
+      const classified=engRefreshStructuralParagraphs();
+      const clean=x=>engNormStructuralText(x||"");
+      let start=-1, end=classified.length;
+      for(let i=0;i<classified.length;i++){
+        const r=classified[i];
+        if(r.block?.type==="p" && ENG_PARAGRAPH_MAIN_HEAD_RE.test(clean(r.text))){ start=i+1; break; }
+      }
+      if(start>=0){
+        for(let i=start;i<classified.length;i++){
+          const r=classified[i];
+          if(r.block?.type==="p" && ENG_PARAGRAPH_BACK_HEAD_RE.test(clean(r.text))){ end=i; break; }
+        }
+        return engEvaluateParagraphSections(engBuildStructuralParagraphSections(classified,start,end));
+      }
+    }
+  }catch(e){ console.warn("Word-structure section-aware paragraph-length analysis failed; using text fallback.",e); }
+
+  // Plain-text fallback keeps heading boundaries long enough to construct local
+  // sections instead of stripping all headings before minimum-length decisions.
+  return engEvaluateParagraphSections(engBuildTextParagraphSections(text||""));
 }
 
 /* Strict past-tense manuscript rule.
@@ -2839,7 +3387,11 @@ function engGrammarStyleCheck(text,inference,sentenceLimit=ENG_SENTENCE_LIMIT_DE
 
   return {grammar,punctuation,clarity,consistency,passive,metrics};
 }
-function engAnalyze(text,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT){
+function engAnalyze(text,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT,paragraphLimits=null){
+  if(paragraphLimits?.valid){
+    ENG_CURRENT_PARAGRAPH_MIN=paragraphLimits.min;
+    ENG_CURRENT_PARAGRAPH_MAX=paragraphLimits.max;
+  }
   const engSource=(DOCX_ENGLISH_TEXT&&DOCX_ENGLISH_TEXT.trim())?DOCX_ENGLISH_TEXT:text;
   const body=engPrepareText(engSource);
   const stats=engCollect(body);
@@ -2887,6 +3439,8 @@ function engAnalyze(text,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT){
     tenseIssues,
     writingChecks,
     sentenceLengthLimit:engNormalizeSentenceLimit(sentenceLimit),
+    paragraphMinWords:ENG_CURRENT_PARAGRAPH_MIN,
+    paragraphMaxWords:ENG_CURRENT_PARAGRAPH_MAX,
     paragraphIssues:paragraphCheck.issues,
     proseParagraphs:paragraphCheck.totalProse,
     ledger:ledger.sort((a,b)=>(b.us+b.uk)-(a.us+a.uk)||a.key.localeCompare(b.key)),
@@ -3012,7 +3566,9 @@ function renderEnglishReport(res){
   html+=`<p class="verdict clean">Passive voice is permitted under the selected manuscript rule and is not flagged.</p>`;
 
   const paraIssues=res.paragraphIssues||[];
-  html+=`<p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks prose paragraphs against the selected 100–300 word rule. Abstract, References, headings, captions, equations, and obvious table-like lines are excluded." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
+  const paragraphMin=Number(res.paragraphMinWords||ENG_CURRENT_PARAGRAPH_MIN||ENG_PARAGRAPH_MIN_DEFAULT);
+  const paragraphMax=Number(res.paragraphMaxWords||ENG_CURRENT_PARAGRAPH_MAX||ENG_PARAGRAPH_MAX_DEFAULT);
+  html+=`<p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks paragraph length only after assigning main-text BODY_PROSE to its local section or subsection. The selected ${paragraphMin}-word minimum is suppressed for single-paragraph sections, sections with ${paragraphMin} prose words or fewer, and intentionally concise statement sections such as Novelty or Significance statements. The selected ${paragraphMax}-word maximum remains paragraph-specific. Front matter, Abstract, headings, captions, notes, equations, tables, back matter, and References are excluded." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
   if(paraIssues.length){
     paraIssues.slice(0,300).forEach(it=>{
       html+=`<div class="issue"><span class="badge warn">!</span><div class="body">
@@ -3022,7 +3578,7 @@ function renderEnglishReport(res){
       </div></div>`;
     });
   }else{
-    html+=`<p class="verdict clean">All ${res.proseParagraphs||0} checked prose paragraphs are within the selected 100–300 word range.</p>`;
+    html+=`<p class="verdict clean">No paragraph-length issues were detected among ${res.proseParagraphs||0} eligible main-text prose paragraphs after section-aware minimum-length exemptions.</p>`;
   }
   $("eng-findings").innerHTML=html;
 
@@ -3052,6 +3608,7 @@ function englishReportText(res){
     `Punctuation/mechanics items: ${(res.writingChecks?.punctuation||[]).length}`,
     `Clarity/conciseness items: ${(res.writingChecks?.clarity||[]).length}`,
     `Terminology/consistency items: ${(res.writingChecks?.consistency||[]).length}`,
+    `Paragraph-length range: ${res.paragraphMinWords||ENG_CURRENT_PARAGRAPH_MIN}–${res.paragraphMaxWords||ENG_CURRENT_PARAGRAPH_MAX} words`,
     `Paragraph-length items: ${(res.paragraphIssues||[]).length}`,
     `Prose paragraphs checked: ${res.proseParagraphs||0}`,
     "Scope: English/grammar/style checks exclude the paper title, Keywords/Index terms, affiliations, Word page headers/footers, footnotes/endnotes, section headings, and References. Paragraph-length checking additionally excludes the Abstract and non-prose structural lines.",""
@@ -4615,11 +5172,17 @@ function reportText(r){
 /* Numeric table structure retained from the currently loaded Word file. */
 let DOCX_NUMERIC_TABLES=[];
 let DOCX_FTE_BLOCKS=[];
+// Shared structural paragraph classification. Captions/legends/notes are preserved
+// for figure/table checks but excluded from prose-only modules.
+let DOCX_STRUCTURAL_PARAGRAPHS=[];
 let DOCX_ENGLISH_EXCLUDE_TEXTS=[];
 let DOCX_ENGLISH_TEXT="";
 let DOCX_ABBR_LIST=new Map();
 let DOCX_ABBR_LIST_FOUND=false;
 let DOCX_ABBR_LIST_SECTIONS=[];
+// References recovered directly from Word paragraph/list structure. This preserves
+// automatic numbering that can disappear when DOCX HTML is flattened to text.
+let DOCX_STRUCTURED_REFERENCES=null;
 let LAST_FTE=null;
 let LAST_UNIT=null;
 let LAST_ENG=null;
@@ -4646,6 +5209,163 @@ function ftePStyle(p){
   const ps=p.getElementsByTagNameNS(FTE_W_NS,"pStyle")[0];
   if(!ps) return "";
   return ps.getAttributeNS(FTE_W_NS,"val")||ps.getAttribute("w:val")||ps.getAttribute("val")||"";
+}
+
+/* Recover a bibliography directly from Word XML, including automatic list numbers.
+   Word often stores "1.", "2.", ... as numbering metadata rather than paragraph text.
+   Flattening the DOCX through HTML/textContent can therefore erase the strongest
+   reference-entry boundary. This extractor reconstructs those boundaries before the
+   ordinary heuristic reference parser runs. */
+async function extractDocxStructuredReferences(buf){
+  if(typeof JSZip==="undefined") return null;
+  const zip=await JSZip.loadAsync(buf);
+  const f=zip.file("word/document.xml");
+  if(!f) return null;
+  const xml=await f.async("string");
+  const d=new DOMParser().parseFromString(xml,"application/xml");
+  if(d.getElementsByTagName("parsererror").length) return null;
+  const body=d.getElementsByTagNameNS(FTE_W_NS,"body")[0];
+  if(!body) return null;
+
+  const children=[...body.childNodes].filter(n=>n.nodeType===1);
+  const refHead=/^\s*(?:\d+(?:\.\d+)*\.?\s*)?(?:references?|reference\s+list|bibliography|works\s+cited|literature\s+cited|cited\s+literature|references\s+cited|notes\s+and\s+references|references\s+and\s+notes|literature\s+references)\s*:?\.?\s*$/i;
+  const afterRef=/^\s*(?:appendix|appendices|supplementary\s+(?:material|materials|information)|supporting\s+information|acknowledg(?:e)?ments?|funding|data\s+availability|author\s+contributions?|conflicts?\s+of\s+interest|competing\s+interests?|declarations?|disclaimer(?:\/publisher(?:’|'|s)?\s+note)?|publisher(?:’|'|s)?\s+note)\b/i;
+
+  let hi=-1,heading="";
+  for(let i=0;i<children.length;i++){
+    const el=children[i];
+    if((el.localName||"").toLowerCase()!=="p") continue;
+    const t=fteXmlText(el).replace(/\s+/g," ").trim();
+    if(refHead.test(t) || (typeof isReferenceHeading==="function" && isReferenceHeading(t))){ hi=i; heading=t; }
+  }
+  if(hi<0) return null;
+
+  // Read list-start values from numbering.xml when available. The fallback is 1.
+  const starts=new Map(); // numId|ilvl -> starting integer
+  try{
+    const nf=zip.file("word/numbering.xml");
+    if(nf){
+      const nxml=await nf.async("string");
+      const nd=new DOMParser().parseFromString(nxml,"application/xml");
+      const absStart=new Map(); // abstractNumId|ilvl -> start
+      [...nd.getElementsByTagNameNS(FTE_W_NS,"abstractNum")].forEach(a=>{
+        const aid=a.getAttributeNS(FTE_W_NS,"abstractNumId")||a.getAttribute("w:abstractNumId")||a.getAttribute("abstractNumId")||"";
+        [...a.getElementsByTagNameNS(FTE_W_NS,"lvl")].forEach(lvl=>{
+          const il=lvl.getAttributeNS(FTE_W_NS,"ilvl")||lvl.getAttribute("w:ilvl")||lvl.getAttribute("ilvl")||"0";
+          const st=lvl.getElementsByTagNameNS(FTE_W_NS,"start")[0];
+          const v=st?(st.getAttributeNS(FTE_W_NS,"val")||st.getAttribute("w:val")||st.getAttribute("val")):"1";
+          absStart.set(`${aid}|${il}`,Math.max(1,parseInt(v||"1",10)||1));
+        });
+      });
+      [...nd.getElementsByTagNameNS(FTE_W_NS,"num")].forEach(n=>{
+        const nid=n.getAttributeNS(FTE_W_NS,"numId")||n.getAttribute("w:numId")||n.getAttribute("numId")||"";
+        const a=n.getElementsByTagNameNS(FTE_W_NS,"abstractNumId")[0];
+        const aid=a?(a.getAttributeNS(FTE_W_NS,"val")||a.getAttribute("w:val")||a.getAttribute("val")):"";
+        for(let il=0;il<=8;il++){
+          const base=absStart.get(`${aid}|${il}`);
+          if(base!=null) starts.set(`${nid}|${il}`,base);
+        }
+        [...n.getElementsByTagNameNS(FTE_W_NS,"lvlOverride")].forEach(ov=>{
+          const il=ov.getAttributeNS(FTE_W_NS,"ilvl")||ov.getAttribute("w:ilvl")||ov.getAttribute("ilvl")||"0";
+          const so=ov.getElementsByTagNameNS(FTE_W_NS,"startOverride")[0];
+          if(so){
+            const v=so.getAttributeNS(FTE_W_NS,"val")||so.getAttribute("w:val")||so.getAttribute("val");
+            starts.set(`${nid}|${il}`,Math.max(1,parseInt(v||"1",10)||1));
+          }
+        });
+      });
+    }
+  }catch(e){ console.warn("Could not read Word numbering metadata for References.",e); }
+
+  const counters=new Map();
+  const entries=[];
+  let cur=null;
+  const finish=()=>{
+    if(!cur) return;
+    cur.raw=String(cur.raw||"").replace(/\s+/g," ").trim();
+    if(cur.raw) entries.push(cur);
+    cur=null;
+  };
+
+  for(let i=hi+1;i<children.length;i++){
+    const el=children[i],ln=(el.localName||"").toLowerCase();
+    if(ln!=="p") continue; // references in tables are left to the ordinary fallback
+    const txt=fteXmlText(el).replace(/\s+/g," ").trim();
+    if(!txt) continue;
+    if(afterRef.test(txt)){ finish(); break; }
+
+    const numPr=el.getElementsByTagNameNS(FTE_W_NS,"numPr")[0];
+    let listNum=null;
+    if(numPr){
+      const ni=numPr.getElementsByTagNameNS(FTE_W_NS,"numId")[0];
+      const li=numPr.getElementsByTagNameNS(FTE_W_NS,"ilvl")[0];
+      const numId=ni?(ni.getAttributeNS(FTE_W_NS,"val")||ni.getAttribute("w:val")||ni.getAttribute("val")):"";
+      const ilvl=li?(li.getAttributeNS(FTE_W_NS,"val")||li.getAttribute("w:val")||li.getAttribute("val")||"0"):"0";
+      if(numId && numId!=="0"){
+        const key=`${numId}|${ilvl}`;
+        const next=counters.has(key)?counters.get(key)+1:(starts.get(key)||1);
+        counters.set(key,next);
+        listNum=next;
+      }
+    }
+
+    // Literal numbering is retained if Word stored it as text instead of numPr.
+    let literal=null,rest=txt;
+    let m=txt.match(/^\s*(?:\[(\d{1,4})\]|\((\d{1,4})\)|(\d{1,4})[.)])\s*(.*)$/);
+    if(m){ literal=parseInt(m[1]||m[2]||m[3],10); rest=m[4].trim(); }
+    const n=literal!=null?literal:listNum;
+
+    if(n!=null){
+      finish();
+      cur={
+        num:n,
+        raw:rest||txt,
+        // Keep the provenance of the number. Literal numbers typed into the
+        // reference text are authoritative. Word automatic-list numbers are
+        // structurally reliable for entry boundaries, but Word may split one
+        // continuous bibliography across several numbering instances/HTML lists.
+        numSource:literal!=null?"literal":"word_auto"
+      };
+    }else if(cur){
+      // Continuation paragraphs, including standalone [CrossRef]/[PubMed] lines,
+      // belong to the preceding numbered reference.
+      cur.raw=(cur.raw+" "+txt).replace(/\s+/g," ").trim();
+    }
+  }
+  finish();
+
+  if(entries.length<2) return null;
+
+  /*
+    Word automatic numbering can be represented by more than one numbering
+    instance even when the bibliography is visually one continuous list.
+    Likewise, page/layout changes can make HTML conversion restart an <ol> at 1.
+    Entry ORDER from document.xml is authoritative, so for a bibliography whose
+    numbers are generated by Word rather than typed literally, repair accidental
+    resets by assigning one continuous sequence in document order.
+
+    Literal numbers are never rewritten here because they may intentionally be
+    non-standard. Only automatic-list numbering is normalized.
+  */
+  const nums=entries.map(e=>Number(e.num));
+  const allAuto=entries.every(e=>e.numSource==="word_auto");
+  const contiguous=nums.every((n,i)=>
+    Number.isInteger(n) && n>0 && (i===0 || n===nums[i-1]+1)
+  );
+  let numberingNormalized=false;
+  if(allAuto && !contiguous){
+    const start=Number.isInteger(nums[0]) && nums[0]>0 ? nums[0] : 1;
+    entries.forEach((e,i)=>{ e.originalNum=e.num; e.num=start+i; });
+    numberingNormalized=true;
+  }
+
+  const refs=entries.map(e=>`${e.num}. ${e.raw}`).join("\n");
+  return {
+    found:true,heading,entries,refs,count:entries.length,
+    method:"word_list_structure",
+    numberingNormalized,
+    numberingSequence:entries.map(e=>e.num)
+  };
 }
 
 
@@ -4965,6 +5685,27 @@ function fteWordTableRowSummaries(tbl){
   });
 }
 
+
+function fteSeqCaptionType(p){
+  if(!p) return "";
+  let instr="";
+  try{
+    [...p.getElementsByTagNameNS(FTE_W_NS,"instrText")].forEach(n=>{ instr+=" "+(n.textContent||""); });
+    [...p.getElementsByTagNameNS(FTE_W_NS,"fldSimple")].forEach(n=>{
+      instr+=" "+(n.getAttributeNS(FTE_W_NS,"instr")||n.getAttribute("w:instr")||n.getAttribute("instr")||"");
+    });
+  }catch(e){}
+  instr=instr.replace(/\s+/g," ").trim();
+  if(!instr) return "";
+  const m=instr.match(/\bSEQ\s+(Figure|Fig|Table|Scheme|Plate|Chart|Graph|Image|Photo(?:graph)?|Illustration|Diagram|Flowchart|Algorithm|Box|Map)\b/i);
+  if(!m) return "";
+  const x=m[1].toLowerCase();
+  if(x==="fig"||x==="figure") return "figure";
+  if(x==="table") return "table";
+  if(x==="scheme") return "scheme";
+  return x.replace(/photograph/,"photo");
+}
+
 async function extractDocxStructure(buf){
   if(typeof JSZip==="undefined") throw new Error("Structured Word reader failed to load.");
   const zip=await JSZip.loadAsync(buf);
@@ -4979,11 +5720,20 @@ async function extractDocxStructure(buf){
     const ln=(el.localName||"").toLowerCase();
     if(ln==="p"){
       const text=fteXmlText(el), style=ftePStyle(el);
+      const seqCaptionType=fteSeqCaptionType(el);
       const hasDrawing=el.getElementsByTagNameNS(FTE_W_NS,"drawing").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"pict").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"object").length>0;
       const mathCount=el.getElementsByTagNameNS(FTE_M_NS,"oMath").length;
       const hasMathPara=el.getElementsByTagNameNS(FTE_M_NS,"oMathPara").length>0;
       const hasMath=mathCount>0 || hasMathPara;
-      blocks.push({type:"p",pos:pos++,text,style,hasDrawing,hasMath,hasMathPara,mathCount});
+      const pPr=el.getElementsByTagNameNS(FTE_W_NS,"pPr")[0];
+      const outlineEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"outlineLvl")[0]:null;
+      const outlineRaw=outlineEl?(outlineEl.getAttributeNS(FTE_W_NS,"val")||outlineEl.getAttribute("w:val")||outlineEl.getAttribute("val")):null;
+      const outlineLvl=outlineRaw!=null && /^\d+$/.test(String(outlineRaw)) ? parseInt(outlineRaw,10) : null;
+      const numPr=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"numPr")[0]:null;
+      const ilvlEl=numPr?numPr.getElementsByTagNameNS(FTE_W_NS,"ilvl")[0]:null;
+      const ilvlRaw=ilvlEl?(ilvlEl.getAttributeNS(FTE_W_NS,"val")||ilvlEl.getAttribute("w:val")||ilvlEl.getAttribute("val")):null;
+      const ilvl=ilvlRaw!=null && /^\d+$/.test(String(ilvlRaw)) ? parseInt(ilvlRaw,10) : null;
+      blocks.push({type:"p",pos:pos++,text,style,seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,hasNumbering:!!numPr,ilvl});
     }else if(ln==="tbl"){
       const rowSummaries=fteWordTableRowSummaries(el);
       const eqLayout=fteClassifyEquationLayoutRows(rowSummaries);
@@ -5053,17 +5803,33 @@ function fteDisplay(kind,id){
   return `${kind==="figure"?"Figure":"Table"} ${id}`;
 }
 function fteFigureCaption(text){
-  const m=(text||"").match(/^\s*(?:Figure\.?|Fig\.?)\s*([Ss]?\d+(?:\.\d+)?)(?:\s*\(?([a-z])\)?)?(?=\s|[.:;–—-]|$)/i);
-  return m?{id:fteCanonId(m[1]),panel:(m[2]||"").toLowerCase(),raw:m[0]}:null;
+  try{
+    const x=engParseCaptionLead(text);
+    if(x && x.kind==="FIGURE_CAPTION"){
+      const id=fteCanonId(String(x.id||"").replace(/^(?:SI|ESI)-?/i,"S"));
+      if(!id) return null;
+      const pm=String(x.raw||"").match(/\(([a-z])\)|\b(?:S?\d+(?:\.\d+)?)([a-z])\b/i);
+      return {id,panel:((pm&& (pm[1]||pm[2]))||"").toLowerCase(),raw:x.raw};
+    }
+  }catch(e){}
+  return null;
 }
 function fteTableCaption(text){
-  const m=(text||"").match(/^\s*Table\.?\s*([Ss]?\d+(?:\.\d+)?)(?=\s|[.:;–—-]|$)/i);
-  return m?{id:fteCanonId(m[1]),raw:m[0]}:null;
+  try{
+    const x=engParseCaptionLead(text);
+    if(x && x.kind==="TABLE_CAPTION"){
+      const id=fteCanonId(String(x.id||"").replace(/^(?:SI|ESI)-?/i,"S"));
+      return id?{id,raw:x.raw}:null;
+    }
+  }catch(e){}
+  return null;
 }
 
 function fteCaptionEvidence(text,label,kind,style="",distance=99){
-  const t=String(text||"");
-  const raw=String(label?.raw||"");
+  // Compare normalized structural text because Word may use non-breaking spaces
+  // and Unicode dash variants that differ from the normalized caption parser.
+  const t=typeof engNormStructuralText==="function"?engNormStructuralText(text):String(text||"");
+  const raw=typeof engNormStructuralText==="function"?engNormStructuralText(label?.raw||""):String(label?.raw||"");
   const at=t.indexOf(raw);
   const after=at>=0?t.slice(at+raw.length):"";
   const trimmed=after.trimStart();
@@ -5509,10 +6275,19 @@ async function readFile(file){
 
     DOCX_NUMERIC_TABLES=[];
     DOCX_FTE_BLOCKS=[];
+    DOCX_STRUCTURAL_PARAGRAPHS=[];
     DOCX_ENGLISH_TEXT="";
     DOCX_ABBR_LIST=new Map();
     DOCX_ABBR_LIST_FOUND=false;
     DOCX_ABBR_LIST_SECTIONS=[];
+    DOCX_STRUCTURED_REFERENCES=null;
+
+    try{
+      DOCX_STRUCTURED_REFERENCES=await extractDocxStructuredReferences(buf);
+    }catch(e){
+      console.warn("Structured Word reference-list extraction unavailable; using text heuristics.",e);
+      DOCX_STRUCTURED_REFERENCES=null;
+    }
 
     try{
       const abList=await extractDocxAbbreviationDefinitions(buf);
@@ -5543,13 +6318,20 @@ async function readFile(file){
 
     try{ DOCX_FTE_BLOCKS=await extractDocxStructure(buf); }
     catch(e){ console.warn("Structured DOCX extraction unavailable; using HTML fallback.",e); DOCX_FTE_BLOCKS=extractHtmlStructure(box); }
+    engRefreshStructuralParagraphs();
 
     (DOCX_FTE_BLOCKS||[]).forEach(b=>{
       if(b?.type!=="p" || !b.text) return;
       const st=String(b.style||"");
-      if(/(?:^|\b)(?:title|subtitle|heading\s*[1-9]?|heading[1-9]|header|footer|footnote|endnote|caption|figure|table)(?:\b|$)/i.test(st)){
-        const t=String(b.text).replace(/\s+/g," ").trim();
-        if(t && !DOCX_ENGLISH_EXCLUDE_TEXTS.some(x=>x.toLowerCase()===t.toLowerCase())) DOCX_ENGLISH_EXCLUDE_TEXTS.push(t);
+      const t=String(b.text).replace(/\s+/g," ").trim();
+      if(!t) return;
+      const wc=engWordCount(t);
+      const noTerminal=!/[.!?]["'’\)\]]?$/.test(t);
+      const styleHeading=/(?:^|\b)(?:title|subtitle|heading\s*[1-9]?|heading[1-9]|header|footer|footnote|endnote|caption|figure|table)(?:\b|$)/i.test(st);
+      const outlineHeading=Number.isInteger(b.outlineLvl) && b.outlineLvl>=0 && b.outlineLvl<=8;
+      const numberedHeading=!!b.hasNumbering && noTerminal && wc>=1 && wc<=24 && /^[A-Z]/.test(t);
+      if(styleHeading || outlineHeading || numberedHeading){
+        if(!DOCX_ENGLISH_EXCLUDE_TEXTS.some(x=>x.toLowerCase()===t.toLowerCase())) DOCX_ENGLISH_EXCLUDE_TEXTS.push(t);
       }
     });
     // Retain Word table structure for the numeric-precision checker.
@@ -5561,6 +6343,51 @@ async function readFile(file){
       if(numericRows.length>=2) DOCX_NUMERIC_TABLES.push({index:tableIndex+1,rows:numericRows});
     });
     box.querySelectorAll("table").forEach(t=>t.remove());   // drop Word tables entirely
+
+    // Mammoth preserves Word automatic numbering structurally as <ol><li>, while
+    // textContent drops the visible list marker. Restore markers for ordered lists
+    // that occur after a References/Bibliography heading so the plain-text fallback
+    // also retains one unambiguous marker per reference.
+    try{
+      const candidates=[...box.querySelectorAll("h1,h2,h3,h4,h5,h6,p")];
+      let refHeadingEl=null;
+      for(const el of candidates){
+        const tt=(el.textContent||"").replace(/\s+/g," ").trim();
+        if(isReferenceHeading(tt) || /^references?|bibliography$/i.test(tt)) refHeadingEl=el;
+      }
+      if(refHeadingEl){
+        // Treat all ordered-list fragments after the References heading as one
+        // continuous fallback sequence. Mammoth may split a single Word list into
+        // multiple <ol> elements and omit `start`, which otherwise restarts each
+        // fragment at 1. Word XML remains the primary source; this only hardens the
+        // plain-text fallback.
+        let nextRefListNum=1;
+        [...box.querySelectorAll("ol")].forEach(ol=>{
+          if(!(refHeadingEl.compareDocumentPosition(ol)&Node.DOCUMENT_POSITION_FOLLOWING)) return;
+
+          const explicitStart=parseInt(ol.getAttribute("start")||"",10);
+          let n=nextRefListNum;
+          if(Number.isFinite(explicitStart) && explicitStart>0){
+            // Honour a forward start value, but ignore a spurious restart such as
+            // start=1 after references 1-14 have already been processed.
+            if(nextRefListNum===1 || explicitStart>=nextRefListNum) n=explicitStart;
+          }
+
+          [...ol.children].filter(li=>li.tagName&&li.tagName.toLowerCase()==="li").forEach(li=>{
+            const value=parseInt(li.getAttribute("value")||"",10);
+            if(Number.isFinite(value) && value>0){
+              if(nextRefListNum===1 || value>=n) n=value;
+            }
+            const tt=(li.textContent||"").trim();
+            if(!/^\s*(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s+/.test(tt))
+              li.insertBefore(document.createTextNode(`${n}. `),li.firstChild);
+            n++;
+          });
+          nextRefListNum=n;
+        });
+      }
+    }catch(e){ console.warn("Could not restore ordered-list reference markers.",e); }
+
     const KEEPHEAD=/^\s*(\d+\.?\s*)?(references?|reference list|bibliography|works cited|literature cited|cited literature|references cited|notes\s+and\s+references|references\s+and\s+notes|appendix|appendices|supplementary|supporting information|acknowledge?ments?|data availability|funding|conflicts?\s+of\s+interest|competing\s+interests?|author\s+contributions?|declarations?)\b/i;
     box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>{  // drop styled headings, keep section markers
       const t=(h.textContent||"").trim();
@@ -5673,8 +6500,8 @@ function issueHelpText(code,msg=""){
     TERMINOLOGY_VARIANT:"The same technical concept appears in more than one open/closed/hyphenated form. Review whether the variation is intentional.",
     HYPHENATION_INCONSISTENT:"Both a hyphenated and closed form of what appears to be the same technical term occur in the manuscript.",
     CAPITALIZATION_INCONSISTENT:"The same repeated term appears with different capitalization inside manuscript sentences. Normal sentence-initial capitalization, citations, Word fields, equations/math, titles, headers/footers, footnotes/endnotes, and References are excluded.",
-    PARAGRAPH_TOO_SHORT:"A main-text prose paragraph contains fewer than 100 words under the selected manuscript rule. Abstract, References, headings, captions, equations, and table-like structures are excluded.",
-    PARAGRAPH_TOO_LONG:"A main-text prose paragraph contains more than 300 words under the selected manuscript rule. Consider splitting only at a logical transition."
+    PARAGRAPH_TOO_SHORT:`A main-text prose paragraph is below the selected ${ENG_CURRENT_PARAGRAPH_MIN}-word guideline inside a sufficiently developed local section. The checker suppresses this warning for single-paragraph sections, sections containing ${ENG_CURRENT_PARAGRAPH_MIN} prose words or fewer, intentionally concise statement sections, and structural content such as headings, captions, notes, equations, tables, back matter, and References.`,
+    PARAGRAPH_TOO_LONG:`A main-text prose paragraph contains more than the selected ${ENG_CURRENT_PARAGRAPH_MAX}-word maximum. Consider splitting only at a logical transition.`
   };
   if(englishHelp[code]) return englishHelp[code];
 
@@ -5689,10 +6516,22 @@ function issueHelpButton(code,msg=""){
 let currentFile=null;
 $("whitelist").value=DEFAULT_STANDARD.join("\n");
 engInitSentenceLimit();
+engInitParagraphLimits();
 if($("sentence-max")){
   $("sentence-max").addEventListener("change",engReadSentenceLimit);
   $("sentence-max").addEventListener("blur",engReadSentenceLimit);
 }
+["paragraph-min","paragraph-max"].forEach(id=>{
+  const el=$(id);
+  if(!el) return;
+  el.addEventListener("change",engReadParagraphLimits);
+  el.addEventListener("blur",engReadParagraphLimits);
+  el.addEventListener("input",()=>{
+    const minEl=$("paragraph-min"), maxEl=$("paragraph-max");
+    if(minEl) minEl.setCustomValidity("");
+    if(maxEl) maxEl.setCustomValidity("");
+  });
+});
 
 const drop=$("drop"),fileInput=$("file"),chip=$("filechip");
 drop.onclick=()=>fileInput.click();
@@ -5704,7 +6543,7 @@ fileInput.onchange=()=>{ if(fileInput.files.length) setFile(fileInput.files[0]);
 function setFile(f){
   const name=(f&&f.name||"").toLowerCase();
   if(!name.endsWith(".docx")){
-    currentFile=null; DOCX_NUMERIC_TABLES=[]; DOCX_FTE_BLOCKS=[]; DOCX_ABBR_LIST=new Map(); DOCX_ABBR_LIST_FOUND=false; DOCX_ABBR_LIST_SECTIONS=[]; fileInput.value=""; chip.style.display="none";
+    currentFile=null; DOCX_NUMERIC_TABLES=[]; DOCX_FTE_BLOCKS=[]; DOCX_STRUCTURAL_PARAGRAPHS=[]; DOCX_ABBR_LIST=new Map(); DOCX_ABBR_LIST_FOUND=false; DOCX_ABBR_LIST_SECTIONS=[]; DOCX_STRUCTURED_REFERENCES=null; fileInput.value=""; chip.style.display="none";
     status(name.endsWith(".doc") ? "Legacy .doc files are not supported. Save the manuscript as .docx and upload that file." : "Only Microsoft Word .docx files are accepted.", true);
     return;
   }
@@ -5721,6 +6560,21 @@ $("download").onclick=()=>{
 $("print").onclick=()=>window.print();
 
 /* ================= Reference checker ================= */
+/* Publisher databases often append non-bibliographic labels after an otherwise
+   complete reference. Ignore these labels only for boundary detection; preserve
+   the original entry text for display and field parsing. */
+function refStripTerminalPublisherMeta(s){
+  let x=String(s||"").replace(/\s+/g," ").trim();
+  const tag=String.raw`(?:CrossRef|PubMed|PubMed\s+Central|PMC|Google\s+Scholar|Scopus|Web\s+of\s+Science|WoS|DOI|MEDLINE)`;
+  let prev="";
+  while(x!==prev){
+    prev=x;
+    x=x.replace(new RegExp(String.raw`(?:\s*\[\s*${tag}\s*\]\s*)+$`,'i'),"").trim();
+    x=x.replace(new RegExp(String.raw`(?:\s+(?:${tag})\s*)+$`,'i'),"").trim();
+  }
+  return x;
+}
+
 /* Author parser revision: supports surname+initials, initials+surname, complex surnames and corporate authors. */
 function refSplitList(text){
   const t=text.replace(/\r/g,"").trim();
@@ -5730,7 +6584,7 @@ function refSplitList(text){
   // author-led line is a continuation or a new reference whose number/marker was
   // lost during Word/text extraction.
   const complete=s=>{
-    const x=String(s||"").replace(/\s+/g," ").trim();
+    const x=refStripTerminalPublisherMeta(s);
     if(!/\b(?:19|20)\d{2}[a-z]?\b/i.test(x)) return false;
     if(/10\.\d{4,9}\//i.test(x)) return true;
     if(/\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,20}\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i.test(x)) return true;
@@ -8450,6 +9304,13 @@ $("run").onclick=async()=>{
   const title=$("title").value;
   const skipRefs=$("opt-refs").checked, skipTables=$("opt-tables").checked;
   const sentenceLimit=engReadSentenceLimit();
+  const paragraphLimits=engReadParagraphLimits();
+  if(!paragraphLimits.valid){
+    status(paragraphLimits.error,true);
+    const bad=$("paragraph-max")||$("paragraph-min");
+    if(bad && typeof bad.reportValidity==="function") bad.reportValidity();
+    return;
+  }
   let text="";
   try{
     btn.disabled=true;
@@ -8486,8 +9347,40 @@ $("run").onclick=async()=>{
       status("Checking references…");
       const split=refSplitManuscript(text);
       if(split.found){
-        const refResult=refCheck(split.refs, split.body);
-        refResult.detect={heading:split.heading, method:split.method, confidence:split.confidence, citeStyle:split.citeStyle};
+        let refsForCheck=split.refs;
+        let detectMethod=split.method;
+        let detectConfidence=split.confidence;
+        // Prefer Word's actual automatic-list structure when it yields a richer
+        // reference ledger than flattened text. This is especially important for
+        // publisher DOCX files where visible list numbers are stored only in numPr.
+        if(DOCX_STRUCTURED_REFERENCES?.found){
+          const plainParsed=refSplitList(split.refs);
+          const plainCount=plainParsed.entries.length;
+          const structuredCount=DOCX_STRUCTURED_REFERENCES.count||0;
+
+          /*
+            Prefer Word XML structure whenever it recovers essentially the same
+            bibliography as flattened text. Word XML preserves the real document
+            order and automatic-list boundaries; HTML/text fallback may restart
+            numbering when Mammoth creates several <ol> blocks. The old strict
+            `structuredCount > plainCount` test was wrong when both methods found
+            all entries but only the HTML numbering had reset.
+
+            If structured extraction is substantially incomplete, retain the
+            richer text fallback rather than discarding valid references.
+          */
+          const closeCoverage = structuredCount>=2 &&
+            (plainCount<2 || structuredCount>=plainCount || structuredCount>=Math.ceil(plainCount*0.90));
+          if(closeCoverage){
+            refsForCheck=DOCX_STRUCTURED_REFERENCES.refs;
+            detectMethod=DOCX_STRUCTURED_REFERENCES.numberingNormalized
+              ? "word_list_structure_numbering_normalized"
+              : "word_list_structure";
+            detectConfidence=99;
+          }
+        }
+        const refResult=refCheck(refsForCheck, split.body);
+        refResult.detect={heading:split.heading, method:detectMethod, confidence:detectConfidence, citeStyle:split.citeStyle};
         if(!refResult.count){ showRefNote("A references section was found, but no reference entries could be parsed from it."); LAST_REF_OUT=null; }
         else {
           const styleEx=$("ref-style").value.trim();
@@ -8516,10 +9409,10 @@ $("run").onclick=async()=>{
     // US/British English consistency (affiliations and references excluded)
     try{
       status("Checking English, grammar and style…");
-      renderEnglishReport(engAnalyze(text,sentenceLimit));
+      renderEnglishReport(engAnalyze(text,sentenceLimit,paragraphLimits));
     }catch(e){
       console.error("English, grammar and style check failed:",e);
-      renderEnglishReport({inference:{style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"},issues:[],personIssues:[],tenseIssues:[],writingChecks:{grammar:[],punctuation:[],clarity:[],consistency:[],passive:[],metrics:{sentenceLengthLimit:sentenceLimit}},sentenceLengthLimit:sentenceLimit,paragraphIssues:[],proseParagraphs:0,ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0});
+      renderEnglishReport({inference:{style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"},issues:[],personIssues:[],tenseIssues:[],writingChecks:{grammar:[],punctuation:[],clarity:[],consistency:[],passive:[],metrics:{sentenceLengthLimit:sentenceLimit}},sentenceLengthLimit:sentenceLimit,paragraphMinWords:paragraphLimits.min,paragraphMaxWords:paragraphLimits.max,paragraphIssues:[],proseParagraphs:0,ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0});
     }
 
     // Figures, tables and numbered equations (Word structure preserves physical order)
@@ -8537,11 +9430,11 @@ $("run").onclick=async()=>{
 };
 
 $("clear").onclick=()=>{
-  currentFile=null; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; fileInput.value=""; chip.style.display="none";
+  currentFile=null; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null; fileInput.value=""; chip.style.display="none";
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
-  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[]; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT="";
+  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[]; DOCX_STRUCTURAL_PARAGRAPHS=[]; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null;
 };
 
 $("ref-download").onclick=()=>{ if(!LAST_REF_OUT) return; const blob=new Blob([refReportText(LAST_REF_OUT.res,LAST_REF_OUT.cross)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reference-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
