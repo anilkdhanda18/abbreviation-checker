@@ -246,7 +246,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   table.ledger .t-num{font-variant-numeric:tabular-nums;color:var(--muted)}
   .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
   .dot.err{background:var(--err)}.dot.warn{background:var(--warn)}.dot.ok{background:var(--ok)}
-  .yn.y{color:var(--ok);font-weight:700}.yn.n{color:var(--err);font-weight:700}.yn.na{color:var(--faint)}
+  .yn.y{color:var(--ok);font-weight:700}.yn.n{color:var(--err);font-weight:700}.yn.na{color:var(--faint)}.yn.opt{color:#64748b;font-weight:650}.yn.rev{color:#b45309;font-weight:700}
   .rtype{display:inline-block;font-size:10.5px;font-weight:700;color:var(--pencil);background:var(--pencil-soft);border-radius:4px;padding:1px 6px;margin-right:2px;white-space:nowrap}
   /* Results navigation: restrained colour coding keeps the six modules easy to scan. */
   .rtabs{
@@ -807,11 +807,11 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="ref" hidden>
   <section class="card" id="ref-report" hidden aria-live="polite">
-      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Scans the detected bibliography only. Each reference is parsed structurally and the ledger reports whether expected bibliographic fields are present. A secondary embedded journal/source database is used during author-boundary protection, structural parsing, and final source recovery. It prevents known journal abbreviations from being consumed as author names and can recover a database-confirmed journal immediately before a publication year/volume tail even when pages or an article number are absent. If Journal/source is missing and text currently classified as Title matches a known full journal title or high-confidence abbreviation, that text is reclassified as Journal/source. Full journal titles remain usable even when the database provides no abbreviation. The database never invents a missing journal and absence from the database does not make a structurally valid source incorrect. Wrapped Word reference paragraphs are rejoined before parsing, abbreviated long-author lists using three dots or a Unicode ellipsis before the final author are preserved as one author block, and applicability is style/type aware so intentionally omitted fields can appear as n/a rather than errors." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
+      <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Checks journal articles with the established journal parser. Books, chapters, reports, webpages, theses, standards, datasets and other non-journal sources are identified separately and checked using fields appropriate to their source type." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
       <nav class="report-subnav" id="ref-subnav" aria-label="Reference report sections" hidden></nav>
       <div id="ref-ledger-wrap"></div>
-      <p class="disclaimer">The reference ledger reports whether key bibliographic components are detected in each entry. Field applicability is inferred from the reference type and the dominant structure of the reference list. Detection is heuristic, so ambiguous entries should still be checked manually.</p>
+      <p class="disclaimer">The reference ledger checks journal articles with the established journal parser and evaluates non-journal sources with type-specific rules. Fields marked no are expected for that source type; n/a means the field does not apply. Ambiguous non-journal items are marked for review rather than forced into journal rules.</p>
       <div class="report-actions">
         <button class="btn btn-ghost" id="ref-download">Download report (.txt)</button>
         <button class="btn btn-ghost" id="ref-print">Print or save as PDF</button>
@@ -8509,6 +8509,498 @@ function refType(s){
 
   return "journal article";
 }
+
+/* =====================================================================
+   ADDITIVE NON-JOURNAL REFERENCE ROUTER AND TYPE-SPECIFIC PARSER
+   =====================================================================
+   The existing journal-article parser above/below is intentionally left
+   unchanged. This layer only intercepts references with positive, strong
+   non-journal evidence. If evidence is not strong enough, the entry falls
+   through to the pre-existing journal parser exactly as before.
+*/
+const REF_NJ_PUBLISHER_RE=/\b(?:University\s+Press|Academic\s+Press|CRC\s+Press|Cambridge\s+University\s+Press|Oxford\s+University\s+Press|McGraw[- ]Hill|Taylor\s*&\s*Francis|Routledge|Springer(?:\s+Nature)?|Elsevier|Wiley|Pearson|SAGE|IWA\s+Publishing|Royal\s+Society\s+of\s+Chemistry|Press|Publishing|Publishers?|Verlag)\b/iu;
+const REF_NJ_ORG_RE=/\b(?:Agency|Authority|Board|Commission|Committee|Council|Department|Institute|Institution|Laborator(?:y|ies)|Ministry|Organisation|Organization|Programme|Program|University|Centre|Center|Corporation|Association|Society|Foundation|Bank|Fund|Office|Administration|Secretariat|Government|Company|Co\.?|Inc\.?|Ltd\.?|Team|Group|Consortium|Project|WHO|OECD|IPCC|UNEP|UNESCO|FAO|World\s+Bank|Environmental\s+Protection\s+Agency|Central\s+Pollution\s+Control\s+Board)\b/iu;
+const REF_NJ_CONF_RE=/\b(?:Proceedings|Conference|Congress|Symposium|Workshop|Annual\s+Meeting|Meeting\s+of|International\s+Conference|National\s+Conference)\b/iu;
+const REF_NJ_REPORT_RE=/\b(?:technical\s+report|research\s+report|annual\s+report|final\s+report|project\s+report|assessment\s+report|progress\s+report|report\s+no\.?|report\s+number|working\s+paper|white\s+paper|discussion\s+paper|policy\s+brief|briefing\s+paper|technical\s+memorandum|bulletin)\b/iu;
+const REF_NJ_GUIDE_RE=/\b(?:guideline(?:s)?|guidance|protocol|code\s+of\s+practice|recommendations?|action\s+plan|roadmap|strategy|policy\s+document|national\s+policy|framework)\b/iu;
+const REF_NJ_STANDARD_RE=/\b(?:ISO|IEC|ASTM|ANSI|DIN|BS(?:\s*EN)?|EN|BIS|IS)\s*[-:]?\s*[A-Z]?\d{2,}(?:[-:.][A-Z0-9]+)*\b/iu;
+const REF_NJ_THESIS_RE=/\b(?:Ph\.?D\.?|doctoral|doctorate|master'?s|M\.?Tech\.?|M\.?Sc\.?)\s+(?:thesis|dissertation)|\b(?:thesis|dissertation)\b/iu;
+const REF_NJ_PREPRINT_RE=/\b(?:arXiv|bioRxiv|medRxiv|ChemRxiv|SSRN|Research\s+Square|preprints?\.org|preprint)\b/iu;
+const REF_NJ_DATA_RE=/\b(?:\[?data\s*set\]?|dataset|Zenodo|Figshare|Dryad|Mendeley\s+Data|data\s+repository)\b/iu;
+const REF_NJ_SOFTWARE_RE=/\b(?:\[?software\]?|software\s+package|R\s+Core\s+Team|R\s+Foundation\s+for\s+Statistical\s+Computing|CRAN|PyPI|GitHub|version\s+\d|v\.?\s*\d+\.\d+)\b/iu;
+const REF_NJ_PATENT_RE=/\b(?:U\.?S\.?\s+Patent|European\s+Patent|Patent\s+(?:No\.?|Number)|Pat\.\s*No\.?|WO\s*\d{6,}|EP\s*\d{6,}|US\s*\d{6,}|IN\s*\d{5,})\b/iu;
+const REF_NJ_MANUAL_RE=/\b(?:user\s+manual|technical\s+manual|operating\s+manual|instruction\s+manual|water\s+analysis\s+handbook|manual)\b/iu;
+const REF_NJ_LEGAL_RE=/\b(?:Act|Rules?|Regulations?|Directive|Notification|Gazette|Statute|Ordinance)\b/iu;
+
+function refNJClean(s){ return (s||'').replace(/\u00a0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\s+/g,' ').trim(); }
+function refNJStripNumber(s){ return refNJClean(s).replace(/^\s*(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s*/, '').trim(); }
+function refNJUrl(raw){ const m=(raw||'').match(/\bhttps?:\/\/[^\s<>]+|\bwww\.[^\s<>]+/iu); return m?m[0].replace(/[.,;:)\]]+$/,''):null; }
+function refNJIsDoiUrl(url){ return !!url && /(?:dx\.)?doi\.org\//iu.test(url); }
+function refNJIsbn(raw){ const m=(raw||'').match(/\bISBN(?:-1[03])?\s*:?[\s-]*([0-9X][0-9X\s-]{8,22})/iu); return m?m[1].replace(/\s+/g,'').replace(/-+$/,''):null; }
+function refNJPages(raw){
+  const text=raw||'';
+  const explicit=[...text.matchAll(/\bpp?\.?\s*(\d{1,7}\s*[-–—]\s*\d{1,7})\b/giu)];
+  if(explicit.length) return explicit[0][1].replace(/\s+/g,' ');
+  for(const m of text.matchAll(/\b(\d{1,7})\s*([-–—])\s*(\d{1,7})\b/gu)){
+    const a=+m[1], btxt=m[3];
+    // Do not mistake date/report-title ranges such as 2022-23 or 2015-2024 for pages.
+    if(a>=1900 && a<=2099 && (btxt.length<=4)) continue;
+    return `${m[1]}${m[2]}${m[3]}`;
+  }
+  return null;
+}
+function refNJEdition(raw){ const m=(raw||'').match(/\b((?:\d+(?:st|nd|rd|th)\s+(?:ed\.?|edition)|(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\s+edition|revised\s+edition|\d+(?:st|nd|rd|th)\s+edn\.?))\b/iu); return m?m[1]:null; }
+function refNJReportNumber(raw){
+  const pats=[
+    /\b(?:Report|Technical\s+Report)\s+(?:No\.?|Number)\s*[:#-]?\s*([A-Z0-9][A-Z0-9./-]{1,40})/iu,
+    /\b(?:Working\s+Paper|Discussion\s+Paper)\s+(?:No\.?\s*)?([A-Z0-9][A-Z0-9./-]{1,40})/iu,
+    /\b(EPA[-/]?[A-Z0-9./-]{4,}|WHO\/[A-Z0-9./-]{3,}|TR[-/]?\d[A-Z0-9./-]*)\b/iu
+  ];
+  for(const re of pats){ const m=(raw||'').match(re); if(m) return m[1]; } return null;
+}
+function refNJStandardNumber(raw){ const m=(raw||'').match(REF_NJ_STANDARD_RE); return m?m[0].replace(/\s+/g,' ').trim():null; }
+function refNJPatentNumber(raw){ const m=(raw||'').match(/\b(?:U\.?S\.?|US)\s+Patent\s+([0-9][0-9,./-]{4,})|\b(?:US|EP|WO|IN)\s*[A-Z]?\d[\d,./-]{4,}|\bPatent\s+(?:No\.?|Number)\s*[:#]?\s*([A-Z0-9,./-]+)/iu); return m?(m[1]||m[2]||m[0]).replace(/\s+/g,' ').replace(/[.,;:]+$/g,'').trim():null; }
+function refNJVersion(raw){ const m=(raw||'').match(/\b(?:version|ver\.?|v\.)\s*([0-9]+(?:\.[0-9A-Za-z-]+)+)/iu); return m?m[1]:null; }
+
+function refNJCorporateAuthor(raw, authorInfo){
+  const s=refNJStripNumber(raw);
+  const y=s.search(/(?:\(|\b)(?:19|20)\d{2}[a-z]?(?:\)|\b)/iu);
+  // The legacy author detector is intentionally journal-oriented and may let an
+  // institutional author consume a following year/title fragment, e.g.
+  // "Central Pollution Control Board. (2023). Annual Report". For the additive
+  // non-journal path, prefer the organization span before the first publication year.
+  if(authorInfo?.hasAuthors){
+    if(authorInfo.authorType!=="corporate") return authorInfo;
+    if(y>1){
+      const pre=s.slice(0,y).replace(/[.,;:\s]+$/g,'').trim();
+      if(pre.length>=3 && pre.length<=220 && (REF_NJ_ORG_RE.test(pre) || /^(?:WHO|OECD|IPCC|UNEP|UNESCO|FAO|EPA|USEPA|CPCB|ASTM|ISO|IEC)\b/iu.test(pre))){
+        return {hasAuthors:true,authorType:'corporate',authorRegion:pre,firstAuthorSurname:pre,authorCount:1,confidence:0.98};
+      }
+    }
+    return authorInfo;
+  }
+  if(y<=1) return null;
+  let cand=s.slice(0,y).replace(/[.,;:\s]+$/g,'').trim();
+  if(cand.length<3 || cand.length>220) return null;
+  if(REF_NJ_ORG_RE.test(cand) || /^(?:WHO|OECD|IPCC|UNEP|UNESCO|FAO|EPA|USEPA|CPCB|ASTM|ISO|IEC)\b/iu.test(cand)){
+    return {hasAuthors:true,authorType:'corporate',authorRegion:cand,firstAuthorSurname:cand,authorCount:1,confidence:0.94};
+  }
+  // Named group/corporate authors such as "Metcalf & Eddy" or "R Core Team"
+  // may not contain an institutional suffix. Accept a short pre-year entity when it
+  // is clearly name-like and not sentence prose. This rule is used only by the
+  // non-journal parser and therefore cannot change journal author detection.
+  const cw=cand.split(/\s+/).filter(Boolean);
+  if(cw.length<=12 && !/[!?]/.test(cand) && (/[&]/.test(cand) || /\b(?:Team|Group|Consortium|Project)\b/iu.test(cand)) && !/\b(?:the|this|results?|analysis|effect|study|investigation)\b/iu.test(cand)){
+    return {hasAuthors:true,authorType:'corporate',authorRegion:cand,firstAuthorSurname:cand,authorCount:1,confidence:0.88};
+  }
+  if(cw.length<=6 && /^[A-Z][A-Z0-9&.-]{1,30}(?:\s+[A-Z][A-Z0-9&.-]{1,30})*$/.test(cand)){
+    return {hasAuthors:true,authorType:'corporate',authorRegion:cand,firstAuthorSurname:cand,authorCount:1,confidence:0.86};
+  }
+  return null;
+}
+
+function refNJPublisher(raw){
+  const clean=refStripDoiUrl(refNJClean(raw));
+  const segs=clean.split(/\s*[.;]\s+|\s*,\s*/).map(x=>x.trim()).filter(Boolean);
+  for(let i=segs.length-1;i>=0;i--){
+    let c=segs[i].replace(/^(?:[A-Z][\p{L} .'-]{1,40}:\s*)/u,'').trim();
+    if(c.length<=140 && REF_NJ_PUBLISHER_RE.test(c)) return c.replace(/[.,;:]+$/g,'').trim();
+  }
+  const m=clean.match(/(?:^|[.;,]\s*)([^.;,]{2,120}\b(?:Press|Publishing|Publishers?|Verlag|Springer(?:\s+Nature)?|Elsevier|Wiley|Routledge|Pearson|McGraw[- ]Hill|SAGE|IWA\s+Publishing))(?=\s*[.;,]|$)/iu);
+  return m?m[1].replace(/[.,;:]+$/g,'').trim():null;
+}
+
+function refNJYear(raw, authorInfo){
+  const rest=refRestAfterAuthors(raw,authorInfo);
+  // Non-journal references very often place the publication year immediately after
+  // the author/organisation. Prefer that position so title years such as
+  // "Annual Report 2022-23" cannot replace the actual publication year 2023.
+  let m=rest.match(/^\s*[,.;:]?\s*\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\b/iu);
+  if(m) return m[1];
+  m=(raw||'').match(/^\s*(?:\[\d+\]|\d+[.)])?\s*.{1,220}?\(?((?:19|20)\d{2}[a-z]?)\)?[.)]\s/iu);
+  if(m) return m[1];
+  return detectPublicationYear(raw,authorInfo,null);
+}
+function refNJAfterAuthorsAndYear(raw, authorInfo, year){
+  let rest=refRestAfterAuthors(raw,authorInfo);
+  // Whole edited books often place (Ed.)/(Eds.) between the editor list and year.
+  rest=rest.replace(/^\s*\(\s*Eds?\.?\s*\)\s*[.,;:]?\s*/iu,'');
+  if(year && /^\d{4}[a-z]?$/i.test(year)){
+    const y=year.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    rest=rest.replace(new RegExp('^\\s*\\(?'+y+'\\)?[.)]?\\s*[,;:]?\\s*','i'),'');
+  }
+  return rest.replace(/^[,.;:\s]+/,'').trim();
+}
+function refNJFirstSentenceTitle(rest){
+  const clean=refNJClean(rest).replace(/^(?:\(?n\.?d\.?\)?[.)]?\s*)/i,'');
+  const m=clean.match(/^(.{4,500}?)(?:\.\s+(?=[A-Z\[]|https?:\/\/)|;\s+(?=[A-Z])|$)/u);
+  const cand=(m?m[1]:clean).replace(/^[“"‘']|[”"’']$/g,'').replace(/[.,;:\s]+$/g,'').trim();
+  return refPlausibleTitle(cand)?cand:null;
+}
+function refNJInstitutionFromTail(raw, corporateAuthor){
+  const clean=refStripDoiUrl(refNJClean(raw));
+  const segs=clean.split(/\s*[.;]\s+|\s*,\s*/).map(x=>x.trim()).filter(Boolean);
+  for(let i=segs.length-1;i>=0;i--){
+    const c=segs[i].replace(/^(?:[A-Z][\p{L} .'-]{1,50}:\s*)/u,'').trim();
+    if(c.length<=180 && REF_NJ_ORG_RE.test(c) && !/^(?:19|20)\d{2}/.test(c)) return c.replace(/[.,;:]+$/g,'').trim();
+  }
+  return corporateAuthor||null;
+}
+function refNJUniversity(raw){
+  const m=(raw||'').match(/(?:thesis|dissertation)[,.;:]?\s*(?:submitted\s+to\s+)?([^.;]{2,160}\b(?:University|Institute(?:\s+of\s+Technology)?|College|School)[^.;]{0,80})/iu);
+  if(m) return m[1].replace(/^[,;:\s]+|[,;:\s]+$/g,'').trim();
+  const m2=(raw||'').match(/\b([^.;,]{2,120}\b(?:University|Institute\s+of\s+Technology|College))\b/iu);
+  return m2?m2[1].trim():null;
+}
+function refNJWebsite(raw, corporateAuthor, url){
+  let clean=refNJClean(raw);
+  if(url) clean=clean.replace(url,' ');
+  const segs=clean.split(/\s*[.;]\s+|\s*,\s*/).map(x=>x.trim()).filter(Boolean);
+  for(let i=segs.length-1;i>=0;i--){
+    const c=segs[i];
+    if(c.length<120 && REF_NJ_ORG_RE.test(c) && !/(?:19|20)\d{2}/.test(c)) return c;
+  }
+  return corporateAuthor||null;
+}
+
+function refNJStrongJournalEvidence(raw, authorInfo){
+  // Reuse the established journal structural parser as a read-only guard. This does
+  // not alter journal parsing; it prevents the additive non-journal router from
+  // intercepting an entry the existing journal engine already resolves strongly.
+  try{
+    const js=refParseStructuredFields(raw,authorInfo,'journal article');
+    if(js?.source && (js.volume || js.locator)){
+      const db=journalDbMatch(js.source,true);
+      const srcScore=refSourceScore(js.source,true);
+      if(db?.matched || srcScore>=4) return {strong:true,reason:'existing-journal-structured-parser'};
+    }
+  }catch(e){}
+  // Exact/abbreviation journal database evidence is the strongest protection.
+  try{
+    const db=refRecoverSourceFromDbSuffix(raw,null);
+    if(db?.match?.matched) return {strong:true,reason:'journal-database'};
+  }catch(e){}
+  try{
+    const src=detectSourceRegion(raw,authorInfo);
+    if(src){ const db=journalDbMatch(src,true); if(db?.matched) return {strong:true,reason:'journal-source-database'}; }
+  }catch(e){}
+  const s=refNJClean(raw);
+  const strongTail =
+    /\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)\s*(?:\d|e\d)/iu.test(s) ||
+    /\b(?:19|20)\d{2}[a-z]?\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,30}\))?\s*[,;:]\s*(?:\d|e\d)/iu.test(s) ||
+    /\bvol(?:ume)?\.?\s*\d+\b[\s\S]{0,60}\b(?:pp?\.?|article|art\.?)\s*[eE]?\d/iu.test(s);
+  return {strong:strongTail,reason:strongTail?'journal-publication-tail':null};
+}
+
+function refDetectNonJournalType(raw, authorInfo){
+  const s=refNJClean(raw);
+  const ai=authorInfo||detectAuthorRegion(s);
+  const corp=refNJCorporateAuthor(s,ai);
+  const url=refNJUrl(s), doi=refExtractDoi(s), isbn=refNJIsbn(s);
+  const publisher=refNJPublisher(s), pages=refNJPages(s);
+  const scores=new Map(), reasons={};
+  const add=(t,n,r)=>{ scores.set(t,(scores.get(t)||0)+n); (reasons[t]||(reasons[t]=[])).push(r); };
+
+  if(REF_NJ_PREPRINT_RE.test(s)) add('preprint',12,'preprint server/label');
+  if(REF_NJ_THESIS_RE.test(s)) add('thesis/dissertation',13,'thesis/dissertation terminology');
+  if(REF_NJ_STANDARD_RE.test(s)) add('standard',14,'standard identifier');
+  if(REF_NJ_PATENT_RE.test(s)) add('patent',14,'patent identifier');
+  if(REF_NJ_DATA_RE.test(s)) add('dataset',11,'dataset/repository evidence');
+  if(REF_NJ_SOFTWARE_RE.test(s)) add('software',10,'software/version/repository evidence');
+  if(REF_NJ_LEGAL_RE.test(s) && /\b(?:Government|Gazette|Directive|Regulation|Rules?|Act|Notification)\b/iu.test(s)) add('legislation/regulation',10,'legal publication terminology');
+
+  const conf=REF_NJ_CONF_RE.test(s);
+  const inMarker=/\bIn\s*:\s*|\bIn\s+(?=[A-Z])/u.test(s);
+  const editor=/(?:\(\s*Eds?\.?\s*\)|\beditors?\b|\bedited\s+by\b|\bIn\s*:\s*[^.;]{0,120}\beds?\.?(?=\s*[,.;]))/iu.test(s);
+  if(conf){ add('conference paper',10,'conference/proceedings terminology'); if(inMarker) add('conference paper',3,'In: proceedings structure'); }
+  if(/\bProceedings\b/iu.test(s) && editor && !inMarker) add('conference proceedings',9,'whole proceedings/editor structure');
+
+  if(inMarker && /\bencyclop(?:a)?edia\b/iu.test(s)) add('encyclopedia entry',13,'encyclopedia container structure');
+  if(inMarker && editor && !conf){ add(/\bhandbook\b/iu.test(s)?'handbook chapter':'book chapter',10,'In: + editor structure'); }
+  if(inMarker && publisher && !conf){ add(/\bhandbook\b/iu.test(s)?'handbook chapter':'book chapter',5,'In: + publisher structure'); }
+  if(pages && inMarker && !conf) add(/\bhandbook\b/iu.test(s)?'handbook chapter':'book chapter',3,'chapter page range');
+
+  const editedWhole=editor && !inMarker && publisher;
+  if(editedWhole) add('edited book',10,'editor + publisher without chapter marker');
+  if(isbn){ add('book',10,'ISBN'); add('edited book',editor?3:0,'ISBN with editor'); }
+  if(refNJEdition(s)) add('book',6,'edition marker');
+  if(publisher && !inMarker && !conf){ add('book',5,'publisher/imprint evidence'); }
+
+  const report=REF_NJ_REPORT_RE.test(s);
+  const genericReport=/\breport\b/iu.test(s);
+  const gov=/\b(?:Ministry|Government\s+of|Environmental\s+Protection\s+Agency|Central\s+Pollution\s+Control\s+Board|European\s+Commission|CPCB|USEPA|US\s*EPA)\b/iu.test(s);
+  if(/\bworking\s+paper\b/iu.test(s)) add('working paper',13,'working-paper terminology');
+  if(/\bwhite\s+paper\b/iu.test(s)) add('white paper',13,'white-paper terminology');
+  if(report){ add(gov?'government report':'report',10,'report/working-paper terminology'); if(refNJReportNumber(s)) add(gov?'government report':'report',4,'report number'); }
+  else if(genericReport){ add(gov?'government report':'report',7,'report title terminology'); if(corp?.hasAuthors) add(gov?'government report':'report',3,'institutional report author'); }
+  if(gov && genericReport) add('government report',8,'government issuer + report');
+  if(report && url) add('online report',3,'report available online');
+
+  if(REF_NJ_GUIDE_RE.test(s)){
+    if(/\b(?:guideline|guidelines|guidance|protocol|code\s+of\s+practice|recommendations?)\b/iu.test(s)) add('guideline',8,'guideline/guidance terminology');
+    else add('policy document',7,'policy/strategy/framework terminology');
+    if(corp?.hasAuthors) add(/guideline/iu.test(s)?'guideline':'policy document',2,'institutional author');
+  }
+  if(REF_NJ_MANUAL_RE.test(s)) add('manual',8,'manual terminology');
+  if(/\b(?:newspaper\s+article|\[newspaper\]|newspaper)\b/iu.test(s)) add('newspaper article',10,'newspaper terminology');
+  if(/\b(?:magazine\s+article|\[magazine\]|magazine)\b/iu.test(s)) add('magazine article',10,'magazine terminology');
+
+  const access=/\b(?:accessed|retrieved|last\s+accessed|available\s+at)\b/iu.test(s);
+  if(url && !refNJIsDoiUrl(url)){
+    add('web page',5,'ordinary web URL');
+    if(access) add('web page',4,'access/retrieval marker');
+    if(corp?.hasAuthors) add('web page',3,'institutional web author');
+  }
+
+  // A corporate-author publication with positive institutional-document cues may be
+  // non-journal even when it does not literally contain "Report".
+  if(corp?.hasAuthors && !publisher && !conf && !REF_NJ_STANDARD_RE.test(s) && !REF_NJ_THESIS_RE.test(s)){
+    if(/\b(?:publication|brief|assessment|statement|factsheet|fact\s+sheet|information\s+sheet)\b/iu.test(s)) add('institutional publication',7,'institutional publication terminology');
+  }
+
+  // DOI alone never contributes to a non-journal type. URL alone is deliberately weak.
+  const ranked=[...scores.entries()].filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(!ranked.length) return null;
+  let [type,score]=ranked[0];
+  const second=ranked[1]?.[1]||0;
+
+  // Prefer the more specific online-report label only when report identity is already strong.
+  if((type==='report'||type==='government report') && url && !refNJIsDoiUrl(url) && score>=9) type=type==='government report'?'government report':'online report';
+  // Book-chapter specificity beats generic book evidence whenever "In:" + editor/container exists.
+  const bc=Math.max(scores.get('book chapter')||0,scores.get('handbook chapter')||0);
+  if((scores.get('encyclopedia entry')||0)>=13){ type='encyclopedia entry'; score=scores.get('encyclopedia entry'); }
+  else if(bc>=8 && bc>=score-1){ type=(scores.get('handbook chapter')||0)>=bc?'handbook chapter':'book chapter'; score=bc; }
+  if(conf && (scores.get('conference paper')||0)>=8){ type='conference paper'; score=scores.get('conference paper'); }
+  if((scores.get('working paper')||0)>=12){ type='working paper'; score=scores.get('working paper'); }
+  if((scores.get('white paper')||0)>=12){ type='white paper'; score=scores.get('white paper'); }
+
+  const journalGuard=refNJStrongJournalEvidence(s,ai);
+  if(journalGuard.strong && score<12) return null;
+
+  const positiveStrong=score>=7;
+  if(!positiveStrong){
+    if(score>=4 && !journalGuard.strong) return {type:'uncertain non-journal',confidence:0.55,score,reasons:reasons[type]||[],possibleTypes:ranked.slice(0,2).map(x=>x[0])};
+    return null;
+  }
+  const margin=score-second;
+  const confidence=Math.max(0.68,Math.min(0.99,0.60+score*0.026+Math.max(0,margin)*0.015));
+  if(margin<=1 && second>=7 && !['book chapter','handbook chapter','encyclopedia entry','conference paper','working paper','white paper'].includes(type)){
+    return {type:'uncertain non-journal',confidence:Math.min(0.74,confidence),score,reasons:reasons[type]||[],possibleTypes:ranked.slice(0,2).map(x=>x[0])};
+  }
+  return {type,confidence,score,reasons:reasons[type]||[],possibleTypes:ranked.slice(0,3).map(x=>x[0]),url,doi,isbn,publisher,corporateAuthor:corp?.authorRegion||null};
+}
+
+const REF_NJ_REQUIREMENTS={
+  'book':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'optional',doi:'optional'},
+  'edited book':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'optional',doi:'optional'},
+  'book chapter':{author:'required',year:'expected',title:'required',source:'required',pages:'expected',vol:'optional',doi:'optional'},
+  'handbook chapter':{author:'required',year:'expected',title:'required',source:'required',pages:'expected',vol:'optional',doi:'optional'},
+  'encyclopedia entry':{author:'expected',year:'expected',title:'required',source:'required',pages:'expected',vol:'optional',doi:'optional'},
+  'conference paper':{author:'required',year:'expected',title:'required',source:'required',pages:'expected',vol:'optional',doi:'optional'},
+  'conference proceedings':{author:'expected',year:'expected',title:'required',source:'expected',pages:'na',vol:'optional',doi:'optional'},
+  'report':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'online report':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'government report':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'institutional publication':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'working paper':{author:'required',year:'expected',title:'required',source:'expected',pages:'optional',vol:'na',doi:'optional'},
+  'white paper':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'policy document':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'guideline':{author:'required',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'standard':{author:'expected',year:'optional',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'thesis/dissertation':{author:'required',year:'expected',title:'required',source:'required',pages:'na',vol:'na',doi:'optional'},
+  'web page':{author:'expected',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'dataset':{author:'expected',year:'expected',title:'required',source:'required',pages:'na',vol:'na',doi:'optional'},
+  'software':{author:'expected',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'optional'},
+  'preprint':{author:'required',year:'expected',title:'required',source:'required',pages:'na',vol:'na',doi:'optional'},
+  'patent':{author:'expected',year:'expected',title:'required',source:'required',pages:'na',vol:'na',doi:'na'},
+  'manual':{author:'expected',year:'expected',title:'required',source:'expected',pages:'na',vol:'optional',doi:'optional'},
+  'newspaper article':{author:'expected',year:'expected',title:'required',source:'required',pages:'optional',vol:'na',doi:'optional'},
+  'magazine article':{author:'expected',year:'expected',title:'required',source:'required',pages:'optional',vol:'optional',doi:'optional'},
+  'legislation/regulation':{author:'optional',year:'expected',title:'required',source:'expected',pages:'na',vol:'na',doi:'na'},
+  'other non-journal':{author:'review',year:'review',title:'review',source:'review',pages:'review',vol:'na',doi:'optional'},
+  'uncertain non-journal':{author:'review',year:'review',title:'review',source:'review',pages:'review',vol:'na',doi:'optional'}
+};
+function refNJRequirement(type,field){ return (REF_NJ_REQUIREMENTS[type]||REF_NJ_REQUIREMENTS['uncertain non-journal'])[field]||'optional'; }
+function refNJState(found,req){ if(found) return 'yes'; if(req==='na') return 'na'; if(req==='optional') return 'optional'; if(req==='review') return 'review'; return 'no'; }
+function refNJTypeLabel(type){ const map={'web page':'Webpage','thesis/dissertation':'Thesis/dissertation','book chapter':'Book chapter','handbook chapter':'Handbook chapter','edited book':'Edited book','conference paper':'Conference paper','conference proceedings':'Conference proceedings','government report':'Government report','online report':'Online report','institutional publication':'Institutional publication','working paper':'Working paper','white paper':'White paper','policy document':'Policy document','uncertain non-journal':'Uncertain non-journal','other non-journal':'Other non-journal','legislation/regulation':'Legislation/regulation','encyclopedia entry':'Encyclopedia entry','newspaper article':'Newspaper article','magazine article':'Magazine article'}; return map[type]||type.replace(/\b\w/g,c=>c.toUpperCase()); }
+
+function refParseNonJournalEntry(raw, detection, baseAuthorInfo){
+  const rawTrim=refNJStripNumber(raw);
+  let ai=baseAuthorInfo||detectAuthorRegion(rawTrim);
+  const corp=refNJCorporateAuthor(rawTrim,ai);
+  if(corp && (!ai?.hasAuthors || ai.authorType==='corporate')) ai=corp;
+  const hasAuthors=!!ai?.hasAuthors;
+  const corporateAuthor=ai?.authorType==='corporate'?ai.authorRegion:(corp?.authorRegion||null);
+  const year=refNJYear(rawTrim,ai);
+  const doi=refExtractDoi(rawTrim), url=refNJUrl(rawTrim), isbn=refNJIsbn(rawTrim);
+  const type=detection.type;
+  let rest=refNJAfterAuthorsAndYear(rawTrim,ai,year);
+  let title=null, sourceRegion=null, publisher=null, editors=null, bookTitle=null, chapterTitle=null;
+  let issuingOrganisation=null, university=null, repository=null, standardNumber=null, reportNumber=null, patentNumber=null, edition=null, version=null;
+  let pages=refNJPages(rawTrim), hasPages=!!pages, hasVolume=false, hasIssue=false;
+
+  const stripTail=s=>refNJClean(s||'').replace(/\s*(?:https?:\/\/\S+|www\.\S+)\s*$/iu,'').replace(/\s*(?:doi\s*:\s*)?10\.\d{4,9}\/\S+\s*$/iu,'').trim();
+  const publisherGuess=refNJPublisher(rawTrim);
+
+  if(type==='book chapter'||type==='handbook chapter'||type==='encyclopedia entry'){
+    const im=rest.match(/\bIn\s*:\s*|\bIn\s+(?=[A-Z])/u);
+    if(im){
+      chapterTitle=rest.slice(0,im.index).replace(/[.,;:\s]+$/g,'').trim();
+      let cont=stripTail(rest.slice(im.index+im[0].length));
+      // APA/editor-first form: P. Jones & R. Kumar (Eds.), Book title...
+      let em=cont.match(/^(.{2,180}?)(?:\(\s*Eds?\.?\s*\)|\bEds?\.?\b|\beditors?\b)\s*[,.;:]?\s*(.+)$/iu);
+      if(em){ editors=em[1].replace(/[(),.;:\s]+$/g,'').trim(); cont=em[2].replace(/^\)\s*[,.;:]?\s*/,'').trim(); }
+      // Vancouver form: Jones P, editor. Book title...
+      if(!editors){
+        em=cont.match(/^(.{2,180}?\b(?:editor|editors|ed\.?|eds\.?))\s*\.\s*(.+)$/iu);
+        if(em){ editors=em[1].replace(/[.,;:\s]+$/g,'').trim(); cont=em[2].trim(); }
+      }
+      const ppos=cont.search(/\s*\(?\s*(?:pp?\.?\s*)?\d{1,7}\s*[-–—]\s*\d{1,7}\s*\)?/iu);
+      let beforePages=ppos>=0?cont.slice(0,ppos):cont;
+      publisher=publisherGuess;
+      if(publisher){
+        const idx=beforePages.toLocaleLowerCase().lastIndexOf(publisher.toLocaleLowerCase());
+        if(idx>0) beforePages=beforePages.slice(0,idx).replace(/[.,;:\s]+$/g,'');
+      }
+      // Remove trailing edition/volume markers from the book-title candidate only after saving them.
+      edition=refNJEdition(beforePages)||refNJEdition(rawTrim);
+      bookTitle=beforePages.replace(/\(?\s*\d+(?:st|nd|rd|th)\s+(?:ed\.?|edition)\s*\)?/giu,'').replace(/[.,;:\s]+$/g,'').trim();
+      chapterTitle=chapterTitle||refNJFirstSentenceTitle(rest);
+      title=chapterTitle;
+      sourceRegion=bookTitle||publisher;
+    }
+  } else if(type==='conference paper'){
+    const im=rest.match(/\bIn\s*:\s*|\bIn\s+(?=(?:Proceedings|Proc\.|[A-Z]))/iu);
+    if(im){ title=rest.slice(0,im.index).replace(/[.,;:\s]+$/g,'').trim(); sourceRegion=stripTail(rest.slice(im.index+im[0].length)).replace(/\bpp?\.?\s*\d{1,7}\s*[-–—]\s*\d{1,7}[\s\S]*$/iu,'').replace(/[.,;:\s]+$/g,'').trim(); }
+    else { title=refNJFirstSentenceTitle(rest); const m=rawTrim.match(/\b((?:Proceedings|Conference|Congress|Symposium|Workshop)[^.;]{2,220})/iu); sourceRegion=m?m[1].replace(/[.,;:\s]+$/g,'').trim():null; }
+    publisher=publisherGuess;
+  } else if(type==='conference proceedings'){
+    title=refNJFirstSentenceTitle(rest); sourceRegion=title; publisher=publisherGuess;
+  } else if(type==='book'||type==='edited book'||type==='manual'){
+    edition=refNJEdition(rawTrim); publisher=publisherGuess;
+    let t=stripTail(rest);
+    let manualOrg=null;
+    if(type==='manual' && !publisher) manualOrg=refNJInstitutionFromTail(rawTrim,corporateAuthor);
+    const tailSource=publisher||manualOrg;
+    if(tailSource){ const idx=t.toLocaleLowerCase().lastIndexOf(tailSource.toLocaleLowerCase()); if(idx>0) t=t.slice(0,idx); }
+    t=t.replace(/\bISBN(?:-1[03])?\s*:?[\s-]*[0-9X][0-9X\s-]{8,22}/giu,'');
+    if(edition) t=t.replace(edition,'');
+    title=t.replace(/(?:\.\s*){2,}/g,'. ').replace(/[.,;:\s]+$/g,'').trim();
+    if(!refPlausibleTitle(title)) title=refNJFirstSentenceTitle(rest);
+    sourceRegion=tailSource;
+    if(type==='edited book') editors=ai?.authorRegion||null;
+    // Book volume is optional and only accepted when explicitly labelled.
+    const vm=rawTrim.match(/\bvol(?:ume)?\.?\s*([A-Za-z]?\d+[A-Za-z]?)\b/iu); hasVolume=!!vm;
+  } else if(['report','online report','government report','institutional publication','working paper','white paper','policy document','guideline'].includes(type)){
+    reportNumber=refNJReportNumber(rawTrim);
+    title=refNJFirstSentenceTitle(rest);
+    issuingOrganisation=refNJInstitutionFromTail(rawTrim,corporateAuthor);
+    sourceRegion=issuingOrganisation;
+  } else if(type==='web page'){
+    title=refNJFirstSentenceTitle(rest);
+    // Webpage/fact-sheet titles can legitimately be a single lexical item, e.g.
+    // "Drinking-water". The general title heuristic requires two words, so use
+    // this conservative webpage-only fallback.
+    if(!title){
+      const one=(rest.match(/^([^.;]{4,160})(?:[.;]|$)/u)||[])[1];
+      if(one && /^[\p{L}\d][\p{L}\d'’&()/:+\-\s]{3,159}$/u.test(one.trim())) title=one.trim();
+    }
+    issuingOrganisation=refNJWebsite(rawTrim,corporateAuthor,url);
+    sourceRegion=issuingOrganisation;
+  } else if(type==='thesis/dissertation'){
+    const tm=rest.match(/^(.+?)(?=\.\s*(?:Ph\.?D\.?|doctoral|doctorate|master'?s|M\.?Tech\.?|M\.?Sc\.?)\s+(?:thesis|dissertation)|[,.;:]\s*(?:Ph\.?D\.?|doctoral|doctorate|master'?s|M\.?Tech\.?|M\.?Sc\.?)\s+(?:thesis|dissertation)|\b(?:thesis|dissertation)\b)/iu);
+    title=(tm?tm[1]:refNJFirstSentenceTitle(rest));
+    university=refNJUniversity(rawTrim); sourceRegion=university;
+  } else if(type==='standard'){
+    standardNumber=refNJStandardNumber(rawTrim);
+    let t=rawTrim;
+    if(standardNumber) t=t.replace(standardNumber,'').replace(/^[.\s:;-]+/,'');
+    title=refNJFirstSentenceTitle(t);
+    issuingOrganisation=refNJInstitutionFromTail(rawTrim,corporateAuthor)||(/\bISO\b/.test(standardNumber||'')?'International Organization for Standardization':null);
+    sourceRegion=issuingOrganisation;
+  } else if(type==='dataset'){
+    title=refNJFirstSentenceTitle(rest)?.replace(/\s*\[\s*Data\s*set\s*\]\s*$/iu,'')||null;
+    const rm=rawTrim.match(/\b(Zenodo|Figshare|Dryad|Mendeley\s+Data|[^.;,]{2,80}\b(?:data\s+repository|repository))\b/iu); repository=rm?rm[1]:null; sourceRegion=repository;
+    version=refNJVersion(rawTrim);
+  } else if(type==='software'){
+    title=refNJFirstSentenceTitle(rest)?.replace(/\s*\[\s*Software\s*\]\s*$/iu,'')||null;
+    version=refNJVersion(rawTrim);
+    const rm=rawTrim.match(/\b(R\s+Foundation\s+for\s+Statistical\s+Computing|GitHub|CRAN|PyPI|[^.;,]{2,100}\b(?:Foundation|Repository))\b/iu); repository=rm?rm[1]:null; sourceRegion=repository||refNJInstitutionFromTail(rawTrim,corporateAuthor);
+  } else if(type==='preprint'){
+    title=refNJFirstSentenceTitle(rest);
+    const pm=rawTrim.match(/\b(arXiv|bioRxiv|medRxiv|ChemRxiv|SSRN|Research\s+Square|preprints?\.org)\b/iu); sourceRegion=pm?pm[1]:null;
+  } else if(type==='patent'){
+    patentNumber=refNJPatentNumber(rawTrim); title=refNJFirstSentenceTitle(rest); sourceRegion=patentNumber?patentNumber:null;
+  } else if(type==='newspaper article'||type==='magazine article'){
+    title=refNJFirstSentenceTitle(rest);
+    const noUrl=url?rawTrim.replace(url,' '):rawTrim;
+    const segs=noUrl.split(/\s*[.;]\s+/).map(x=>x.trim()).filter(Boolean);
+    sourceRegion=segs.length>=2?segs[segs.length-1].replace(/[.,;:]+$/g,'').trim():refNJWebsite(rawTrim,corporateAuthor,url);
+  } else if(type==='legislation/regulation'){
+    title=refNJFirstSentenceTitle(rest)||rawTrim.replace(/[.;\s]+$/g,'');
+    issuingOrganisation=refNJInstitutionFromTail(rawTrim,corporateAuthor); sourceRegion=issuingOrganisation;
+  } else {
+    title=refNJFirstSentenceTitle(rest); sourceRegion=refNJInstitutionFromTail(rawTrim,corporateAuthor)||publisherGuess;
+  }
+
+  // Independent fallback recovery. Never erase confident fields when another field fails.
+  if(!title) title=refNJFirstSentenceTitle(rest);
+  if(!publisher) publisher=publisherGuess;
+  if(!sourceRegion && ['book','edited book','manual'].includes(type)) sourceRegion=publisher;
+  if(!sourceRegion && type==='manual') sourceRegion=refNJInstitutionFromTail(rawTrim,corporateAuthor);
+  if(!sourceRegion && ['report','online report','government report','institutional publication','working paper','white paper','policy document','guideline','web page'].includes(type)) sourceRegion=issuingOrganisation||corporateAuthor;
+
+  const req=REF_NJ_REQUIREMENTS[type]||REF_NJ_REQUIREMENTS['uncertain non-journal'];
+  const fields={chapterTitle,bookTitle,editors,publisher,issuingOrganisation,university,repository,standardNumber,reportNumber,patentNumber,edition,version,isbn,url,pages};
+  const wordCount=(raw.match(/[A-Za-zÀ-ÖØ-öø-ÿ]{3,}/g)||[]).length;
+  return {
+    raw,year,doi,hasPages,hasArticleNo:false,hasVolume,hasIssue,
+    hasAuthors,hasCorporateAuthor:!!corporateAuthor,
+    authorType:ai?.authorType||null,authorRegion:ai?.authorRegion||corporateAuthor||null,authorCount:ai?.authorCount||0,authorConfidence:ai?.confidence||0,
+    hasSource:!!sourceRegion,sourceRegion,sourceDbMatch:null,
+    hasTitle:!!title,title,rscCompact:false,compactSource:null,wordCount,firstAuthor:ai?.firstAuthorSurname||corporateAuthor||null,type,
+    structured:null,nonJournal:true,nonJournalDetection:detection,nonJournalFields:fields,requirements:req,
+    url,isbn,publisher,editors,bookTitle,chapterTitle,issuingOrganisation,university,repository,standardNumber,reportNumber,patentNumber,edition,version
+  };
+}
+
+function refApplyNonJournalStates(p,doiConvention,issues,i,label){
+  const req=p.requirements||REF_NJ_REQUIREMENTS[p.type]||REF_NJ_REQUIREMENTS['uncertain non-journal'];
+  p._authorState=refNJState(p.hasAuthors,req.author);
+  p._yearState=refNJState(!!p.year,req.year);
+  p._titleState=refNJState(p.hasTitle,req.title);
+  p._sourceState=refNJState(p.hasSource,req.source);
+  p._pagesState=refNJState(p.hasPages,req.pages);
+  p._volState=refNJState(p.hasVolume,req.vol);
+  p._doiState=p.doi?'yes':refNJState(false,req.doi);
+  p._identifierState=(p.doi||p.url||p.isbn||p.standardNumber||p.reportNumber||p.patentNumber)?'yes':(req.doi==='na'?'na':'optional');
+
+  const missing=[];
+  const addMissing=(field,state,msg)=>{ if(state==='no'){ missing.push(field); issues.push({level:'warn',idx:i,label,msg}); } };
+  if(p.type==='uncertain non-journal'){
+    issues.push({level:'info',idx:i,label,msg:'Reference type is uncertain. Confirm the source type before applying type-specific field requirements.'});
+    return;
+  }
+  addMissing('author',p._authorState,'No author or responsible organisation detected.');
+  addMissing('year',p._yearState,'No publication year or date detected.');
+  addMissing('title',p._titleState,p.type==='book chapter'||p.type==='handbook chapter'||p.type==='encyclopedia entry'?'Chapter/entry title not detected. Add the chapter title.':'Title not detected. Add the title of the cited item.');
+  if(p._sourceState==='no'){
+    const msg=(p.type==='book chapter'||p.type==='handbook chapter'||p.type==='encyclopedia entry')?'Book/encyclopedia title or container not detected. Add the title of the book containing this chapter.':
+      p.type==='thesis/dissertation'?'Degree-granting institution not detected. Add the university or institution.':
+      p.type==='dataset'?'Repository not detected. Add the dataset repository.':
+      p.type==='web page'?'Website or responsible organisation not detected.':
+      ['report','online report','government report','institutional publication','working paper','white paper','policy document','guideline'].includes(p.type)?'Issuing organisation not detected. Add the organisation responsible for the document if required.':
+      'Source or container not detected.';
+    issues.push({level:'warn',idx:i,label,msg}); missing.push('source');
+  }
+  if(p._pagesState==='no'){
+    const msg=(p.type==='book chapter'||p.type==='handbook chapter'||p.type==='encyclopedia entry')?'Chapter/entry page range not detected. Add the chapter pages if the citation style requires them.':
+      p.type==='conference paper'?'Conference-paper page range not detected. Add pages if available and required by the style.':'Publication location/pages not detected.';
+    issues.push({level:'info',idx:i,label,msg}); missing.push('pages');
+  }
+  p.nonJournalMissingFields=missing;
+}
+
 function refExtractDoi(raw){
   let t=(raw||"")
     .replace(/\u00a0/g," ")
@@ -9579,9 +10071,18 @@ function refTrimPublicationTailFromSource(source){
 
 function refParseEntry(raw){
   const rawTrim=raw.trim();
+
+  // Additive routing only: intercept entries with strong positive non-journal evidence.
+  // All other entries continue through the existing journal parser unchanged.
+  const _routingAuthorInfo=detectAuthorRegion(rawTrim);
+  const _nonJournalDetection=refDetectNonJournalType(rawTrim,_routingAuthorInfo);
+  if(_nonJournalDetection && _nonJournalDetection.confidence>=0.68){
+    return refParseNonJournalEntry(raw,_nonJournalDetection,_routingAuthorInfo);
+  }
+
   const doi=refExtractDoi(raw);
 
-  const authorInfo=detectAuthorRegion(rawTrim);
+  const authorInfo=_routingAuthorInfo;
   const hasAuthors=authorInfo.hasAuthors;
   const hasCorporateAuthor=authorInfo.authorType==="corporate";
   const firstAuthor=authorInfo.firstAuthorSurname||null;
@@ -10022,6 +10523,13 @@ function refCheck(refText, bodyText){
       p.hasIssue = !!p.hasIssue || !!p.structured?.issue || refHasIssue(p.raw,p.year,p.sourceRegion);
     }
 
+    // New non-journal references are validated against their own type schema.
+    // Journal entries never enter this branch, so the established journal rules remain unchanged.
+    if(p.nonJournal){
+      refApplyNonJournalStates(p,doiConvention,issues,i,L);
+      return;
+    }
+
     const titleReq = (isArt && titleConvention==="included") || isBook;
     const sourceReq = isArt || isBook;
     // three-state field flags (present / required-absent="no" / not-applicable="na")
@@ -10093,27 +10601,27 @@ function renderRefReport(res, cross){
 }
 function refLedger(parsed){
   if(!parsed.length) return "";
-  const cell=st=> st==="yes"?`<span class="yn y">yes</span>`:(st==="no"?`<span class="yn n">no</span>`:`<span class="yn na">n/a</span>`);
+  const cell=st=> st==="yes"?`<span class="yn y">yes</span>`:(st==="no"?`<span class="yn n">no</span>`:(st==="optional"?`<span class="yn opt">optional</span>`:(st==="review"?`<span class="yn rev">review</span>`:`<span class="yn na">n/a</span>`)));
   const body=parsed.map((p,i)=>{
     const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
-    const tag=p.type!=="journal article"?`<span class="rtype">${escapeHtml(p.type)}</span> `:"";
+    const tag=p.type!=="journal article"?`<span class="rtype">${escapeHtml(p.nonJournal?refNJTypeLabel(p.type):p.type)}</span> `:"";
     const snip=escapeHtml(p.raw.length>58?p.raw.slice(0,58)+"…":p.raw);
     return `<tr><td class="t-abbr">${label}</td><td class="t-long">${tag}${snip}</td>`+
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
-      `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p._doiState)}</td></tr>`;
+      `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p.nonJournal?(p._identifierState||p._doiState):p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Each row is one detected reference. yes = the field was found; no = the expected field is missing and should be added to the reference; n/a = the field is not required." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Journal/source</th><th>Pages/Art.</th><th>Vol.</th><th>DOI</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Fields are checked according to the detected reference type. yes = field detected; no = expected field missing; n/a = field not required; optional = field is not mandatory; review = the reference structure is uncertain." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Source/container</th><th>Pages/location</th><th>Vol.</th><th>Identifier/link</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
   if(res.titleConvention&&res.titleConvention!=="uncertain") L.push(`Title convention: ${res.titleConvention}`);
   if(res.doiConvention&&res.doiConvention!=="uncertain") L.push(`DOI convention: ${res.doiConvention}`);
-  L.push("", "Ref | Entry / type | Author | Year | Title | Journal/source | Pages/Art. | Vol. | DOI");
-  const state=st=>st==="yes"?"yes":(st==="no"?"no":"n/a");
+  L.push("", "Ref | Entry / type | Author | Year | Title | Source/container | Pages/location | Vol. | Identifier/link");
+  const state=st=>st==="yes"?"yes":(st==="no"?"no":(st==="optional"?"optional":(st==="review"?"review":"n/a")));
   res.parsed.forEach((p,i)=>{
     const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
-    const entry=(p.type!=="journal article"?`[${p.type}] `:"")+p.raw.replace(/\s+/g," ").trim();
-    L.push(`${label} | ${entry} | ${state(p._authorState)} | ${state(p._yearState)} | ${state(p._titleState)} | ${state(p._sourceState)} | ${state(p._pagesState)} | ${state(p._volState)} | ${state(p._doiState)}`);
+    const entry=(p.type!=="journal article"?`[${p.nonJournal?refNJTypeLabel(p.type):p.type}] `:"")+p.raw.replace(/\s+/g," ").trim();
+    L.push(`${label} | ${entry} | ${state(p._authorState)} | ${state(p._yearState)} | ${state(p._titleState)} | ${state(p._sourceState)} | ${state(p._pagesState)} | ${state(p._volState)} | ${state(p.nonJournal?(p._identifierState||p._doiState):p._doiState)}`);
   });
   return L.join("\n");
 }
