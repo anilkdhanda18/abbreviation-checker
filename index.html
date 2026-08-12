@@ -655,6 +655,27 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .unit-action{min-width:220px;color:#4e5c72;font-size:12px;line-height:1.45}
 
 </style>
+
+<style id="hybrid-language-tools-style">
+  .lt-optin-card{
+    margin:18px 0 4px;padding:16px 18px;border:1px solid #c9d9f2;border-radius:14px;
+    background:linear-gradient(135deg,#f7faff 0%,#eef5ff 100%);box-shadow:0 8px 24px -22px rgba(28,64,120,.8)
+  }
+  .lt-optin-main{display:flex;align-items:flex-start;gap:11px}
+  .lt-optin-main input[type="checkbox"]{margin-top:4px;width:18px;height:18px;accent-color:#31589f;flex:0 0 auto}
+  .lt-optin-title{font-weight:800;color:#223b67;font-size:14px;margin:0 0 4px}
+  .lt-optin-disclosure{margin:0;color:#42546f;font-size:12px;line-height:1.5;max-width:980px}
+  .lt-config{display:grid;grid-template-columns:minmax(180px,260px) minmax(280px,1fr);gap:12px;margin-top:13px;padding-top:12px;border-top:1px solid #d6e2f4}
+  .lt-config label{display:block;font-size:11px;font-weight:800;color:#52627b;text-transform:uppercase;letter-spacing:.045em;margin-bottom:5px}
+  .lt-config select,.lt-config input{width:100%;box-sizing:border-box;border:1px solid #c7d3e4;border-radius:9px;background:#fff;padding:9px 10px;color:#26364f;font:inherit;font-size:12px}
+  .lt-config[hidden]{display:none!important}.lt-endpoint-wrap[hidden]{display:none!important}
+  .lt-mini{margin:8px 0 0;color:#65748a;font-size:11px;line-height:1.45}.lt-mini strong{color:#43536d}
+  .lt-run-status{margin:8px 0 0;font-size:11px;color:#52627b}.lt-run-status.error{color:#9c332c}.lt-run-status.ok{color:#2e6d48}
+  .hybrid-engine-note{margin:8px 0 12px;padding:9px 11px;border:1px solid #dfe6f0;border-radius:9px;background:#f8fafc;color:#5a687d;font-size:11px;line-height:1.45}
+  .lt-source-tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;border:1px solid #c8d8ef;background:#eff5ff;color:#31589f;font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-right:6px}
+  @media(max-width:720px){.lt-config{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -738,6 +759,31 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       </div>
 
       <p class="readability-foot"><span id="sentence-max-hint">Sentence range: 10–100.</span> <span id="paragraph-range-hint">Paragraph range: 20–1000; maximum must be greater than minimum. Section-aware exclusions still apply.</span></p>
+    </section>
+
+    <section class="lt-optin-card" id="lt-optin-card" aria-labelledby="lt-optin-title">
+      <div class="lt-optin-main">
+        <input type="checkbox" id="lt-enable" />
+        <div>
+          <label class="lt-optin-title" id="lt-optin-title" for="lt-enable">Enhanced grammar check (optional)</label>
+          <p class="lt-optin-disclosure"><b>Off by default.</b> Enabling this sends the checked manuscript prose to the selected LanguageTool server for grammar and style analysis. The public option is a third-party service; a self-hosted option sends it only to the endpoint you specify. All other manuscript checks remain local in your browser.</p>
+        </div>
+      </div>
+      <div class="lt-config" id="lt-config" hidden>
+        <div>
+          <label for="lt-mode">LanguageTool server</label>
+          <select id="lt-mode">
+            <option value="public">Public LanguageTool API</option>
+            <option value="self">Self-hosted LanguageTool</option>
+          </select>
+        </div>
+        <div class="lt-endpoint-wrap" id="lt-endpoint-wrap" hidden>
+          <label for="lt-endpoint">Self-hosted endpoint</label>
+          <input id="lt-endpoint" type="url" value="http://localhost:8081/v2/check" placeholder="https://your-server.example/v2/check" autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
+      <p class="lt-mini" id="lt-data-note" hidden><strong>Data handling:</strong> the public option sends checked prose to LanguageTool's servers. The self-hosted option sends it only to the endpoint you specify. The local compromise.js, Typo.js, wink-nlp, and readability checks never transmit manuscript text.</p>
+      <p class="lt-run-status" id="lt-run-status" aria-live="polite"></p>
     </section>
 
     <details class="adv">
@@ -964,10 +1010,10 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <span class="visitor-label">Site views:</span>
       <span class="visitor-value" id="visitor-count-value" aria-live="polite"></span>
       <button type="button" class="info-help inline-auto-help"
-        data-help="This displays the GoatCounter count recorded for the Manuscript Check website using one stable tracking path (/manuscriptchecker/). The same path is used for both analytics tracking and the visible number so URL variants do not split the count. Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter."
+        data-help="This displays the GoatCounter count recorded for the Manuscript Check website using one stable tracking path (/manuscriptchecker/). Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter. Manuscript analysis remains local by default; only the separate optional LanguageTool enhancement sends checked prose to the LanguageTool server selected by the user."
         aria-label="Explain visitor count" title="What does this visitor count track?">i</button>
     </p>
-    <p class="credit-tag">Manuscript analysis runs locally in your browser · Manuscript content is not sent to GoatCounter analytics</p>
+    <p class="credit-tag">Private by default: manuscript checks run locally in your browser. Only the optional LanguageTool enhancement sends checked prose to the LanguageTool server you explicitly select. Manuscript content is not sent to GoatCounter analytics.</p>
     <p class="legal-note">
       © 2026 Anil Dhanda ·
       <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-ND 4.0</a>
@@ -4055,7 +4101,7 @@ function renderEnglishReport(res){
   renderWritingSection("Clarity & conciseness",otherClarityIssues,
     "Review items for wordiness, redundancy, informal wording, contractions, repeated sentence openings/transitions, vague sentence-opening 'This', and limited parallel-structure patterns. These are style suggestions, not automatic errors.");
 
-  html+=`<p class="sec-label">Readability <button type="button" class="info-help inline-auto-help" data-help="Passive voice is permitted and is not flagged. Readability is calculated from prose sentences detected paragraph-by-paragraph using language-aware sentence segmentation where available. Headings, captions, equations, tables, affiliations, and references are excluded. These indicators do not measure scientific quality." aria-label="Explain Readability" title="Explain this section">i</button></p>`;
+  html+=`<p class="sec-label">Readability <button type="button" class="info-help inline-auto-help" data-help="Readability is calculated from prose sentences detected paragraph-by-paragraph using language-aware sentence segmentation where available. Headings, captions, equations, tables, affiliations, and references are excluded. Likely passive constructions are listed separately as optional style notes. These indicators do not measure scientific quality." aria-label="Explain Readability" title="Explain this section">i</button></p>`;
   const met=wchk.metrics||{};
   html+=`<div class="ledger-help"><div class="ledger-help-grid">
     <b>Prose words analysed</b><span>${met.words||0}</span>
@@ -4070,7 +4116,7 @@ function renderEnglishReport(res){
   if(met.engineWarning){
     html+=`<p class="verdict"><b>Grammar-engine warning:</b> one grammar/style sub-check failed, so readability/passive statistics were calculated using the independent fallback. Other English checks remain available.</p>`;
   }
-  html+=`<p class="verdict clean">Passive voice is permitted under the selected manuscript rule and is not flagged.</p>`;
+  html+=`<p class="verdict clean">Passive voice is permitted. Likely passive constructions are listed separately as optional style notes.</p>`;
 
   const paraIssues=res.paragraphIssues||[];
   const paragraphMin=Number(res.paragraphMinWords||ENG_CURRENT_PARAGRAPH_MIN||ENG_PARAGRAPH_MIN_DEFAULT);
@@ -8532,7 +8578,16 @@ const REF_NJ_PATENT_RE=/\b(?:U\.?S\.?\s+Patent|European\s+Patent|Patent\s+(?:No\
 const REF_NJ_MANUAL_RE=/\b(?:user\s+manual|technical\s+manual|operating\s+manual|instruction\s+manual|water\s+analysis\s+handbook|manual)\b/iu;
 const REF_NJ_LEGAL_RE=/\b(?:Act|Rules?|Regulations?|Directive|Notification|Gazette|Statute|Ordinance)\b/iu;
 
-function refNJClean(s){ return (s||'').replace(/\u00a0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\s+/g,' ').trim(); }
+function refNJNormalizeLinkMarkup(s){
+  // Non-journal references are sometimes pasted from Markdown-rendered sources as
+  // [https://example](https://example). Collapse that presentation wrapper only in
+  // the additive non-journal path. The protected journal parser still receives raw text.
+  return (s||'').replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/giu,(m,label,url)=>{
+    const a=String(label||'').trim(), b=String(url||'').trim();
+    return /^https?:\/\//iu.test(a) ? b : `${a} ${b}`;
+  });
+}
+function refNJClean(s){ return refNJNormalizeLinkMarkup(s||'').replace(/\u00a0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\s+/g,' ').trim(); }
 function refNJStripNumber(s){ return refNJClean(s).replace(/^\s*(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s*/, '').trim(); }
 function refNJUrl(raw){ const m=(raw||'').match(/\bhttps?:\/\/[^\s<>]+|\bwww\.[^\s<>]+/iu); return m?m[0].replace(/[.,;:)\]]+$/,''):null; }
 function refNJIsDoiUrl(url){ return !!url && /(?:dx\.)?doi\.org\//iu.test(url); }
@@ -8561,6 +8616,47 @@ function refNJReportNumber(raw){
 function refNJStandardNumber(raw){ const m=(raw||'').match(REF_NJ_STANDARD_RE); return m?m[0].replace(/\s+/g,' ').trim():null; }
 function refNJPatentNumber(raw){ const m=(raw||'').match(/\b(?:U\.?S\.?|US)\s+Patent\s+([0-9][0-9,./-]{4,})|\b(?:US|EP|WO|IN)\s*[A-Z]?\d[\d,./-]{4,}|\bPatent\s+(?:No\.?|Number)\s*[:#]?\s*([A-Z0-9,./-]+)/iu); return m?(m[1]||m[2]||m[0]).replace(/\s+/g,' ').replace(/[.,;:]+$/g,'').trim():null; }
 function refNJVersion(raw){ const m=(raw||'').match(/\b(?:version|ver\.?|v\.)\s*([0-9]+(?:\.[0-9A-Za-z-]+)+)/iu); return m?m[1]:null; }
+
+
+function refNJLeadingEntityBeforeYear(raw){
+  const s=refNJStripNumber(raw);
+  const ym=s.match(/\(?\b(?:19|20)\d{2}[a-z]?\b\)?/iu);
+  if(!ym || ym.index==null || ym.index<2) return null;
+  let cand=s.slice(0,ym.index).replace(/[.,;:\s]+$/g,'').trim();
+  if(cand.length<2 || cand.length>140) return null;
+  const words=cand.split(/\s+/).filter(Boolean);
+  if(!words.length || words.length>12) return null;
+  if(/,/.test(cand) || /\b[A-Z]\.(?:\s*[A-Z]\.)?/u.test(cand)) return null;
+  const acronym=/^[A-Z][A-Z0-9&.-]{1,30}(?:\s+[A-Z][A-Z0-9&.-]{1,30})*$/u.test(cand);
+  const camel=words.length===1 && /^[A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]*)+$/u.test(cand);
+  const titleLike=words.length<=10 && words.every(w=>/^(?:[A-Z][\p{L}\d&'’.-]*|of|the|and|for|on|in|to|with)$/iu.test(w));
+  const orgWord=/\b(?:Initiative|Network|Alliance|Forum|Programme|Program|Project|Partnership|Coalition|Foundation|Institute|Institution|Association|Society|Council|Commission|Department|Ministry|Agency|Authority|Board|University|Centre|Center|Organization|Organisation|Group|Team)\b/iu.test(cand);
+  if(acronym || camel || (titleLike && orgWord)) return cand;
+  return null;
+}
+
+function refNJInstitutionalImprint(raw, corporateAuthor){
+  const clean=refStripDoiUrl(refNJClean(raw));
+  const segs=clean.split(/\s*[.;]\s+|\s*,\s*/).map(x=>x.trim()).filter(Boolean);
+  for(let i=segs.length-1;i>=0;i--){
+    const c=segs[i].replace(/^(?:[A-Z][\p{L} .'-]{1,60}:\s*)/u,'').trim();
+    if(c.length<2 || c.length>220) continue;
+    if(REF_NJ_ORG_RE.test(c) || /\b(?:Initiative|Partnership|Secretariat|Forest(?:s)?\s+Department|Research\s+Institute|Government\s+of)\b/iu.test(c))
+      return c.replace(/[.,;:]+$/g,'').trim();
+  }
+  return null;
+}
+
+function refNJPostTitleEditors(raw, authorInfo, year){
+  const rest=refNJAfterAuthorsAndYear(raw,authorInfo,year);
+  const m=rest.match(/^(.*?)\s*\(([^()]{2,260}?\bEds?\.?|[^()]{2,260}?\bEditors?)\)\s*[.;,]?\s*(.*)$/iu);
+  if(!m) return null;
+  const title=m[1].replace(/[.,;:\s]+$/g,'').trim();
+  const editors=m[2].replace(/\b(?:Eds?\.?|Editors?)\s*$/iu,'').replace(/[(),.;:\s]+$/g,'').trim();
+  const tail=m[3].trim();
+  if(!title || !editors) return null;
+  return {title,editors,tail};
+}
 
 function refNJCorporateAuthor(raw, authorInfo){
   const s=refNJStripNumber(raw);
@@ -8698,6 +8794,8 @@ function refDetectNonJournalType(raw, authorInfo){
   const corp=refNJCorporateAuthor(s,ai);
   const url=refNJUrl(s), doi=refExtractDoi(s), isbn=refNJIsbn(s);
   const publisher=refNJPublisher(s), pages=refNJPages(s);
+  const institutionalImprint=refNJInstitutionalImprint(s,corp?.authorRegion||null);
+  const postTitleEditors=refNJPostTitleEditors(s,ai,refNJYear(s,ai));
   const scores=new Map(), reasons={};
   const add=(t,n,r)=>{ scores.set(t,(scores.get(t)||0)+n); (reasons[t]||(reasons[t]=[])).push(r); };
 
@@ -8722,9 +8820,14 @@ function refDetectNonJournalType(raw, authorInfo){
 
   const editedWhole=editor && !inMarker && publisher;
   if(editedWhole) add('edited book',10,'editor + publisher without chapter marker');
+  if(postTitleEditors && !inMarker && !conf){
+    add('book',9,'post-title editor block');
+    if(institutionalImprint) add('book',4,'institutional book imprint');
+  }
   if(isbn){ add('book',10,'ISBN'); add('edited book',editor?3:0,'ISBN with editor'); }
   if(refNJEdition(s)) add('book',6,'edition marker');
   if(publisher && !inMarker && !conf){ add('book',5,'publisher/imprint evidence'); }
+  if(!publisher && institutionalImprint && editor && !inMarker && !conf) add('book',5,'editor + institutional imprint');
 
   const report=REF_NJ_REPORT_RE.test(s);
   const genericReport=/\breport\b/iu.test(s);
@@ -8746,10 +8849,12 @@ function refDetectNonJournalType(raw, authorInfo){
   if(/\b(?:magazine\s+article|\[magazine\]|magazine)\b/iu.test(s)) add('magazine article',10,'magazine terminology');
 
   const access=/\b(?:accessed|retrieved|last\s+accessed|available\s+at)\b/iu.test(s);
+  const webEntity=refNJLeadingEntityBeforeYear(s);
   if(url && !refNJIsDoiUrl(url)){
     add('web page',5,'ordinary web URL');
     if(access) add('web page',4,'access/retrieval marker');
     if(corp?.hasAuthors) add('web page',3,'institutional web author');
+    else if(webEntity) add('web page',3,'website/brand author before year');
   }
 
   // A corporate-author publication with positive institutional-document cues may be
@@ -8826,14 +8931,21 @@ function refNJTypeLabel(type){ const map={'web page':'Webpage','thesis/dissertat
 
 function refParseNonJournalEntry(raw, detection, baseAuthorInfo){
   const rawTrim=refNJStripNumber(raw);
+  const type=detection.type;
   let ai=baseAuthorInfo||detectAuthorRegion(rawTrim);
-  const corp=refNJCorporateAuthor(rawTrim,ai);
+  let corp=refNJCorporateAuthor(rawTrim,ai);
   if(corp && (!ai?.hasAuthors || ai.authorType==='corporate')) ai=corp;
+  if(type==='web page' && !ai?.hasAuthors){
+    const ent=refNJLeadingEntityBeforeYear(rawTrim);
+    if(ent){
+      ai={hasAuthors:true,authorType:'corporate',authorRegion:ent,firstAuthorSurname:ent,authorCount:1,confidence:0.90};
+      corp=ai;
+    }
+  }
   const hasAuthors=!!ai?.hasAuthors;
   const corporateAuthor=ai?.authorType==='corporate'?ai.authorRegion:(corp?.authorRegion||null);
   const year=refNJYear(rawTrim,ai);
   const doi=refExtractDoi(rawTrim), url=refNJUrl(rawTrim), isbn=refNJIsbn(rawTrim);
-  const type=detection.type;
   let rest=refNJAfterAuthorsAndYear(rawTrim,ai,year);
   let title=null, sourceRegion=null, publisher=null, editors=null, bookTitle=null, chapterTitle=null;
   let issuingOrganisation=null, university=null, repository=null, standardNumber=null, reportNumber=null, patentNumber=null, edition=null, version=null;
@@ -8878,17 +8990,27 @@ function refParseNonJournalEntry(raw, detection, baseAuthorInfo){
     title=refNJFirstSentenceTitle(rest); sourceRegion=title; publisher=publisherGuess;
   } else if(type==='book'||type==='edited book'||type==='manual'){
     edition=refNJEdition(rawTrim); publisher=publisherGuess;
+    const pe=refNJPostTitleEditors(rawTrim,ai,year);
+    const editorTailImprint=(!publisher && pe?.tail && (REF_NJ_ORG_RE.test(pe.tail)||/\b(?:Initiative|Partnership|Government\s+of|Research\s+Institute)\b/iu.test(pe.tail)))
+      ? pe.tail.replace(/[.,;:\s]+$/g,'').trim() : null;
+    const institutionalPublisher=!publisher?(editorTailImprint||refNJInstitutionalImprint(rawTrim,corporateAuthor)):null;
     let t=stripTail(rest);
     let manualOrg=null;
     if(type==='manual' && !publisher) manualOrg=refNJInstitutionFromTail(rawTrim,corporateAuthor);
-    const tailSource=publisher||manualOrg;
+    const tailSource=publisher||institutionalPublisher||manualOrg;
     if(tailSource){ const idx=t.toLocaleLowerCase().lastIndexOf(tailSource.toLocaleLowerCase()); if(idx>0) t=t.slice(0,idx); }
-    t=t.replace(/\bISBN(?:-1[03])?\s*:?[\s-]*[0-9X][0-9X\s-]{8,22}/giu,'');
+    t=t.replace(/\bISBN(?:-1[03])?\s*:?\s*[\s-]*[0-9X][0-9X\s-]{8,22}/giu,'');
     if(edition) t=t.replace(edition,'');
-    title=t.replace(/(?:\.\s*){2,}/g,'. ').replace(/[.,;:\s]+$/g,'').trim();
+    if(pe){
+      editors=pe.editors;
+      title=pe.title;
+    }else{
+      title=t.replace(/(?:\.\s*){2,}/g,'. ').replace(/[.,;:\s]+$/g,'').trim();
+    }
     if(!refPlausibleTitle(title)) title=refNJFirstSentenceTitle(rest);
     sourceRegion=tailSource;
-    if(type==='edited book') editors=ai?.authorRegion||null;
+    publisher=publisher||institutionalPublisher;
+    if(type==='edited book' && !editors && /\(\s*Eds?\.?\s*\)\s*[.,;:]?\s*\(?\s*(?:19|20)\d{2}/iu.test(rawTrim)) editors=ai?.authorRegion||null;
     // Book volume is optional and only accepted when explicitly labelled.
     const vm=rawTrim.match(/\bvol(?:ume)?\.?\s*([A-Za-z]?\d+[A-Za-z]?)\b/iu); hasVolume=!!vm;
   } else if(['report','online report','government report','institutional publication','working paper','white paper','policy document','guideline'].includes(type)){
@@ -8905,7 +9027,7 @@ function refParseNonJournalEntry(raw, detection, baseAuthorInfo){
       const one=(rest.match(/^([^.;]{4,160})(?:[.;]|$)/u)||[])[1];
       if(one && /^[\p{L}\d][\p{L}\d'’&()/:+\-\s]{3,159}$/u.test(one.trim())) title=one.trim();
     }
-    issuingOrganisation=refNJWebsite(rawTrim,corporateAuthor,url);
+    issuingOrganisation=refNJWebsite(rawTrim,corporateAuthor,url)||refNJLeadingEntityBeforeYear(rawTrim);
     sourceRegion=issuingOrganisation;
   } else if(type==='thesis/dissertation'){
     const tm=rest.match(/^(.+?)(?=\.\s*(?:Ph\.?D\.?|doctoral|doctorate|master'?s|M\.?Tech\.?|M\.?Sc\.?)\s+(?:thesis|dissertation)|[,.;:]\s*(?:Ph\.?D\.?|doctoral|doctorate|master'?s|M\.?Tech\.?|M\.?Sc\.?)\s+(?:thesis|dissertation)|\b(?:thesis|dissertation)\b)/iu);
@@ -11056,6 +11178,8 @@ $("run").onclick=async()=>{
 
     // Abbreviations (from the manuscript)
     try{
+      status("Preparing local named-entity support…");
+      await mcEnsureWinkNlp(text);
       status("Checking abbreviations…");
       const r=analyze(text,title,standardSet,skipRefs,skipTables); LAST=r; renderReport(r);
     }catch(e){ console.error("abbreviation check failed:",e); }
@@ -11128,8 +11252,17 @@ $("run").onclick=async()=>{
 
     // US/British English consistency (affiliations and references excluded)
     try{
+      status("Preparing local language tools…");
+      await mcPrepareEnglishLibraries(text);
       status("Checking English, grammar and style…");
-      renderEnglishReport(engAnalyze(text,sentenceLimit,paragraphLimits));
+      const engResult=engAnalyze(text,sentenceLimit,paragraphLimits);
+      if($("lt-enable")?.checked){
+        status("Running optional LanguageTool check…");
+        engResult.languageTool=await mcMaybeRunLanguageTool(text,engResult.inference);
+      }else{
+        engResult.languageTool={enabled:false,status:"off",matches:[]};
+      }
+      renderEnglishReport(engResult);
     }catch(e){
       console.error("English, grammar and style check failed:",e);
       renderEnglishReport({inference:{style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"},issues:[],personIssues:[],tenseIssues:[],writingChecks:{grammar:[],punctuation:[],clarity:[],consistency:[],passive:[],metrics:{sentenceLengthLimit:sentenceLimit}},sentenceLengthLimit:sentenceLimit,paragraphMinWords:paragraphLimits.min,paragraphMaxWords:paragraphLimits.max,paragraphIssues:[],proseParagraphs:0,ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0});
@@ -11152,6 +11285,11 @@ $("run").onclick=async()=>{
 $("clear").onclick=()=>{
   resetResultTabCounts();
   currentFile=null; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null; fileInput.value=""; chip.style.display="none";
+  if($("lt-enable")) $("lt-enable").checked=false;
+  if($("lt-config")) $("lt-config").hidden=true;
+  if($("lt-data-note")) $("lt-data-note").hidden=true;
+  if($("lt-run-status")){ $("lt-run-status").textContent=""; $("lt-run-status").className="lt-run-status"; }
+  if(window.mcResetHybridCaches) window.mcResetHybridCaches();
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
@@ -11953,5 +12091,496 @@ fteAnalyze=function(blocks){
 };
 
 </script>
+
+<script id="hybrid-language-tools-script">
+(function(){
+  /*
+    Hybrid local language support. engInferStyle is deliberately untouched.
+    Every integration is additive and falls back to the existing checker when
+    its CDN/model/dictionary is unavailable.
+  */
+  const MC_CDN={
+    compromise:"https://cdn.jsdelivr.net/npm/compromise@14.16.0/builds/compromise.js",
+    typoModule:"https://cdn.jsdelivr.net/npm/typo-js@1.3.2/+esm",
+    dictAff:"https://cdn.jsdelivr.net/npm/dictionary-en@4.0.0/index.aff",
+    dictDic:"https://cdn.jsdelivr.net/npm/dictionary-en@4.0.0/index.dic",
+    winkModule:"https://cdn.jsdelivr.net/npm/wink-nlp@2.4.0/+esm",
+    winkModel:"https://cdn.jsdelivr.net/npm/wink-eng-lite-web-model@1.8.1/+esm"
+  };
+  const MC_HYBRID=window.MC_HYBRID=window.MC_HYBRID||{
+    key:null,load:{},compromise:null,typo:null,wink:null,fixtureResults:null
+  };
+
+  function mcTextKey(text){
+    const s=String(text||""); let h=2166136261>>>0;
+    const step=Math.max(1,Math.floor(s.length/2048));
+    for(let i=0;i<s.length;i+=step){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
+    return `${s.length}:${h.toString(16)}`;
+  }
+  function mcEnsureKey(text){
+    const key=mcTextKey(text);
+    if(MC_HYBRID.key!==key){
+      MC_HYBRID.key=key; MC_HYBRID.compromise=null; MC_HYBRID.wink=null;
+      MC_HYBRID.fixtureResults=null;
+    }
+    return key;
+  }
+  window.mcResetHybridCaches=function(){
+    MC_HYBRID.key=null;MC_HYBRID.compromise=null;MC_HYBRID.wink=null;MC_HYBRID.fixtureResults=null;
+  };
+
+  function mcLoadClassic(name,url,test,timeoutMs=15000){
+    if(test()) return Promise.resolve(true);
+    if(MC_HYBRID.load[name]) return MC_HYBRID.load[name];
+    MC_HYBRID.load[name]=new Promise(resolve=>{
+      const old=document.querySelector(`script[data-mc-lib="${name}"]`);
+      if(old) old.remove();
+      const el=document.createElement("script"); el.src=url; el.async=true; el.dataset.mcLib=name;
+      let done=false; const finish=ok=>{if(done)return;done=true;clearTimeout(timer);resolve(!!ok);};
+      el.onload=()=>finish(test()); el.onerror=()=>finish(false);
+      const timer=setTimeout(()=>finish(test()),timeoutMs);
+      document.head.appendChild(el);
+    }).catch(()=>false);
+    return MC_HYBRID.load[name];
+  }
+  function mcLoadModule(name,source,eventName,test,timeoutMs=18000){
+    if(test()) return Promise.resolve(true);
+    if(MC_HYBRID.load[name]) return MC_HYBRID.load[name];
+    MC_HYBRID.load[name]=new Promise(resolve=>{
+      const old=document.querySelector(`script[data-mc-lib="${name}"]`); if(old) old.remove();
+      const el=document.createElement("script");el.type="module";el.dataset.mcLib=name;el.textContent=source;
+      let done=false; const finish=ok=>{if(done)return;done=true;clearTimeout(timer);window.removeEventListener(eventName,onReady);resolve(!!ok);};
+      const onReady=()=>finish(test()); window.addEventListener(eventName,onReady,{once:true});
+      el.onerror=()=>finish(false); const timer=setTimeout(()=>finish(test()),timeoutMs);
+      document.head.appendChild(el);
+    }).catch(()=>false);
+    return MC_HYBRID.load[name];
+  }
+
+  function mcCompromiseBody(text){
+    try{return engPrepareText(text||"");}catch(_e){return String(text||"");}
+  }
+  function mcBuildCompromiseTerms(body,doc){
+    const out=[]; let cursor=0;
+    try{
+      const json=doc.json({terms:true})||[];
+      json.forEach(sent=>{
+        (sent.terms||[]).forEach(t=>{
+          const raw=String(t.text||t.normal||"").trim(); if(!raw)return;
+          let idx=body.indexOf(raw,cursor);
+          if(idx<0){idx=body.toLowerCase().indexOf(raw.toLowerCase(),cursor);}
+          if(idx<0){idx=body.toLowerCase().indexOf(raw.toLowerCase());}
+          const tags=Array.isArray(t.tags)?t.tags:Object.keys(t.tags||{}).filter(k=>t.tags[k]);
+          out.push({text:raw,start:idx,end:idx<0?-1:idx+raw.length,tags:new Set(tags)});
+          if(idx>=0)cursor=idx+raw.length;
+        });
+      });
+    }catch(e){console.warn("Compromise token map unavailable; heuristic fallback remains active.",e);}
+    return out;
+  }
+  async function mcEnsureCompromise(text){
+    const key=mcEnsureKey(text); if(MC_HYBRID.compromise?.key===key)return MC_HYBRID.compromise;
+    const ok=await mcLoadClassic("compromise",MC_CDN.compromise,()=>typeof window.nlp==="function");
+    if(!ok)return null;
+    try{
+      const body=mcCompromiseBody(text); const doc=window.nlp(body);
+      MC_HYBRID.compromise={key,body,doc,terms:mcBuildCompromiseTerms(body,doc)};
+      return MC_HYBRID.compromise;
+    }catch(e){console.warn("compromise.js parse failed; regex fallback used.",e);return null;}
+  }
+  function mcCompromiseTermAt(index,raw){
+    const c=MC_HYBRID.compromise;if(!c)return null;
+    const r=String(raw||"").toLowerCase();
+    let hit=c.terms.find(t=>t.start>=0 && index>=t.start-1 && index<t.end+1 && (!r||t.text.toLowerCase()===r));
+    if(!hit&&r)hit=c.terms.find(t=>t.start>=0&&Math.abs(t.start-index)<=4&&t.text.toLowerCase()===r);
+    return hit||null;
+  }
+
+  async function mcEnsureTypo(){
+    if(MC_HYBRID.typo?.dictionary)return MC_HYBRID.typo;
+    const moduleCode=`import Typo from "${MC_CDN.typoModule}";window.__MC_TypoCtor=(Typo&&Typo.default)||Typo;window.dispatchEvent(new Event("mc:typo-ready"));`;
+    const ok=await mcLoadModule("typo",moduleCode,"mc:typo-ready",()=>typeof window.__MC_TypoCtor==="function");
+    if(!ok)return null;
+    try{
+      const [affRes,dicRes]=await Promise.all([fetch(MC_CDN.dictAff,{cache:"force-cache"}),fetch(MC_CDN.dictDic,{cache:"force-cache"})]);
+      if(!affRes.ok||!dicRes.ok)throw new Error("dictionary download failed");
+      const [aff,dic]=await Promise.all([affRes.text(),dicRes.text()]);
+      const dictionary=new window.__MC_TypoCtor("en_US",aff,dic,{platform:"any"});
+      MC_HYBRID.typo={dictionary}; return MC_HYBRID.typo;
+    }catch(e){console.warn("Typo.js dictionary unavailable; existing typo list remains active.",e);return null;}
+  }
+
+  async function mcEnsureWinkNlp(text){
+    const key=mcEnsureKey(text);if(MC_HYBRID.wink?.key===key)return MC_HYBRID.wink;
+    const code=`import winkNLP from "${MC_CDN.winkModule}";import model from "${MC_CDN.winkModel}";window.__MC_WinkNLP=winkNLP(model);window.dispatchEvent(new Event("mc:wink-ready"));`;
+    const ok=await mcLoadModule("wink",code,"mc:wink-ready",()=>!!window.__MC_WinkNLP);
+    if(!ok)return null;
+    try{
+      const body=String(text||""); const nlp=window.__MC_WinkNLP; const doc=nlp.readDoc(body); const its=nlp.its;
+      let details=[];try{details=doc.entities().out(its.detail)||[];}catch(_e){}
+      const entities=(details||[]).map(e=>({value:String(e.value||e.text||"").trim(),type:String(e.type||"")})).filter(e=>e.value);
+      MC_HYBRID.wink={key,body,doc,nlp,entities};return MC_HYBRID.wink;
+    }catch(e){console.warn("wink-nlp parse failed; abbreviation heuristics remain active.",e);return null;}
+  }
+  window.mcEnsureWinkNlp=mcEnsureWinkNlp;
+  window.mcPrepareEnglishLibraries=async function(text){
+    mcEnsureKey(text);
+    const settled=await Promise.allSettled([mcEnsureCompromise(text),mcEnsureTypo()]);
+    return {compromise:settled[0]?.value||null,typo:settled[1]?.value||null};
+  };
+
+  /* ---------- compromise-assisted person and tense filtering ---------- */
+  const legacyPerson=window.engFindPersonUsage;
+  if(typeof legacyPerson==="function"){
+    window.engFindPersonUsage=function(text){
+      const old=legacyPerson(text)||[]; const cache=MC_HYBRID.compromise;
+      if(!cache)return old;
+      const filtered=old.filter(it=>{
+        const term=mcCompromiseTermAt(it.index,it.word);
+        if(!term)return true;
+        if(term.tags.has("Pronoun"))return true;
+        if(term.tags.has("Noun")||term.tags.has("Value")||term.tags.has("RomanNumeral"))return false;
+        return true;
+      });
+      const seen=new Set(filtered.map(x=>`${x.index}:${String(x.word).toLowerCase()}`));
+      const target=new Set(["i","we","us","our","ours","ourselves","you","your","yours","yourself","yourselves"]);
+      cache.terms.forEach(t=>{
+        const low=t.text.toLowerCase(); if(!target.has(low)||!t.tags.has("Pronoun")||t.start<0)return;
+        const k=`${t.start}:${low}`;if(seen.has(k))return;
+        let sense="uncertain";try{sense=engPersonSense({word:t.text},cache.body,t.start,t.text.length);}catch(_e){}
+        // Compromise is an additional grammatical signal, not an override. Add a
+        // new finding only when the existing context-aware classifier also says
+        // the occurrence is genuinely personal. This protects scientific uses
+        // such as Type I, current I, uppercase WE/US, and mining uses of “mine”.
+        if(sense!=="pronoun")return;
+        filtered.push({word:t.text,index:t.start,snippet:engContext(cache.body,t.start,t.text.length),msg:`First- or second-person pronoun "${t.text}" detected in manuscript prose.`,suggestion:"If the target journal requires third-person style, revise the sentence without changing its scientific meaning.",source:"compromise"});
+        seen.add(k);
+      });
+      return filtered.sort((a,b)=>a.index-b.index);
+    };
+  }
+  const legacyTense=window.engPresentTenseCheck;
+  if(typeof legacyTense==="function"){
+    window.engPresentTenseCheck=function(text){
+      const old=legacyTense(text)||[]; if(!MC_HYBRID.compromise)return old;
+      return old.filter(it=>{
+        const term=mcCompromiseTermAt(it.index,it.verb);
+        if(!term)return true;
+        const tags=term.tags;
+        if(tags.has("Noun")&&!tags.has("Verb"))return false;
+        if((tags.has("Infinitive")||tags.has("Gerund"))&&!tags.has("PresentTense"))return false;
+        return tags.has("Verb")||tags.has("PresentTense")||(!tags.has("Noun"));
+      });
+    };
+  }
+
+  /* ---------- wink-nlp as an additional abbreviation entity signal ---------- */
+  const legacyAbbrClassify=window.abbrClassifyCandidateOccurrence;
+  if(typeof legacyAbbrClassify==="function"){
+    window.abbrClassifyCandidateOccurrence=function(sent,index,raw,protectedSpans){
+      const base=legacyAbbrClassify(sent,index,raw,protectedSpans);
+      if(!base||base.kind!=="technical_abbreviation"||!MC_HYBRID.wink)return base;
+      try{
+        if(typeof abbrExplicitDefinitionEvidence==="function"&&abbrExplicitDefinitionEvidence(sent,index,raw))return base;
+        const lo=String(sent||"").toLowerCase();const r=String(raw||"").toLowerCase();
+        const entity=MC_HYBRID.wink.entities.find(e=>{
+          const v=e.value.toLowerCase();if(!v||v===r||!v.includes(r)||!lo.includes(v))return false;
+          const type=e.type.toUpperCase();return /ORG|ORGANIZATION|PERSON|LOCATION|PLACE|PRODUCT|FACILITY|EVENT|WORK/.test(type)||e.value.split(/\s+/).length>=2;
+        });
+        if(entity){return {kind:"named_entity",confidence:"supporting",entityType:entity.type,entity:entity.value};}
+      }catch(_e){}
+      return base;
+    };
+  }
+
+  /* ---------- dictionary spell checking ---------- */
+  function mcLevenshtein(a,b){
+    a=a.toLowerCase();b=b.toLowerCase();const prev=Array.from({length:b.length+1},(_,i)=>i);
+    for(let i=1;i<=a.length;i++){let last=prev[0];prev[0]=i;for(let j=1;j<=b.length;j++){const old=prev[j];prev[j]=Math.min(prev[j]+1,prev[j-1]+1,last+(a[i-1]===b[j-1]?0:1));last=old;}}
+    return prev[b.length];
+  }
+  function mcScientificWhitelist(){
+    const set=new Set([
+      "wastewater","bioelectrochemical","electroconcentration","physicochemical","electrochemical","photocatalytic","microplastic","microplastics","nanoparticle","nanoparticles","nanocomposite","nanocomposites","adsorbent","adsorbents","catholyte","anolyte","biofilm","biofilms","electrocatalyst","electrocatalysts","electrocatalytic","chronoamperometry","voltammogram","voltammograms","voltammetry","spectroscopy","spectrometric","chromatographic","isotherm","isotherms","kinetics","stoichiometric","stoichiometry","mineralisation","mineralization","valorisation","valorization","characterisation","characterization","optimisation","optimization","anaerobic","aerobic","ammoniacal","leachate","digestate","supernatant","filtrate","permeate","retentate","biomass","epibenthic","geomorphic"
+    ]);
+    try{
+      (ENG_VARIANTS||[]).forEach(f=>{
+        const groups=f.forms||f.pairs||[];
+        groups.forEach(pair=>{
+          (Array.isArray(pair)?pair:[pair]).forEach(x=>{if(x)set.add(String(x).toLowerCase());});
+        });
+        if(f.us)set.add(String(f.us).toLowerCase());
+        if(f.uk)set.add(String(f.uk).toLowerCase());
+      });
+    }catch(_e){}
+    try{DECLARED_ABBRS.forEach(x=>set.add(String(x).toLowerCase()));}catch(_e){}
+    try{DECLARED_ABBR_MAP.forEach((rec,key)=>{set.add(String(key).toLowerCase());String(rec?.long||"").match(/[\p{L}][\p{L}'’\-]{2,}/gu)?.forEach(w=>set.add(w.toLowerCase()));});}catch(_e){}
+    try{(LAST?.rows||[]).forEach(r=>{set.add(String(r.base||"").toLowerCase());String(r.longForm||"").match(/[\p{L}][\p{L}'’\-]{2,}/gu)?.forEach(w=>set.add(w.toLowerCase()));});}catch(_e){}
+    return set;
+  }
+  function mcDictionarySpellIssues(text,existing=[]){
+    const dict=MC_HYBRID.typo?.dictionary;if(!dict)return [];
+    let body;try{body=engGrammarBody(text);}catch(_e){body=String(text||"");}
+    const whitelist=mcScientificWhitelist();const out=[];const seen=new Set();
+    const oldTokens=new Set((existing||[]).map(x=>String(x.token||"").toLowerCase()).filter(Boolean));
+    const sents=engReadableSentences(body);
+    sents.forEach(s=>{
+      const re=/\b[\p{L}][\p{L}'’\-]{2,}\b/gu;let m;
+      while((m=re.exec(s.text))){
+        const raw=m[0],low=raw.toLowerCase(),idx=s.index+m.index;
+        if(raw.length<4||whitelist.has(low)||oldTokens.has(low))continue;
+        if(/[A-Z].*[A-Z]/.test(raw)||/[\d_]/.test(raw)||raw.includes("-")||(/[A-Z]/.test(raw[0])&&m.index>0))continue;
+        if(/^(?:doi|et|al|fig|eqn|ibid|versus)$/i.test(raw))continue;
+        let ok=false;try{ok=dict.check(raw)||dict.check(low);}catch(_e){return;}
+        if(ok)continue;
+        let sug=[];try{sug=(dict.suggest(low,5)||[]).filter(Boolean);}catch(_e){}
+        if(!sug.length)continue;
+        const best=sug.map(x=>({x,d:mcLevenshtein(low,String(x).toLowerCase())})).sort((a,b)=>a.d-b.d)[0];
+        const maxD=raw.length<=7?1:raw.length<=12?2:3;if(!best||best.d>maxD)continue;
+        const key=`${idx}:${low}`;if(seen.has(key))continue;seen.add(key);
+        out.push({category:"Grammar & spelling",severity:"warn",code:"DICTIONARY_SPELLING",index:idx,token:raw,msg:`Dictionary spell-check did not recognise "${raw}".`,suggestion:`Check the spelling. A possible correction is "${best.x}". Keep the original if it is an intentional technical or proper term.`,snippet:engContext(body,idx,raw.length),source:"Typo.js"});
+      }
+    });
+    return out.slice(0,250);
+  }
+
+  /* ---------- local Flesch / Flesch-Kincaid ---------- */
+  function mcSyllables(word){
+    let w=String(word||"").toLowerCase().replace(/[^a-z]/g,"");if(!w)return 0;if(w.length<=3)return 1;
+    const special={queue:1,science:2,scientific:4,ion:2,ions:2,area:3,areas:3,create:2,created:3,reactor:3,urea:3};if(special[w])return special[w];
+    w=w.replace(/(?:es|ed)$/,(m,off,str)=>/(?:ted|ded|ses|zes|ches|shes)$/.test(str)?m:"");
+    w=w.replace(/e$/,"x");
+    const groups=w.match(/[aeiouy]+/g);let n=groups?groups.length:1;
+    if(/[^aeiou]le$/.test(word.toLowerCase()))n++;
+    return Math.max(1,n);
+  }
+  function mcFleschMetrics(text){
+    let body;try{body=engGrammarBody(text);}catch(_e){body=String(text||"");}
+    const sents=engReadableSentences(body);const words=[];
+    sents.forEach(s=>{(s.text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?/g)||[]).forEach(w=>words.push(w));});
+    const wc=words.length,sc=sents.length;if(!wc||!sc)return {fleschReadingEase:null,fleschKincaidGrade:null,syllables:0};
+    const syll=words.reduce((a,w)=>a+mcSyllables(w),0);
+    const ease=206.835-1.015*(wc/sc)-84.6*(syll/wc);
+    const grade=.39*(wc/sc)+11.8*(syll/wc)-15.59;
+    return {fleschReadingEase:Math.max(-50,Math.min(120,ease)),fleschKincaidGrade:Math.max(0,grade),syllables:syll};
+  }
+
+  /* ---------- passive voice ---------- */
+  function mcPassiveVoiceCheck(text){
+    let body;try{body=engPrepareText(text);}catch(_e){body=String(text||"");}
+    const out=[],seen=new Set(),terms=MC_HYBRID.compromise?.terms||[];
+    if(terms.length){
+      const be=new Set(["am","is","are","was","were","be","been","being"]);
+      for(let i=0;i<terms.length;i++){
+        const a=terms[i];if(a.start<0||!be.has(a.text.toLowerCase()))continue;
+        for(let j=i+1;j<=Math.min(i+3,terms.length-1);j++){
+          const b=terms[j];if(b.start<0)continue;
+          const gap=body.slice(a.end,b.start);if(/[.!?;\n]/.test(gap))break;
+          const tags=b.tags;
+          if(tags.has("Adverb"))continue;
+          const likelyParticiple=tags.has("PastTense")||tags.has("Participle")||/(?:ed|en)$/i.test(b.text)||/^(?:known|shown|given|found|made|used|seen|done|built|held|taken|written|grown)$/i.test(b.text);
+          if(!likelyParticiple)break;
+          const phrase=body.slice(a.start,b.end);const key=`${a.start}:${phrase.toLowerCase()}`;if(seen.has(key))break;seen.add(key);
+          out.push({category:"Passive voice",severity:"info",code:"PASSIVE_VOICE",index:a.start,token:phrase,msg:`Passive construction "${phrase}" detected.`,suggestion:"Passive voice is acceptable in scientific writing. Review only if active voice would make the actor or action clearer.",snippet:engContext(body,a.start,phrase.length),source:"compromise"});break;
+        }
+      }
+    }else{
+      const re=/\b(?:am|is|are|was|were|be|been|being)\s+(?:\w+ly\s+)?(?:[a-z]{3,}ed|known|shown|given|found|made|used|seen|done|built|held|taken|written|grown)\b/gi;let m;
+      while((m=re.exec(body)))out.push({category:"Passive voice",severity:"info",code:"PASSIVE_VOICE",index:m.index,token:m[0],msg:`Passive construction "${m[0]}" detected.`,suggestion:"Passive voice is acceptable in scientific writing. Review only if active voice would make the actor or action clearer.",snippet:engContext(body,m.index,m[0].length),source:"fallback"});
+    }
+    return out.slice(0,200);
+  }
+
+  const legacyGrammar=window.engGrammarStyleCheck;
+  if(typeof legacyGrammar==="function"){
+    window.engGrammarStyleCheck=function(text,inference,sentenceLimit){
+      const res=legacyGrammar(text,inference,sentenceLimit);
+      try{res.grammar.push(...mcDictionarySpellIssues(text,res.grammar));}catch(e){console.warn("Dictionary spell extension failed; legacy spelling checks preserved.",e);}
+      try{res.passive=mcPassiveVoiceCheck(text);}catch(e){res.passive=res.passive||[];}
+      try{Object.assign(res.metrics||{},mcFleschMetrics(text));}catch(_e){}
+      res.hybridEngines={compromise:!!MC_HYBRID.compromise,typo:!!MC_HYBRID.typo,wink:!!MC_HYBRID.wink};
+      return res;
+    };
+  }
+  const legacyFallback=window.engReadabilityFallback;
+  if(typeof legacyFallback==="function"){
+    window.engReadabilityFallback=function(text,errorMessage,sentenceLimit){
+      const res=legacyFallback(text,errorMessage,sentenceLimit);try{Object.assign(res.metrics||{},mcFleschMetrics(text));}catch(_e){};try{res.passive=mcPassiveVoiceCheck(text);}catch(_e){};return res;
+    };
+  }
+
+  /* ---------- LanguageTool, explicit opt-in only ---------- */
+  function mcLtSetStatus(text,kind=""){
+    const el=document.getElementById("lt-run-status");if(!el)return;el.textContent=text||"";el.className="lt-run-status"+(kind?` ${kind}`:"");
+  }
+  function mcLtEndpoint(){
+    const mode=document.getElementById("lt-mode")?.value||"public";
+    if(mode==="public")return {mode,url:"https://api.languagetool.org/v2/check",public:true};
+    let url=(document.getElementById("lt-endpoint")?.value||"").trim();if(!url)throw new Error("Enter the self-hosted LanguageTool endpoint.");
+    if(!/^https?:\/\//i.test(url))throw new Error("The self-hosted LanguageTool endpoint must start with http:// or https://.");
+    url=url.replace(/\/+$/,"");if(/\/v2$/i.test(url))url+="/check";else if(!/\/v2\/check$/i.test(url))url+="/v2/check";
+    return {mode,url,public:false};
+  }
+  function mcLtProse(text){
+    let prepared;try{prepared=engPrepareText(text);}catch(_e){prepared=String(text||"");}
+    const sents=engReadableSentences(prepared);return sents.map(x=>x.text).join("\n");
+  }
+  function mcChunkText(text,maxChars,maxTotal){
+    const source=String(text||"").slice(0,maxTotal);const chunks=[];let cur="";
+    source.split(/\n+/).forEach(p=>{
+      if(p.length>maxChars){
+        if(cur){chunks.push(cur);cur="";}
+        for(let i=0;i<p.length;i+=maxChars)chunks.push(p.slice(i,i+maxChars));
+      }else if((cur?cur.length+1:0)+p.length>maxChars){chunks.push(cur);cur=p;}else cur+=(cur?"\n":"")+p;
+    });if(cur)chunks.push(cur);return {chunks,truncated:String(text||"").length>source.length,checkedChars:source.length};
+  }
+  async function mcLtPost(url,params,timeoutMs=22000){
+    const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),timeoutMs);
+    try{
+      const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:new URLSearchParams(params).toString(),signal:ctrl.signal});
+      if(!r.ok){const err=new Error(r.status===429?"LanguageTool rate limit reached.":`LanguageTool returned HTTP ${r.status}.`);err.status=r.status;throw err;}
+      return await r.json();
+    }finally{clearTimeout(timer);}
+  }
+  window.mcMaybeRunLanguageTool=async function(text,inference){
+    if(!document.getElementById("lt-enable")?.checked)return {enabled:false,status:"off",matches:[]};
+    let ep;try{ep=mcLtEndpoint();}catch(e){mcLtSetStatus(e.message,"error");return {enabled:true,status:"failed",matches:[],message:e.message};}
+    const prose=mcLtProse((DOCX_ENGLISH_TEXT&&DOCX_ENGLISH_TEXT.trim())?DOCX_ENGLISH_TEXT:text);
+    if(!prose.trim()){const m="No eligible English prose was available for LanguageTool.";mcLtSetStatus(m,"error");return {enabled:true,status:"failed",matches:[],message:m,endpoint:ep.url};}
+    const maxReq=ep.public?18500:40000,maxTotal=ep.public?72000:240000;
+    const {chunks,truncated,checkedChars}=mcChunkText(prose,maxReq,maxTotal);const matches=[];
+    const lang=inference?.style==="UK"?"en-GB":inference?.style==="US"?"en-US":"auto";
+    try{
+      for(const chunk of chunks){
+        const params={text:chunk,language:lang};if(lang==="auto")params.preferredVariants="en-GB,en-US";
+        const data=await mcLtPost(ep.url,params);(data.matches||[]).forEach(m=>matches.push(m));
+      }
+      const note=truncated?` LanguageTool checked the first ${checkedChars.toLocaleString()} prose characters for this run because the selected endpoint has practical request limits.`:"";
+      mcLtSetStatus(`LanguageTool completed: ${matches.length} suggestion${matches.length===1?"":"s"}.${note}`,"ok");
+      return {enabled:true,status:"ok",matches,endpoint:ep.url,mode:ep.mode,public:ep.public,checkedChars,totalChars:prose.length,truncated,note};
+    }catch(e){
+      const msg=e?.name==="AbortError"?"LanguageTool timed out; local manuscript checks completed normally.":`${e.message||"LanguageTool could not be reached."} Local manuscript checks completed normally.`;
+      mcLtSetStatus(msg,"error");return {enabled:true,status:"failed",matches:[],endpoint:ep.url,mode:ep.mode,public:ep.public,message:msg};
+    }
+  };
+
+  function mcLtContext(match){
+    const c=match?.context||{};const t=String(c.text||match?.sentence||"");const o=Math.max(0,Number(c.offset||0)),l=Math.max(1,Number(c.length||match?.length||1));
+    return escapeHtml(t.slice(0,o))+"<mark>"+escapeHtml(t.slice(o,o+l))+"</mark>"+escapeHtml(t.slice(o+l));
+  }
+  function mcInsertBeforeLabel(root,labelText,node){
+    const target=[...root.querySelectorAll(".sec-label")].find(x=>reportSubnavLabel(x)===labelText);if(target)target.insertAdjacentElement("beforebegin",node);else root.appendChild(node);
+  }
+  const legacyRenderEnglish=window.renderEnglishReport;
+  if(typeof legacyRenderEnglish==="function"){
+    window.renderEnglishReport=function(res){
+      legacyRenderEnglish(res);
+      const root=document.getElementById("eng-findings");if(!root)return;
+      const wc=res.writingChecks||{};const met=wc.metrics||{};
+      const grid=root.querySelector(".ledger-help-grid");
+      if(grid&&Number.isFinite(met.fleschKincaidGrade)){
+        grid.insertAdjacentHTML("beforeend",`<b>Flesch Reading Ease</b><span>${Number(met.fleschReadingEase).toFixed(1)}</span><b>Flesch-Kincaid grade level</b><span>${Number(met.fleschKincaidGrade).toFixed(1)}</span>`);
+      }
+      const passive=document.createElement("section");passive.className="report-subsection";
+      const pitems=wc.passive||[];
+      passive.innerHTML=`<p class="sec-label">Passive voice <button type="button" class="info-help inline-auto-help" data-help="Detects likely passive constructions as a style note. Passive voice is acceptable in scientific writing; review only when active voice would improve clarity or identify the actor." aria-label="Explain Passive voice" title="Explain this section">i</button> · ${pitems.length}</p>`+
+        (pitems.length?pitems.map(it=>`<div class="issue"><span class="badge info">i</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`).join(""):`<p class="verdict clean">No clear passive constructions were detected in the checked prose.</p>`);
+      mcInsertBeforeLabel(root,"Readability",passive);
+
+      const lt=res.languageTool;
+      if(lt?.enabled){
+        const sec=document.createElement("section");sec.className="report-subsection";
+        let html=`<p class="sec-label">LanguageTool enhancement <button type="button" class="info-help inline-auto-help" data-help="Optional server-based grammar/style results. This section appears only when the separate LanguageTool opt-in was enabled for the run." aria-label="Explain LanguageTool enhancement" title="Explain this section">i</button>${lt.status==="ok"?` · ${lt.matches.length}`:""}</p>`;
+        if(lt.status!=="ok")html+=`<p class="verdict"><b>LanguageTool unavailable for this run:</b> ${escapeHtml(lt.message||"The request failed.")} The local checks above are unaffected.</p>`;
+        else if(!lt.matches.length)html+=`<p class="verdict clean">LanguageTool returned no additional grammar/style suggestions for the checked prose.</p>`;
+        else{
+          (lt.matches||[]).slice(0,300).forEach(m=>{
+            const issueType=String(m.rule?.issueType||"").toLowerCase();const sev=/grammar|misspell|typographical/.test(issueType)?"warn":"info";
+            const repl=(m.replacements||[]).slice(0,4).map(x=>x.value).filter(Boolean).join(", ");
+            html+=`<div class="issue"><span class="badge ${sev}">${sev==="warn"?"!":"i"}</span><div class="body"><p class="msg"><span class="lt-source-tag">LanguageTool</span><span class="abbr">${escapeHtml(m.rule?.id||"LT")}</span> ${escapeHtml(m.message||m.shortMessage||"Grammar/style suggestion")}</p><div class="snip">${mcLtContext(m)}</div>${repl?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(repl)}</p>`:""}</div></div>`;
+          });
+          if(lt.truncated)html+=`<p class="verdict"><b>Coverage note:</b> ${escapeHtml(lt.note||"Only part of the prose was checked because of endpoint request limits.")}</p>`;
+        }
+        sec.innerHTML=html;mcInsertBeforeLabel(root,"Paragraph length",sec);
+      }
+      const engines=wc.hybridEngines||{};
+      const note=document.createElement("p");note.className="hybrid-engine-note";
+      note.textContent=`Local enhancements: compromise.js ${engines.compromise?"active":"unavailable, heuristic fallback used"}; Typo.js dictionary ${engines.typo?"active":"unavailable, built-in typo rules used"}; wink-nlp ${engines.wink?"active for abbreviation classification":"unavailable, abbreviation heuristics used"}.`;
+      root.prepend(note);
+      try{buildReportSubnav("eng-report","eng-subnav");enhanceReportSeverity("eng-report","eng-subnav");}catch(_e){}
+    };
+  }
+
+  const legacyEnglishText=window.englishReportText;
+  if(typeof legacyEnglishText==="function"){
+    window.englishReportText=function(res){
+      let t=legacyEnglishText(res);const wc=res.writingChecks||{},m=wc.metrics||{};
+      if(Number.isFinite(m.fleschKincaidGrade))t+=`\nFLESCH READABILITY\nFlesch Reading Ease: ${Number(m.fleschReadingEase).toFixed(1)}\nFlesch-Kincaid grade level: ${Number(m.fleschKincaidGrade).toFixed(1)}\n`;
+      if((wc.passive||[]).length){t+="\nPASSIVE VOICE STYLE NOTES\n";(wc.passive||[]).forEach(x=>{t+=`${x.msg}\n  Suggested: ${x.suggestion}\n`;});}
+      const lt=res.languageTool;if(lt?.enabled){t+="\nLANGUAGETOOL ENHANCEMENT\n";if(lt.status!=="ok")t+=`Unavailable: ${lt.message||"request failed"}\n`;else (lt.matches||[]).forEach(x=>{const r=(x.replacements||[]).slice(0,4).map(y=>y.value).join(", ");t+=`${x.rule?.id||"LT"} | ${x.message||x.shortMessage||"Suggestion"}${r?` | Suggested: ${r}`:""}\n`;});}
+      return t;
+    };
+  }
+
+  /* ---------- opt-in control behavior ---------- */
+  function mcSyncLtUi(){
+    const on=!!document.getElementById("lt-enable")?.checked,mode=document.getElementById("lt-mode")?.value||"public";
+    const cfg=document.getElementById("lt-config"),note=document.getElementById("lt-data-note"),wrap=document.getElementById("lt-endpoint-wrap");
+    if(cfg)cfg.hidden=!on;if(note)note.hidden=!on;if(wrap)wrap.hidden=!(on&&mode==="self");if(!on)mcLtSetStatus("");
+  }
+  document.getElementById("lt-enable")?.addEventListener("change",mcSyncLtUi);
+  document.getElementById("lt-mode")?.addEventListener("change",()=>{mcSyncLtUi();try{localStorage.setItem("manuscriptCheckLtMode",document.getElementById("lt-mode").value);}catch(_e){}});
+  document.getElementById("lt-endpoint")?.addEventListener("change",()=>{try{localStorage.setItem("manuscriptCheckLtEndpoint",document.getElementById("lt-endpoint").value);}catch(_e){}});
+  try{
+    const mode=localStorage.getItem("manuscriptCheckLtMode"),endpoint=localStorage.getItem("manuscriptCheckLtEndpoint");
+    if(mode&&/^(?:public|self)$/.test(mode))document.getElementById("lt-mode").value=mode;
+    if(endpoint)document.getElementById("lt-endpoint").value=endpoint;
+  }catch(_e){}
+  if(document.getElementById("lt-enable"))document.getElementById("lt-enable").checked=false;mcSyncLtUi();
+
+  /* ---------- fixture comparison harness ---------- */
+  window.runManuscriptHybridFixtures=async function(){
+    const fixtureText=[
+      // Verb/noun homographs and non-finite cases documented in engPresentTenseCheck.
+      "The penetration tests were performed after incubation.",
+      "The procedures were performed to analyze the samples.",
+      "The instrument can measure dissolved oxygen continuously.",
+      "The sample was analysed after filtration.",
+      // Genuine personal usage for the person checker.
+      "We analyze the samples and record the voltage after 24 h.",
+      // Known-list plus dictionary-only misspellings.
+      "The enviroment was monitored seperately during operation.",
+      // Technical terms that must remain protected from dictionary false positives.
+      "The bioelectrochemical reactor used electroconcentration and chronoamperometry.",
+      // Instrument/product/entity edge cases plus a genuine scientific abbreviation.
+      "Measurements were obtained using a Bruker D2 PHASER instrument and a BELSORP MAX II analyzer.",
+      "Fourier-transform infrared spectroscopy (FTIR) was used for characterization."
+    ].join("\n");
+    await mcEnsureCompromise(fixtureText);await mcEnsureTypo();await mcEnsureWinkNlp(fixtureText);
+    const oldPerson=legacyPerson?legacyPerson(fixtureText):[];const newPerson=window.engFindPersonUsage?window.engFindPersonUsage(fixtureText):[];
+    const oldTense=legacyTense?legacyTense(fixtureText):[];const newTense=window.engPresentTenseCheck?window.engPresentTenseCheck(fixtureText):[];
+    const oldGrammar=legacyGrammar?legacyGrammar(fixtureText,{style:"UK"},35):{grammar:[]};const newGrammar=window.engGrammarStyleCheck?window.engGrammarStyleCheck(fixtureText,{style:"UK"},35):{grammar:[]};
+    const abbrCases=["Bruker D2 PHASER","BELSORP MAX II","FTIR"].map(raw=>{
+      const sent=fixtureText.split("\n").find(x=>x.includes(raw))||raw;const idx=sent.indexOf(raw);const token=raw.split(/\s+/)[0];
+      return {case:raw,legacy:legacyAbbrClassify?legacyAbbrClassify(sent,idx,token,[]):null,hybrid:window.abbrClassifyCandidateOccurrence?window.abbrClassifyCandidateOccurrence(sent,idx,token,[]):null};
+    });
+    const results={
+      libraries:{compromise:!!MC_HYBRID.compromise,typo:!!MC_HYBRID.typo,wink:!!MC_HYBRID.wink},
+      person:{old:oldPerson.map(x=>x.word),hybrid:newPerson.map(x=>x.word)},
+      tense:{old:oldTense.map(x=>x.verb),hybrid:newTense.map(x=>x.verb)},
+      spelling:{old:oldGrammar.grammar.map(x=>x.token||x.code),hybrid:newGrammar.grammar.map(x=>x.token||x.code)},
+      abbreviations:abbrCases
+    };
+    results.disagreements={
+      person:JSON.stringify(results.person.old)!==JSON.stringify(results.person.hybrid),
+      tense:JSON.stringify(results.tense.old)!==JSON.stringify(results.tense.hybrid),
+      spelling:JSON.stringify(results.spelling.old)!==JSON.stringify(results.spelling.hybrid),
+      abbreviations:abbrCases.some(x=>JSON.stringify(x.legacy)!==JSON.stringify(x.hybrid))
+    };
+    MC_HYBRID.fixtureResults=results;console.table?.([{module:"person",changed:results.disagreements.person},{module:"tense",changed:results.disagreements.tense},{module:"spelling",changed:results.disagreements.spelling},{module:"abbreviation NER",changed:results.disagreements.abbreviations}]);return results;
+  };
+})();
+</script>
+
 </body>
 </html>
