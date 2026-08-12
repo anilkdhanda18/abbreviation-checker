@@ -124,15 +124,36 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     border-color:var(--pencil);
     box-shadow:0 0 0 2px var(--pencil-soft);
   }
+  .limit-label-row{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin:0 0 7px;
+  }
   .limit-label{
     display:block;
-    margin:0 0 7px;
+    margin:0;
     font-size:11px;
     line-height:1.25;
     font-weight:700;
     letter-spacing:.035em;
     text-transform:uppercase;
     color:var(--muted);
+  }
+  .limit-info.info-help{
+    width:17px;
+    height:17px;
+    min-width:17px;
+    margin-left:0;
+    font-size:10px;
+    line-height:1;
+    flex:0 0 17px;
+  }
+  .limit-control .auto-section-help{
+    margin:0 0 9px;
+    padding:8px 9px;
+    font-size:11.5px;
+    line-height:1.45;
   }
   .limit-input-row{
     display:flex;
@@ -172,7 +193,8 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     .readability-defaults{display:inline-block;margin-top:8px}
     .readability-grid{grid-template-columns:1fr}
     .limit-control{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
-    .limit-label{margin:0}
+    .limit-label-row{margin:0}
+    .limit-control .auto-section-help{grid-column:1 / -1;margin:8px 0 0}
   }
   .opt{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--ink);cursor:pointer}
   .opt input{width:16px;height:16px;accent-color:var(--pencil)}
@@ -330,6 +352,46 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .report-subnav-btn:hover{transform:translateY(-1px);border-color:var(--sub-accent);box-shadow:0 4px 10px -8px var(--sub-accent)}
   .report-subnav-btn.active{background:var(--sub-accent);color:#fff;border-color:var(--sub-accent);box-shadow:0 4px 12px -8px var(--sub-accent)}
   .report-subnav-btn:focus-visible{outline:2px solid var(--sub-accent);outline-offset:1px}
+
+  /* Reports with many subsections use a fixed two-row grid instead of a horizontal scroller. */
+  .report-subnav.is-two-row{
+    display:grid;
+    grid-template-columns:64px repeat(6,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(34px,auto));
+    align-items:stretch;
+    column-gap:7px;
+    row-gap:7px;
+    overflow:visible;
+    scrollbar-width:none;
+  }
+  .report-subnav.is-two-row .report-subnav-label{
+    grid-column:1;
+    grid-row:1 / span 2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 5px;
+    text-align:center;
+  }
+  .report-subnav.is-two-row .report-subnav-btn{
+    min-width:0;
+    width:100%;
+    height:100%;
+    white-space:normal;
+    text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:7px 8px;
+  }
+  @media(max-width:760px){
+    .report-subnav.is-two-row{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-rows:none;
+      grid-auto-rows:minmax(34px,auto);
+    }
+    .report-subnav.is-two-row .report-subnav-label{display:none}
+  }
 
   /* Mirror the navigation colour at the corresponding subsection heading. */
   .sec-label{scroll-margin-top:82px;border-left:3px solid transparent;padding-left:9px}
@@ -516,6 +578,82 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     .lede{text-wrap:pretty;}
   }
 
+
+  /* Shared severity / priority guidance */
+  .priority-toolbar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin:12px 0 18px;
+    padding:10px 12px;
+    border:1px solid #dfe6f0;
+    border-radius:12px;
+    background:#f8fafc;
+  }
+  .priority-toolbar-label{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-right:2px;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:#53627a;
+  }
+  .priority-btn{
+    appearance:none;
+    border:1px solid #d8e0eb;
+    background:#fff;
+    color:#45536a;
+    border-radius:999px;
+    padding:6px 10px;
+    font:inherit;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background .15s ease,border-color .15s ease,transform .15s ease,box-shadow .15s ease;
+  }
+  .priority-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px -10px rgba(25,45,80,.55)}
+  .priority-btn.active{border-color:#31589f;background:#edf3ff;color:#244a8c}
+  .priority-btn[data-priority="critical"]{border-color:#efc7c2}
+  .priority-btn[data-priority="critical"].active{background:#fff0ef;color:#a52b21;border-color:#e5a7a0}
+  .priority-btn[data-priority="review"]{border-color:#edd9aa}
+  .priority-btn[data-priority="review"].active{background:#fff8e8;color:#8a5a00;border-color:#dfbd68}
+  .priority-btn[data-priority="style"]{border-color:#cfd9ec}
+  .priority-btn[data-priority="style"].active{background:#f1f5fb;color:#425a82;border-color:#aebfdd}
+  .priority-tag{
+    display:inline-flex;
+    align-items:center;
+    margin:0 7px 0 0;
+    padding:2px 7px;
+    border-radius:999px;
+    font-size:10px;
+    line-height:1.45;
+    font-weight:800;
+    letter-spacing:.035em;
+    text-transform:uppercase;
+    vertical-align:1px;
+    white-space:nowrap;
+  }
+  .priority-tag.critical{background:#fff0ef;color:#a52b21;border:1px solid #efc7c2}
+  .priority-tag.review{background:#fff8e8;color:#8a5a00;border:1px solid #edd9aa}
+  .priority-tag.style{background:#f1f5fb;color:#425a82;border:1px solid #cfd9ec}
+  .issue.priority-hidden{display:none!important}
+  .abbr-definition-key{
+    margin:10px 0 14px;
+    padding:11px 13px;
+    border:1px solid #dfe6f0;
+    border-radius:10px;
+    background:#f8fafc;
+    color:#526077;
+    font-size:12px;
+    line-height:1.55;
+  }
+  .abbr-definition-key b{color:#26364f}
+  .unit-action{min-width:220px;color:#4e5c72;font-size:12px;line-height:1.45}
+
 </style>
 </head>
 <body>
@@ -559,29 +697,44 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       </div>
 
       <div class="readability-grid">
-        <label class="limit-control" for="sentence-max">
-          <span class="limit-label">Sentence maximum</span>
-          <span class="limit-input-row">
+        <div class="limit-control">
+          <div class="limit-label-row">
+            <label class="limit-label" for="sentence-max">Sentence maximum</label>
+            <button type="button" class="info-help inline-auto-help limit-info"
+              data-help="The maximum number of words allowed in one prose sentence before it is flagged for readability review. A sentence with exactly this many words passes; only sentences above the selected value are reported. Headings, captions, equations, tables, affiliations, and references are excluded from the sentence-length check."
+              aria-label="Explain sentence maximum" title="What does sentence maximum mean?">i</button>
+          </div>
+          <div class="limit-input-row">
             <input class="limit-input" id="sentence-max" type="number" inputmode="numeric" min="10" max="100" step="1" value="35" aria-describedby="sentence-max-hint" />
             <span class="limit-unit">words</span>
-          </span>
-        </label>
+          </div>
+        </div>
 
-        <label class="limit-control" for="paragraph-min">
-          <span class="limit-label">Paragraph minimum</span>
-          <span class="limit-input-row">
+        <div class="limit-control">
+          <div class="limit-label-row">
+            <label class="limit-label" for="paragraph-min">Paragraph minimum</label>
+            <button type="button" class="info-help inline-auto-help limit-info"
+              data-help="The lower word-count guideline for substantive body-prose paragraphs. A paragraph below this value is reviewed only when it occurs within a developed section containing multiple substantive paragraphs. Single-paragraph sections, very short sections, captions, tables, equations, references, and intentionally concise statement sections are not penalised merely for being shorter than this value."
+              aria-label="Explain paragraph minimum" title="What does paragraph minimum mean?">i</button>
+          </div>
+          <div class="limit-input-row">
             <input class="limit-input" id="paragraph-min" type="number" inputmode="numeric" min="20" max="1000" step="1" value="100" aria-describedby="paragraph-range-hint" />
             <span class="limit-unit">words</span>
-          </span>
-        </label>
+          </div>
+        </div>
 
-        <label class="limit-control" for="paragraph-max">
-          <span class="limit-label">Paragraph maximum</span>
-          <span class="limit-input-row">
+        <div class="limit-control">
+          <div class="limit-label-row">
+            <label class="limit-label" for="paragraph-max">Paragraph maximum</label>
+            <button type="button" class="info-help inline-auto-help limit-info"
+              data-help="The maximum number of words recommended for one substantive body-prose paragraph. Paragraphs above this value are flagged for readability review even when the paragraph is the only paragraph in its section. Structural content such as headings, captions, equations, tables, affiliations, and references is excluded."
+              aria-label="Explain paragraph maximum" title="What does paragraph maximum mean?">i</button>
+          </div>
+          <div class="limit-input-row">
             <input class="limit-input" id="paragraph-max" type="number" inputmode="numeric" min="20" max="1000" step="1" value="300" aria-describedby="paragraph-range-hint" />
             <span class="limit-unit">words</span>
-          </span>
-        </label>
+          </div>
+        </div>
       </div>
 
       <p class="readability-foot"><span id="sentence-max-hint">Sentence range: 10–100.</span> <span id="paragraph-range-hint">Paragraph range: 20–1000; maximum must be greater than minimum. Section-aware exclusions still apply.</span></p>
@@ -1324,6 +1477,17 @@ function unitAnalyze(text,tables){
   };
 }
 function unitStatusClass(s){return /mixed/.test(s)?"na":"y";}
+function unitStatusAction(status){
+  status=String(status||"").toLowerCase();
+  if(status==="consistent") return "No action needed.";
+  if(status.includes("format") && status.includes("precision"))
+    return "Review both notation and decimal places. Use one unit format consistently for this parameter/context, then standardise decimal places only for values that are directly comparable and reported at the same measurement resolution.";
+  if(status.includes("mixed format"))
+    return "Choose one scientifically acceptable unit notation for this parameter/context and use it consistently throughout the manuscript, unless a journal-specific convention requires otherwise.";
+  if(status.includes("mixed precision"))
+    return "Check whether these values are directly comparable and come from the same measurement/reporting context. If so, use a scientifically justified common number of decimal places; if different precision is intentional, retain it and verify the reason.";
+  return "Review this group in context before editing.";
+}
 function renderUnitReport(res){
   LAST_UNIT=res;
   setResultTabCount("unit",res?.issues?.length||0);
@@ -1362,7 +1526,8 @@ function renderUnitReport(res){
     const obs=[...r.raws.entries()].map(([u,n])=>n>1?`${u} (${n})`:u).join("; ");
     const prec=[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} dp (${n})`).join("; ")||"n/a";
     const cls=unitStatusClass(r.status);
-    return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td>${escapeHtml(prec)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td></tr>`;
+    const action=unitStatusAction(r.status);
+    return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td>${escapeHtml(prec)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td><td class="unit-action">${escapeHtml(action)}</td></tr>`;
   }).join("");
   $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger <button type="button" class="info-help" id="unit-ledger-info" aria-label="Explain the Unit Ledger" aria-expanded="false" title="What do these columns mean?">i</button></p>
   <div class="ledger-help" id="unit-ledger-help" hidden>
@@ -1373,10 +1538,11 @@ function renderUnitReport(res){
       <b>Normalized unit</b><span>The tool's internal comparison form. It is used only to recognise equivalent representations and does not mean the manuscript must be converted to that form.</span>
       <b>Precision</b><span>How many decimal places are used with this same unit/context. Example: <code>1 dp (7)</code> means seven values were reported to one decimal place.</span>
       <b>Uses</b><span>Total number of detected occurrences in that group.</span>
-      <b>Status</b><span><b>consistent</b> means one pattern is followed. <b>mixed precision</b> or <b>mixed format</b> means the same comparable unit/context is reported in more than one way and should be reviewed.</span>
+      <b>Status</b><span><b>consistent</b> means one pattern is followed. <b>mixed precision</b> means comparable values use different decimal-place patterns; check whether they have the same measurement/reporting basis and, if so, standardise to a scientifically justified common precision. <b>mixed format</b> means equivalent units are written in different notation styles; choose one acceptable form and use it consistently.</span>
+      <b>Action</b><span>Gives the practical next step. Precision should never be changed merely for appearance: first confirm that the values are directly comparable and that the chosen decimal places are supported by the measurement resolution or reporting method.</span>
     </div>
   </div>
-  <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Precision</th><th>Uses</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="7">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
+  <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Precision</th><th>Uses</th><th>Status</th><th>Action to consider</th></tr></thead><tbody>${rows||'<tr><td colspan="8">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
   bindInfoHelp("unit-report-info","unit-report-help");
   bindInfoHelp("unit-ledger-info","unit-ledger-help");
   $("unit-report").hidden=false;
@@ -1399,8 +1565,8 @@ function unitReportText(res){
     });
     L.push("");
   }
-  L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Normalized unit | Precision | Uses | Status");
-  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${[...r.precisions.keys()].sort((a,b)=>a-b).map(d=>d+" dp").join("; ")||"n/a"} | ${r.uses} | ${r.status}`));
+  L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Normalized unit | Precision | Uses | Status | Action to consider");
+  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${[...r.precisions.keys()].sort((a,b)=>a-b).map(d=>d+" dp").join("; ")||"n/a"} | ${r.uses} | ${r.status} | ${unitStatusAction(r.status)}`));
   return L.join("\n");
 }
 
@@ -5431,6 +5597,78 @@ function reportSubnavLabel(el){
   const txt=[...el.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent||"").join(" ").replace(/\s+/g," ").trim();
   return txt.replace(/\s*[·|]\s*\d+\s*$/,"").trim() || (el.textContent||"").replace(/\s+/g," ").replace(/\s*[·|]\s*\d+\s*$/,"").trim();
 }
+
+function issuePriorityInfo(issue){
+  if(!issue) return null;
+  const badge=issue.querySelector(".badge");
+  if(!badge) return null;
+  if(badge.classList.contains("err")) return {key:"critical",label:"Critical error"};
+  if(badge.classList.contains("warn")) return {key:"review",label:"Review"};
+  if(badge.classList.contains("info")) return {key:"style",label:"Style note"};
+  return null;
+}
+function enhanceReportSeverity(reportId,navId){
+  const report=$(reportId), nav=$(navId);
+  if(!report) return;
+  const old=report.querySelector(".priority-toolbar");
+  if(old) old.remove();
+
+  const issues=[...report.querySelectorAll(".issue")];
+  const counts={critical:0,review:0,style:0};
+  issues.forEach(issue=>{
+    issue.classList.remove("priority-hidden");
+    const p=issuePriorityInfo(issue);
+    if(!p) return;
+    issue.dataset.priority=p.key;
+    counts[p.key]++;
+    const msg=issue.querySelector(".body .msg");
+    if(msg && !msg.querySelector(".priority-tag")){
+      const tag=document.createElement("span");
+      tag.className=`priority-tag ${p.key}`;
+      tag.textContent=p.label;
+      tag.title=p.key==="critical"
+        ?"High-confidence problem that should normally be corrected before submission."
+        :p.key==="review"
+          ?"Potential inconsistency or substantive review item. Check the manuscript context before editing."
+          :"Lower-priority style or readability observation. It may be acceptable depending on journal style and author judgement.";
+      msg.prepend(tag);
+    }
+  });
+  const total=counts.critical+counts.review+counts.style;
+  if(!total) return;
+
+  const toolbar=document.createElement("div");
+  toolbar.className="priority-toolbar";
+  toolbar.setAttribute("role","group");
+  toolbar.setAttribute("aria-label","Filter findings by priority");
+  toolbar.innerHTML=`
+    <span class="priority-toolbar-label">Priority
+      <button type="button" class="info-help inline-auto-help"
+        data-help="Critical error = a high-confidence problem that should normally be corrected. Review = a likely inconsistency or substantive issue that needs author judgement. Style note = a lower-priority readability or presentation suggestion that may be acceptable depending on journal requirements. These labels prioritise findings; they do not change the underlying manuscript checks."
+        aria-label="Explain issue priority levels" title="What do the priority levels mean?">i</button>
+    </span>
+    <button type="button" class="priority-btn active" data-priority="all">All ${total}</button>
+    <button type="button" class="priority-btn" data-priority="critical">Critical errors ${counts.critical}</button>
+    <button type="button" class="priority-btn" data-priority="review">Review ${counts.review}</button>
+    <button type="button" class="priority-btn" data-priority="style">Style notes ${counts.style}</button>`;
+  if(nav && nav.parentNode===report) nav.insertAdjacentElement("afterend",toolbar);
+  else {
+    const sub=report.querySelector(".sub");
+    if(sub) sub.insertAdjacentElement("afterend",toolbar);
+    else report.prepend(toolbar);
+  }
+
+  const buttons=[...toolbar.querySelectorAll(".priority-btn")];
+  buttons.forEach(btn=>btn.addEventListener("click",()=>{
+    const target=btn.dataset.priority;
+    buttons.forEach(b=>b.classList.toggle("active",b===btn));
+    issues.forEach(issue=>{
+      const p=issue.dataset.priority||"";
+      issue.classList.toggle("priority-hidden",target!=="all" && p!==target);
+    });
+  }));
+}
+
 function buildReportSubnav(reportId,navId){
   const report=$(reportId), nav=$(navId);
   if(!report||!nav) return;
@@ -5458,8 +5696,9 @@ function buildReportSubnav(reportId,navId){
     el.id=id;
     items.push({el,id,label});
   });
-  if(!items.length){nav.innerHTML="";nav.hidden=true;return;}
+  if(!items.length){nav.innerHTML="";nav.hidden=true;enhanceReportSeverity(reportId,navId);return;}
   items.forEach((it,i)=>{ it.tone=String(i%6); if(it.el.classList&&it.el.classList.contains("sec-label")) it.el.dataset.tone=it.tone; });
+  nav.classList.toggle("is-two-row",items.length>7);
   nav.innerHTML=`<span class="report-subnav-label">Jump to</span>`+items.map((it,i)=>`<button type="button" class="report-subnav-btn${i===0?" active":""}" data-tone="${it.tone}" data-target="${it.id}">${escapeHtml(it.label)}</button>`).join("");
   nav.hidden=false;
   const buttons=[...nav.querySelectorAll(".report-subnav-btn")];
@@ -5478,6 +5717,7 @@ function buildReportSubnav(reportId,navId){
     items.forEach(it=>obs.observe(it.el));
     REPORT_SUBNAV_OBSERVERS.set(navId,obs);
   }
+  enhanceReportSeverity(reportId,navId);
 }
 
 /* ---------- Rendering ---------- */
@@ -5491,9 +5731,9 @@ function renderReport(r){
 
   const okCount=r.rows.filter(x=>x.status==="ok").length;
   document.getElementById("scorecard").innerHTML=[
-    {n:r.errors.length,k:"Must fix",cls:"err"},
-    {n:r.warnings.length,k:"Warnings",cls:"warn"},
-    {n:r.infos.length,k:"Suggestions",cls:""},
+    {n:r.errors.length,k:"Critical errors",cls:"err"},
+    {n:r.warnings.length,k:"Review",cls:"warn"},
+    {n:r.infos.length,k:"Style notes",cls:""},
     {n:okCount,k:"Clean",cls:"ok"}
   ].map(s=>`<div class="score ${s.cls}"><div class="n">${s.n}</div><div class="k">${s.k}</div></div>`).join("");
 
@@ -5502,9 +5742,9 @@ function renderReport(r){
   else if(r.errors.length===0){ v.className="verdict"; v.textContent="No hard errors. A few things worth reviewing below."; }
   else { v.className="verdict"; v.textContent=`${r.errors.length} issue${r.errors.length===1?"":"s"} should be fixed before submission.`; }
 
-  document.getElementById("errors-wrap").innerHTML=section("Must fix",r.errors,"err");
-  document.getElementById("warnings-wrap").innerHTML=section("Warnings",r.warnings,"warn");
-  document.getElementById("infos-wrap").innerHTML=section("Suggestions",r.infos,"info");
+  document.getElementById("errors-wrap").innerHTML=section("Critical errors",r.errors,"err");
+  document.getElementById("warnings-wrap").innerHTML=section("Review items",r.warnings,"warn");
+  document.getElementById("infos-wrap").innerHTML=section("Style notes",r.infos,"info");
   document.getElementById("ledger-wrap").innerHTML=ledger(r.rows);
   document.getElementById("std-wrap").innerHTML=
     r.standardSeen.length?`<p class="std-note"><b>Treated as standard (definition not required):</b> ${inlineHelpButton("These tokens were recognized as standard/allowed terms and were intentionally excluded from undefined-abbreviation findings. The list comes from the built-in standard registry plus any user-supplied whitelist.","Explain standard terms")} ${r.standardSeen.map(s=>`<code>${escapeHtml(s)}</code>`).join("")}</p>`:"";
@@ -5516,9 +5756,9 @@ function section(label,items,kind){
   if(!items.length) return "";
   const sym=kind==="info"?"i":"!";
   const helpMap={
-    "Must fix":"High-confidence abbreviation problems such as missing first-use definitions or use before definition. References and configured table/numeric blocks are excluded from this analysis.",
-    "Warnings":"Potential abbreviation consistency problems that should be reviewed in context before editing.",
-    "Suggestions":"Lower-severity abbreviation/style observations. These are not automatically treated as errors."
+    "Critical errors":"High-confidence abbreviation problems such as missing first-use definitions or use before definition. These should normally be corrected before submission. References and configured table/numeric blocks are excluded from this analysis.",
+    "Review items":"Potential abbreviation consistency problems that need author judgement before editing.",
+    "Style notes":"Lower-priority abbreviation/style observations. These are not automatically treated as errors."
   };
   const rows=items.map(it=>`
     <div class="issue">
@@ -5536,16 +5776,30 @@ function ledger(rows){
     const dot=`<span class="dot ${x.status}"></span>`;
     const long=x.longForm?`<span class="t-long">${escapeHtml(x.longForm)}</span>`:`<span class="t-long none">not defined</span>`;
     let def;
-    if(x.definitionSource==="list") def=`<span class="yn y">list</span>`;
-    else if(x.definitionSource==="scientific") def=x.firstUseOK?`<span class="yn y">scientific</span>`:`<span class="yn n">late scientific</span>`;
-    else if(x.definitionSource==="prose") def=x.firstUseOK?`<span class="yn y">prose</span>`:`<span class="yn n">late prose</span>`;
-    else if(x.definitionSource==="declared") def=`<span class="yn y">declared</span>`;
-    else def=x.longForm?(x.firstUseOK?`<span class="yn y">yes</span>`:`<span class="yn n">no</span>`):`<span class="yn na">—</span>`;
+    if(x.definitionSource==="list") def=`<span class="yn y" title="Defined in a recognised Abbreviations, Acronyms, Nomenclature, or Glossary list.">Defined in list</span>`;
+    else if(x.definitionSource==="scientific") def=x.firstUseOK
+      ?`<span class="yn y" title="Scientific notation or a parameter is introduced by a clear descriptor at or before its first use.">Scientific definition</span>`
+      :`<span class="yn n" title="Scientific notation or a parameter is introduced only after it has already been used.">Scientific definition later</span>`;
+    else if(x.definitionSource==="prose") def=x.firstUseOK
+      ?`<span class="yn y" title="The full form is defined in the main manuscript text at or before the abbreviation's first use.">Defined in main text</span>`
+      :`<span class="yn n" title="The abbreviation is used before its full form is defined in the main manuscript text.">Defined after first use</span>`;
+    else if(x.definitionSource==="declared") def=`<span class="yn y" title="Accepted from a recognised manuscript declaration even though a separate definition in the main text was not required.">Accepted declaration</span>`;
+    else def=x.longForm?(x.firstUseOK?`<span class="yn y" title="A valid definition was found.">yes</span>`:`<span class="yn n" title="A definition exists, but not at the required first use.">no</span>`):`<span class="yn na" title="No definition source was assigned or required for this entry.">—</span>`;
     return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${def}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("Lists each detected non-standard abbreviation or explicitly introduced scientific notation in manuscript body prose, its full form or descriptor, number of uses, and definition source. “list” means the abbreviation was defined in a recognised Abbreviations, Acronyms, Nomenclature, or Glossary section; those entries are accepted as defined. Front matter, captions, ordinary data tables, equations, citations, and References are outside the prose scan.","Explain Abbreviation Ledger")}</p>
-    <table class="ledger"><thead><tr><th>Abbrev./notation</th><th>Full form / descriptor</th><th>Uses</th><th>Definition</th></tr></thead>
-    <tbody>${body}</tbody></table>`;
+  return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("Lists each detected non-standard abbreviation or explicitly introduced scientific notation in the main manuscript text, its full form or descriptor, number of uses, and definition status. Structural content such as headings, captions, tables, equations, citations, and References is excluded from first-use abbreviation decisions.","Explain Abbreviation Ledger")}</p>
+    <div class="abbr-definition-key"><b>Definition status:</b>
+      <b>Defined in main text</b> = the full form appears at or before the abbreviation's first use;
+      <b>Defined after first use</b> = the abbreviation appears before its full form is provided and should normally be defined earlier;
+      <b>Scientific definition</b> = a scientific symbol or parameter is clearly introduced by a descriptor at or before first use;
+      <b>Scientific definition later</b> = the scientific symbol or parameter is explained only after it has already been used;
+      <b>Defined in list</b> = defined in a recognised abbreviation or nomenclature list;
+      <b>Accepted declaration</b> = accepted from a recognised manuscript declaration;
+      <b>Excluded structural content</b> = headings, captions, tables, equations, references, and similar structural material are not treated as first-use manuscript text;
+      <b>—</b> = no definition status was assigned or required.
+    </div>
+    <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Abbrev./notation</th><th>Full form / descriptor</th><th>Uses</th><th>Definition status</th></tr></thead>
+    <tbody>${body}</tbody></table></div>`;
 }
 
 /* ---------- Export ---------- */
@@ -5560,10 +5814,10 @@ function reportText(r){
   L.push(`Errors: ${r.errors.length} | Warnings: ${r.warnings.length} | Suggestions: ${r.infos.length}`);
   L.push("");
   const blk=(t,arr)=>{ if(!arr.length) return; L.push(t.toUpperCase()); arr.forEach(i=>L.push(`  - ${i.abbr&&i.abbr!=="units"?"["+i.abbr+"] ":""}${i.msg}`)); L.push(""); };
-  blk("Must fix",r.errors); blk("Warnings",r.warnings); blk("Suggestions",r.infos);
+  blk("Critical errors",r.errors); blk("Review items",r.warnings); blk("Style notes",r.infos);
   L.push("ABBREVIATION LEDGER");
-  L.push("  Abbrev | Full form | Uses | Definition");
-  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.definitionSource==="list"?"list":(x.definitionSource==="scientific"?(x.firstUseOK?"scientific":"late scientific"):(x.definitionSource==="prose"?(x.firstUseOK?"prose":"late prose"):(x.longForm?(x.firstUseOK?"yes":"no"):"-")))}`));
+  L.push("  Abbrev | Full form | Uses | Definition status");
+  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.definitionSource==="list"?"Defined in list":(x.definitionSource==="scientific"?(x.firstUseOK?"Scientific definition":"Scientific definition later"):(x.definitionSource==="prose"?(x.firstUseOK?"Defined in main text":"Defined after first use"):(x.definitionSource==="declared"?"Accepted declaration":(x.longForm?(x.firstUseOK?"Defined":"Definition found later"):"-"))))}`));
   if(r.standardSeen.length){ L.push(""); L.push("Treated as standard: "+r.standardSeen.join(", ")); }
   return L.join("\n");
 }
@@ -7296,7 +7550,7 @@ function issueHelpText(code,msg=""){
   if(code==="UNIT_PERCENT_SPACING_INCONSISTENT")
     return "Both styles, such as 25% and 25 %, are accepted individually. A finding is generated only when the manuscript mixes the two percentage-spacing conventions.";
   if(code==="UNIT_PRECISION_INCONSISTENT")
-    return "The same parameter/context with the same unit is reported using different decimal-place patterns. The tool compares only genuinely comparable values and does not force unrelated quantities to match.";
+    return "The same parameter/context with the same unit is reported using different decimal-place patterns. First verify that the values are directly comparable and reflect the same measurement/reporting resolution. If they are, use one scientifically justified number of decimal places consistently; if the difference is intentional, retain it and verify the reason rather than rounding only for appearance.";
 
   // English / grammar / style
   const englishHelp={
