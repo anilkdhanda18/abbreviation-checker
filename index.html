@@ -656,25 +656,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
 </style>
 
-<style id="hybrid-language-tools-style">
-  .lt-optin-card{
-    margin:18px 0 4px;padding:16px 18px;border:1px solid #c9d9f2;border-radius:14px;
-    background:linear-gradient(135deg,#f7faff 0%,#eef5ff 100%);box-shadow:0 8px 24px -22px rgba(28,64,120,.8)
-  }
-  .lt-optin-main{display:flex;align-items:flex-start;gap:11px}
-  .lt-optin-main input[type="checkbox"]{margin-top:4px;width:18px;height:18px;accent-color:#31589f;flex:0 0 auto}
-  .lt-optin-title{font-weight:800;color:#223b67;font-size:14px;margin:0 0 4px}
-  .lt-optin-disclosure{margin:0;color:#42546f;font-size:12px;line-height:1.5;max-width:980px}
-  .lt-config{display:grid;grid-template-columns:minmax(180px,260px) minmax(280px,1fr);gap:12px;margin-top:13px;padding-top:12px;border-top:1px solid #d6e2f4}
-  .lt-config label{display:block;font-size:11px;font-weight:800;color:#52627b;text-transform:uppercase;letter-spacing:.045em;margin-bottom:5px}
-  .lt-config select,.lt-config input{width:100%;box-sizing:border-box;border:1px solid #c7d3e4;border-radius:9px;background:#fff;padding:9px 10px;color:#26364f;font:inherit;font-size:12px}
-  .lt-config[hidden]{display:none!important}.lt-endpoint-wrap[hidden]{display:none!important}
-  .lt-mini{margin:8px 0 0;color:#65748a;font-size:11px;line-height:1.45}.lt-mini strong{color:#43536d}
-  .lt-run-status{margin:8px 0 0;font-size:11px;color:#52627b}.lt-run-status.error{color:#9c332c}.lt-run-status.ok{color:#2e6d48}
-  .hybrid-engine-note{margin:8px 0 12px;padding:9px 11px;border:1px solid #dfe6f0;border-radius:9px;background:#f8fafc;color:#5a687d;font-size:11px;line-height:1.45}
-  .lt-source-tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;border:1px solid #c8d8ef;background:#eff5ff;color:#31589f;font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-right:6px}
-  @media(max-width:720px){.lt-config{grid-template-columns:1fr}}
-</style>
 
 </head>
 <body>
@@ -683,7 +664,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <header class="masthead">
     <p class="eyebrow">Manuscript Proofing</p>
     <h1><a href="#" id="home-title-link" class="home-title-link" aria-label="Return to Manuscript Check home and start a fresh submission" title="Start a fresh manuscript check">Manuscript Check</a><span class="rule"></span></h1>
-    <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, units, English/grammar/style consistency, and figure/table/equation consistency.</p>
+    <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, units, readability and terminology consistency, and figure/table/equation consistency.</p>
   </header>
 
   <section class="card" id="input-card">
@@ -712,7 +693,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <div class="readability-head">
         <div>
           <h3 class="readability-title" id="readability-settings-title">Readability limits</h3>
-          <p class="readability-sub">Set the word-length thresholds used by the English and style checks.</p>
+          <p class="readability-sub">Set the word-length thresholds used by the readability checks.</p>
         </div>
         <span class="readability-defaults">Defaults: 35 · 100–300</span>
       </div>
@@ -761,31 +742,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <p class="readability-foot"><span id="sentence-max-hint">Sentence range: 10–100.</span> <span id="paragraph-range-hint">Paragraph range: 20–1000; maximum must be greater than minimum. Section-aware exclusions still apply.</span></p>
     </section>
 
-    <section class="lt-optin-card" id="lt-optin-card" aria-labelledby="lt-optin-title">
-      <div class="lt-optin-main">
-        <input type="checkbox" id="lt-enable" />
-        <div>
-          <label class="lt-optin-title" id="lt-optin-title" for="lt-enable">Enhanced grammar check (optional)</label>
-          <p class="lt-optin-disclosure"><b>Off by default.</b> Enabling this sends the checked manuscript prose to the selected LanguageTool server for grammar and style analysis. The public option is a third-party service; a self-hosted option sends it only to the endpoint you specify. All other manuscript checks remain local in your browser.</p>
-        </div>
-      </div>
-      <div class="lt-config" id="lt-config" hidden>
-        <div>
-          <label for="lt-mode">LanguageTool server</label>
-          <select id="lt-mode">
-            <option value="public">Public LanguageTool API</option>
-            <option value="self">Self-hosted LanguageTool</option>
-          </select>
-        </div>
-        <div class="lt-endpoint-wrap" id="lt-endpoint-wrap" hidden>
-          <label for="lt-endpoint">Self-hosted endpoint</label>
-          <input id="lt-endpoint" type="url" value="http://localhost:8081/v2/check" placeholder="https://your-server.example/v2/check" autocomplete="off" spellcheck="false" />
-        </div>
-      </div>
-      <p class="lt-mini" id="lt-data-note" hidden><strong>Data handling:</strong> the public option sends checked prose to LanguageTool's servers. The self-hosted option sends it only to the endpoint you specify. The local compromise.js, Typo.js, wink-nlp, and readability checks never transmit manuscript text.</p>
-      <p class="lt-run-status" id="lt-run-status" aria-live="polite"></p>
-    </section>
-
     <details class="adv">
       <summary>Advanced: terms treated as standard (no definition required)</summary>
       <p class="hint">One per line. Abbreviations listed here are assumed universally known and are not flagged as undefined. The default list is deliberately short. Add your own field terms (for example COD, BOD, TSS) only if your target journal accepts them without definition.</p>
@@ -810,7 +766,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <button class="rtab" data-tab="ref" role="tab" aria-selected="false" title="References"><span class="rtab-label">References</span></button>
     <button class="rtab" data-tab="num" role="tab" aria-selected="false" title="Numbers, pH and precision"><span class="rtab-label">Numbers</span></button>
     <button class="rtab" data-tab="unit" role="tab" aria-selected="false" title="Units and notation"><span class="rtab-label">Units</span></button>
-    <button class="rtab" data-tab="eng" role="tab" aria-selected="false" title="English, grammar and style"><span class="rtab-label">English</span></button>
+    <button class="rtab" data-tab="eng" role="tab" aria-selected="false" title="Readability and terminology consistency"><span class="rtab-label">English</span></button>
     <button class="rtab" data-tab="fte" role="tab" aria-selected="false" title="Figures, tables and equations"><span class="rtab-label">Figures/Tables</span></button>
   </div>
 
@@ -935,13 +891,13 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="eng" hidden>
   <section class="card" id="eng-report" hidden aria-live="polite">
-    <h2 class="help-row">English, grammar &amp; style report <button type="button" class="info-help" id="eng-report-info" aria-label="Explain the English, grammar and style report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="eng-report-help" hidden><b>How to read this report:</b> the checker combines manuscript-specific English consistency with conservative grammar and style checks. It infers the dominant US/British convention, checks third-person and tense consistency, grammar/spelling, punctuation, clarity/conciseness, terminology consistency, readability using the user-selected sentence-length maximum (default 35 words), and a section-aware user-selected paragraph-length range (default 100–300 words). The selected minimum is applied only within sufficiently developed sections, while the selected maximum remains paragraph-specific. References and affiliations are excluded. The Abstract is additionally excluded from paragraph-length checking. Context-sensitive or uncertain cases are treated as review items rather than automatic corrections.</div>
+    <h2 class="help-row">Readability &amp; terminology report <button type="button" class="info-help" id="eng-report-info" aria-label="Explain the readability and terminology report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="eng-report-help" hidden><b>How to read this report:</b> this focused module checks only four manuscript-specific items: sentence length, section-aware paragraph length, Flesch readability metrics, and terminology consistency. It does not perform grammar, spelling, punctuation, tense, pronoun/person, passive-voice, or general clarity editing. References and affiliations are excluded from the checked prose, and the Abstract is additionally excluded from paragraph-length checking.</div>
     <p class="sub" id="eng-report-sub"></p>
-    <nav class="report-subnav" id="eng-subnav" aria-label="English report sections" hidden></nav>
+    <nav class="report-subnav" id="eng-subnav" aria-label="Readability and terminology report sections" hidden></nav>
     <div id="eng-summary"></div>
     <div id="eng-findings"></div>
-    <div id="eng-ledger-wrap"></div>
-    <p class="disclaimer">This module combines manuscript-specific English consistency with conservative grammar and scientific-style checks. References and affiliations are excluded. Suggestions are intended for author review and are not automatic edits.</p>
+    <div id="eng-ledger-wrap" hidden></div>
+    <p class="disclaimer">This module intentionally avoids general grammar and language editing. It reports objective length/readability indicators and manuscript-internal terminology consistency for author review.</p>
     <div class="report-actions">
       <button class="btn btn-ghost" id="eng-download">Download report (.txt)</button>
       <button class="btn btn-ghost" id="eng-print">Print or save as PDF</button>
@@ -949,21 +905,14 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   </section>
 
   <details class="rules">
-    <summary>What the English consistency check covers</summary>
+    <summary>What the readability and terminology check covers</summary>
     <ol>
-      <li><b>Dominant convention first.</b> The checker counts diagnostic US and British spelling markers across the manuscript and establishes the majority convention only when there is sufficient evidence.</li>
-      <li><b>Contradictions only.</b> Once a dominant convention is established, only minority spellings are flagged. The report shows the conflicting word and its manuscript context.</li>
-      <li><b>References and affiliations excluded.</b> Author affiliations, addresses, and the complete reference list do not influence the inferred language convention.</li>
-      <li><b>Conservative vocabulary.</b> Ambiguous pairs such as <code>practice/practise</code>, <code>license/licence</code>, and <code>program/programme</code> are not used automatically because usage can depend on grammatical role or meaning.</li>
-      <li><b>Strict third-person check.</b> Unambiguous first-person forms such as <code>I</code>, <code>we</code>, <code>our</code>, <code>my</code>, and <code>us</code>, and second-person forms such as <code>you</code> and <code>your</code>, are flagged in manuscript prose. Every potentially personal form is interpreted from context before being flagged. This prevents technical uses such as <code>Type I</code>, a mathematical/current symbol <code>I</code>, <code>US</code> for United States, unit-like <code>us</code>, acronym-like tokens, and mining-related <code>mine</code> from being confused with first- or second-person language. This is implemented as a strict manuscript-style rule rather than a universal rule of scientific English.</li>
-      <li><b>Scientific tense check.</b> Tense is evaluated in context. Tense review is allowed for general truths, definitions, established properties, ongoing conditions, continuing limitations, and interpretations that remain valid. Tense review is flagged mainly when a sentence clearly narrates a completed manuscript-specific experimental action or observation that should normally be in past tense.</li>
-      <li><b>Paragraph length.</b> Main-text prose uses a user-selected minimum and maximum, with defaults of <b>100–300 words</b>. The selected minimum is section-aware: a short paragraph is not flagged when it is the only substantive paragraph in its local section, when the entire local section contains no more words than the selected minimum, or when it belongs to an intentionally concise component such as a Novelty or Significance statement. The selected maximum remains paragraph-specific. The Abstract, References, headings, captions, legends, notes, equations, tables, and other structural content are excluded.</li>
-      <li><b>Grammar and spelling.</b> Checks high-confidence issues such as common scientific typos, duplicated words, article misuse, clear subject–verb disagreement, redundant comparative forms, and selected commonly confused constructions.</li>
-      <li><b>Punctuation and mechanics.</b> Checks repeated punctuation, spaces before punctuation, missing spaces after commas/semicolons/colons, and unmatched brackets in prose.</li>
-      <li><b>Clarity and conciseness.</b> Flags selected wordy phrases, redundant expressions, informal contractions/phrases, sentences exceeding the user-selected maximum sentence length, repeated sentence openings, overused transition words, vague sentence-opening <code>This</code>, and limited high-confidence parallel-structure problems. The default maximum is <b>35 words</b>, and the user may set a value from 10 to 100 words before running the check.</li>
-      <li><b>Terminology consistency.</b> Detects mixed hyphenation, open/closed variants such as <code>wastewater</code>/<code>waste water</code>, and repeated technical terms with inconsistent internal capitalization.</li>
-      <li><b>Readability.</b> Passive constructions are reported as informational review items, not automatic errors. The report also gives sentence-length indicators rather than treating readability as a measure of scientific quality.</li>
-      <li><b>No forced rewriting.</b> The checker does not change the manuscript. It reports the dominant convention, flags first/second-person usage, and provides a concise revision suggestion.</li>
+      <li><b>Sentence length.</b> Prose sentences exceeding the user-selected maximum are reported for readability review. The default maximum is <b>35 words</b>, and the user may select a value from 10 to 100 words.</li>
+      <li><b>Paragraph length.</b> Main-text prose uses the user-selected minimum and maximum, with defaults of <b>100–300 words</b>. The minimum remains section-aware: a short paragraph is not flagged when it is the only substantive paragraph in its local section, when the local section contains no more words than the selected minimum, or when it belongs to an intentionally concise component such as a Novelty or Significance statement. The selected maximum remains paragraph-specific.</li>
+      <li><b>Readability metrics.</b> Flesch Reading Ease and Flesch-Kincaid Grade Level are calculated from eligible manuscript prose as descriptive indicators. They do not measure scientific quality and do not create automatic language errors.</li>
+      <li><b>Terminology consistency.</b> The checker looks for repeated scientific/technical terms used in conflicting open, closed, hyphenated, or internal-capitalization forms, such as <code>wastewater</code>/<code>waste water</code>.</li>
+      <li><b>Structural exclusions.</b> References, affiliations, headings, captions, equations, tables, citation-like structures, headers/footers, footnotes/endnotes, and other non-prose structural content are excluded where appropriate. The Abstract is additionally excluded from paragraph-length checking.</li>
+      <li><b>General English editing intentionally excluded.</b> Grammar, spelling, punctuation, tense, first/second-person usage, passive voice, generic wordiness, and general clarity/conciseness checks are not performed by this module.</li>
     </ol>
   </details>
   </div><!-- /group eng -->
@@ -1010,10 +959,10 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <span class="visitor-label">Site views:</span>
       <span class="visitor-value" id="visitor-count-value" aria-live="polite"></span>
       <button type="button" class="info-help inline-auto-help"
-        data-help="This displays the GoatCounter count recorded for the Manuscript Check website using one stable tracking path (/manuscriptchecker/). Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter. Manuscript analysis remains local by default; only the separate optional LanguageTool enhancement sends checked prose to the LanguageTool server selected by the user."
+        data-help="This displays the GoatCounter count recorded for the Manuscript Check website using one stable tracking path (/manuscriptchecker/). Uploaded manuscript files, manuscript text, filenames, analysis results, and generated reports are not sent to GoatCounter. Manuscript analysis runs locally in your browser."
         aria-label="Explain visitor count" title="What does this visitor count track?">i</button>
     </p>
-    <p class="credit-tag">Private by default: manuscript checks run locally in your browser. Only the optional LanguageTool enhancement sends checked prose to the LanguageTool server you explicitly select. Manuscript content is not sent to GoatCounter analytics.</p>
+    <p class="credit-tag">Private by design: manuscript checks run locally in your browser. Uploaded manuscript content is not sent to GoatCounter analytics or to a grammar-processing service.</p>
     <p class="legal-note">
       © 2026 Anil Dhanda ·
       <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-ND 4.0</a>
@@ -4165,7 +4114,7 @@ function englishReportText(res){
     `Paragraph-length range: ${res.paragraphMinWords||ENG_CURRENT_PARAGRAPH_MIN}–${res.paragraphMaxWords||ENG_CURRENT_PARAGRAPH_MAX} words`,
     `Paragraph-length items: ${(res.paragraphIssues||[]).length}`,
     `Prose paragraphs checked: ${res.proseParagraphs||0}`,
-    "Scope: English/grammar/style checks exclude the paper title, Keywords/Index terms, affiliations, Word page headers/footers, footnotes/endnotes, section headings, and References. Paragraph-length checking additionally excludes the Abstract and non-prose structural lines.",""
+    "Scope: readability and terminology checks exclude the paper title, Keywords/Index terms, affiliations, Word page headers/footers, footnotes/endnotes, section headings, and References. Paragraph-length checking additionally excludes the Abstract and non-prose structural lines.",""
   ];
   if(res.issues.length){
     L.push("SPELLING CONTRADICTIONS");
@@ -11250,22 +11199,21 @@ $("run").onclick=async()=>{
       renderUnitReport(unitAnalyze(text,DOCX_NUMERIC_TABLES));
     }catch(e){ console.error("unit check failed:",e); renderUnitReport({quantities:[],issues:[],ledger:[],recognized:0,unknown:0}); }
 
-    // US/British English consistency (affiliations and references excluded)
+    // Focused readability and terminology consistency check.
+    // General grammar/spelling/punctuation/tense/person/passive-voice editing is intentionally excluded.
     try{
-      status("Preparing local language tools…");
-      await mcPrepareEnglishLibraries(text);
-      status("Checking English, grammar and style…");
+      status("Checking readability and terminology consistency…");
       const engResult=engAnalyze(text,sentenceLimit,paragraphLimits);
-      if($("lt-enable")?.checked){
-        status("Running optional LanguageTool check…");
-        engResult.languageTool=await mcMaybeRunLanguageTool(text,engResult.inference);
-      }else{
-        engResult.languageTool={enabled:false,status:"off",matches:[]};
-      }
       renderEnglishReport(engResult);
     }catch(e){
-      console.error("English, grammar and style check failed:",e);
-      renderEnglishReport({inference:{style:"insufficient",label:"Insufficient evidence",share:0,confidence:"low"},issues:[],personIssues:[],tenseIssues:[],writingChecks:{grammar:[],punctuation:[],clarity:[],consistency:[],passive:[],metrics:{sentenceLengthLimit:sentenceLimit}},sentenceLengthLimit:sentenceLimit,paragraphMinWords:paragraphLimits.min,paragraphMaxWords:paragraphLimits.max,paragraphIssues:[],proseParagraphs:0,ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0});
+      console.error("Readability and terminology check failed:",e);
+      renderEnglishReport({
+        inference:{style:"not_checked",label:"Not checked",share:0,confidence:"n/a"},
+        issues:[],personIssues:[],tenseIssues:[],
+        writingChecks:{grammar:[],punctuation:[],clarity:[],consistency:[],passive:[],metrics:{sentenceLengthLimit:sentenceLimit,fleschReadingEase:null,fleschKincaidGrade:null}},
+        sentenceLengthLimit:sentenceLimit,paragraphMinWords:paragraphLimits.min,paragraphMaxWords:paragraphLimits.max,
+        paragraphIssues:[],proseParagraphs:0,ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0
+      });
     }
 
     // Figures, tables and numbered equations (Word structure preserves physical order)
@@ -11285,11 +11233,7 @@ $("run").onclick=async()=>{
 $("clear").onclick=()=>{
   resetResultTabCounts();
   currentFile=null; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null; fileInput.value=""; chip.style.display="none";
-  if($("lt-enable")) $("lt-enable").checked=false;
-  if($("lt-config")) $("lt-config").hidden=true;
-  if($("lt-data-note")) $("lt-data-note").hidden=true;
-  if($("lt-run-status")){ $("lt-run-status").textContent=""; $("lt-run-status").className="lt-run-status"; }
-  if(window.mcResetHybridCaches) window.mcResetHybridCaches();
+  if(window.mcResetWinkCache) window.mcResetWinkCache();
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
@@ -11301,7 +11245,7 @@ $("ref-print").onclick=()=>window.print();
 $("num-print").onclick=()=>window.print();
 $("unit-download").onclick=()=>{ if(!LAST_UNIT) return; const blob=new Blob([unitReportText(LAST_UNIT)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="units-notation-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("unit-print").onclick=()=>window.print();
-$("eng-download").onclick=()=>{ if(!LAST_ENG) return; const blob=new Blob([englishReportText(LAST_ENG)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="english-consistency-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
+$("eng-download").onclick=()=>{ if(!LAST_ENG) return; const blob=new Blob([englishReportText(LAST_ENG)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="readability-terminology-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("eng-print").onclick=()=>window.print();
 $("fte-download").onclick=()=>{ if(!LAST_FTE) return; const blob=new Blob([fteReportText(LAST_FTE)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="figure-table-equation-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("fte-print").onclick=()=>window.print();
@@ -12092,493 +12036,366 @@ fteAnalyze=function(blocks){
 
 </script>
 
-<script id="hybrid-language-tools-script">
-(function(){
-  /*
-    Hybrid local language support. engInferStyle is deliberately untouched.
-    Every integration is additive and falls back to the existing checker when
-    its CDN/model/dictionary is unavailable.
-  */
-  const MC_CDN={
-    compromise:"https://cdn.jsdelivr.net/npm/compromise@14.16.0/builds/compromise.js",
-    typoModule:"https://cdn.jsdelivr.net/npm/typo-js@1.3.2/+esm",
-    dictAff:"https://cdn.jsdelivr.net/npm/dictionary-en@4.0.0/index.aff",
-    dictDic:"https://cdn.jsdelivr.net/npm/dictionary-en@4.0.0/index.dic",
-    winkModule:"https://cdn.jsdelivr.net/npm/wink-nlp@2.4.0/+esm",
-    winkModel:"https://cdn.jsdelivr.net/npm/wink-eng-lite-web-model@1.8.1/+esm"
-  };
-  const MC_HYBRID=window.MC_HYBRID=window.MC_HYBRID||{
-    key:null,load:{},compromise:null,typo:null,wink:null,fixtureResults:null
-  };
 
-  function mcTextKey(text){
-    const s=String(text||""); let h=2166136261>>>0;
-    const step=Math.max(1,Math.floor(s.length/2048));
-    for(let i=0;i<s.length;i+=step){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
-    return `${s.length}:${h.toString(16)}`;
-  }
-  function mcEnsureKey(text){
-    const key=mcTextKey(text);
-    if(MC_HYBRID.key!==key){
-      MC_HYBRID.key=key; MC_HYBRID.compromise=null; MC_HYBRID.wink=null;
-      MC_HYBRID.fixtureResults=null;
-    }
-    return key;
-  }
-  window.mcResetHybridCaches=function(){
-    MC_HYBRID.key=null;MC_HYBRID.compromise=null;MC_HYBRID.wink=null;MC_HYBRID.fixtureResults=null;
-  };
+<script id="focused-english-wink-script">
+(()=>{
+  "use strict";
 
-  function mcLoadClassic(name,url,test,timeoutMs=15000){
-    if(test()) return Promise.resolve(true);
-    if(MC_HYBRID.load[name]) return MC_HYBRID.load[name];
-    MC_HYBRID.load[name]=new Promise(resolve=>{
-      const old=document.querySelector(`script[data-mc-lib="${name}"]`);
-      if(old) old.remove();
-      const el=document.createElement("script"); el.src=url; el.async=true; el.dataset.mcLib=name;
-      let done=false; const finish=ok=>{if(done)return;done=true;clearTimeout(timer);resolve(!!ok);};
-      el.onload=()=>finish(test()); el.onerror=()=>finish(false);
-      const timer=setTimeout(()=>finish(test()),timeoutMs);
-      document.head.appendChild(el);
-    }).catch(()=>false);
-    return MC_HYBRID.load[name];
-  }
-  function mcLoadModule(name,source,eventName,test,timeoutMs=18000){
-    if(test()) return Promise.resolve(true);
-    if(MC_HYBRID.load[name]) return MC_HYBRID.load[name];
-    MC_HYBRID.load[name]=new Promise(resolve=>{
-      const old=document.querySelector(`script[data-mc-lib="${name}"]`); if(old) old.remove();
-      const el=document.createElement("script");el.type="module";el.dataset.mcLib=name;el.textContent=source;
-      let done=false; const finish=ok=>{if(done)return;done=true;clearTimeout(timer);window.removeEventListener(eventName,onReady);resolve(!!ok);};
-      const onReady=()=>finish(test()); window.addEventListener(eventName,onReady,{once:true});
-      el.onerror=()=>finish(false); const timer=setTimeout(()=>finish(test()),timeoutMs);
-      document.head.appendChild(el);
-    }).catch(()=>false);
-    return MC_HYBRID.load[name];
+  /* ==========================================================
+     FOCUSED ENGLISH MODULE
+     Active checks only:
+       1. Sentence length
+       2. Paragraph length
+       3. Flesch readability metrics
+       4. Terminology consistency
+
+     General grammar/spelling/punctuation/tense/person/passive/
+     clarity editing is intentionally not executed.
+     ========================================================== */
+
+  function mcFocusedSyllables(word){
+    let original=String(word||"").toLowerCase().replace(/[^a-z]/g,"");
+    if(!original) return 0;
+    if(original.length<=3) return 1;
+    const special={
+      queue:1,science:2,scientific:4,area:3,areas:3,create:2,created:3,
+      reactor:3,urea:3,ion:2,ions:2,environment:4,environmental:5
+    };
+    if(special[original]) return special[original];
+    let w=original;
+    // Common -ed/-es endings are often not separate syllables.
+    if(w.length>4 && /(?:ed|es)$/.test(w) && !/(?:ted|ded|ses|zes|ches|shes)$/.test(w)) w=w.slice(0,-2);
+    const consonantLe=/[^aeiou]le$/.test(w);
+    // Count a final consonant+le explicitly after removing the terminal e.
+    if(/e$/.test(w)) w=w.slice(0,-1);
+    const groups=w.match(/[aeiouy]+/g);
+    let n=groups?groups.length:1;
+    if(consonantLe) n++;
+    return Math.max(1,n);
   }
 
-  function mcCompromiseBody(text){
-    try{return engPrepareText(text||"");}catch(_e){return String(text||"");}
+  function mcFocusedFleschMetrics(body,sentences){
+    const words=[];
+    (sentences||[]).forEach(s=>{
+      (String(s.text||"").match(/[A-Za-z]+(?:['’][A-Za-z]+)?/g)||[]).forEach(w=>words.push(w));
+    });
+    const wc=words.length, sc=(sentences||[]).length;
+    if(!wc||!sc) return {fleschReadingEase:null,fleschKincaidGrade:null,syllables:0};
+    const syllables=words.reduce((sum,w)=>sum+mcFocusedSyllables(w),0);
+    const ease=206.835-1.015*(wc/sc)-84.6*(syllables/wc);
+    const grade=0.39*(wc/sc)+11.8*(syllables/wc)-15.59;
+    return {
+      fleschReadingEase:Math.max(-50,Math.min(120,ease)),
+      fleschKincaidGrade:Math.max(0,grade),
+      syllables
+    };
   }
-  function mcBuildCompromiseTerms(body,doc){
-    const out=[]; let cursor=0;
-    try{
-      const json=doc.json({terms:true})||[];
-      json.forEach(sent=>{
-        (sent.terms||[]).forEach(t=>{
-          const raw=String(t.text||t.normal||"").trim(); if(!raw)return;
-          let idx=body.indexOf(raw,cursor);
-          if(idx<0){idx=body.toLowerCase().indexOf(raw.toLowerCase(),cursor);}
-          if(idx<0){idx=body.toLowerCase().indexOf(raw.toLowerCase());}
-          const tags=Array.isArray(t.tags)?t.tags:Object.keys(t.tags||{}).filter(k=>t.tags[k]);
-          out.push({text:raw,start:idx,end:idx<0?-1:idx+raw.length,tags:new Set(tags)});
-          if(idx>=0)cursor=idx+raw.length;
-        });
+
+  function mcFocusedTerminology(body,displayBody,sentences){
+    const consistency=[], seen=new Set();
+    const push=(code,index,length,msg,suggestion,token="")=>{
+      const key=`${code}:${index}:${String(token).toLowerCase()}`;
+      if(seen.has(key)) return;
+      seen.add(key);
+      consistency.push({
+        category:"Terminology consistency",severity:"info",code,index,token,msg,suggestion,
+        snippet:engContext(displayBody,index,Math.max(1,length||String(token||"").length))
       });
-    }catch(e){console.warn("Compromise token map unavailable; heuristic fallback remains active.",e);}
-    return out;
-  }
-  async function mcEnsureCompromise(text){
-    const key=mcEnsureKey(text); if(MC_HYBRID.compromise?.key===key)return MC_HYBRID.compromise;
-    const ok=await mcLoadClassic("compromise",MC_CDN.compromise,()=>typeof window.nlp==="function");
-    if(!ok)return null;
-    try{
-      const body=mcCompromiseBody(text); const doc=window.nlp(body);
-      MC_HYBRID.compromise={key,body,doc,terms:mcBuildCompromiseTerms(body,doc)};
-      return MC_HYBRID.compromise;
-    }catch(e){console.warn("compromise.js parse failed; regex fallback used.",e);return null;}
-  }
-  function mcCompromiseTermAt(index,raw){
-    const c=MC_HYBRID.compromise;if(!c)return null;
-    const r=String(raw||"").toLowerCase();
-    let hit=c.terms.find(t=>t.start>=0 && index>=t.start-1 && index<t.end+1 && (!r||t.text.toLowerCase()===r));
-    if(!hit&&r)hit=c.terms.find(t=>t.start>=0&&Math.abs(t.start-index)<=4&&t.text.toLowerCase()===r);
-    return hit||null;
+    };
+
+    const termKeys=new Set();
+    (ENG_TERM_VARIANT_GROUPS||[]).forEach(group=>{
+      const uses=[];
+      group.forEach(form=>{
+        const found=engFindPhraseAll(body,form);
+        if(found.length) uses.push({form,count:found.length,first:found[0]});
+      });
+      if(uses.length>1){
+        const key=group.map(x=>x.replace(/[\s-]/g,"")).join("|");
+        termKeys.add(key);
+        const first=uses[0].first;
+        push("TERMINOLOGY_VARIANT",first.index,first.length,
+          `The same terminology appears in multiple forms: ${uses.map(x=>`${x.form} (${x.count})`).join(", ")}.`,
+          "Choose one form consistently unless the variants intentionally have different meanings.",uses[0].form);
+      }
+    });
+
+    // Dynamic hyphenated versus closed form, e.g. long-term / longterm.
+    const hy=/\b([a-z]{3,})-([a-z]{3,})\b/gi;
+    let hm; const dynSeen=new Set();
+    while((hm=hy.exec(body))){
+      const closed=(hm[1]+hm[2]).toLowerCase();
+      if(dynSeen.has(closed)) continue;
+      dynSeen.add(closed);
+      if(termKeys.has(closed)) continue;
+      const cre=new RegExp(`\\b${engEscapeRegex(closed)}\\b`,"gi");
+      const closedUses=[...body.matchAll(cre)];
+      if(closedUses.length){
+        push("HYPHENATION_INCONSISTENT",hm.index,hm[0].length,
+          `Both "${hm[0]}" and "${closedUses[0][0]}" occur in the manuscript.`,
+          "Verify whether the same technical term should use one hyphenation convention consistently.",hm[0]);
+      }
+    }
+
+    // Internal capitalization inconsistency for repeated long terms.
+    const capMap=new Map();
+    const wordRe=/\b[\p{L}][\p{L}'’\-]{4,}\b/gu;
+    const capExclusions=new Set([
+      "figure","table","equation","section","abstract","introduction","results",
+      "discussion","conclusion","conclusions","methods","materials","references",
+      "supplementary","appendix"
+    ]);
+    const sentenceInitialPositions=new Set();
+    (sentences||[]).forEach(s=>{
+      const first=/[\p{L}][\p{L}'’\-]*/u.exec(s.text);
+      if(first) sentenceInitialPositions.add(s.index+first.index);
+    });
+    let wm;
+    while((wm=wordRe.exec(body))){
+      const raw=wm[0], low=raw.toLowerCase();
+      if(capExclusions.has(low)||raw===raw.toUpperCase()) continue;
+      const kind=/^[A-Z]/.test(raw)?"cap":"lower";
+      if(kind==="cap"){
+        if(sentenceInitialPositions.has(wm.index)) continue;
+        let j=wm.index-1;
+        while(j>=0 && /[\s"'“”‘’(\[]/.test(body[j])) j--;
+        if(j<0 || /[.!?\n]/.test(body[j])) continue;
+      }
+      const rec=capMap.get(low)||{cap:[],lower:[]};
+      rec[kind].push({raw,index:wm.index});
+      capMap.set(low,rec);
+    }
+    capMap.forEach(r=>{
+      if(r.cap.length>=2 && r.lower.length>=1){
+        const x=r.cap[0];
+        push("CAPITALIZATION_INCONSISTENT",x.index,x.raw.length,
+          `"${x.raw}" and "${r.lower[0].raw}" are used with different capitalization within body prose.`,
+          "Review whether these internal uses refer to the same technical term.",x.raw);
+      }
+    });
+    return consistency.sort((a,b)=>a.index-b.index);
   }
 
-  async function mcEnsureTypo(){
-    if(MC_HYBRID.typo?.dictionary)return MC_HYBRID.typo;
-    const moduleCode=`import Typo from "${MC_CDN.typoModule}";window.__MC_TypoCtor=(Typo&&Typo.default)||Typo;window.dispatchEvent(new Event("mc:typo-ready"));`;
-    const ok=await mcLoadModule("typo",moduleCode,"mc:typo-ready",()=>typeof window.__MC_TypoCtor==="function");
-    if(!ok)return null;
-    try{
-      const [affRes,dicRes]=await Promise.all([fetch(MC_CDN.dictAff,{cache:"force-cache"}),fetch(MC_CDN.dictDic,{cache:"force-cache"})]);
-      if(!affRes.ok||!dicRes.ok)throw new Error("dictionary download failed");
-      const [aff,dic]=await Promise.all([affRes.text(),dicRes.text()]);
-      const dictionary=new window.__MC_TypoCtor("en_US",aff,dic,{platform:"any"});
-      MC_HYBRID.typo={dictionary}; return MC_HYBRID.typo;
-    }catch(e){console.warn("Typo.js dictionary unavailable; existing typo list remains active.",e);return null;}
+  function mcFocusedWritingCheck(text,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT){
+    const limit=engNormalizeSentenceLimit(sentenceLimit);
+    const displayBody=engPrepareText(text||"");
+    const body=engGrammarBody(text||"");
+    const sentences=engReadableSentences(body);
+    const sentenceIssues=[];
+    let totalWords=0,longest=0,longCount=0,veryLong=0;
+    sentences.forEach(s=>{
+      const wc=engWordCount(s.text);
+      totalWords+=wc;
+      longest=Math.max(longest,wc);
+      if(wc>limit){
+        longCount++;
+        if(wc>65) veryLong++;
+        sentenceIssues.push({
+          category:"Sentence length",severity:wc>65?"warn":"info",code:"LONG_SENTENCE",
+          index:s.index,token:"",msg:`This sentence contains ${wc} words and exceeds the selected maximum of ${limit} words${wc>65?", which is very long":""}.`,
+          suggestion:"Consider splitting it at a logical transition if clarity improves.",
+          snippet:engContext(displayBody,s.index,Math.max(1,s.text.length)),wordCount:wc
+        });
+      }
+    });
+    const consistency=mcFocusedTerminology(body,displayBody,sentences);
+    const flesch=mcFocusedFleschMetrics(body,sentences);
+    const metrics={
+      sentences:sentences.length,words:totalWords,sourceWords:engWordCount(body),
+      averageSentenceWords:sentences.length?totalWords/sentences.length:0,
+      longestSentenceWords:longest,sentenceLengthLimit:limit,longSentences:longCount,
+      veryLongSentences:veryLong,extractionStatus:sentences.length>0?"ok":(engWordCount(body)>0?"no_sentences":"no_text"),
+      ...flesch
+    };
+    return {grammar:[],punctuation:[],clarity:sentenceIssues,consistency,passive:[],metrics};
   }
 
-  async function mcEnsureWinkNlp(text){
-    const key=mcEnsureKey(text);if(MC_HYBRID.wink?.key===key)return MC_HYBRID.wink;
-    const code=`import winkNLP from "${MC_CDN.winkModule}";import model from "${MC_CDN.winkModel}";window.__MC_WinkNLP=winkNLP(model);window.dispatchEvent(new Event("mc:wink-ready"));`;
-    const ok=await mcLoadModule("wink",code,"mc:wink-ready",()=>!!window.__MC_WinkNLP);
-    if(!ok)return null;
+  // Compatibility guards: even if an older internal path calls these legacy
+  // entry points, it receives only the focused checks. Person and tense checks
+  // are deliberately disabled rather than merely hidden from the report.
+  window.engFindPersonUsage=function(){ return []; };
+  window.engPresentTenseCheck=function(){ return []; };
+  window.engGrammarStyleCheck=function(text,_inference,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT){ return mcFocusedWritingCheck(text,sentenceLimit); };
+  window.engSafeGrammarStyleCheck=function(text,_inference,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT){ return mcFocusedWritingCheck(text,sentenceLimit); };
+
+  // Replace the active English analysis pathway with the focused four-check module.
+  window.engAnalyze=function(text,sentenceLimit=ENG_SENTENCE_LIMIT_DEFAULT,paragraphLimits=null){
+    if(paragraphLimits?.valid){
+      ENG_CURRENT_PARAGRAPH_MIN=paragraphLimits.min;
+      ENG_CURRENT_PARAGRAPH_MAX=paragraphLimits.max;
+    }
+    const engSource=(DOCX_ENGLISH_TEXT&&DOCX_ENGLISH_TEXT.trim())?DOCX_ENGLISH_TEXT:text;
+    const body=engPrepareText(engSource);
+    const writingChecks=mcFocusedWritingCheck(engSource,sentenceLimit);
+    const paragraphCheck=engParagraphLengthCheck(engSource);
+    return {
+      body,
+      inference:{style:"not_checked",label:"Not checked",share:0,confidence:"n/a"},
+      issues:[],personIssues:[],tenseIssues:[],
+      writingChecks,
+      sentenceLengthLimit:engNormalizeSentenceLimit(sentenceLimit),
+      paragraphMinWords:ENG_CURRENT_PARAGRAPH_MIN,
+      paragraphMaxWords:ENG_CURRENT_PARAGRAPH_MAX,
+      paragraphIssues:paragraphCheck.issues,
+      proseParagraphs:paragraphCheck.totalProse,
+      ledger:[],usTotal:0,ukTotal:0,usWeighted:0,ukWeighted:0,evidenceFamilies:0
+    };
+  };
+
+  function mcFocusedRenderIssues(items,emptyText){
+    if(!items.length) return `<p class="verdict clean">${escapeHtml(emptyText)}</p>`;
+    return items.slice(0,300).map(it=>{
+      const badge=it.severity==="warn"?"warn":"info";
+      return `<div class="issue"><span class="badge ${badge}">${it.severity==="warn"?"!":"i"}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`;
+    }).join("");
+  }
+
+  window.renderEnglishReport=function(res){
+    LAST_ENG=res;
+    const wc=res.writingChecks||{clarity:[],consistency:[],metrics:{}};
+    const sentenceIssues=(wc.clarity||[]).filter(x=>x.code==="LONG_SENTENCE");
+    const paraIssues=res.paragraphIssues||[];
+    const termIssues=wc.consistency||[];
+    const met=wc.metrics||{};
+    const count=sentenceIssues.length+paraIssues.length+termIssues.length;
+    setResultTabCount("eng",count);
+    $("eng-report-sub").textContent=`Sentence length, paragraph length, readability, and terminology consistency · ${count} item${count===1?"":"s"} to review`;
+
+    const ease=Number.isFinite(met.fleschReadingEase)?Number(met.fleschReadingEase).toFixed(1):"n/a";
+    const grade=Number.isFinite(met.fleschKincaidGrade)?Number(met.fleschKincaidGrade).toFixed(1):"n/a";
+    $("eng-summary").innerHTML=`<div class="scorecard">
+      <div class="score ${sentenceIssues.length?"warn":"ok"}"><div class="n">${sentenceIssues.length}</div><div class="k">Long sentences</div></div>
+      <div class="score ${paraIssues.length?"warn":"ok"}"><div class="n">${paraIssues.length}</div><div class="k">Paragraph length</div></div>
+      <div class="score ok"><div class="n" style="font-size:18px">${escapeHtml(ease)}</div><div class="k">Flesch Reading Ease</div></div>
+      <div class="score ${termIssues.length?"warn":"ok"}"><div class="n">${termIssues.length}</div><div class="k">Terminology consistency</div></div>
+    </div>`;
+
+    const sentenceLimit=engNormalizeSentenceLimit(met.sentenceLengthLimit||res.sentenceLengthLimit||ENG_SENTENCE_LIMIT_DEFAULT);
+    const paragraphMin=Number(res.paragraphMinWords||ENG_CURRENT_PARAGRAPH_MIN||ENG_PARAGRAPH_MIN_DEFAULT);
+    const paragraphMax=Number(res.paragraphMaxWords||ENG_CURRENT_PARAGRAPH_MAX||ENG_PARAGRAPH_MAX_DEFAULT);
+    let html="";
+
+    html+=`<section class="report-subsection"><p class="sec-label">Sentence length <button type="button" class="info-help inline-auto-help" data-help="Shows eligible prose sentences that exceed the user-selected ${sentenceLimit}-word maximum. Sentence length is a readability indicator, not a grammar judgment." aria-label="Explain Sentence length" title="Explain this section">i</button> · ${sentenceIssues.length}</p>`;
+    html+=mcFocusedRenderIssues(sentenceIssues,`No eligible prose sentence exceeded the selected ${sentenceLimit}-word maximum.`)+`</section>`;
+
+    html+=`<section class="report-subsection"><p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks main-text BODY_PROSE using the selected ${paragraphMin}–${paragraphMax}-word range. The minimum is section-aware and is suppressed for single-paragraph or intentionally concise sections; the maximum remains paragraph-specific." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
+    if(paraIssues.length){
+      html+=paraIssues.slice(0,300).map(it=>`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`).join("");
+    }else html+=`<p class="verdict clean">No paragraph-length issues were detected among ${res.proseParagraphs||0} eligible main-text prose paragraphs after section-aware minimum-length exemptions.</p>`;
+    html+=`</section>`;
+
+    html+=`<section class="report-subsection"><p class="sec-label">Readability <button type="button" class="info-help inline-auto-help" data-help="Shows descriptive Flesch Reading Ease and Flesch-Kincaid Grade Level together with basic sentence statistics. These scores do not measure scientific quality and are not treated as automatic errors." aria-label="Explain Readability" title="Explain this section">i</button></p><div class="ledger-help"><div class="ledger-help-grid">
+      <b>Prose words analysed</b><span>${met.words||0}</span>
+      <b>Sentences checked</b><span>${met.sentences||0}</span>
+      <b>Average sentence length</b><span>${Number(met.averageSentenceWords||0).toFixed(1)} words</span>
+      <b>Longest sentence</b><span>${met.longestSentenceWords||0} words</span>
+      <b>Flesch Reading Ease</b><span>${escapeHtml(ease)}</span>
+      <b>Flesch-Kincaid grade level</b><span>${escapeHtml(grade)}</span>
+    </div></div>`;
+    if((met.sentences||0)===0&&(met.sourceWords||0)>0) html+=`<p class="verdict"><b>Sentence extraction warning:</b> manuscript prose was detected, but sentence boundaries could not be resolved reliably for this run.</p>`;
+    else html+=`<p class="verdict clean">Readability scores are descriptive only. Interpret them alongside the technical complexity and intended readership of the manuscript.</p>`;
+    html+=`</section>`;
+
+    html+=`<section class="report-subsection"><p class="sec-label">Terminology consistency <button type="button" class="info-help inline-auto-help" data-help="Checks repeated technical terms for conflicting open, closed, hyphenated, or internal-capitalization forms within eligible body prose. It does not perform general spelling correction." aria-label="Explain Terminology consistency" title="Explain this section">i</button> · ${termIssues.length}</p>`;
+    html+=mcFocusedRenderIssues(termIssues,"No targeted terminology-consistency conflicts were detected in eligible body prose.")+`</section>`;
+
+    $("eng-findings").innerHTML=html;
+    $("eng-ledger-wrap").innerHTML="";
+    $("eng-ledger-wrap").hidden=true;
+    bindInfoHelp("eng-report-info","eng-report-help");
+    $("eng-report").hidden=false;
+    buildReportSubnav("eng-report","eng-subnav");
+    try{enhanceReportSeverity("eng-report","eng-subnav");}catch(_e){}
+  };
+
+  window.englishReportText=function(res){
+    const wc=res.writingChecks||{clarity:[],consistency:[],metrics:{}};
+    const sentenceIssues=(wc.clarity||[]).filter(x=>x.code==="LONG_SENTENCE");
+    const paraIssues=res.paragraphIssues||[];
+    const termIssues=wc.consistency||[];
+    const m=wc.metrics||{};
+    const L=[
+      "READABILITY & TERMINOLOGY REPORT","",
+      `Sentence-length maximum: ${engNormalizeSentenceLimit(m.sentenceLengthLimit||res.sentenceLengthLimit||ENG_SENTENCE_LIMIT_DEFAULT)} words`,
+      `Long-sentence items: ${sentenceIssues.length}`,
+      `Paragraph-length range: ${res.paragraphMinWords||ENG_CURRENT_PARAGRAPH_MIN}–${res.paragraphMaxWords||ENG_CURRENT_PARAGRAPH_MAX} words`,
+      `Paragraph-length items: ${paraIssues.length}`,
+      `Prose paragraphs checked: ${res.proseParagraphs||0}`,
+      `Terminology-consistency items: ${termIssues.length}`,
+      `Flesch Reading Ease: ${Number.isFinite(m.fleschReadingEase)?Number(m.fleschReadingEase).toFixed(1):"n/a"}`,
+      `Flesch-Kincaid grade level: ${Number.isFinite(m.fleschKincaidGrade)?Number(m.fleschKincaidGrade).toFixed(1):"n/a"}`,
+      ""
+    ];
+    if(sentenceIssues.length){L.push("SENTENCE LENGTH");sentenceIssues.forEach(i=>{L.push(`${i.code} | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
+    if(paraIssues.length){L.push("PARAGRAPH LENGTH");paraIssues.forEach(i=>{L.push(`Paragraph ${i.paragraph} | ${i.wordCount} words | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
+    L.push("READABILITY",`Prose words analysed: ${m.words||0}`,`Sentences checked: ${m.sentences||0}`,`Average sentence length: ${Number(m.averageSentenceWords||0).toFixed(1)} words`,`Longest sentence: ${m.longestSentenceWords||0} words`,"");
+    if(termIssues.length){L.push("TERMINOLOGY CONSISTENCY");termIssues.forEach(i=>{L.push(`${i.code} | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
+    L.push("General grammar, spelling, punctuation, tense, pronoun/person, passive-voice, and generic clarity editing are intentionally outside this module.");
+    return L.join("\n");
+  };
+
+  /* ==========================================================
+     WINK-NLP SUPPORT FOR ABBREVIATION CLASSIFICATION ONLY
+     Fully local manuscript processing. The library code itself
+     is fetched lazily from a CDN on first abbreviation analysis.
+     Existing abbreviation heuristics remain the fallback.
+     ========================================================== */
+  const MC_WINK=window.MC_WINK=window.MC_WINK||{key:null,cache:null,load:null};
+  const WINK_NLP_URL="https://cdn.jsdelivr.net/npm/wink-nlp@2.4.0/+esm";
+  const WINK_MODEL_URL="https://cdn.jsdelivr.net/npm/wink-eng-lite-web-model@1.8.1/+esm";
+  function mcWinkKey(text){
+    const s=String(text||"");let h=2166136261;
+    for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+    return `${s.length}:${h>>>0}`;
+  }
+  async function mcLoadWink(){
+    if(window.__MC_WinkNLP) return true;
+    if(MC_WINK.load) return MC_WINK.load;
+    MC_WINK.load=new Promise(resolve=>{
+      const script=document.createElement("script");script.type="module";
+      script.textContent=`import winkNLP from "${WINK_NLP_URL}";import model from "${WINK_MODEL_URL}";window.__MC_WinkNLP=winkNLP(model);window.dispatchEvent(new Event("mc:wink-ready"));`;
+      const timer=setTimeout(()=>resolve(false),12000);
+      const done=()=>{clearTimeout(timer);resolve(!!window.__MC_WinkNLP);};
+      window.addEventListener("mc:wink-ready",done,{once:true});
+      script.onerror=()=>{clearTimeout(timer);resolve(false);};
+      document.head.appendChild(script);
+    });
+    return MC_WINK.load;
+  }
+  window.mcEnsureWinkNlp=async function(text){
+    const key=mcWinkKey(text);
+    if(MC_WINK.cache?.key===key) return MC_WINK.cache;
+    const ok=await mcLoadWink();
+    if(!ok) return null;
     try{
-      const body=String(text||""); const nlp=window.__MC_WinkNLP; const doc=nlp.readDoc(body); const its=nlp.its;
+      const body=String(text||""),nlp=window.__MC_WinkNLP,doc=nlp.readDoc(body),its=nlp.its;
       let details=[];try{details=doc.entities().out(its.detail)||[];}catch(_e){}
       const entities=(details||[]).map(e=>({value:String(e.value||e.text||"").trim(),type:String(e.type||"")})).filter(e=>e.value);
-      MC_HYBRID.wink={key,body,doc,nlp,entities};return MC_HYBRID.wink;
+      MC_WINK.cache={key,body,doc,nlp,entities};return MC_WINK.cache;
     }catch(e){console.warn("wink-nlp parse failed; abbreviation heuristics remain active.",e);return null;}
-  }
-  window.mcEnsureWinkNlp=mcEnsureWinkNlp;
-  window.mcPrepareEnglishLibraries=async function(text){
-    mcEnsureKey(text);
-    const settled=await Promise.allSettled([mcEnsureCompromise(text),mcEnsureTypo()]);
-    return {compromise:settled[0]?.value||null,typo:settled[1]?.value||null};
   };
+  window.mcResetWinkCache=function(){MC_WINK.key=null;MC_WINK.cache=null;};
 
-  /* ---------- compromise-assisted person and tense filtering ---------- */
-  const legacyPerson=window.engFindPersonUsage;
-  if(typeof legacyPerson==="function"){
-    window.engFindPersonUsage=function(text){
-      const old=legacyPerson(text)||[]; const cache=MC_HYBRID.compromise;
-      if(!cache)return old;
-      const filtered=old.filter(it=>{
-        const term=mcCompromiseTermAt(it.index,it.word);
-        if(!term)return true;
-        if(term.tags.has("Pronoun"))return true;
-        if(term.tags.has("Noun")||term.tags.has("Value")||term.tags.has("RomanNumeral"))return false;
-        return true;
-      });
-      const seen=new Set(filtered.map(x=>`${x.index}:${String(x.word).toLowerCase()}`));
-      const target=new Set(["i","we","us","our","ours","ourselves","you","your","yours","yourself","yourselves"]);
-      cache.terms.forEach(t=>{
-        const low=t.text.toLowerCase(); if(!target.has(low)||!t.tags.has("Pronoun")||t.start<0)return;
-        const k=`${t.start}:${low}`;if(seen.has(k))return;
-        let sense="uncertain";try{sense=engPersonSense({word:t.text},cache.body,t.start,t.text.length);}catch(_e){}
-        // Compromise is an additional grammatical signal, not an override. Add a
-        // new finding only when the existing context-aware classifier also says
-        // the occurrence is genuinely personal. This protects scientific uses
-        // such as Type I, current I, uppercase WE/US, and mining uses of “mine”.
-        if(sense!=="pronoun")return;
-        filtered.push({word:t.text,index:t.start,snippet:engContext(cache.body,t.start,t.text.length),msg:`First- or second-person pronoun "${t.text}" detected in manuscript prose.`,suggestion:"If the target journal requires third-person style, revise the sentence without changing its scientific meaning.",source:"compromise"});
-        seen.add(k);
-      });
-      return filtered.sort((a,b)=>a.index-b.index);
-    };
-  }
-  const legacyTense=window.engPresentTenseCheck;
-  if(typeof legacyTense==="function"){
-    window.engPresentTenseCheck=function(text){
-      const old=legacyTense(text)||[]; if(!MC_HYBRID.compromise)return old;
-      return old.filter(it=>{
-        const term=mcCompromiseTermAt(it.index,it.verb);
-        if(!term)return true;
-        const tags=term.tags;
-        if(tags.has("Noun")&&!tags.has("Verb"))return false;
-        if((tags.has("Infinitive")||tags.has("Gerund"))&&!tags.has("PresentTense"))return false;
-        return tags.has("Verb")||tags.has("PresentTense")||(!tags.has("Noun"));
-      });
-    };
-  }
-
-  /* ---------- wink-nlp as an additional abbreviation entity signal ---------- */
   const legacyAbbrClassify=window.abbrClassifyCandidateOccurrence;
   if(typeof legacyAbbrClassify==="function"){
     window.abbrClassifyCandidateOccurrence=function(sent,index,raw,protectedSpans){
       const base=legacyAbbrClassify(sent,index,raw,protectedSpans);
-      if(!base||base.kind!=="technical_abbreviation"||!MC_HYBRID.wink)return base;
+      const cache=MC_WINK.cache;
+      if(!base||base.kind!=="technical_abbreviation"||!cache) return base;
       try{
-        if(typeof abbrExplicitDefinitionEvidence==="function"&&abbrExplicitDefinitionEvidence(sent,index,raw))return base;
-        const lo=String(sent||"").toLowerCase();const r=String(raw||"").toLowerCase();
-        const entity=MC_HYBRID.wink.entities.find(e=>{
-          const v=e.value.toLowerCase();if(!v||v===r||!v.includes(r)||!lo.includes(v))return false;
-          const type=e.type.toUpperCase();return /ORG|ORGANIZATION|PERSON|LOCATION|PLACE|PRODUCT|FACILITY|EVENT|WORK/.test(type)||e.value.split(/\s+/).length>=2;
+        if(typeof abbrExplicitDefinitionEvidence==="function"&&abbrExplicitDefinitionEvidence(sent,index,raw)) return base;
+        const lo=String(sent||"").toLowerCase(),r=String(raw||"").toLowerCase();
+        const entity=cache.entities.find(e=>{
+          const v=e.value.toLowerCase();
+          if(!v||v===r||!v.includes(r)||!lo.includes(v)) return false;
+          const type=e.type.toUpperCase();
+          return /ORG|ORGANIZATION|PERSON|LOCATION|PLACE|PRODUCT|FACILITY|EVENT|WORK/.test(type)||e.value.split(/\s+/).length>=2;
         });
-        if(entity){return {kind:"named_entity",confidence:"supporting",entityType:entity.type,entity:entity.value};}
+        if(entity) return {kind:"named_entity",confidence:"supporting",entityType:entity.type,entity:entity.value};
       }catch(_e){}
       return base;
     };
   }
-
-  /* ---------- dictionary spell checking ---------- */
-  function mcLevenshtein(a,b){
-    a=a.toLowerCase();b=b.toLowerCase();const prev=Array.from({length:b.length+1},(_,i)=>i);
-    for(let i=1;i<=a.length;i++){let last=prev[0];prev[0]=i;for(let j=1;j<=b.length;j++){const old=prev[j];prev[j]=Math.min(prev[j]+1,prev[j-1]+1,last+(a[i-1]===b[j-1]?0:1));last=old;}}
-    return prev[b.length];
-  }
-  function mcScientificWhitelist(){
-    const set=new Set([
-      "wastewater","bioelectrochemical","electroconcentration","physicochemical","electrochemical","photocatalytic","microplastic","microplastics","nanoparticle","nanoparticles","nanocomposite","nanocomposites","adsorbent","adsorbents","catholyte","anolyte","biofilm","biofilms","electrocatalyst","electrocatalysts","electrocatalytic","chronoamperometry","voltammogram","voltammograms","voltammetry","spectroscopy","spectrometric","chromatographic","isotherm","isotherms","kinetics","stoichiometric","stoichiometry","mineralisation","mineralization","valorisation","valorization","characterisation","characterization","optimisation","optimization","anaerobic","aerobic","ammoniacal","leachate","digestate","supernatant","filtrate","permeate","retentate","biomass","epibenthic","geomorphic"
-    ]);
-    try{
-      (ENG_VARIANTS||[]).forEach(f=>{
-        const groups=f.forms||f.pairs||[];
-        groups.forEach(pair=>{
-          (Array.isArray(pair)?pair:[pair]).forEach(x=>{if(x)set.add(String(x).toLowerCase());});
-        });
-        if(f.us)set.add(String(f.us).toLowerCase());
-        if(f.uk)set.add(String(f.uk).toLowerCase());
-      });
-    }catch(_e){}
-    try{DECLARED_ABBRS.forEach(x=>set.add(String(x).toLowerCase()));}catch(_e){}
-    try{DECLARED_ABBR_MAP.forEach((rec,key)=>{set.add(String(key).toLowerCase());String(rec?.long||"").match(/[\p{L}][\p{L}'’\-]{2,}/gu)?.forEach(w=>set.add(w.toLowerCase()));});}catch(_e){}
-    try{(LAST?.rows||[]).forEach(r=>{set.add(String(r.base||"").toLowerCase());String(r.longForm||"").match(/[\p{L}][\p{L}'’\-]{2,}/gu)?.forEach(w=>set.add(w.toLowerCase()));});}catch(_e){}
-    return set;
-  }
-  function mcDictionarySpellIssues(text,existing=[]){
-    const dict=MC_HYBRID.typo?.dictionary;if(!dict)return [];
-    let body;try{body=engGrammarBody(text);}catch(_e){body=String(text||"");}
-    const whitelist=mcScientificWhitelist();const out=[];const seen=new Set();
-    const oldTokens=new Set((existing||[]).map(x=>String(x.token||"").toLowerCase()).filter(Boolean));
-    const sents=engReadableSentences(body);
-    sents.forEach(s=>{
-      const re=/\b[\p{L}][\p{L}'’\-]{2,}\b/gu;let m;
-      while((m=re.exec(s.text))){
-        const raw=m[0],low=raw.toLowerCase(),idx=s.index+m.index;
-        if(raw.length<4||whitelist.has(low)||oldTokens.has(low))continue;
-        if(/[A-Z].*[A-Z]/.test(raw)||/[\d_]/.test(raw)||raw.includes("-")||(/[A-Z]/.test(raw[0])&&m.index>0))continue;
-        if(/^(?:doi|et|al|fig|eqn|ibid|versus)$/i.test(raw))continue;
-        let ok=false;try{ok=dict.check(raw)||dict.check(low);}catch(_e){return;}
-        if(ok)continue;
-        let sug=[];try{sug=(dict.suggest(low,5)||[]).filter(Boolean);}catch(_e){}
-        if(!sug.length)continue;
-        const best=sug.map(x=>({x,d:mcLevenshtein(low,String(x).toLowerCase())})).sort((a,b)=>a.d-b.d)[0];
-        const maxD=raw.length<=7?1:raw.length<=12?2:3;if(!best||best.d>maxD)continue;
-        const key=`${idx}:${low}`;if(seen.has(key))continue;seen.add(key);
-        out.push({category:"Grammar & spelling",severity:"warn",code:"DICTIONARY_SPELLING",index:idx,token:raw,msg:`Dictionary spell-check did not recognise "${raw}".`,suggestion:`Check the spelling. A possible correction is "${best.x}". Keep the original if it is an intentional technical or proper term.`,snippet:engContext(body,idx,raw.length),source:"Typo.js"});
-      }
-    });
-    return out.slice(0,250);
-  }
-
-  /* ---------- local Flesch / Flesch-Kincaid ---------- */
-  function mcSyllables(word){
-    let w=String(word||"").toLowerCase().replace(/[^a-z]/g,"");if(!w)return 0;if(w.length<=3)return 1;
-    const special={queue:1,science:2,scientific:4,ion:2,ions:2,area:3,areas:3,create:2,created:3,reactor:3,urea:3};if(special[w])return special[w];
-    w=w.replace(/(?:es|ed)$/,(m,off,str)=>/(?:ted|ded|ses|zes|ches|shes)$/.test(str)?m:"");
-    w=w.replace(/e$/,"x");
-    const groups=w.match(/[aeiouy]+/g);let n=groups?groups.length:1;
-    if(/[^aeiou]le$/.test(word.toLowerCase()))n++;
-    return Math.max(1,n);
-  }
-  function mcFleschMetrics(text){
-    let body;try{body=engGrammarBody(text);}catch(_e){body=String(text||"");}
-    const sents=engReadableSentences(body);const words=[];
-    sents.forEach(s=>{(s.text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?/g)||[]).forEach(w=>words.push(w));});
-    const wc=words.length,sc=sents.length;if(!wc||!sc)return {fleschReadingEase:null,fleschKincaidGrade:null,syllables:0};
-    const syll=words.reduce((a,w)=>a+mcSyllables(w),0);
-    const ease=206.835-1.015*(wc/sc)-84.6*(syll/wc);
-    const grade=.39*(wc/sc)+11.8*(syll/wc)-15.59;
-    return {fleschReadingEase:Math.max(-50,Math.min(120,ease)),fleschKincaidGrade:Math.max(0,grade),syllables:syll};
-  }
-
-  /* ---------- passive voice ---------- */
-  function mcPassiveVoiceCheck(text){
-    let body;try{body=engPrepareText(text);}catch(_e){body=String(text||"");}
-    const out=[],seen=new Set(),terms=MC_HYBRID.compromise?.terms||[];
-    if(terms.length){
-      const be=new Set(["am","is","are","was","were","be","been","being"]);
-      for(let i=0;i<terms.length;i++){
-        const a=terms[i];if(a.start<0||!be.has(a.text.toLowerCase()))continue;
-        for(let j=i+1;j<=Math.min(i+3,terms.length-1);j++){
-          const b=terms[j];if(b.start<0)continue;
-          const gap=body.slice(a.end,b.start);if(/[.!?;\n]/.test(gap))break;
-          const tags=b.tags;
-          if(tags.has("Adverb"))continue;
-          const likelyParticiple=tags.has("PastTense")||tags.has("Participle")||/(?:ed|en)$/i.test(b.text)||/^(?:known|shown|given|found|made|used|seen|done|built|held|taken|written|grown)$/i.test(b.text);
-          if(!likelyParticiple)break;
-          const phrase=body.slice(a.start,b.end);const key=`${a.start}:${phrase.toLowerCase()}`;if(seen.has(key))break;seen.add(key);
-          out.push({category:"Passive voice",severity:"info",code:"PASSIVE_VOICE",index:a.start,token:phrase,msg:`Passive construction "${phrase}" detected.`,suggestion:"Passive voice is acceptable in scientific writing. Review only if active voice would make the actor or action clearer.",snippet:engContext(body,a.start,phrase.length),source:"compromise"});break;
-        }
-      }
-    }else{
-      const re=/\b(?:am|is|are|was|were|be|been|being)\s+(?:\w+ly\s+)?(?:[a-z]{3,}ed|known|shown|given|found|made|used|seen|done|built|held|taken|written|grown)\b/gi;let m;
-      while((m=re.exec(body)))out.push({category:"Passive voice",severity:"info",code:"PASSIVE_VOICE",index:m.index,token:m[0],msg:`Passive construction "${m[0]}" detected.`,suggestion:"Passive voice is acceptable in scientific writing. Review only if active voice would make the actor or action clearer.",snippet:engContext(body,m.index,m[0].length),source:"fallback"});
-    }
-    return out.slice(0,200);
-  }
-
-  const legacyGrammar=window.engGrammarStyleCheck;
-  if(typeof legacyGrammar==="function"){
-    window.engGrammarStyleCheck=function(text,inference,sentenceLimit){
-      const res=legacyGrammar(text,inference,sentenceLimit);
-      try{res.grammar.push(...mcDictionarySpellIssues(text,res.grammar));}catch(e){console.warn("Dictionary spell extension failed; legacy spelling checks preserved.",e);}
-      try{res.passive=mcPassiveVoiceCheck(text);}catch(e){res.passive=res.passive||[];}
-      try{Object.assign(res.metrics||{},mcFleschMetrics(text));}catch(_e){}
-      res.hybridEngines={compromise:!!MC_HYBRID.compromise,typo:!!MC_HYBRID.typo,wink:!!MC_HYBRID.wink};
-      return res;
-    };
-  }
-  const legacyFallback=window.engReadabilityFallback;
-  if(typeof legacyFallback==="function"){
-    window.engReadabilityFallback=function(text,errorMessage,sentenceLimit){
-      const res=legacyFallback(text,errorMessage,sentenceLimit);try{Object.assign(res.metrics||{},mcFleschMetrics(text));}catch(_e){};try{res.passive=mcPassiveVoiceCheck(text);}catch(_e){};return res;
-    };
-  }
-
-  /* ---------- LanguageTool, explicit opt-in only ---------- */
-  function mcLtSetStatus(text,kind=""){
-    const el=document.getElementById("lt-run-status");if(!el)return;el.textContent=text||"";el.className="lt-run-status"+(kind?` ${kind}`:"");
-  }
-  function mcLtEndpoint(){
-    const mode=document.getElementById("lt-mode")?.value||"public";
-    if(mode==="public")return {mode,url:"https://api.languagetool.org/v2/check",public:true};
-    let url=(document.getElementById("lt-endpoint")?.value||"").trim();if(!url)throw new Error("Enter the self-hosted LanguageTool endpoint.");
-    if(!/^https?:\/\//i.test(url))throw new Error("The self-hosted LanguageTool endpoint must start with http:// or https://.");
-    url=url.replace(/\/+$/,"");if(/\/v2$/i.test(url))url+="/check";else if(!/\/v2\/check$/i.test(url))url+="/v2/check";
-    return {mode,url,public:false};
-  }
-  function mcLtProse(text){
-    let prepared;try{prepared=engPrepareText(text);}catch(_e){prepared=String(text||"");}
-    const sents=engReadableSentences(prepared);return sents.map(x=>x.text).join("\n");
-  }
-  function mcChunkText(text,maxChars,maxTotal){
-    const source=String(text||"").slice(0,maxTotal);const chunks=[];let cur="";
-    source.split(/\n+/).forEach(p=>{
-      if(p.length>maxChars){
-        if(cur){chunks.push(cur);cur="";}
-        for(let i=0;i<p.length;i+=maxChars)chunks.push(p.slice(i,i+maxChars));
-      }else if((cur?cur.length+1:0)+p.length>maxChars){chunks.push(cur);cur=p;}else cur+=(cur?"\n":"")+p;
-    });if(cur)chunks.push(cur);return {chunks,truncated:String(text||"").length>source.length,checkedChars:source.length};
-  }
-  async function mcLtPost(url,params,timeoutMs=22000){
-    const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),timeoutMs);
-    try{
-      const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:new URLSearchParams(params).toString(),signal:ctrl.signal});
-      if(!r.ok){const err=new Error(r.status===429?"LanguageTool rate limit reached.":`LanguageTool returned HTTP ${r.status}.`);err.status=r.status;throw err;}
-      return await r.json();
-    }finally{clearTimeout(timer);}
-  }
-  window.mcMaybeRunLanguageTool=async function(text,inference){
-    if(!document.getElementById("lt-enable")?.checked)return {enabled:false,status:"off",matches:[]};
-    let ep;try{ep=mcLtEndpoint();}catch(e){mcLtSetStatus(e.message,"error");return {enabled:true,status:"failed",matches:[],message:e.message};}
-    const prose=mcLtProse((DOCX_ENGLISH_TEXT&&DOCX_ENGLISH_TEXT.trim())?DOCX_ENGLISH_TEXT:text);
-    if(!prose.trim()){const m="No eligible English prose was available for LanguageTool.";mcLtSetStatus(m,"error");return {enabled:true,status:"failed",matches:[],message:m,endpoint:ep.url};}
-    const maxReq=ep.public?18500:40000,maxTotal=ep.public?72000:240000;
-    const {chunks,truncated,checkedChars}=mcChunkText(prose,maxReq,maxTotal);const matches=[];
-    const lang=inference?.style==="UK"?"en-GB":inference?.style==="US"?"en-US":"auto";
-    try{
-      for(const chunk of chunks){
-        const params={text:chunk,language:lang};if(lang==="auto")params.preferredVariants="en-GB,en-US";
-        const data=await mcLtPost(ep.url,params);(data.matches||[]).forEach(m=>matches.push(m));
-      }
-      const note=truncated?` LanguageTool checked the first ${checkedChars.toLocaleString()} prose characters for this run because the selected endpoint has practical request limits.`:"";
-      mcLtSetStatus(`LanguageTool completed: ${matches.length} suggestion${matches.length===1?"":"s"}.${note}`,"ok");
-      return {enabled:true,status:"ok",matches,endpoint:ep.url,mode:ep.mode,public:ep.public,checkedChars,totalChars:prose.length,truncated,note};
-    }catch(e){
-      const msg=e?.name==="AbortError"?"LanguageTool timed out; local manuscript checks completed normally.":`${e.message||"LanguageTool could not be reached."} Local manuscript checks completed normally.`;
-      mcLtSetStatus(msg,"error");return {enabled:true,status:"failed",matches:[],endpoint:ep.url,mode:ep.mode,public:ep.public,message:msg};
-    }
-  };
-
-  function mcLtContext(match){
-    const c=match?.context||{};const t=String(c.text||match?.sentence||"");const o=Math.max(0,Number(c.offset||0)),l=Math.max(1,Number(c.length||match?.length||1));
-    return escapeHtml(t.slice(0,o))+"<mark>"+escapeHtml(t.slice(o,o+l))+"</mark>"+escapeHtml(t.slice(o+l));
-  }
-  function mcInsertBeforeLabel(root,labelText,node){
-    const target=[...root.querySelectorAll(".sec-label")].find(x=>reportSubnavLabel(x)===labelText);if(target)target.insertAdjacentElement("beforebegin",node);else root.appendChild(node);
-  }
-  const legacyRenderEnglish=window.renderEnglishReport;
-  if(typeof legacyRenderEnglish==="function"){
-    window.renderEnglishReport=function(res){
-      legacyRenderEnglish(res);
-      const root=document.getElementById("eng-findings");if(!root)return;
-      const wc=res.writingChecks||{};const met=wc.metrics||{};
-      const grid=root.querySelector(".ledger-help-grid");
-      if(grid&&Number.isFinite(met.fleschKincaidGrade)){
-        grid.insertAdjacentHTML("beforeend",`<b>Flesch Reading Ease</b><span>${Number(met.fleschReadingEase).toFixed(1)}</span><b>Flesch-Kincaid grade level</b><span>${Number(met.fleschKincaidGrade).toFixed(1)}</span>`);
-      }
-      const passive=document.createElement("section");passive.className="report-subsection";
-      const pitems=wc.passive||[];
-      passive.innerHTML=`<p class="sec-label">Passive voice <button type="button" class="info-help inline-auto-help" data-help="Detects likely passive constructions as a style note. Passive voice is acceptable in scientific writing; review only when active voice would improve clarity or identify the actor." aria-label="Explain Passive voice" title="Explain this section">i</button> · ${pitems.length}</p>`+
-        (pitems.length?pitems.map(it=>`<div class="issue"><span class="badge info">i</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`).join(""):`<p class="verdict clean">No clear passive constructions were detected in the checked prose.</p>`);
-      mcInsertBeforeLabel(root,"Readability",passive);
-
-      const lt=res.languageTool;
-      if(lt?.enabled){
-        const sec=document.createElement("section");sec.className="report-subsection";
-        let html=`<p class="sec-label">LanguageTool enhancement <button type="button" class="info-help inline-auto-help" data-help="Optional server-based grammar/style results. This section appears only when the separate LanguageTool opt-in was enabled for the run." aria-label="Explain LanguageTool enhancement" title="Explain this section">i</button>${lt.status==="ok"?` · ${lt.matches.length}`:""}</p>`;
-        if(lt.status!=="ok")html+=`<p class="verdict"><b>LanguageTool unavailable for this run:</b> ${escapeHtml(lt.message||"The request failed.")} The local checks above are unaffected.</p>`;
-        else if(!lt.matches.length)html+=`<p class="verdict clean">LanguageTool returned no additional grammar/style suggestions for the checked prose.</p>`;
-        else{
-          (lt.matches||[]).slice(0,300).forEach(m=>{
-            const issueType=String(m.rule?.issueType||"").toLowerCase();const sev=/grammar|misspell|typographical/.test(issueType)?"warn":"info";
-            const repl=(m.replacements||[]).slice(0,4).map(x=>x.value).filter(Boolean).join(", ");
-            html+=`<div class="issue"><span class="badge ${sev}">${sev==="warn"?"!":"i"}</span><div class="body"><p class="msg"><span class="lt-source-tag">LanguageTool</span><span class="abbr">${escapeHtml(m.rule?.id||"LT")}</span> ${escapeHtml(m.message||m.shortMessage||"Grammar/style suggestion")}</p><div class="snip">${mcLtContext(m)}</div>${repl?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(repl)}</p>`:""}</div></div>`;
-          });
-          if(lt.truncated)html+=`<p class="verdict"><b>Coverage note:</b> ${escapeHtml(lt.note||"Only part of the prose was checked because of endpoint request limits.")}</p>`;
-        }
-        sec.innerHTML=html;mcInsertBeforeLabel(root,"Paragraph length",sec);
-      }
-      const engines=wc.hybridEngines||{};
-      const note=document.createElement("p");note.className="hybrid-engine-note";
-      note.textContent=`Local enhancements: compromise.js ${engines.compromise?"active":"unavailable, heuristic fallback used"}; Typo.js dictionary ${engines.typo?"active":"unavailable, built-in typo rules used"}; wink-nlp ${engines.wink?"active for abbreviation classification":"unavailable, abbreviation heuristics used"}.`;
-      root.prepend(note);
-      try{buildReportSubnav("eng-report","eng-subnav");enhanceReportSeverity("eng-report","eng-subnav");}catch(_e){}
-    };
-  }
-
-  const legacyEnglishText=window.englishReportText;
-  if(typeof legacyEnglishText==="function"){
-    window.englishReportText=function(res){
-      let t=legacyEnglishText(res);const wc=res.writingChecks||{},m=wc.metrics||{};
-      if(Number.isFinite(m.fleschKincaidGrade))t+=`\nFLESCH READABILITY\nFlesch Reading Ease: ${Number(m.fleschReadingEase).toFixed(1)}\nFlesch-Kincaid grade level: ${Number(m.fleschKincaidGrade).toFixed(1)}\n`;
-      if((wc.passive||[]).length){t+="\nPASSIVE VOICE STYLE NOTES\n";(wc.passive||[]).forEach(x=>{t+=`${x.msg}\n  Suggested: ${x.suggestion}\n`;});}
-      const lt=res.languageTool;if(lt?.enabled){t+="\nLANGUAGETOOL ENHANCEMENT\n";if(lt.status!=="ok")t+=`Unavailable: ${lt.message||"request failed"}\n`;else (lt.matches||[]).forEach(x=>{const r=(x.replacements||[]).slice(0,4).map(y=>y.value).join(", ");t+=`${x.rule?.id||"LT"} | ${x.message||x.shortMessage||"Suggestion"}${r?` | Suggested: ${r}`:""}\n`;});}
-      return t;
-    };
-  }
-
-  /* ---------- opt-in control behavior ---------- */
-  function mcSyncLtUi(){
-    const on=!!document.getElementById("lt-enable")?.checked,mode=document.getElementById("lt-mode")?.value||"public";
-    const cfg=document.getElementById("lt-config"),note=document.getElementById("lt-data-note"),wrap=document.getElementById("lt-endpoint-wrap");
-    if(cfg)cfg.hidden=!on;if(note)note.hidden=!on;if(wrap)wrap.hidden=!(on&&mode==="self");if(!on)mcLtSetStatus("");
-  }
-  document.getElementById("lt-enable")?.addEventListener("change",mcSyncLtUi);
-  document.getElementById("lt-mode")?.addEventListener("change",()=>{mcSyncLtUi();try{localStorage.setItem("manuscriptCheckLtMode",document.getElementById("lt-mode").value);}catch(_e){}});
-  document.getElementById("lt-endpoint")?.addEventListener("change",()=>{try{localStorage.setItem("manuscriptCheckLtEndpoint",document.getElementById("lt-endpoint").value);}catch(_e){}});
-  try{
-    const mode=localStorage.getItem("manuscriptCheckLtMode"),endpoint=localStorage.getItem("manuscriptCheckLtEndpoint");
-    if(mode&&/^(?:public|self)$/.test(mode))document.getElementById("lt-mode").value=mode;
-    if(endpoint)document.getElementById("lt-endpoint").value=endpoint;
-  }catch(_e){}
-  if(document.getElementById("lt-enable"))document.getElementById("lt-enable").checked=false;mcSyncLtUi();
-
-  /* ---------- fixture comparison harness ---------- */
-  window.runManuscriptHybridFixtures=async function(){
-    const fixtureText=[
-      // Verb/noun homographs and non-finite cases documented in engPresentTenseCheck.
-      "The penetration tests were performed after incubation.",
-      "The procedures were performed to analyze the samples.",
-      "The instrument can measure dissolved oxygen continuously.",
-      "The sample was analysed after filtration.",
-      // Genuine personal usage for the person checker.
-      "We analyze the samples and record the voltage after 24 h.",
-      // Known-list plus dictionary-only misspellings.
-      "The enviroment was monitored seperately during operation.",
-      // Technical terms that must remain protected from dictionary false positives.
-      "The bioelectrochemical reactor used electroconcentration and chronoamperometry.",
-      // Instrument/product/entity edge cases plus a genuine scientific abbreviation.
-      "Measurements were obtained using a Bruker D2 PHASER instrument and a BELSORP MAX II analyzer.",
-      "Fourier-transform infrared spectroscopy (FTIR) was used for characterization."
-    ].join("\n");
-    await mcEnsureCompromise(fixtureText);await mcEnsureTypo();await mcEnsureWinkNlp(fixtureText);
-    const oldPerson=legacyPerson?legacyPerson(fixtureText):[];const newPerson=window.engFindPersonUsage?window.engFindPersonUsage(fixtureText):[];
-    const oldTense=legacyTense?legacyTense(fixtureText):[];const newTense=window.engPresentTenseCheck?window.engPresentTenseCheck(fixtureText):[];
-    const oldGrammar=legacyGrammar?legacyGrammar(fixtureText,{style:"UK"},35):{grammar:[]};const newGrammar=window.engGrammarStyleCheck?window.engGrammarStyleCheck(fixtureText,{style:"UK"},35):{grammar:[]};
-    const abbrCases=["Bruker D2 PHASER","BELSORP MAX II","FTIR"].map(raw=>{
-      const sent=fixtureText.split("\n").find(x=>x.includes(raw))||raw;const idx=sent.indexOf(raw);const token=raw.split(/\s+/)[0];
-      return {case:raw,legacy:legacyAbbrClassify?legacyAbbrClassify(sent,idx,token,[]):null,hybrid:window.abbrClassifyCandidateOccurrence?window.abbrClassifyCandidateOccurrence(sent,idx,token,[]):null};
-    });
-    const results={
-      libraries:{compromise:!!MC_HYBRID.compromise,typo:!!MC_HYBRID.typo,wink:!!MC_HYBRID.wink},
-      person:{old:oldPerson.map(x=>x.word),hybrid:newPerson.map(x=>x.word)},
-      tense:{old:oldTense.map(x=>x.verb),hybrid:newTense.map(x=>x.verb)},
-      spelling:{old:oldGrammar.grammar.map(x=>x.token||x.code),hybrid:newGrammar.grammar.map(x=>x.token||x.code)},
-      abbreviations:abbrCases
-    };
-    results.disagreements={
-      person:JSON.stringify(results.person.old)!==JSON.stringify(results.person.hybrid),
-      tense:JSON.stringify(results.tense.old)!==JSON.stringify(results.tense.hybrid),
-      spelling:JSON.stringify(results.spelling.old)!==JSON.stringify(results.spelling.hybrid),
-      abbreviations:abbrCases.some(x=>JSON.stringify(x.legacy)!==JSON.stringify(x.hybrid))
-    };
-    MC_HYBRID.fixtureResults=results;console.table?.([{module:"person",changed:results.disagreements.person},{module:"tense",changed:results.disagreements.tense},{module:"spelling",changed:results.disagreements.spelling},{module:"abbreviation NER",changed:results.disagreements.abbreviations}]);return results;
-  };
 })();
 </script>
 
