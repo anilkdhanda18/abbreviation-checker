@@ -226,7 +226,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .dot.err{background:var(--err)}.dot.warn{background:var(--warn)}.dot.ok{background:var(--ok)}
   .yn.y{color:var(--ok);font-weight:700}.yn.n{color:var(--err);font-weight:700}.yn.na{color:var(--faint)}
   .rtype{display:inline-block;font-size:10.5px;font-weight:700;color:var(--pencil);background:var(--pencil-soft);border-radius:4px;padding:1px 6px;margin-right:2px;white-space:nowrap}
-  /* Results navigation: six section headings in one row with equal spacing above and below. */
+  /* Results navigation: restrained colour coding keeps the six modules easy to scan. */
   .rtabs{
     display:grid;
     grid-template-columns:repeat(6,minmax(0,1fr));
@@ -238,79 +238,107 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     scrollbar-width:thin;
   }
   .rtab{
+    --tab-accent:#3157A4;
+    --tab-soft:#EDF3FF;
+    --tab-border:#C9D8F6;
     appearance:none;
     min-width:0;
     min-height:54px;
-    border:1px solid var(--hair);
-    background:var(--card);
-    color:var(--muted);
+    border:1px solid var(--tab-border);
+    background:var(--tab-soft);
+    color:var(--tab-accent);
     font-family:var(--sans);
     cursor:pointer;
     padding:12px 10px;
     border-radius:9px;
-    transition:background .15s,color .15s,border-color .15s,box-shadow .15s;
+    transition:transform .12s ease,background .15s,color .15s,border-color .15s,box-shadow .15s;
     display:flex;
     align-items:center;
     justify-content:center;
     text-align:center;
   }
-  .rtab-label{font-size:12.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  .rtab:hover{border-color:var(--hair-strong);color:var(--ink);box-shadow:0 2px 8px rgba(20,22,26,.05)}
-  .rtab.active{background:var(--pencil);border-color:var(--pencil);color:#fff}
+  .rtab:nth-child(1){--tab-accent:#6545A3;--tab-soft:#F4EFFF;--tab-border:#DCCEF4}
+  .rtab:nth-child(2){--tab-accent:#16736B;--tab-soft:#EAF8F6;--tab-border:#BFE6E1}
+  .rtab:nth-child(3){--tab-accent:#946000;--tab-soft:#FFF5DD;--tab-border:#EFD9A6}
+  .rtab:nth-child(4){--tab-accent:#19708A;--tab-soft:#EAF7FB;--tab-border:#BDE0EA}
+  .rtab:nth-child(5){--tab-accent:#3157A4;--tab-soft:#EDF3FF;--tab-border:#C9D8F6}
+  .rtab:nth-child(6){--tab-accent:#A14067;--tab-soft:#FDEEF4;--tab-border:#F0C9D9}
+  .rtab-label{font-size:12.5px;font-weight:750;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .rtab:hover{transform:translateY(-1px);box-shadow:0 5px 14px -10px color-mix(in srgb,var(--tab-accent) 45%,transparent);border-color:var(--tab-accent)}
+  .rtab.active{background:var(--tab-accent);border-color:var(--tab-accent);color:#fff;box-shadow:0 5px 14px -10px color-mix(in srgb,var(--tab-accent) 65%,transparent)}
+  .rtab:focus-visible{outline:2px solid var(--tab-accent);outline-offset:2px}
   @media(max-width:760px){
     .rtabs{grid-template-columns:repeat(6,124px)}
   }
-  /* In-report subheading navigation. Built automatically from each report's rendered section headings. */
+
+  /* In-report subheading navigation. Each subsection gets a soft academic colour cue. */
   .report-subnav{
     position:sticky;
     top:8px;
     z-index:12;
     display:flex;
     align-items:center;
-    gap:6px;
+    gap:7px;
     width:100%;
     margin:16px 0 20px;
-    padding:6px;
+    padding:7px;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:thin;
-    border:1px solid var(--hair);
-    border-radius:10px;
-    background:rgba(255,255,255,.96);
-    box-shadow:0 4px 16px -14px rgba(20,22,26,.35);
+    border:1px solid #D9E1EE;
+    border-radius:11px;
+    background:linear-gradient(90deg,rgba(249,251,255,.98),rgba(255,255,255,.98));
+    box-shadow:0 6px 20px -16px rgba(36,61,105,.38);
     backdrop-filter:blur(8px);
   }
   .report-subnav[hidden]{display:none}
   .report-subnav-label{
     flex:0 0 auto;
-    padding:0 7px 0 5px;
+    padding:0 8px 0 5px;
     font-size:10.5px;
-    font-weight:700;
+    font-weight:800;
     letter-spacing:.08em;
     text-transform:uppercase;
-    color:var(--faint);
+    color:#6E7785;
     white-space:nowrap;
   }
   .report-subnav-btn{
+    --sub-accent:#3157A4;
+    --sub-soft:#EDF3FF;
+    --sub-border:#C9D8F6;
     appearance:none;
     flex:0 0 auto;
-    border:1px solid transparent;
-    background:transparent;
-    color:var(--muted);
+    border:1px solid var(--sub-border);
+    background:var(--sub-soft);
+    color:var(--sub-accent);
     font-family:var(--sans);
     font-size:12px;
-    font-weight:650;
+    font-weight:700;
     line-height:1.2;
     white-space:nowrap;
     cursor:pointer;
-    padding:7px 10px;
-    border-radius:7px;
-    transition:background .15s,color .15s,border-color .15s;
+    padding:7px 11px;
+    border-radius:999px;
+    transition:transform .12s ease,background .15s,color .15s,border-color .15s,box-shadow .15s;
   }
-  .report-subnav-btn:hover{background:var(--paper);color:var(--ink);border-color:var(--hair)}
-  .report-subnav-btn.active{background:var(--pencil-soft);color:var(--pencil);border-color:#CFD9EE}
-  .report-subnav-btn:focus-visible{outline:2px solid var(--pencil);outline-offset:1px}
-  .sec-label{scroll-margin-top:82px}
+  .report-subnav-btn[data-tone="0"]{--sub-accent:#3157A4;--sub-soft:#EDF3FF;--sub-border:#C9D8F6}
+  .report-subnav-btn[data-tone="1"]{--sub-accent:#16736B;--sub-soft:#EAF8F6;--sub-border:#BFE6E1}
+  .report-subnav-btn[data-tone="2"]{--sub-accent:#946000;--sub-soft:#FFF5DD;--sub-border:#EFD9A6}
+  .report-subnav-btn[data-tone="3"]{--sub-accent:#6545A3;--sub-soft:#F4EFFF;--sub-border:#DCCEF4}
+  .report-subnav-btn[data-tone="4"]{--sub-accent:#A14067;--sub-soft:#FDEEF4;--sub-border:#F0C9D9}
+  .report-subnav-btn[data-tone="5"]{--sub-accent:#2D714E;--sub-soft:#ECF7F1;--sub-border:#C6E5D3}
+  .report-subnav-btn:hover{transform:translateY(-1px);border-color:var(--sub-accent);box-shadow:0 4px 10px -8px var(--sub-accent)}
+  .report-subnav-btn.active{background:var(--sub-accent);color:#fff;border-color:var(--sub-accent);box-shadow:0 4px 12px -8px var(--sub-accent)}
+  .report-subnav-btn:focus-visible{outline:2px solid var(--sub-accent);outline-offset:1px}
+
+  /* Mirror the navigation colour at the corresponding subsection heading. */
+  .sec-label{scroll-margin-top:82px;border-left:3px solid transparent;padding-left:9px}
+  .sec-label[data-tone="0"]{color:#3157A4;border-left-color:#3157A4}
+  .sec-label[data-tone="1"]{color:#16736B;border-left-color:#16736B}
+  .sec-label[data-tone="2"]{color:#946000;border-left-color:#946000}
+  .sec-label[data-tone="3"]{color:#6545A3;border-left-color:#6545A3}
+  .sec-label[data-tone="4"]{color:#A14067;border-left-color:#A14067}
+  .sec-label[data-tone="5"]{color:#2D714E;border-left-color:#2D714E}
   @media(max-width:640px){
     .report-subnav{top:6px;margin:14px 0 18px}
     .report-subnav-label{display:none}
@@ -397,6 +425,97 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     border-radius:3px;
   }
 
+  /* Refined masthead and manuscript-entry area */
+  .masthead{
+    position:relative;
+    overflow:hidden;
+    padding:30px 32px 32px;
+    border:1px solid #d7e1f3;
+    border-radius:16px;
+    background:
+      radial-gradient(circle at 92% 10%,rgba(73,119,191,.14) 0,rgba(73,119,191,0) 31%),
+      linear-gradient(135deg,#f2f6ff 0%,#ffffff 58%,#f7faff 100%);
+    box-shadow:0 12px 34px -28px rgba(42,74,139,.55);
+  }
+  .masthead::after{
+    content:"";
+    position:absolute;
+    inset:0 auto 0 0;
+    width:5px;
+    background:linear-gradient(180deg,#31589d,#6f8fc4);
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    width:max-content;
+    padding:5px 10px;
+    border:1px solid #cddaf0;
+    border-radius:999px;
+    background:#eaf1fc;
+    color:#244b91;
+    letter-spacing:.18em;
+    margin-bottom:14px;
+  }
+  .masthead h1{color:#183f7a;font-size:42px;}
+  .masthead h1 .rule{
+    width:74px;
+    height:4px;
+    background:linear-gradient(90deg,#244b91,#7895c7);
+  }
+  .home-title-link,.home-title-link:hover,.home-title-link:focus{color:#183f7a;}
+  .lede{
+    width:100%;
+    max-width:none;
+    margin-top:12px;
+    color:#4d5e78;
+    font-size:15.5px;
+    line-height:1.65;
+    text-wrap:balance;
+  }
+
+  #input-card{
+    position:relative;
+    overflow:hidden;
+    border-color:#d5dfef;
+    background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+    box-shadow:0 14px 36px -30px rgba(42,74,139,.45);
+  }
+  #input-card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:4px;
+    background:linear-gradient(90deg,#2a4a8b 0%,#6f91cb 48%,#9fb4da 100%);
+  }
+  #input-card > h2{color:#183f7a;}
+  #input-card .sub{
+    max-width:none;
+    color:#53627a;
+    line-height:1.65;
+  }
+  #input-card .drop{
+    border-color:#b9c9e3;
+    background:linear-gradient(180deg,#f7faff 0%,#f3f7fd 100%);
+  }
+  #input-card .drop:hover{
+    border-color:#6f8fc4;
+    background:#edf4ff;
+  }
+  #input-card .drop .big{color:#1d457f;font-weight:600;}
+  #input-card .drop .formats{color:#7084a5;}
+  #input-card input.text{background:#f8faff;border-color:#d6deec;}
+  #input-card input.text:focus{background:#fff;}
+  #input-card .readability-settings{
+    border-color:#d6e0f0;
+    background:linear-gradient(180deg,#fafdff 0%,#f5f8fd 100%);
+  }
+
+  @media (max-width:640px){
+    .masthead{padding:24px 22px 26px;border-radius:14px;}
+    .masthead h1{font-size:36px;}
+    .lede{text-wrap:pretty;}
+  }
+
 </style>
 </head>
 <body>
@@ -410,7 +529,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <section class="card" id="input-card">
     <h2 class="help-row">Your manuscript <button type="button" class="info-help inline-auto-help" data-help="The tool reads only Microsoft Word .docx manuscripts. Different modules use the Word structure differently: references are isolated from the bibliography section; affiliations are excluded from Units and English checks; Word tables are retained for table-specific precision/unit checks; figures, tables, and equations use Word document order where available." aria-label="Explain manuscript scanning" title="What is scanned?">i</button></h2>
-    <p class="sub">Upload your complete manuscript as a Microsoft Word <b>.docx</b> file. The checker is intentionally restricted to Word files so paragraph boundaries, headings, lists, and reference structure can be read more reliably. Legacy <b>.doc</b>, PDF, TXT, MD, and pasted manuscript text are not accepted.</p>
+    <p class="sub">Upload your complete manuscript as a Microsoft Word <b>.docx</b> file. Word structure allows the checker to read paragraph boundaries, headings, lists, tables, and references more reliably.</p>
 
     <div class="panel" id="panel-upload">
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a Word DOCX file or drop it here">
@@ -652,7 +771,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="fte" hidden>
   <section class="card" id="fte-report" hidden aria-live="polite">
-    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
+    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Equation detection distinguishes genuine displayed equations from prose that merely ends with an Equation/Eq. citation, and supports Office Math, Equation styles, equation-layout tables, and strongly equation-like formatted text with terminal numbering. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
     <p class="sub" id="fte-report-sub"></p>
     <nav class="report-subnav" id="fte-subnav" aria-label="Figures tables and equations report sections" hidden></nav>
     <div id="fte-summary"></div>
@@ -5340,7 +5459,8 @@ function buildReportSubnav(reportId,navId){
     items.push({el,id,label});
   });
   if(!items.length){nav.innerHTML="";nav.hidden=true;return;}
-  nav.innerHTML=`<span class="report-subnav-label">Jump to</span>`+items.map((it,i)=>`<button type="button" class="report-subnav-btn${i===0?" active":""}" data-target="${it.id}">${escapeHtml(it.label)}</button>`).join("");
+  items.forEach((it,i)=>{ it.tone=String(i%6); if(it.el.classList&&it.el.classList.contains("sec-label")) it.el.dataset.tone=it.tone; });
+  nav.innerHTML=`<span class="report-subnav-label">Jump to</span>`+items.map((it,i)=>`<button type="button" class="report-subnav-btn${i===0?" active":""}" data-tone="${it.tone}" data-target="${it.id}">${escapeHtml(it.label)}</button>`).join("");
   nav.hidden=false;
   const buttons=[...nav.querySelectorAll(".report-subnav-btn")];
   const activate=id=>{buttons.forEach(b=>b.classList.toggle("active",b.dataset.target===id));};
@@ -5470,12 +5590,65 @@ let LAST_ENG=null;
 /* ---------- Word structural extraction for Figures / Tables / Equations ---------- */
 const FTE_W_NS="http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const FTE_M_NS="http://schemas.openxmlformats.org/officeDocument/2006/math";
-function fteXmlText(node){
+function fteXmlText(node,options={}){
+  /*
+    Extract only the CURRENT, main-flow Word text that the author can actually
+    see/search in the manuscript. Raw paragraph textContent is unsafe here:
+    Word can retain hidden runs, moved/deleted revision branches, fallback copies
+    inside mc:AlternateContent, and text embedded in floating drawings/text boxes.
+    Those stale/non-body strings can contain old "Eq. 1" / "Equation (2)" labels
+    and create equation references that do not exist in the visible manuscript.
+
+    Embedded drawing/text-box text is intentionally excluded by default. Figure
+    and table captions are detected from their own manuscript paragraphs, while
+    equation detection continues to read Office Math (m:oMath/m:t) in the main
+    document flow. Set includeEmbedded=true only for a caller that explicitly
+    needs drawing/text-box text.
+  */
+  const includeEmbedded=!!(options&&options.includeEmbedded);
   let out="";
+
+  const wBoolOn=el=>{
+    if(!el) return false;
+    const v=el.getAttributeNS(FTE_W_NS,"val")||el.getAttribute("w:val")||el.getAttribute("val")||"";
+    return !/^(?:0|false|off|no)$/i.test(String(v));
+  };
+  const runIsHidden=r=>{
+    if(!r || (r.localName||"").toLowerCase()!=="r" || (r.namespaceURI||"")!==FTE_W_NS) return false;
+    const rPr=[...r.childNodes].find(x=>x.nodeType===1 && (x.localName||"").toLowerCase()==="rpr" && (x.namespaceURI||"")===FTE_W_NS);
+    if(!rPr) return false;
+    return [...rPr.childNodes].some(x=>{
+      if(x.nodeType!==1 || (x.namespaceURI||"")!==FTE_W_NS) return false;
+      const k=(x.localName||"").toLowerCase();
+      return (k==="vanish"||k==="webhidden"||k==="specvanish") && wBoolOn(x);
+    });
+  };
+
   const walk=n=>{
-    if(n.nodeType===3){ return; }
-    if(n.nodeType!==1) return;
+    if(!n || n.nodeType!==1) return;
     const ln=(n.localName||"").toLowerCase(), ns=n.namespaceURI||"";
+
+    // Do not read historical revision content that is not part of the current
+    // visible manuscript. Inserted/move-to text is current and remains included.
+    if(ns===FTE_W_NS && (ln==="del" || ln==="movefrom")) return;
+    if(ns===FTE_W_NS && ln==="r" && runIsHidden(n)) return;
+
+    // Floating drawings, pictures, OLE objects and text boxes can be anchored to
+    // an otherwise ordinary prose paragraph. Their internal labels must never be
+    // interpreted as body cross-references belonging to that anchor paragraph.
+    if(!includeEmbedded && ns===FTE_W_NS && (ln==="drawing"||ln==="pict"||ln==="object"||ln==="txbxcontent")) return;
+
+    // mc:AlternateContent frequently stores both a Choice and a Fallback copy.
+    // Reading both duplicates visible text and can duplicate equation labels.
+    if(ln==="alternatecontent"){
+      const els=[...n.childNodes].filter(x=>x.nodeType===1);
+      const chosen=els.find(x=>(x.localName||"").toLowerCase()==="choice") || els.find(x=>(x.localName||"").toLowerCase()==="fallback");
+      if(chosen) walk(chosen);
+      return;
+    }
+
+    // Field instructions and deleted text are metadata/history, not visible text.
+    if(ns===FTE_W_NS && (ln==="instrtext"||ln==="deltext")) return;
     if(ln==="t" && (ns===FTE_W_NS||ns===FTE_M_NS)){ out+=n.textContent||""; return; }
     if(ns===FTE_W_NS && ln==="tab") { out+="\t"; return; }
     if(ns===FTE_W_NS && (ln==="br"||ln==="cr")) { out+=" "; return; }
@@ -5865,6 +6038,68 @@ async function extractDocxEnglishExclusions(buf){
 }
 
 
+
+function fteEquationExpressionEvidence(text){
+  /*
+    Score whether text looks like an equation/reaction rather than ordinary prose.
+    This intentionally works on flattened Word text too, because many manuscripts
+    contain equations created with formatted runs instead of Office Math (OMML).
+  */
+  const s=String(text||"")
+    .replace(/[\u00A0\u202F]/g," ")
+    .replace(/[−–—]/g,"-")
+    .replace(/\s+/g," ")
+    .trim();
+  if(!s) return {score:0,operatorCount:0,proseWords:0,formulaTokens:0};
+
+  const operatorCount=(s.match(/(?:=|→|←|↔|⇌|⇒|⇄|±|∓|≈|≃|≅|≤|≥|≠|∝|∑|∫|√|×|÷|\+|\s-\s)/g)||[]).length;
+  const relationCount=(s.match(/(?:=|→|←|↔|⇌|⇒|⇄|≈|≃|≅|≤|≥|≠|∝)/g)||[]).length;
+  const chargeCount=(s.match(/(?:[A-Za-z0-9\)\]](?:\+|-)(?=\s|$|\+|→|←|↔|⇌))/g)||[]).length;
+  const subSupCount=(s.match(/[₀-₉⁰-⁹]/g)||[]).length;
+  const formulaTokens=(s.match(/\b(?:[A-Z][a-z]?\d*){1,5}(?:[+\-]|•)?\b/g)||[]).length;
+  const variableTokens=(s.match(/\b[A-Za-zα-ωΑ-Ω][A-Za-z0-9α-ωΑ-Ω_'′″]{0,12}\b/g)||[]).length;
+  const proseWords=(s.match(/\b[\p{L}]{3,}\b/gu)||[]).length;
+
+  let score=0;
+  score += relationCount*6;
+  score += Math.min(10,Math.max(0,operatorCount-relationCount)*2);
+  score += Math.min(8,chargeCount*2);
+  score += Math.min(6,subSupCount);
+  score += Math.min(8,formulaTokens);
+  if(variableTokens>=2 && relationCount>=1) score+=5;
+  if(proseWords<=5 && operatorCount>=2) score+=4;
+  if(proseWords>=12) score-=8;
+
+  return {score,operatorCount,relationCount,chargeCount,subSupCount,formulaTokens,variableTokens,proseWords};
+}
+
+function fteEquationProseEvidence(text){
+  /*
+    Detect prose that merely ENDS with an equation citation. A frequent failure
+    mode is a sentence containing one inline mathematical variable, followed by
+    "Equation 2.3"; inline math alone must never make that prose a displayed equation.
+  */
+  const s=String(text||"").replace(/\s+/g," ").trim();
+  const words=(s.match(/\b[\p{L}]{2,}\b/gu)||[]).length;
+  const proseVerb=/\b(?:is|are|was|were|be|been|being|has|have|had|can|could|may|might|will|would|should|shall|using|used|according|calculated|calculate|given|give|shown|show|expressed|express|determined|determine|obtained|obtain|described|describe|presented|present|represented|represent|defined|define|written|write|estimated|estimate|computed|compute|evaluated|evaluate|derived|derive|illustrated|illustrate|followed|follows|involved|includes|include|occurs|occur|achieved|achieve)\b/i;
+  const connective=/\b(?:and|the|this|that|which|where|when|while|therefore|however|respectively|according|using|via|from|with|into|for|by)\b/i;
+  let score=0;
+  if(words>=7) score+=4;
+  if(words>=12) score+=3;
+  if(proseVerb.test(s)) score+=6;
+  if(connective.test(s) && words>=6) score+=3;
+  if(/[.!?]\s+[A-Z]/.test(s)) score+=5;
+  return {score,words};
+}
+
+function ftePlainEquationLike(text){
+  const ev=fteEquationExpressionEvidence(text);
+  const prose=fteEquationProseEvidence(text);
+  // Require genuine mathematical/chemical relation syntax. Plus signs alone
+  // are not enough because prose can contain charged species inline.
+  return ev.score>=9 && ev.relationCount>=1 && prose.score<9;
+}
+
 function fteEquationNumberOnly(text){
   const t=String(text||"")
     .replace(/[\u00A0\u202F]/g," ")
@@ -5879,12 +6114,15 @@ function fteEquationNumberOnly(text){
 function fteClassifyEquationLayoutRows(rows){
   /*
     Detect Word tables used only to align a displayed equation with its number.
-    A row qualifies only when it has:
-      - 2 to 4 meaningful cells;
-      - exactly one equation-number-only cell, e.g. (2);
-      - Word math in a different cell.
-    Genuine data tables may contain inline math, but they do not have an
-    equation-number-only cell in every meaningful row.
+
+    Word manuscripts use two common constructions:
+      1. an Office Math expression in one cell and an equation-number-only cell;
+      2. a visually formatted/plain-text equation in one cell and a number-only
+         cell, without OMML.
+
+    The second form must still be recognised. A data table is rejected unless
+    every meaningful row contains exactly one equation-number-only cell and the
+    remaining cell content is strongly equation-like.
   */
   const meaningful=(rows||[]).filter(r=>
     (r.cells||[]).some(c=>String(c.text||"").trim() || c.hasMath)
@@ -5906,36 +6144,44 @@ function fteClassifyEquationLayoutRows(rows){
     if(labelCells.length!==1) return {isEquationLayout:false,rows:[]};
 
     const label=labelCells[0];
-    const mathCells=cells.map((c,ci)=>({c,ci})).filter(x=>x.c.hasMath && x.ci!==label.ci);
-    if(!mathCells.length) return {isEquationLayout:false,rows:[]};
+    const expressionCells=cells.filter((c,ci)=>ci!==label.ci);
+    const mathCells=expressionCells.filter(c=>c.hasMath);
+    const mathCount=mathCells.reduce((n,c)=>n+(c.mathCount||0),0);
+    const mathParaCount=mathCells.reduce((n,c)=>n+(c.mathParaCount||0),0);
 
-    const mathCount=mathCells.reduce((n,x)=>n+(x.c.mathCount||0),0);
-    const mathParaCount=mathCells.reduce((n,x)=>n+(x.c.mathParaCount||0),0);
-    if(mathCount<1 && mathParaCount<1) return {isEquationLayout:false,rows:[]};
-
-    const nonLabelText=cells
-      .filter((c,ci)=>ci!==label.ci)
+    const nonLabelText=expressionCells
       .map(c=>String(c.text||""))
       .join(" ")
       .replace(/\s+/g," ")
       .trim();
-    const proseWords=(nonLabelText.match(/\b[\p{L}]{3,}\b/gu)||[]);
-    if(mathParaCount===0 && proseWords.length>18) return {isEquationLayout:false,rows:[]};
+
+    const exprEv=fteEquationExpressionEvidence(nonLabelText);
+    const proseEv=fteEquationProseEvidence(nonLabelText);
+    const hasOfficeMath=mathCount>0 || mathParaCount>0;
+    const plainEquation=ftePlainEquationLike(nonLabelText);
+
+    // If there is no OMML, require clear relation/operator syntax. If OMML is
+    // present, still reject a long prose row containing only incidental inline math.
+    if(!hasOfficeMath && !plainEquation) return {isEquationLayout:false,rows:[]};
+    if(hasOfficeMath && mathParaCount===0 && proseEv.score>=12 && exprEv.score<12)
+      return {isEquationLayout:false,rows:[]};
 
     if(labels.has(label.id)) return {isEquationLayout:false,rows:[]};
     labels.add(label.id);
 
     parsed.push({
       id:label.id,
-      text:String(r.text||"").replace(/\s+/g," ").trim(),
+      text:cells.map(c=>String(c.text||"").trim()).filter(Boolean).join(" ").replace(/\s+/g," ").trim(),
       mathCount:r.mathCount||mathCount,
       mathParaCount:r.mathParaCount||mathParaCount,
-      hasMath:true
+      hasMath:hasOfficeMath,
+      plainEquation:!hasOfficeMath && plainEquation
     });
   }
 
   return {isEquationLayout:parsed.length===meaningful.length,rows:parsed};
 }
+
 
 function fteWordTableRowSummaries(tbl){
   const rows=[...tbl.getElementsByTagNameNS(FTE_W_NS,"tr")];
@@ -6012,7 +6258,15 @@ async function extractDocxStructure(buf){
       const ilvlEl=numPr?numPr.getElementsByTagNameNS(FTE_W_NS,"ilvl")[0]:null;
       const ilvlRaw=ilvlEl?(ilvlEl.getAttributeNS(FTE_W_NS,"val")||ilvlEl.getAttribute("w:val")||ilvlEl.getAttribute("val")):null;
       const ilvl=ilvlRaw!=null && /^\d+$/.test(String(ilvlRaw)) ? parseInt(ilvlRaw,10) : null;
-      blocks.push({type:"p",pos:pos++,text,style,seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,hasNumbering:!!numPr,ilvl});
+      const tabCount=el.getElementsByTagNameNS(FTE_W_NS,"tab").length;
+      const jcEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"jc")[0]:null;
+      const textAlign=jcEl?(jcEl.getAttributeNS(FTE_W_NS,"val")||jcEl.getAttribute("w:val")||jcEl.getAttribute("val")||""):"";
+      const tabsEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"tabs")[0]:null;
+      const rightTabStop=!!(tabsEl && [...tabsEl.getElementsByTagNameNS(FTE_W_NS,"tab")].some(t=>{
+        const v=t.getAttributeNS(FTE_W_NS,"val")||t.getAttribute("w:val")||t.getAttribute("val")||"";
+        return /^(?:right|decimal)$/i.test(v);
+      }));
+      blocks.push({type:"p",pos:pos++,text,style,seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,hasNumbering:!!numPr,ilvl,tabCount,textAlign,rightTabStop});
     }else if(ln==="tbl"){
       const rowSummaries=fteWordTableRowSummaries(el);
       const eqLayout=fteClassifyEquationLayoutRows(rowSummaries);
@@ -6187,31 +6441,133 @@ function fteStripTerminalEquationLabel(text){
     .trim();
 }
 function fteDisplayedEquationId(block){
-  if(!block || block.type!=="p" || !block.hasMath || !block.text) return null;
+  if(!block || block.type!=="p" || !block.text) return null;
   const id=fteEquationLabel(block.text); if(!id) return null;
   const t=fteNormalizeCrossRefText(block.text);
 
-  // A prose sentence ending in a range/cross-reference such as
-  // "... proposed (Eq. 8 - Eq. 11)" is not a displayed equation.
+  // A prose sentence ending in a grouped/ranged cross-reference such as
+  // "... proposed (Eq. 8 - Eq. 11)" is never a displayed equation.
   const refs=fteCitations(t,"equation");
   const unique=[...new Set(refs.map(x=>x.id))];
   if(unique.length>1) return null;
 
   const core=fteStripTerminalEquationLabel(t);
-  const words=(core.match(/[\p{L}]{2,}/gu)||[]);
-  const mathSignals=(core.match(/[=+−–—→←↔⇌<>±×÷∑∫√^]/g)||[]).length
-                  +(core.match(/[A-Za-z][₀-₉⁰-⁹]|[₀-₉⁰-⁹]/g)||[]).length;
-  const sentenceLike=/[.!?]\s+[A-Z]/.test(core) || /\b(?:shows?|shown|proposed|following|pathway|reaction mechanism|where|therefore|however|respectively)\b/i.test(core);
+  if(!core) return null; // number-only blocks are paired separately.
 
-  // Word's oMathPara is the strongest structural signal for a displayed equation.
-  if(block.hasMathPara && !sentenceLike) return id;
-  if(/equation/i.test(block.style||"") && !sentenceLike) return id;
+  const expr=fteEquationExpressionEvidence(core);
+  const prose=fteEquationProseEvidence(core);
+  const equationStyle=/(?:^|[^a-z])equation(?:[^a-z]|$)/i.test(block.style||"") || /equationlayout/i.test(block.style||"");
+  const layoutCue=!!(
+    block.fromEquationTable ||
+    equationStyle ||
+    block.hasMathPara ||
+    block.rightTabStop ||
+    (block.tabCount||0)>0 ||
+    /^(?:center|both|distribute)$/i.test(block.textAlign||"")
+  );
 
-  // Some Word files store displayed equations as ordinary paragraphs containing
-  // inline oMath runs. Accept only compact, equation-like content in that case.
-  if(!sentenceLike && words.length<=18 && (mathSignals>=1 || (block.mathCount||0)>=1)) return id;
+  // Ordinary manuscript prose can contain an inline variable and end with
+  // "Equation 2.3". Inline Office Math is therefore NOT enough by itself.
+  // Strong prose evidence wins unless the paragraph has unequivocal displayed-
+  // equation structure and the expression itself is equation-like.
+  const proseCitation=(prose.score>=12 && !layoutCue) || (prose.score>=9 && expr.score<14);
+  if(proseCitation) return null;
+
+  // Borderless equation-layout tables and true Office Math display paragraphs
+  // are strong structural evidence. Still require either relation syntax or
+  // sufficiently low prose evidence to avoid classifying a prose citation.
+  if(block.fromEquationTable){
+    if(expr.score>=5 || prose.score<6) return id;
+    return null;
+  }
+  if(block.hasMathPara){
+    if(expr.score>=5 || prose.score<6) return id;
+    return null;
+  }
+  if(equationStyle){
+    if(expr.score>=5 || prose.score<7) return id;
+    return null;
+  }
+
+  // Formatted-run equations are common in theses and older journal templates.
+  // They may contain no OMML at all. Accept them only when the text has clear
+  // mathematical/chemical relation syntax, with layout cues or very strong
+  // equation evidence.
+  if(ftePlainEquationLike(core) && (layoutCue || expr.score>=12)) return id;
+
+  // Inline OMML can represent a genuine displayed equation in an ordinary
+  // paragraph. Fraction/root-heavy Office Math sometimes flattens to sparse text
+  // (for example, 1/ks = ...), so a low lexical score is acceptable when Word
+  // also supplies strong displayed-equation layout evidence, a relation operator,
+  // and essentially no prose. This keeps inline variables in prose citations out.
+  if(block.hasMath && prose.score<9){
+    if(expr.score>=9) return id;
+    if(layoutCue && expr.relationCount>=1 && prose.score<6) return id;
+  }
+
   return null;
 }
+
+
+function fteLooksLikeUnnumberedDisplayedEquation(block){
+  if(!block || block.type!=="p" || !block.text) return false;
+  if(fteEquationLabel(block.text) || fteEquationNumberOnly(block.text)) return false;
+
+  const expr=fteEquationExpressionEvidence(block.text);
+  const prose=fteEquationProseEvidence(block.text);
+  const equationStyle=/(?:^|[^a-z])equation(?:[^a-z]|$)/i.test(block.style||"") || /equationlayout/i.test(block.style||"");
+  const layoutCue=!!(
+    block.fromEquationTable ||
+    equationStyle ||
+    block.hasMathPara ||
+    block.rightTabStop ||
+    (block.tabCount||0)>0 ||
+    /^(?:center|both|distribute)$/i.test(block.textAlign||"")
+  );
+
+  if(prose.score>=10 && expr.score<14) return false;
+  if(block.hasMathPara && (expr.score>=4 || prose.score<6)) return true;
+  if(equationStyle && (expr.score>=4 || prose.score<7)) return true;
+  if(ftePlainEquationLike(block.text) && (layoutCue || expr.score>=12)) return true;
+  if(block.hasMath && prose.score<8){
+    if(expr.score>=9) return true;
+    if(layoutCue && expr.relationCount>=1 && prose.score<6) return true;
+  }
+  return false;
+}
+
+function fteAdjacentEquationExpression(blocks,labelIndex,maxDist=2){
+  /*
+    Pair a number-only paragraph such as "Eq. 2.4" or "(2.4)" with a nearby
+    displayed expression. This covers Word templates that place the formula and
+    its number in separate paragraphs/text runs instead of a single OMML block.
+  */
+  const candidates=[];
+  for(const dir of [-1,1]){
+    for(let d=1;d<=maxDist;d++){
+      const j=labelIndex+dir*d;
+      if(j<0||j>=blocks.length) break;
+      const b=blocks[j];
+      if(!b) break;
+      if(b.type!=="p") break;
+      const t=String(b.text||"").trim();
+      if(!t) continue;
+      if(fteLooksLikeUnnumberedDisplayedEquation(b)){
+        candidates.push({j,b,d,dir});
+      }
+      break; // stop at the first non-empty paragraph in this direction
+    }
+  }
+  if(!candidates.length) return null;
+  candidates.sort((a,b)=>{
+    if(a.d!==b.d) return a.d-b.d;
+    // Equation number normally follows the expression, so prefer previous block.
+    if(a.dir!==b.dir) return a.dir===-1?-1:1;
+    return a.j-b.j;
+  });
+  return candidates[0];
+}
+
 function fteNearbyIndex(blocks,i,pred,maxDist=2){
   let best=null,bestD=99;
   for(let j=Math.max(0,i-maxDist);j<=Math.min(blocks.length-1,i+maxDist);j++){
@@ -6228,20 +6584,50 @@ function fteRefStart(blocks){
 function fteExpandIds(expr){
   const ids=[]; const add=x=>{x=fteCanonId(x); if(x&&!ids.includes(x)) ids.push(x);};
   // Strip repeated cross-reference labels so forms such as
-  // "Eq.1 to Eq. 7" can be treated as the numeric range 1 to 7.
+  // "Eq. 3.1 to Eq. 3.3" and "Eq. 1 to Eq. 5" can be parsed uniformly.
   const e=(expr||"")
     .replace(/\u2212/g,"-")
     .replace(/\b(?:Figures?\.?|Figs?\.?|Tables?\.?|Equations?\.?|Eqs?\.?)\s*/gi," ")
     .replace(/[()]/g,"");
+
+  /*
+    IMPORTANT: section-based ranges must be consumed BEFORE simple integer
+    ranges. Otherwise "3.1 to 3.3" contains the substring "1 to 3", which a
+    naive integer-range regex expands into false identifiers 1, 2 and 3.
+    This affected equations, figures and tables because this helper is shared.
+
+    First collect and mask every dotted range. Same-prefix ranges are expanded;
+    cross-prefix ranges such as 3.4 to 4.2 are not expanded, but are still
+    masked so their internal decimals can never be mistaken for an integer range.
+  */
+  let r;
+  let simpleSource=e;
+  const rs=/\b(S?)(\d+)\.(\d+)\s*(?:[–—-]|\bto\b)\s*(S?)(\d+)\.(\d+)\b/gi;
+  const dottedSpans=[];
+  while((r=rs.exec(e))){
+    dottedSpans.push([r.index,r.index+r[0].length]);
+    const p1=(r[1]||"").toUpperCase(),p2=(r[4]||"").toUpperCase();
+    const major1=+r[2],major2=+r[5],a=+r[3],b=+r[6];
+    if(p1===p2 && major1===major2 && b>=a && b-a<=50){
+      for(let n=a;n<=b;n++) add(p1+major1+"."+n);
+    }
+  }
+  if(dottedSpans.length){
+    const chars=[...simpleSource];
+    dottedSpans.forEach(([a,b])=>{ for(let i=a;i<b;i++) chars[i]=" "; });
+    simpleSource=chars.join("");
+  }
+
   // Simple numeric ranges, including S2-S5 and textual "S2 to S5".
-  let r; const rr=/\b(S?)(\d+)\s*(?:[–—-]|\bto\b)\s*(S?)(\d+)\b/gi;
-  while((r=rr.exec(e))){
+  // Dotted/section-based spans have already been masked above.
+  const rr=/\b(S?)(\d+)\s*(?:[–—-]|\bto\b)\s*(S?)(\d+)\b/gi;
+  while((r=rr.exec(simpleSource))){
     const p1=(r[1]||"").toUpperCase(),p2=(r[3]||"").toUpperCase();
     if(p1===p2){ const a=+r[2],b=+r[4]; if(b>=a && b-a<=100) for(let n=a;n<=b;n++) add(p1+n); }
   }
-  // Section-based ranges such as 2.1–2.4 or 2.1 to 2.4.
-  const rs=/\b(S?)(\d+)\.(\d+)\s*(?:[–—-]|\bto\b)\s*(?:S?)(\d+)\.(\d+)\b/gi;
-  while((r=rs.exec(e))){ if(r[2]===r[4]){ const a=+r[3],b=+r[5]; if(b>=a&&b-a<=50) for(let n=a;n<=b;n++) add((r[1]||"")+r[2]+"."+n); } }
+
+  // Finally retain every explicitly written identifier. This preserves the
+  // endpoints of non-expandable ranges such as 3.4 to 4.2.
   (e.match(/S?\d+(?:\.\d+)?/gi)||[]).forEach(add);
   return ids;
 }
@@ -6291,6 +6677,128 @@ function fteEquationCitationsLoose(text){
     }
   }
   return out;
+}
+
+function fteNormalizeGeneratedListText(text){
+  return String(text||"")
+    .replace(/[\u00A0\u202F]/g," ")
+    .replace(/[–—−]/g,"-")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function fteGeneratedListStyleKey(style){
+  return String(style||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+}
+function fteIsGeneratedFigureTableListStyle(style){
+  const k=fteGeneratedListStyleKey(style);
+  if(!k) return false;
+  // Word normally uses the built-in style "Table of Figures" for BOTH a
+  // List of Figures and a List of Tables. Journal templates also use variants.
+  return /(?:tableoffigures|listoffigures|listoftables|listofillustrations|listofplates|figurelist|tablelist|lofentry|lotentry|figuretoc|tabletoc|tocfigure|toctable)/.test(k);
+}
+function fteGeneratedListHeadingKind(text){
+  const s=fteNormalizeGeneratedListText(text)
+    .replace(/^\s*\d+(?:\.\d+)*\s*[.)-]?\s*/,"")
+    .replace(/[.:;\-]+\s*$/,"")
+    .trim()
+    .toLowerCase();
+  if(/^(?:list|table)\s+of\s+(?:figures?|illustrations?|plates?|schemes?|charts?|graphs?|images?|photographs?)$/.test(s)) return "figure";
+  if(/^(?:list|table)\s+of\s+tables?$/.test(s)) return "table";
+  return "";
+}
+function fteGeneratedListEntryKind(text){
+  const s=fteNormalizeGeneratedListText(text);
+  if(/^(?:fig(?:ure)?s?\.?|plate|scheme|chart|graph|image|photo(?:graph)?|illustration|diagram)\s*(?:S|SI|ESI)?[- ]?\d+(?:\.\d+)*(?:\s*\([a-z]\)|[a-z])?\b/i.test(s)) return "figure";
+  if(/^(?:table|tab\.?)\s*(?:S|SI|ESI)?[- ]?\d+(?:\.\d+)*\b/i.test(s)) return "table";
+  return "";
+}
+function fteLooksLikeGeneratedListEntry(text,kind){
+  const s=fteNormalizeGeneratedListText(text);
+  const direct=fteGeneratedListEntryKind(s);
+  if(direct && (!kind || direct===kind)) return true;
+
+  // Some generated lists are configured to omit the literal "Figure"/"Table"
+  // label and retain only the caption number. Within an already identified list
+  // region, accept these only when they also look like an index entry with a
+  // terminal page number or dot leader.
+  if(kind && /^S?\d+(?:\.\d+)+(?:\s*\([a-z]\)|[a-z])?\s+\S+/i.test(s) && /(?:\.{2,}|\s\d{1,4})\s*$/.test(s)) return true;
+  return false;
+}
+function fteLooksLikeGeneratedListContinuation(text){
+  const s=fteNormalizeGeneratedListText(text);
+  if(!s) return true;
+  // Continuation lines can occur in manually built lists or after conversion.
+  // They usually terminate in the page number and do not begin like ordinary
+  // prose with a full sentence-ending punctuation sequence.
+  return /(?:\.{2,}|\s\d{1,4})\s*$/.test(s) && !/[.!?]\s+[A-Z][a-z]+\s+/.test(s);
+}
+function fteGeneratedFigureTableListInfo(blocks){
+  const mask=new Set(), kindByIndex=new Map();
+  let activeKind="", lastWasEntry=false;
+
+  const mark=(i,kind)=>{ mask.add(i); if(kind) kindByIndex.set(i,kind); };
+
+  for(let i=0;i<blocks.length;i++){
+    const b=blocks[i]||{};
+    if(b.type!=="p"){
+      // A real table/drawing means we have left a plain-text generated list.
+      // Style-marked list entries have already been protected independently.
+      if(activeKind) { activeKind=""; lastWasEntry=false; }
+      continue;
+    }
+    const text=fteNormalizeGeneratedListText(b.text||"");
+    const headingKind=fteGeneratedListHeadingKind(text);
+    const generatedStyle=fteIsGeneratedFigureTableListStyle(b.style||"");
+
+    if(headingKind){
+      mark(i,headingKind);
+      activeKind=headingKind;
+      lastWasEntry=false;
+      continue;
+    }
+
+    // Word-generated List of Figures / List of Tables entries are most reliably
+    // identified by their paragraph style. Protect them regardless of where the
+    // list occurs and regardless of whether dot leaders survive extraction.
+    if(generatedStyle){
+      const k=fteGeneratedListEntryKind(text)||activeKind||"generated-list";
+      mark(i,k);
+      if(k==="figure"||k==="table") activeKind=k;
+      lastWasEntry=true;
+      continue;
+    }
+
+    if(activeKind){
+      if(!text){ mark(i,activeKind); continue; }
+      if(fteLooksLikeGeneratedListEntry(text,activeKind)){
+        mark(i,activeKind); lastWasEntry=true; continue;
+      }
+      if(lastWasEntry && fteLooksLikeGeneratedListContinuation(text)){
+        mark(i,activeKind); lastWasEntry=true; continue;
+      }
+
+      // A clear new manuscript heading ends the generated-list region. Use Word
+      // structure first, then the shared heading heuristic as a fallback.
+      const structuralHeading=(b.outlineLvl!=null) || /^(?:heading|title)\s*\d*$/i.test(String(b.style||"").replace(/[_-]+/g," ").trim());
+      const heuristicHeading=typeof engLooksHeadingForScan==="function" ? engLooksHeadingForScan(text) : false;
+      if(structuralHeading || heuristicHeading || /^(?:abstract|introduction|materials?\s+and\s+methods?|methods?|experimental|results?|discussion|conclusions?|references?|bibliography|acknowledg(?:e)?ments?)\b/i.test(text)){
+        activeKind=""; lastWasEntry=false;
+        continue;
+      }
+
+      // Be conservative: once ordinary prose is encountered, stop the region
+      // immediately rather than swallowing real manuscript text.
+      activeKind=""; lastWasEntry=false;
+    }
+  }
+
+  return {mask,kindByIndex};
+}
+function fteIsGeneratedFigureTableListParagraph(block,index,listInfo){
+  if(listInfo?.mask?.has(index)) return true;
+  const b=block||{};
+  if(fteIsGeneratedFigureTableListStyle(b.style||"")) return true;
+  return false;
 }
 
 function fteSnippet(t){ t=(t||"").replace(/\s+/g," ").trim(); return t.length>220?t.slice(0,217)+"…":t; }
@@ -6353,12 +6861,14 @@ function fteAnalyze(blocks){
   const issues=[];
   if(!blocks||!blocks.length) return {reliable:false,issues,figures:[],tables:[],equations:[],citations:{figure:[],table:[],equation:[]},unverified:0};
   const refStart=fteRefStart(blocks), active=blocks.slice(0,refStart);
+  const generatedLists=fteGeneratedFigureTableListInfo(active);
   const figCandidates=[],tabCandidates=[],captionBlocks=new Set(),eqBlocks=new Set();
 
   // Collect possible labels first. A paragraph starting with "Figure 5" is not
   // automatically a caption; it may be an ordinary in-text citation.
   active.forEach((b,i)=>{
     if(b.type!=="p"||!b.text) return;
+    if(fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
     const fc=fteFigureCaption(b.text), tc=fteTableCaption(b.text);
     if(fc){
       const near=fteNearbyIndex(active,i,x=>x.type==="p"&&x.hasDrawing,3);
@@ -6374,7 +6884,7 @@ function fteAnalyze(blocks){
 
   // Associate only the best caption candidate with each physical drawing.
   const figures=[];
-  const drawingIndices=active.map((b,i)=>b.type==="p"&&b.hasDrawing?i:null).filter(i=>i!=null);
+  const drawingIndices=active.map((b,i)=>b.type==="p"&&b.hasDrawing&&!fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)?i:null).filter(i=>i!=null);
   const usedFigCaps=new Set();
 
   drawingIndices.forEach(di=>{
@@ -6420,14 +6930,52 @@ function fteAnalyze(blocks){
     }
   });
   const equations=[];
+  const equationConsumed=new Set();
+
+  // First pass: equations whose expression and terminal number are in the same
+  // structural block. This covers OMML, formatted-run equations, and equation
+  // layout-table rows.
   active.forEach((b,i)=>{
+    if(fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
     const id=fteDisplayedEquationId(b); if(!id) return;
     eqBlocks.add(i);
+    equationConsumed.add(i);
+    const expr=fteEquationExpressionEvidence(fteStripTerminalEquationLabel(b.text));
+    const structural=!!(
+      b.fromEquationTable || b.hasMathPara || /equation/i.test(b.style||"") ||
+      b.rightTabStop || (b.tabCount||0)>0 || /^(?:center|both|distribute)$/i.test(b.textAlign||"")
+    );
     equations.push({
       kind:"equation",id,pos:b.pos,caption:b.text,context:b.text,
-      placementReliable:!!(b.hasMathPara||/equation/i.test(b.style||"")),
+      placementReliable:structural || expr.score>=12,
       physicalAnchor:b.physicalAnchor||`equation:${i}`,
       fromEquationTable:!!b.fromEquationTable
+    });
+  });
+
+  // Second pass: Word sometimes stores the formula and number in separate
+  // adjacent paragraphs. Pair a number-only block with a genuine displayed
+  // expression rather than treating the number as an in-text citation.
+  active.forEach((b,i)=>{
+    if(equationConsumed.has(i) || fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
+    if(!b || b.type!=="p" || !b.text) return;
+    const id=fteEquationNumberOnly(b.text); if(!id) return;
+    const pair=fteAdjacentEquationExpression(active,i,2);
+    if(!pair || equationConsumed.has(pair.j)) return;
+
+    equationConsumed.add(i);
+    equationConsumed.add(pair.j);
+    eqBlocks.add(i);
+    eqBlocks.add(pair.j);
+
+    const anchor=`equation-pair:${Math.min(i,pair.j)}:${Math.max(i,pair.j)}`;
+    equations.push({
+      kind:"equation",id,pos:Math.min(b.pos,pair.b.pos),
+      caption:`${pair.b.text} ${b.text}`.replace(/\s+/g," ").trim(),
+      context:`${pair.b.text} ${b.text}`.replace(/\s+/g," ").trim(),
+      placementReliable:true,
+      physicalAnchor:anchor,
+      fromEquationTable:false
     });
   });
 
@@ -6436,7 +6984,7 @@ function fteAnalyze(blocks){
   const citations={figure:[],table:[],equation:[]};
   active.forEach((b,i)=>{
     if(b.type!=="p"||!b.text||captionBlocks.has(i)) return;
-    if(/(?:table\s+of\s+figures|list\s+of\s+figures|list\s+of\s+tables)/i.test(b.style||"")) return;
+    if(fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
     for(const kind of ["figure","table","equation"]){
       let scanText=b.text;
       // For an actual displayed equation, remove only its terminal equation label
@@ -6518,7 +7066,7 @@ function renderFteReport(res){
   if(!res.issues.length) $("fte-findings").innerHTML=`<p class="verdict clean">No figure, table, or numbered-equation consistency issues detected.</p>`;
   else{
     const order=["figure","table","equation"]; let html="";
-    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution. Borderless Word layout tables used only to align displayed equations with equation numbers are classified as equation containers and excluded from Table findings.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, cross-reference resolution, and first-reference order."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
+    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering. Entries in a Word-generated or manually headed List of Figures are excluded from figure detection and citation-order checks.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution. Entries in a Word-generated or manually headed List of Tables are excluded from table detection and citation-order checks. Borderless Word layout tables used only to align displayed equations with equation numbers are classified as equation containers and excluded from Table findings.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, cross-reference resolution, and first-reference order. The detector separates prose citations such as \"can be calculated using Equation 2.3\" from actual displayed equations, and supports Office Math, equation-layout tables, Equation-styled paragraphs, and strongly equation-like formatted text even when Word did not store it as OMML."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
     $("fte-findings").innerHTML=html;
   }
   $("fte-report").hidden=false;
