@@ -924,7 +924,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="fte" hidden>
   <section class="card" id="fte-report" hidden aria-live="polite">
-    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Equation detection distinguishes genuine displayed equations from prose citations, supports Office Math, Equation styles, equation-layout tables, figure/equation objects stored in Word layout containers, and grouped sub-equations. A parent citation such as Eq. 2 is accepted when the manuscript contains Eq. 2a and Eq. 2b. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
+    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Equation detection distinguishes genuine displayed equations from prose citations, supports Office Math, Equation styles, equation-layout tables, figure/equation objects stored in Word layout containers, and grouped sub-equations, and common equation-label variants such as Eq., Eqn., Equation, and Eq. No. A parent citation such as Eq. 2 is accepted when the manuscript contains Eq. 2a and Eq. 2b. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
     <p class="sub" id="fte-report-sub"></p>
     <nav class="report-subnav" id="fte-subnav" aria-label="Figures tables and equations report sections" hidden></nav>
     <div id="fte-summary"></div>
@@ -6672,12 +6672,12 @@ function fteChooseCaptionCandidate(candidates,kind,objectIndex){
 }
 function fteNormalizeCrossRefText(text){
   // Normalize whitespace around cross-reference labels without forcing one punctuation style.
-  // Preserve both full-word forms ("Equation 1") and abbreviated forms ("Eq. 1").
+  // Accept common journal/manuscript variants: Eq., Eqs., Eqn., Eqns., Equation(s).
   return (text||"")
     .replace(/[\u00A0\u202F]/g," ")
-    .replace(/\b(Eq|Eqs|Fig|Figs)\s*\.\s*/gi,"$1. ")
+    .replace(/\b(Eq|Eqs|Eqn|Eqns|Fig|Figs)\s*\.\s*/gi,"$1. ")
     .replace(/\b(Equation|Equations|Figure|Figures|Table|Tables)\s*\.\s*/gi,"$1. ")
-    .replace(/\b(Eq|Eqs|Fig|Figs)\s*(?=\d)/gi,"$1. ")
+    .replace(/\b(Eq|Eqs|Eqn|Eqns|Fig|Figs)\s*(?=(?:No\.?\s*)?(?:S|SI|ESI|A|B)?[.-]?\d)/gi,"$1. ")
     .replace(/\s+/g," ")
     .trim();
 }
@@ -6841,7 +6841,7 @@ function fteExpandIds(expr){
   // "Eq. 3.1 to Eq. 3.3" and "Eq. 1 to Eq. 5" can be parsed uniformly.
   const e=(expr||"")
     .replace(/\u2212/g,"-")
-    .replace(/\b(?:Figures?\.?|Figs?\.?|Tables?\.?|Equations?\.?|Eqs?\.?)\s*/gi," ")
+    .replace(/\b(?:Figures?\.?|Figs?\.?|Tables?\.?|Equations?\.?|Eqs?\.?|Eqns?\.?)\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?/gi," ")
     .replace(/[()]/g,"");
 
   /*
@@ -6899,10 +6899,10 @@ function fteCitations(text,kind){
     expr=token+'(?:'+sep+token+')*';
   } else {
     token='\\(?[Ss]?\\d+(?:\\.\\d+)?\\)?';
-    head='(?:Equations?\\.?|Eqs?\\.?)';
+    head='(?:Equations?|Eqs?|Eqns?)\\.?\\s*(?:(?:No|Nos|Number|Numbers)\\.?\\s*|#\\s*)?';
     // Equation ranges are often written with the label repeated at both ends,
     // e.g. "Eq.1 to Eq. 7", "Eq. (1)-Eq. (7)", or "Equation 1 to Equation 7".
-    const repeatedHead='(?:Equations?\\.?|Eqs?\\.?)';
+    const repeatedHead='(?:Equations?|Eqs?|Eqns?)\\.?\\s*(?:(?:No|Nos|Number|Numbers)\\.?\\s*|#\\s*)?';
     expr=token+'(?:'+sep+'(?:'+repeatedHead+'\\s*)?'+token+')*';
   }
   // Word manuscripts commonly use both "Fig. 1" and compact "Fig.1".
@@ -6917,7 +6917,7 @@ function fteEquationCitationsLoose(text){
   // never disappear because of equation-layout heuristics.
   text=fteNormalizeCrossRefText(text||"");
   const out=[];
-  const re=/\b(?:Equation(?:s)?|Eq(?:s)?\.?)\s*\(?\s*([Ss]?\d+(?:\.\d+)?)\s*\)?(?:\s*(?:,|and|&|to|[-–—])\s*(?:(?:Equation(?:s)?|Eq(?:s)?\.?)\s*)?\(?\s*([Ss]?\d+(?:\.\d+)?)\s*\)?)?/gi;
+  const re=/\b(?:Equation(?:s)?|Eq(?:s)?\.?|Eqn(?:s)?\.?)\s*\(?\s*([Ss]?\d+(?:\.\d+)?)\s*\)?(?:\s*(?:,|and|&|to|[-–—])\s*(?:(?:Equation(?:s)?|Eq(?:s)?\.?|Eqn(?:s)?\.?)\s*)?\(?\s*([Ss]?\d+(?:\.\d+)?)\s*\)?)?/gi;
   let m;
   while((m=re.exec(text))){
     const a=fteCanonId(m[1]), b=m[2]?fteCanonId(m[2]):null;
@@ -10700,7 +10700,7 @@ function fteStructuralIdParse(raw){
     .replace(/[\u00A0\u202F]/g," ")
     .replace(/[−–—]/g,"-")
     .trim()
-    .replace(/^\s*(?:Eq(?:uation)?s?\.?|Fig(?:ure)?s?\.?|Tables?)\s*/i,"")
+    .replace(/^\s*(?:(?:Equation(?:s)?|Eq(?:s)?|Eqn(?:s)?)\.?\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?|Fig(?:ure)?s?\.?|Tables?)\s*/i,"")
     .trim();
   if(!s) return null;
 
@@ -10784,48 +10784,55 @@ function fteEquationIdPattern(){
   return '(?:S|SI|ESI|A|B)?[.-]?\\d+(?:\\.\\d+)*(?:\\s*(?:\\([a-z]\\)|-?[a-z]))?';
 }
 
+// Shared equation-label grammar. Keep this centralized so citation extraction,
+// displayed-equation recognition, number-only pairing, and label stripping all
+// understand the same common variants. Examples: Eq. 2.15, Eqn. 2.15,
+// Equation 2.15, Eq. No. 2.15, Equation No. (2.15), Eqs. 2a and 2b.
+function fteEquationHeadPattern(plural=true){
+  const base=plural?'(?:Equation(?:s)?|Eq(?:s)?|Eqn(?:s)?)':'(?:Equation|Eq|Eqn)';
+  return base+'\\.?\\s*(?:(?:No|Nos|Number|Numbers)\\.?\\s*|#\\s*)?';
+}
+
 fteEquationLabel=function(text){
   const t=fteNormalizeCrossRefText(text||"")
     .replace(/[\u00A0\u202F]/g," ")
     .replace(/\s+/g," ")
     .trim();
-  const ID=fteEquationIdPattern();
+  const ID=fteEquationIdPattern(), HEAD=fteEquationHeadPattern(false);
   let m;
-  // Parenthesized terminal number, optionally preceded by ellipsis/dot leaders.
-  m=t.match(new RegExp('(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:Eq(?:uation)?\\.?\\s*)?('+ID+')\\s*\\)\\s*[.;:]?\\s*$','i'));
+  // Parenthesized terminal number, optionally preceded by Eq./Eqn./Equation and
+  // optional No./Number wording, plus ellipsis/dot leaders used in equation rows.
+  m=t.match(new RegExp('(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:'+HEAD+')?('+ID+')\\s*\\)\\s*[.;:]?\\s*$','i'));
   if(m) return fteCanonId(m[1]);
-  // Explicit Eq./Equation terminal label.
-  m=t.match(new RegExp('\\b(?:Eq(?:uation)?\\.?)\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'));
+  // Explicit terminal label: Eq. 2.15, Eqn. 2.15, Equation No. 2.15, etc.
+  m=t.match(new RegExp('\\b'+HEAD+'\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'));
   if(m) return fteCanonId(m[1]);
   // Math paragraphs frequently end with an ellipsis followed by a naked number.
   m=t.match(new RegExp('(?:…|⋯|\\.{2,})\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'));
   return m?fteCanonId(m[1]):null;
 };
-
 fteStripTerminalEquationLabel=function(text){
   let t=String(text||"");
-  const ID=fteEquationIdPattern();
+  const ID=fteEquationIdPattern(), HEAD=fteEquationHeadPattern(false);
   const pats=[
-    new RegExp('\\s*(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:Eq(?:uation)?\\.?\\s*)?'+ID+'\\s*\\)\\s*[.;:]?\\s*$','i'),
-    new RegExp('\\s*\\b(?:Eq(?:uation)?\\.?)\\s*\\(?\\s*'+ID+'\\s*\\)?\\s*[.;:]?\\s*$','i'),
+    new RegExp('\\s*(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:'+HEAD+')?'+ID+'\\s*\\)\\s*[.;:]?\\s*$','i'),
+    new RegExp('\\s*\\b'+HEAD+'\\(?\\s*'+ID+'\\s*\\)?\\s*[.;:]?\\s*$','i'),
     new RegExp('\\s*(?:…|⋯|\\.{2,})\\s*\\(?\\s*'+ID+'\\s*\\)?\\s*[.;:]?\\s*$','i')
   ];
   for(const p of pats){ const x=t.replace(p,""); if(x!==t){ t=x; break; } }
   return t.trim();
 };
-
 fteEquationNumberOnly=function(text){
   const t=String(text||"").replace(/[\u00A0\u202F]/g," ").replace(/\s+/g," ").trim();
-  const ID=fteEquationIdPattern();
+  const ID=fteEquationIdPattern(), HEAD=fteEquationHeadPattern(false);
   const pats=[
-    new RegExp('^\\s*(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:Eq(?:uation)?\\.?\\s*)?('+ID+')\\s*\\)\\s*[.;:]?\\s*$','i'),
-    new RegExp('^\\s*(?:Eq(?:uation)?\\.?)\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'),
+    new RegExp('^\\s*(?:…|⋯|\\.{2,})?\\s*\\(\\s*(?:'+HEAD+')?('+ID+')\\s*\\)\\s*[.;:]?\\s*$','i'),
+    new RegExp('^\\s*'+HEAD+'\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i'),
     new RegExp('^\\s*(?:…|⋯|\\.{2,})\\s*\\(?\\s*('+ID+')\\s*\\)?\\s*[.;:]?\\s*$','i')
   ];
   for(const p of pats){ const m=t.match(p); if(m) return fteCanonId(m[1]); }
   return null;
 };
-
 fteExpandIds=function(expr,options={}){
   const keepChild=!!options.keepChild;
   const ids=[];
@@ -10836,7 +10843,7 @@ fteExpandIds=function(expr,options={}){
   };
   let e=String(expr||"")
     .replace(/\u2212/g,"-")
-    .replace(/\b(?:Figures?\.?|Figs?\.?|Tables?\.?|Equations?\.?|Eqs?\.?)\s*/gi," ")
+    .replace(/\b(?:Figures?\.?|Figs?\.?|Tables?\.?|Equations?\.?|Eqs?\.?|Eqns?\.?)\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?/gi," ")
     .replace(/[\u00A0\u202F]/g," ");
 
   // Grouped child notation: 2(a-c), 6.2(a–d), S3(a-c).
@@ -10903,11 +10910,11 @@ function fteEquationSpecialCitations(text){
   let m;
 
   // Repeated-label numeric ranges: Eq. 3.1 to Eq. 3.3.
-  const range=/\b(?:Equations?|Eqs?\.?)\s*\(?\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\)?\s*(?:to|through|[-–—])\s*(?:(?:Equations?|Eqs?\.?)\s*)?\(?\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\)?/gi;
+  const range=/\b(?:Equations?|Eqs?\.?|Eqns?\.?)\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?\(?\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\)?\s*(?:to|through|[-–—])\s*(?:(?:Equations?|Eqs?\.?|Eqns?\.?)\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?)?\(?\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\)?/gi;
   while((m=range.exec(t))) fteExpandIds(`${m[1]} to ${m[2]}`,{keepChild:true}).forEach(id=>push(id,m.index,m[0]));
 
   // Parenthesized child ranges/lists: Eq. 2(a-c), Eq. 2(a,b,d).
-  const grouped=/\b(?:Equations?|Eqs?\.?)\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z](?:\s*(?:,|and|&|to|through|[-–—])\s*[a-z])+)\s*\)/gi;
+  const grouped=/\b(?:Equations?|Eqs?\.?|Eqns?\.?)\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z](?:\s*(?:,|and|&|to|through|[-–—])\s*[a-z])+)\s*\)/gi;
   while((m=grouped.exec(t))){
     const parent=fteCanonId(m[1]); if(!parent) continue;
     const body=m[2];
@@ -10921,7 +10928,7 @@ function fteEquationSpecialCitations(text){
   }
 
   // Shorthand grouped references: Eqs. 2(a) and (b), Eq. 6.2(a), (b), and (c).
-  const short=/\b(?:Equations?|Eqs?\.?)\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z])\s*\)((?:\s*(?:,|and|&)\s*\(\s*[a-z]\s*\))+)/gi;
+  const short=/\b(?:Equations?|Eqs?\.?|Eqns?\.?)\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)\s*\(\s*([a-z])\s*\)((?:\s*(?:,|and|&)\s*\(\s*[a-z]\s*\))+)/gi;
   while((m=short.exec(t))){
     const parent=fteCanonId(m[1]); if(!parent) continue;
     push(parent+m[2].toLowerCase(),m.index,m[0]);
@@ -10931,7 +10938,7 @@ function fteEquationSpecialCitations(text){
   }
 
   // Compact shared-parent lists: Eqs. 2a,b,c or Equations 6.2a, b and c.
-  const compact=/\b(?:Equations?|Eqs?\.?)\s*((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)([a-z])((?:\s*,\s*[a-z])+(?:\s*(?:and|&)\s*[a-z])?|\s*(?:and|&)\s*[a-z])/gi;
+  const compact=/\b(?:Equations?|Eqs?\.?|Eqns?\.?)\s*(?:(?:No|Nos|Number|Numbers)\.?\s*|#\s*)?((?:S|SI|ESI)?[.-]?\d+(?:\.\d+)*)([a-z])((?:\s*,\s*[a-z])+(?:\s*(?:and|&)\s*[a-z])?|\s*(?:and|&)\s*[a-z])/gi;
   while((m=compact.exec(t))){
     const parent=fteCanonId(m[1]); if(!parent) continue;
     push(parent+m[2].toLowerCase(),m.index,m[0]);
@@ -10958,9 +10965,9 @@ fteCitations=function(text,kind){
     expr=token+'(?:'+sep+token+')*';
   }else{
     keepChild=true;
-    token='\\(?(?:S|SI|ESI)?[.-]?\\d+(?:\\.\\d+)*(?:\\s*(?:\\([a-z]\\)|-?[a-z]))?\\)?';
-    head='(?:Equations?\\.?|Eqs?\\.?)';
-    const repeatedHead='(?:Equations?\\.?|Eqs?\\.?)';
+    token='\\(?(?:S|SI|ESI)?[.-]?\\d+(?:\\.\\d+)*(?:\\s*\\([a-z]\\)|-?[a-z])?\\)?';
+    head='(?:Equations?|Eqs?|Eqns?)\\.?\\s*(?:(?:No|Nos|Number|Numbers)\\.?\\s*|#\\s*)?';
+    const repeatedHead='(?:Equations?|Eqs?|Eqns?)\\.?\\s*(?:(?:No|Nos|Number|Numbers)\\.?\\s*|#\\s*)?';
     expr=token+'(?:'+sep+'(?:'+repeatedHead+'\\s*)?'+token+')*';
   }
   const re=new RegExp('\\b'+head+'\\s*('+expr+')','gi'); let m;
