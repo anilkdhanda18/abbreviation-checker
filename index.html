@@ -908,7 +908,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <summary>What the readability and terminology check covers</summary>
     <ol>
       <li><b>Sentence length.</b> Prose sentences exceeding the user-selected maximum are reported for readability review. The default maximum is <b>35 words</b>, and the user may select a value from 10 to 100 words.</li>
-      <li><b>Paragraph length.</b> Main-text prose uses the user-selected minimum and maximum, with defaults of <b>100–300 words</b>. The minimum remains section-aware: a short paragraph is not flagged when it is the only substantive paragraph in its local section, when the local section contains no more words than the selected minimum, when it belongs to an intentionally concise component such as a Novelty or Significance statement, or when it is a genuine equation-introduction/variable-explanation paragraph directly associated with a displayed equation. The selected maximum remains paragraph-specific.</li>
+      <li><b>Paragraph length.</b> Main-text narrative prose uses the user-selected minimum and maximum, with defaults of <b>100–300 words</b>. The minimum remains section-aware: a short paragraph is not flagged when it is the only substantive paragraph in its local section, when the local section contains no more words than the selected minimum, when it belongs to an intentionally concise component such as a Novelty or Significance statement, when it is a genuine equation-introduction/variable-explanation paragraph directly associated with a displayed equation, or when it is a concise lead-in to a genuine bulleted/numbered list. List items themselves are excluded from paragraph-length thresholds because they are intentionally concise structural elements. The selected maximum remains paragraph-specific for narrative prose.</li>
       <li><b>Readability metrics.</b> Flesch Reading Ease and Flesch-Kincaid Grade Level are calculated from eligible manuscript prose as descriptive indicators. They do not measure scientific quality and do not create automatic language errors.</li>
       <li><b>Terminology consistency.</b> The checker looks for repeated scientific/technical terms used in conflicting open, closed, hyphenated, or internal-capitalization forms, such as <code>wastewater</code>/<code>waste water</code>.</li>
       <li><b>Structural exclusions.</b> References, affiliations, headings, captions, equations, tables, citation-like structures, headers/footers, footnotes/endnotes, and other non-prose structural content are excluded where appropriate. The Abstract is additionally excluded from paragraph-length checking.</li>
@@ -2361,10 +2361,76 @@ function engAnnotateTextEquationAssociations(section,lines){
   }
 }
 
+
+/* Bulleted and numbered list items are not ordinary narrative paragraphs. They are
+   intentionally concise structural units and should not be judged against the
+   manuscript paragraph-length range. A short prose sentence that directly
+   introduces a real list is also exempt from the MINIMUM only, because expanding
+   "The following findings were identified:" to 100 words would encourage padding.
+   This logic is deliberately restricted to genuine Word-list structure or strong
+   plain-text list markers, not arbitrary short paragraphs near other content. */
+const ENG_LIST_INTRO_CUE_RE=/(?:\bas\s+follows\b|\bthe\s+following\b|\bfollowing\s+(?:items?|points?|findings?|results?|observations?|recommendations?|steps?|criteria|zones?|conditions?|measures?|actions?|parameters?|categories|cases?)\b|\b(?:listed|summari[sz]ed|presented|given|provided|shown|identified|described|outlined)\s+below\b|\b(?:include|includes|included|comprise|comprises|consist|consists)\b[^.!?]{0,90}$)/i;
+
+function engStructuralListItemRecord(r){
+  if(!r || r.type!=="BODY_PROSE") return false;
+  const b=r.block||{};
+  const st=String(b.style||"");
+  if(b.type==="p" && (b.hasNumbering || /(?:^|\b)(?:list\s*paragraph|list\s*(?:bullet|number|continue)|bullet|numbered)(?:\b|$)/i.test(st))) return true;
+  // Some converted DOCX files retain the bullet/number in the visible paragraph
+  // instead of Word numbering properties. Keep this as a secondary signal.
+  return engTextListItem(r.text||"");
+}
+
+function engTextListItem(text){
+  const s=engNormStructuralText(text||"");
+  if(!s) return false;
+  if(/^\s*[•▪◦‣●○]\s+\S/u.test(s)) return true;
+  if(/^\s*[-*]\s+\S/.test(s)) return true;
+  // Number/letter/roman enumerators require punctuation, avoiding section headings
+  // such as "3 Discussion" that do not use a list delimiter.
+  if(/^\s*\(?\d{1,3}\)?[.)]\s+\S/.test(s)) return true;
+  if(/^\s*\(?[A-Za-z]\)?[.)]\s+\S/.test(s)) return true;
+  if(/^\s*\(?[ivxlcdm]{1,8}\)?[.)]\s+\S/i.test(s)) return true;
+  return false;
+}
+
+function engListIntroducerText(text){
+  const s=engNormStructuralText(text||"");
+  if(!s || engWordCount(s)>80) return false;
+  // A colon immediately before an actual list is the strongest generic cue.
+  if(/:\s*$/.test(s)) return true;
+  return ENG_LIST_INTRO_CUE_RE.test(s);
+}
+
+function engStructuralFollowedByList(classified,index,end){
+  if(!Array.isArray(classified) || !Number.isInteger(index)) return false;
+  const lim=Math.min(Number.isInteger(end)?end:classified.length,index+5);
+  for(let j=index+1;j<lim;j++){
+    const r=classified[j];
+    if(!r) continue;
+    if(r.type==="EMPTY" || (r.block?.type==="p" && !engNormStructuralText(r.text||""))) continue;
+    if(engStructuralListItemRecord(r)) return true;
+    // Do not bridge across any real intervening prose/display object.
+    return false;
+  }
+  return false;
+}
+
+function engTextFollowedByList(lines,index){
+  if(!Array.isArray(lines) || !Number.isInteger(index)) return false;
+  for(let j=index+1;j<Math.min(lines.length,index+4);j++){
+    const s=engNormStructuralText(lines[j]||"");
+    if(!s) continue;
+    return engTextListItem(s);
+  }
+  return false;
+}
+
 function engParagraphMinEligible(section,p,settings){
   if(!p || !section) return false;
   if(p.shortForm || section.isShortFormSection) return false;
   if(p.equationAssociated) return false;
+  if(p.listIntroducer) return false;
   if(section.paragraphs.length<=1) return false;
   if(section.totalWords<=settings.min) return false;
   return true;
@@ -2394,10 +2460,17 @@ function engBuildStructuralParagraphSections(classified,start,end){
       continue;
     }
     if(r.type!=="BODY_PROSE") continue;
+    // Bulleted/numbered list items are intentional list structure, not narrative
+    // paragraphs. Exclude them from paragraph-length thresholds and section totals.
+    if(engStructuralListItemRecord(r)) continue;
     if(!engParagraphPassesContentGate(p)) continue;
     const wc=engWordCount(p);
     proseNo++;
-    const rec={text:p,wordCount:wc,paragraph:proseNo,blockIndex:i,shortForm:engIsShortFormInlineParagraph(p)};
+    const rec={
+      text:p,wordCount:wc,paragraph:proseNo,blockIndex:i,
+      shortForm:engIsShortFormInlineParagraph(p),
+      listIntroducer:engStructuralFollowedByList(classified,i,end) && engListIntroducerText(p)
+    };
     current.paragraphs.push(rec);
     current.totalWords+=wc;
   }
@@ -2424,6 +2497,9 @@ function engBuildTextParagraphSections(text){
     if(engIsParagraphMetadata(raw)) continue;
     if(engIsStandaloneCaptionParagraph(raw) || engLooksLikeCaptionContinuation(raw)) continue;
     if(/^(?:note|source)\s*:/i.test(raw) && engWordCount(raw)<100) continue;
+    // Plain-text fallback for pasted manuscripts: list items remain intentionally
+    // concise structural units and are outside paragraph-length thresholds.
+    if(engTextListItem(raw)) continue;
     if(!engParagraphPassesContentGate(raw)) continue;
 
     // Apply the shared English structural masking to the individual paragraph as
@@ -2433,7 +2509,11 @@ function engBuildTextParagraphSections(text){
     if(!p || engIsHeadingLike(p) || engIsStandaloneCaptionParagraph(p)) continue;
     const wc=engWordCount(p);
     proseNo++;
-    const rec={text:p,wordCount:wc,paragraph:proseNo,rawIndex,shortForm:engIsShortFormInlineParagraph(p)};
+    const rec={
+      text:p,wordCount:wc,paragraph:proseNo,rawIndex,
+      shortForm:engIsShortFormInlineParagraph(p),
+      listIntroducer:engTextFollowedByList(lines,rawIndex) && engListIntroducerText(p)
+    };
     current.paragraphs.push(rec); current.totalWords+=wc;
   }
   finish();
@@ -6108,7 +6188,7 @@ function issueHelpText(code,msg=""){
     HYPHENATION_INCONSISTENT:"Both a hyphenated and closed form of what appears to be the same technical term occur in the manuscript.",
     CAPITALIZATION_INCONSISTENT:"The same repeated term appears with different capitalization in comparable running-prose contexts. Cover letters, subject lines, title pages, document titles, headings, captions, tables, equations, References, sentence-initial capitalization, and likely proper/formal names are excluded.",
     CAPTION_CAPITALIZATION_INCONSISTENT:"Figure and table captions are evaluated separately from body prose. This note appears only when multiple captions provide clear evidence that sentence-case and title-case caption conventions are being mixed within the same caption family.",
-    PARAGRAPH_TOO_SHORT:`A main-text prose paragraph is below the selected ${ENG_CURRENT_PARAGRAPH_MIN}-word guideline inside a sufficiently developed local section. The checker suppresses this warning for single-paragraph sections, sections containing ${ENG_CURRENT_PARAGRAPH_MIN} prose words or fewer, intentionally concise statement sections, genuine equation-associated introduction/explanation prose, and structural content such as headings, captions, notes, equations, tables, back matter, and References.`,
+    PARAGRAPH_TOO_SHORT:`A main-text narrative prose paragraph is below the selected ${ENG_CURRENT_PARAGRAPH_MIN}-word guideline inside a sufficiently developed local section. The checker suppresses this warning for single-paragraph sections, sections containing ${ENG_CURRENT_PARAGRAPH_MIN} prose words or fewer, intentionally concise statement sections, genuine equation-associated introduction/explanation prose, concise prose that directly introduces a genuine list, and structural content such as list items, headings, captions, notes, equations, tables, back matter, and References.`,
     PARAGRAPH_TOO_LONG:`A main-text prose paragraph contains more than the selected ${ENG_CURRENT_PARAGRAPH_MAX}-word maximum. Consider splitting only at a logical transition.`
   };
   if(englishHelp[code]) return englishHelp[code];
@@ -11005,7 +11085,7 @@ fteAnalyze=function(blocks){
     html+=`<section class="report-subsection"><p class="sec-label">Sentence length <button type="button" class="info-help inline-auto-help" data-help="Shows eligible prose sentences that exceed the user-selected ${sentenceLimit}-word maximum. Sentence length is a readability indicator, not a grammar judgment." aria-label="Explain Sentence length" title="Explain this section">i</button> · ${sentenceIssues.length}</p>`;
     html+=mcFocusedRenderIssues(sentenceIssues,`No eligible prose sentence exceeded the selected ${sentenceLimit}-word maximum.`)+`</section>`;
 
-    html+=`<section class="report-subsection"><p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks main-text BODY_PROSE using the selected ${paragraphMin}–${paragraphMax}-word range. The minimum is section-aware and is suppressed for single-paragraph, intentionally concise, and genuine equation-associated introduction/explanation prose; the maximum remains paragraph-specific." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
+    html+=`<section class="report-subsection"><p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks main-text narrative BODY_PROSE using the selected ${paragraphMin}–${paragraphMax}-word range. Bulleted/numbered list items are excluded from paragraph-length thresholds. The minimum is section-aware and is also suppressed for single-paragraph, intentionally concise, genuine equation-associated, and genuine list-introduction prose; the maximum remains paragraph-specific for narrative prose." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
     if(paraIssues.length){
       html+=paraIssues.slice(0,300).map(it=>`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`).join("");
     }else html+=`<p class="verdict clean">No paragraph-length issues were detected among ${res.proseParagraphs||0} eligible main-text prose paragraphs after section-aware minimum-length exemptions.</p>`;
