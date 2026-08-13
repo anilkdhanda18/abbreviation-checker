@@ -930,7 +930,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Cross-references.</b> Grouped citations such as Figs. 2–5, Tables 1 and 2, and Eqs. (3)–(5) are expanded and checked against existing items.</li>
       <li><b>Citation before appearance.</b> Figures and tables should be cited in manuscript text before their first physical appearance. Caption text does not count as the prior citation.</li>
       <li><b>Equations.</b> Only structurally numbered displayed equations are included. Citation-before-equation placement is reported conservatively because journal requirements vary.</li>
-      <li><b>Multipanel figures.</b> Panel references are treated as components of the parent figure; obvious panel-letter gaps or duplicates in captions are flagged.</li>
+      <li><b>Multipanel figures.</b> Panel-like mentions in captions are classified as declarations or explanatory references. Only declared panels participate in duplicate, gap, and sequence checks; references such as <code>in (d)</code>, <code>shown in (b)</code>, or <code>panel (c)</code> do not create duplicate panels.</li>
     </ol>
   </details>
   </div><!-- /group fte -->
@@ -5599,13 +5599,227 @@ function fteIssue(issues,kind,id,code,msg,suggestion,context,severity="warn"){
   issues.push({kind,id,code,msg,suggestion,context:fteSnippet(context),severity});
 }
 function ftePanelCheck(figures,issues){
+  const expandGroup=raw=>{
+    const x=String(raw||"").toLowerCase().replace(/\s+/g,"");
+    if(/^[a-z]$/.test(x)) return [x];
+    if(/^[a-z](?:,[a-z])+$/.test(x)) return x.split(",");
+    const m=x.match(/^([a-z])[-–]([a-z])$/);
+    if(m){
+      const a=m[1].charCodeAt(0),b=m[2].charCodeAt(0),out=[];
+      if(b>=a && b-a<=12) for(let c=a;c<=b;c++) out.push(String.fromCharCode(c));
+      return out;
+    }
+    return [];
+  };
+  const sentenceStart=(text,pos)=>{
+    const pre=String(text||"").slice(0,pos);
+    // Ignore punctuation inside a leading Figure number such as "Fig. 4.13".
+    const tail=pre.replace(/^\s*(?:fig(?:ure)?\.?)\s*S?\d+(?:\.\d+)*(?:\s*[:.\-–—])?\s*/i,"");
+    const last=Math.max(tail.lastIndexOf("."),tail.lastIndexOf("?"),tail.lastIndexOf("!"));
+    return !tail.slice(last+1).trim();
+  };
+  const hasSentenceBoundary=s=>{
+    const x=String(s||"");
+    // Require sentence-like punctuation followed by a new clause. This avoids
+    // decimal points and the dots inside Figure identifiers.
+    return /[!?]\s+(?=[A-Z(])/.test(x) || /[A-Za-z0-9)\]]\.\s+(?=[A-Z(])/.test(x);
+  };
+  const sentenceTailEnd=(text,start)=>{
+    const x=String(text||"");
+    for(let i=Math.max(0,start);i<x.length;i++){
+      const ch=x[i];
+      if(ch==="?"||ch==="!") return i;
+      if(ch!==".") continue;
+      const prev=x[i-1]||"",next=x[i+1]||"";
+      if(/\d/.test(prev)&&/\d/.test(next)) continue;
+      const rest=x.slice(i+1);
+      if(/^\s*(?:$|[A-Z(])/.test(rest)) return i;
+    }
+    return x.length;
+  };
+  const cleanDescriptor=s=>String(s||"")
+    .replace(/^[\s,;:\-–—]+/,"")
+    .replace(/^(?:and|or|&)\b[\s,;:\-–—]*/i,"")
+    .replace(/[\s,;:.\-–—]+$/,"")
+    .trim();
+  const descriptorIsSubstantive=s=>{
+    const x=cleanDescriptor(s);
+    if(!x || /^(?:and|or|&|respectively)$/i.test(x)) return false;
+    // A panel inventory item normally assigns content, a condition, a scale,
+    // a technique, a sample, or another attribute to the label. Numeric/unit
+    // descriptors are especially strong, but ordinary noun phrases count too.
+    if(/\d(?:[\d.,]*)(?:\s|\u00a0)*(?:nm|µm|μm|mm|cm|m|km|°c|k|hz|khz|mhz|ghz|pa|kpa|mpa|gpa|v|mv|a|ma|s|min|h|%|×|x)\b/i.test(x)) return true;
+    return /[A-Za-zΑ-Ωα-ωµμρπ][A-Za-zΑ-Ωα-ωµμρπ0-9'’+\-/]{1,}/.test(x);
+  };
+  const scoreReference=(text,occ,declared)=>{
+    const pre=String(text||"").slice(Math.max(0,occ.start-100),occ.start).toLowerCase();
+    const compact=pre.replace(/\s+/g," ");
+    let score=0;
+    if(/\b(?:the\s+)?(?:inset|image|curve|plot|spectrum|micrograph|map|feature|peak|region|value|values|data|result|results)\s+(?:shown\s+)?(?:in|of|from)\s+(?:panel[s]?\s*)?$/.test(compact)) score+=7;
+    if(/\b(?:as\s+shown\s+in|shown\s+in|illustrated\s+in|presented\s+in|depicted\s+in|observed\s+in|seen\s+in|given\s+in|displayed\s+in|compared\s+with|relative\s+to|corresponding\s+to|see)\s+(?:panel[s]?\s*)?$/.test(compact)) score+=7;
+    // A bare preposition is only supporting evidence. It must not override a
+    // parallel inventory such as "at (c) 200 nm, (d) 50 nm, and (e) 10 nm".
+    if(/\b(?:in|within|from|for|of|to|at|on|under|over|by)\s+(?:panel[s]?\s*)?$/.test(compact)) score+=4;
+    if(/\bpanels?\s*$/.test(compact) && declared.size>=2) score+=4;
+    // Handle chained references such as "Panels (a) and (b)", "from (a) and (b)",
+    // or "see (a), (b), and (c)". A direct preposition may precede only the
+    // first token, so later tokens inherit the reference role from the clause.
+    if(/(?:\bpanels?|\b(?:in|within|from|for|of|to|see)|\bcompared\s+with|\brelative\s+to|\bcorresponding\s+to)\s+(?:\(\s*[a-z]\s*\)\s*(?:,|and|&|or|-|–)\s*)+$/i.test(compact) && declared.size>=2) score+=7;
+    const currentClause=(compact.split(/[.!?;]/).pop()||compact).trim();
+    if(declared.size>=2 && /^(?:see|panels?)\b/i.test(currentClause) && /\([a-z]\)/i.test(currentClause)) score+=7;
+    if(occ.letters.length && occ.letters.every(x=>declared.has(x))) score+=1;
+    return score;
+  };
+  const scoreDeclaration=(text,occ,declared,lastDeclared)=>{
+    const pre=String(text||"").slice(Math.max(0,occ.start-80),occ.start);
+    const post=String(text||"").slice(occ.end,Math.min(String(text||"").length,occ.end+90));
+    let score=0;
+    const before=pre.replace(/\s+/g," ").trimEnd();
+    const after=post.replace(/\s+/g," ").trimStart();
+    if(!declared.size) score+=3;
+    if(sentenceStart(text,occ.start)) score+=3;
+    if(/(?:^|[,;:])\s*(?:and\s+|or\s+)?$/i.test(before)) score+=3;
+    if(/\b(?:and|or)\s*$/i.test(before)) score+=2;
+    if(/^[,:;.\-–—]?\s*[A-Za-z0-9α-ωΑ-Ωµμρπ]/.test(after)) score+=2;
+    if(occ.letters.length>1) score+=2;
+    if(lastDeclared){
+      const want=lastDeclared.charCodeAt(0)+1;
+      if(occ.letters[0] && occ.letters[0].charCodeAt(0)===want) score+=2;
+    }
+    return score;
+  };
+  const occurrences=text=>{
+    const out=[];
+    // Supports (a), (a,b), and (a-c)/(a–c). These are the common caption
+    // declaration/reference forms and deliberately avoid ordinary bracketed prose.
+    const re=/\(\s*([A-Za-z](?:\s*,\s*[A-Za-z])+|[A-Za-z]\s*[-–]\s*[A-Za-z]|[A-Za-z])\s*\)/g;
+    let m;
+    while((m=re.exec(String(text||"")))){
+      const letters=expandGroup(m[1]);
+      if(!letters.length) continue;
+      out.push({raw:m[0],letters,start:m.index,end:m.index+m[0].length,role:"AMBIGUOUS_PANEL_MENTION",referenceScore:0,declarationScore:0,inventoryGroup:false});
+    }
+    return out;
+  };
+  const inventoryGroups=(text,occs)=>{
+    const groups=[]; let cur=[];
+    occs.forEach(occ=>{
+      if(cur.length){
+        const prev=cur[cur.length-1];
+        if(hasSentenceBoundary(String(text||"").slice(prev.end,occ.start))){ groups.push(cur); cur=[]; }
+      }
+      cur.push(occ);
+    });
+    if(cur.length) groups.push(cur);
+
+    groups.forEach(group=>{
+      if(group.length<2) return;
+      const descriptors=[];
+      for(let i=0;i<group.length;i++){
+        const end=i+1<group.length ? group[i+1].start : sentenceTailEnd(text,group[i].end);
+        descriptors.push(String(text||"").slice(group[i].end,end));
+      }
+      const substantive=descriptors.map(descriptorIsSubstantive);
+      const count=substantive.filter(Boolean).length;
+      // Do not reinterpret an anaphoric reference clause as a new inventory just
+      // because text follows each token. For example, in "The feature in (a) is
+      // larger than in (b), while the inset in (c) shows...", the surrounding
+      // nouns + prepositions are strong reference cues. A bare preposition such
+      // as "at" before a parallel scale list remains only weak evidence.
+      const hasStrongReferenceCue=group.some(occ=>scoreReference(text,occ,new Set())>=6);
+      // Parallel inventory groups assign a descriptor to every panel token.
+      // Examples: "(a) XRD, (b) FTIR" and "at (c) 200 nm, (d) 50 nm, (e) 10 nm".
+      // Referential lists such as "Panels (a) and (b) show..." do not satisfy
+      // this because the earlier tokens have no individual descriptors.
+      if(!hasStrongReferenceCue && count===group.length){
+        group.forEach((occ,i)=>{
+          occ.inventoryGroup=true;
+          occ.inventoryDescriptor=cleanDescriptor(descriptors[i]);
+        });
+      }
+    });
+    return groups;
+  };
+
   figures.forEach(it=>{
-    const letters=[...(it.caption||"").matchAll(/\(([a-z])\)/gi)].map(m=>m[1].toLowerCase());
-    if(letters.length<2) return;
-    const dups=[...new Set(letters.filter((x,i)=>letters.indexOf(x)!==i))];
-    if(dups.length) fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} has duplicated panel identifier(s): ${dups.join(", ")}.`,`A duplicated panel identifier means the same panel letter, such as (d), was detected more than once within this multipanel figure context. Check the actual figure labels and caption lettering; if each panel is labeled only once, review whether repeated caption mentions caused the detection.`,it.caption,"warn");
-    const nums=letters.map(x=>x.charCodeAt(0)-96), max=Math.max(...nums); const miss=[]; for(let n=1;n<=max;n++) if(!nums.includes(n))miss.push(String.fromCharCode(96+n));
-    if(miss.length) fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} appears to skip panel identifier(s): ${miss.join(", ")}.`,`Check that panels follow a, b, c… without unintended gaps.`,it.caption,"warn");
+    const caption=it.caption||"", occs=occurrences(caption);
+    if(occs.length<2) return;
+
+    inventoryGroups(caption,occs);
+
+    const declared=new Set(), declarationOrder=[], references=[];
+    let lastDeclared="";
+    occs.forEach(occ=>{
+      const refScore=scoreReference(caption,occ,declared);
+      const decScore=scoreDeclaration(caption,occ,declared,lastDeclared);
+      occ.referenceScore=refScore; occ.declarationScore=decScore;
+
+      // Group-level inventory structure has priority over weak local grammar.
+      // This is essential for captions such as "at (c) 200 nm, (d) 50 nm,
+      // and (e) 10 nm", where the preposition scopes the full enumeration.
+      if(occ.inventoryGroup){
+        occ.role="PANEL_DECLARATION";
+      }else if(refScore>=6 && refScore>decScore){
+        // Strong anaphoric/referential wording such as "the inset in (d)" wins.
+        occ.role="PANEL_REFERENCE";
+      }else if(decScore>=4 && decScore>=refScore){
+        occ.role="PANEL_DECLARATION";
+      }else if(occ.letters.every(x=>declared.has(x)) && refScore>=2){
+        occ.role="PANEL_REFERENCE";
+      }else{
+        occ.role="PANEL_DECLARATION";
+      }
+
+      if(occ.role==="PANEL_DECLARATION"){
+        occ.letters.forEach(letter=>{ declarationOrder.push(letter); declared.add(letter); lastDeclared=letter; });
+      }else if(occ.role==="PANEL_REFERENCE"){
+        references.push(...occ.letters);
+      }
+    });
+
+    if(declarationOrder.length<2) return;
+
+    // Before declaring an internal gap, reconsider a weakly classified occurrence
+    // of exactly that missing letter when it sits between the surrounding declared
+    // letters. Strong references (for example "the inset in (c)") are never promoted.
+    const recomputeMissing=order=>{
+      const unique=[...new Set(order)],nums=unique.map(x=>x.charCodeAt(0)-96),max=Math.max(...nums),miss=[];
+      for(let n=1;n<=max;n++) if(!nums.includes(n)) miss.push(String.fromCharCode(96+n));
+      return miss;
+    };
+    let provisionalMissing=recomputeMissing(declarationOrder);
+    if(provisionalMissing.length){
+      provisionalMissing.forEach(letter=>{
+        const occ=occs.find(o=>o.role==="PANEL_REFERENCE" && o.letters.length===1 && o.letters[0]===letter && o.referenceScore<6 && o.declarationScore>=3);
+        if(!occ) return;
+        const code=letter.charCodeAt(0);
+        const prev=String.fromCharCode(code-1),next=String.fromCharCode(code+1);
+        const prevOcc=occs.some(o=>o.role==="PANEL_DECLARATION"&&o.end<=occ.start&&o.letters.includes(prev));
+        const nextOcc=occs.some(o=>o.role==="PANEL_DECLARATION"&&o.start>=occ.end&&o.letters.includes(next));
+        if(prevOcc&&nextOcc){
+          occ.role="PANEL_DECLARATION";
+          const ri=references.indexOf(letter); if(ri>=0) references.splice(ri,1);
+          // Rebuild declaration order in caption order to preserve correct sequencing.
+          declarationOrder.length=0; declared.clear(); lastDeclared="";
+          occs.forEach(o=>{if(o.role==="PANEL_DECLARATION") o.letters.forEach(x=>{declarationOrder.push(x);declared.add(x);lastDeclared=x;});});
+        }
+      });
+    }
+
+    const dups=[...new Set(declarationOrder.filter((x,i)=>declarationOrder.indexOf(x)!==i))];
+    if(dups.length){
+      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} has duplicated declared panel identifier(s): ${dups.join(", ")}.`,`Check the actual panel inventory and caption enumeration. Repeated explanatory references such as "in (d)" are ignored; this finding is produced only when the same letter is assigned as a panel more than once.`,it.caption,"warn");
+    }
+
+    const miss=recomputeMissing(declarationOrder);
+    if(miss.length){
+      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} appears to skip declared panel identifier(s): ${miss.join(", ")}.`,`Check the panel inventory in the caption. Parallel assignments such as "at (c) 200 nm, (d) 50 nm, and (e) 10 nm" are treated as declarations; explanatory references to already declared panels are excluded from the sequence check.`,it.caption,"warn");
+    }
+
+    const undeclared=[...new Set(references.filter(x=>!declared.has(x)))];
+    if(undeclared.length){
+      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_REFERENCE_UNDECLARED",`${fteDisplay("figure",it.id)} refers to panel identifier(s) not found in the declared panel inventory: ${undeclared.join(", ")}.`,`Verify whether these letters are intended references to existing panels, whether the corresponding panel assignments are missing from the caption, or whether the wording should be revised.`,it.caption,"warn");
+    }
   });
 }
 function fteStatus(res,kind,check){
@@ -5831,14 +6045,16 @@ function issueHelpText(code,msg=""){
 
   // Figure / table / equation checks
   if(code==="FIGURE_PANEL_SEQUENCE"){
-    if(/duplicated panel identifier/i.test(msg)){
-      return "For a multipanel figure, panel labels such as (a), (b), (c), and (d) are expected to identify different panels. “Duplicated panel identifier” means the checker detected the same panel letter more than once within the same figure-caption context, for example (a), (b), (c), (d), (d). Review the actual figure and caption because repeated descriptive mentions can occasionally resemble duplicate labels.";
+    if(/duplicated declared panel identifier/i.test(msg)){
+      return "For a multipanel figure, the checker first builds the panel inventory from declaration-like and parallel assignment structures such as “(a) XRD, (b) FTIR” or “at (c) 200 nm, (d) 50 nm, and (e) 10 nm”. Explanatory references such as “the inset in (d)” or “shown in (b)” are classified separately and do not create duplicate panels.";
     }
-    if(/skip panel identifier/i.test(msg)){
-      return "The checker detected a gap in the panel-letter sequence of a multipanel figure. For example, (a), (b), and (d) would suggest that panel (c) is missing or mislabeled. Confirm the actual panel labels and caption lettering.";
+    if(/skip declared panel identifier/i.test(msg)){
+      return "The checker builds the panel sequence from declaration-like caption labels only. For example, declarations (a), (b), and (d) suggest that panel (c) may be missing; later explanatory references do not alter that sequence.";
     }
-    return "Checks panel lettering within a multipanel figure. Repeated or skipped identifiers such as (a), (b), (b) or (a), (c) are reported for review.";
+    return "Checks the sequence of declared panel labels in a multipanel caption after separating declarations from explanatory panel references.";
   }
+  if(code==="FIGURE_PANEL_REFERENCE_UNDECLARED")
+    return "The caption contains an explanatory reference to a panel letter that was not found among the declared panel labels. This is kept separate from duplicate-panel checking and is reported conservatively for review.";
   if(/_DUPLICATE_NUMBER$/.test(code))
     return "A duplicate number is reported only when the same identifier is attached to two distinct numbered objects/captions. Ordinary prose references such as “Figure 5 illustrates…” or “as shown in Figure 5” are citations and do not count as a second figure.";
   if(/_MISSING_NUMBER$/.test(code))
