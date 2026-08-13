@@ -11206,5 +11206,386 @@ fteAnalyze=function(blocks){
 })();
 </script>
 
+
+<script id="fte-semantic-table-role-v4">
+(()=>{
+  "use strict";
+
+  /* ==========================================================
+     SEMANTIC WORD-TABLE CLASSIFIER (v4)
+     A physical Word <w:tbl> is not automatically a manuscript
+     Table. This layer classifies uncaptioned Word tables before
+     the existing Figure/Table/Equation analyzer sees them.
+     ========================================================== */
+
+  const baseExtractDocxStructure = extractDocxStructure;
+  const baseExtractHtmlStructure = extractHtmlStructure;
+  const baseFteAnalyze = fteAnalyze;
+
+  const STRUCTURAL_TABLE_ROLES = new Set([
+    "ABBREVIATION_LIST","NOMENCLATURE_LIST","SYMBOL_LIST","GLOSSARY",
+    "AUTHOR_INFORMATION","DOCUMENT_METADATA","COVER_PAGE_LAYOUT",
+    "CORRESPONDENCE_LAYOUT","SIGNATURE_OR_APPROVAL","REVISION_HISTORY",
+    "DOCUMENT_CONTROL","TABLE_OF_CONTENTS_LAYOUT","LIST_OF_FIGURES_LAYOUT",
+    "LIST_OF_TABLES_LAYOUT","FORM_OR_TEMPLATE","CONTACT_INFORMATION",
+    "KEY_VALUE_LAYOUT","MULTICOLUMN_TEXT_LAYOUT","FIGURE_LAYOUT_WRAPPER",
+    "EQUATION_LAYOUT_WRAPPER","OTHER_STRUCTURAL_TABLE"
+  ]);
+
+  const norm = s => String(s||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+  const low = s => norm(s).toLowerCase();
+  const words = s => (norm(s).match(/[A-Za-zÀ-ÖØ-öø-ÿΑ-Ωα-ωµμρπΩΩ][A-Za-zÀ-ÖØ-öø-ÿΑ-Ωα-ωµμρπΩΩ0-9'’.-]*/g)||[]);
+
+  function tableCellMatrixFromWordTable(tbl){
+    const rows=[...tbl.getElementsByTagNameNS(FTE_W_NS,"tr")];
+    return rows.map(r=>[...r.getElementsByTagNameNS(FTE_W_NS,"tc")].map(tc=>norm(fteXmlText(tc,{includeEmbedded:true}))));
+  }
+
+  function tableWordStyle(tbl){
+    try{
+      const pr=tbl.getElementsByTagNameNS(FTE_W_NS,"tblPr")[0];
+      const st=pr?pr.getElementsByTagNameNS(FTE_W_NS,"tblStyle")[0]:null;
+      return st?(st.getAttributeNS(FTE_W_NS,"val")||st.getAttribute("w:val")||st.getAttribute("val")||""):"";
+    }catch(_e){ return ""; }
+  }
+
+  function tableBorderEvidence(tbl){
+    try{
+      const pr=tbl.getElementsByTagNameNS(FTE_W_NS,"tblPr")[0];
+      const borders=pr?pr.getElementsByTagNameNS(FTE_W_NS,"tblBorders")[0]:null;
+      if(!borders) return {hasBorders:false,borderless:false};
+      const els=[...borders.children];
+      const vals=els.map(x=>String(x.getAttributeNS(FTE_W_NS,"val")||x.getAttribute("w:val")||x.getAttribute("val")||"").toLowerCase()).filter(Boolean);
+      const visible=vals.some(v=>!/(?:nil|none)/.test(v));
+      const explicitNone=vals.length>0 && vals.every(v=>/(?:nil|none)/.test(v));
+      return {hasBorders:visible,borderless:explicitNone};
+    }catch(_e){ return {hasBorders:false,borderless:false}; }
+  }
+
+  extractDocxStructure=async function(buf){
+    const blocks=await baseExtractDocxStructure(buf);
+    try{
+      if(typeof JSZip==="undefined") return blocks;
+      const zip=await JSZip.loadAsync(buf);
+      const f=zip.file("word/document.xml"); if(!f) return blocks;
+      const xml=await f.async("string");
+      const doc=new DOMParser().parseFromString(xml,"application/xml");
+      const body=doc.getElementsByTagNameNS(FTE_W_NS,"body")[0]; if(!body) return blocks;
+      const outputTables=blocks.filter(b=>b.type==="table"&&!b.isEquationLayout);
+      let outIdx=0;
+      [...body.childNodes].forEach(el=>{
+        if(el.nodeType!==1 || (el.localName||"").toLowerCase()!=="tbl") return;
+        const rowSummaries=fteWordTableRowSummaries(el);
+        const eqLayout=fteClassifyEquationLayoutRows(rowSummaries);
+        if(eqLayout.isEquationLayout) return;
+
+        const rows=[...el.getElementsByTagNameNS(FTE_W_NS,"tr")];
+        let maxCols=0; rows.forEach(r=>{maxCols=Math.max(maxCols,r.getElementsByTagNameNS(FTE_W_NS,"tc").length);});
+        const drawCount=el.getElementsByTagNameNS(FTE_W_NS,"drawing").length+el.getElementsByTagNameNS(FTE_W_NS,"pict").length+el.getElementsByTagNameNS(FTE_W_NS,"object").length;
+        const internalPs=[...el.getElementsByTagNameNS(FTE_W_NS,"p")];
+        const hasFigureCaption=internalPs.some(p=>!!fteFigureCaption(fteXmlText(p)) || fteSeqCaptionType(p)==="figure");
+        const figureLayout=drawCount>0 && (hasFigureCaption || maxCols<=1);
+        if(figureLayout) return;
+
+        const b=outputTables[outIdx++]; if(!b) return;
+        const matrix=tableCellMatrixFromWordTable(el);
+        const border=tableBorderEvidence(el);
+        b.cellMatrix=matrix;
+        b.fullText=norm(matrix.flat().join(" | "));
+        b.tableStyle=tableWordStyle(el);
+        b.hasBorders=border.hasBorders;
+        b.borderless=border.borderless;
+        b.wordTable=true;
+      });
+    }catch(e){ console.warn("Semantic table metadata extraction failed; existing table logic remains available.",e); }
+    return blocks;
+  };
+
+  extractHtmlStructure=function(box){
+    const blocks=baseExtractHtmlStructure(box);
+    try{
+      const els=[...box.querySelectorAll(":scope > table")];
+      const outputTables=blocks.filter(b=>b.type==="table");
+      els.forEach((el,i)=>{
+        const b=outputTables[i]; if(!b) return;
+        const rows=[...el.querySelectorAll(":scope > tbody > tr,:scope > thead > tr,:scope > tr")];
+        const matrix=rows.map(r=>[...r.querySelectorAll(":scope > td,:scope > th")].map(c=>norm(c.textContent||"")));
+        b.cellMatrix=matrix; b.fullText=norm(matrix.flat().join(" | ")); b.wordTable=false;
+      });
+    }catch(_e){}
+    return blocks;
+  };
+
+  function headingRole(text){
+    const t=low(text).replace(/[:.]+$/g,"").trim();
+    if(!t || t.length>140) return null;
+    if(/^(?:list of\s+)?(?:symbols?\s*(?:and|&|\/)\s*)?(?:abbreviations?|acronyms?)(?:\s*(?:and|&|\/)\s*(?:abbreviations?|acronyms?))?$/.test(t) || /^(?:symbols? and abbreviations?|abbreviations? and symbols?)$/.test(t)) return "ABBREVIATION_LIST";
+    if(/^(?:nomenclature|notation|list of symbols?|symbols?|list of variables?|variables?|mathematical symbols?|symbols? and notation)$/.test(t)) return /symbol/.test(t)?"SYMBOL_LIST":"NOMENCLATURE_LIST";
+    if(/^(?:glossary|definitions?|terminology|key terms?|terms and definitions)$/.test(t)) return "GLOSSARY";
+    if(/^(?:author information|authors?|affiliations?|corresponding author|author details)$/.test(t)) return "AUTHOR_INFORMATION";
+    if(/^(?:revision history|revision record|version history|change history)$/.test(t)) return "REVISION_HISTORY";
+    if(/^(?:document control|document information|document details|project information|report information)$/.test(t)) return "DOCUMENT_CONTROL";
+    if(/^(?:contents|table of contents)$/.test(t)) return "TABLE_OF_CONTENTS_LAYOUT";
+    if(/^(?:list of figures)$/.test(t)) return "LIST_OF_FIGURES_LAYOUT";
+    if(/^(?:list of tables)$/.test(t)) return "LIST_OF_TABLES_LAYOUT";
+    if(/^(?:contact information|contact details)$/.test(t)) return "CONTACT_INFORMATION";
+    if(/^(?:approval|approvals|signature|signatures|authorisation|authorization)$/.test(t)) return "SIGNATURE_OR_APPROVAL";
+    return null;
+  }
+
+  function isHeadingLikeBlock(b){
+    if(!b || b.type!=="p") return false;
+    const t=norm(b.text); if(!t || t.length>160) return false;
+    if(headingRole(t)) return true;
+    if(b.outlineLvl!=null || /(?:^|\b)(?:heading|title|subtitle)(?:\b|\d)/i.test(b.style||"")) return true;
+    return false;
+  }
+
+  function nearestHeadingContext(blocks,i){
+    let fallback=null;
+    for(let d=1;d<=12 && i-d>=0;d++){
+      const b=blocks[i-d]; if(!b || b.type!=="p") continue;
+      const t=norm(b.text); if(!t) continue;
+      const role=headingRole(t);
+      if(role) return {text:t,role,distance:d,strong:true};
+      if(isHeadingLikeBlock(b)) return {text:t,role:null,distance:d,strong:false};
+      if(!fallback && d<=3 && t.length<=120) fallback={text:t,role:null,distance:d,strong:false};
+    }
+    return fallback||{text:"",role:null,distance:99,strong:false};
+  }
+
+  function shortToken(s){
+    s=norm(s); if(!s || s.length>28 || words(s).length>4) return false;
+    if(/^(?:https?:|www\.|doi\b)/i.test(s)) return false;
+    const letters=(s.match(/[A-Za-zΑ-Ωα-ω]/g)||[]).join("");
+    if(!letters) return /^[ρπµμΩΩα-ωΑ-Ω][A-Za-z0-9_.()\/+-]*$/u.test(s);
+    const upp=(letters.match(/[A-ZΑ-Ω]/g)||[]).length;
+    return upp/letters.length>=0.55 || /^[A-Za-zΑ-Ωα-ωµμρπΩΩ]{1,5}(?:[-/][A-Za-z0-9]{1,6})?$/.test(s) || /^[A-Za-zΑ-Ωα-ωµμρπΩΩ]\s*$/.test(s);
+  }
+
+  function longForm(s){
+    const w=words(s); return norm(s).length>=5 && (w.length>=2 || norm(s).length>=14) && !/^\d+(?:\.\d+)?$/.test(norm(s));
+  }
+
+  function abbrevPairEvidence(matrix){
+    let good=0,total=0;
+    matrix.forEach(row=>{
+      for(let c=0;c+1<row.length;c+=2){
+        const a=norm(row[c]),b=norm(row[c+1]); if(!a&&!b) continue;
+        total++; if(shortToken(a)&&longForm(b)) good++;
+      }
+    });
+    return {good,total,ratio:total?good/total:0};
+  }
+
+  function symbolDefinitionEvidence(matrix){
+    let good=0,total=0;
+    matrix.forEach(row=>{
+      if(row.length<2) return;
+      const a=norm(row[0]),b=norm(row[1]); if(!a&&!b) return;
+      total++;
+      if(a.length<=12 && words(a).length<=2 && longForm(b) && (/^[A-Za-zΑ-Ωα-ωµμρπΩΩ][A-Za-z0-9_()\/+-]*$/u.test(a)||shortToken(a))) good++;
+    });
+    return {good,total,ratio:total?good/total:0};
+  }
+
+  const META_KEYS=/^(?:project|project title|report title|document|document no\.?|document number|client|consultant|prepared for|prepared by|submitted for|submitted by|submitted to|conducted by|date|location|site|version|revision|issue|reference|ref\.?|subject|organisation|organization|department|address|telephone|phone|email|designation|name)$/i;
+  function keyValueEvidence(matrix){
+    if(!matrix.length || matrix[0].length!==2) return {good:0,total:0,ratio:0};
+    let good=0,total=0;
+    matrix.forEach(r=>{ const k=norm(r[0]); if(!k) return; total++; if(META_KEYS.test(k.replace(/:$/,"")))good++; });
+    return {good,total,ratio:total?good/total:0};
+  }
+
+  function firstRowText(matrix){ return norm((matrix[0]||[]).join(" | ")); }
+  function hasAny(text,re){ return re.test(String(text||"")); }
+  function numericLike(s){
+    s=norm(s); if(!s) return false;
+    if(/^\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}$/.test(s)) return false;
+    return /(?:^|\s)[<>≤≥~±]?\s*-?\d+(?:\.\d+)?(?:\s*(?:±|to|[-–])\s*\d+(?:\.\d+)?)?(?:\s|$|%|[A-Za-zµμΩΩ/·^-])/.test(s);
+  }
+
+  const SCI_HEADER=/\b(?:parameter|analyte|variable|sample|site|station|location|treatment|method|technology|category|condition|group|run|replicate|influent|effluent|removal|value|result|mean|median|range|concentration|depth|length|width|height|mass|volume|time|temperature|pressure|resistivity|conductivity|advantage|advantages|limitation|limitations|observation|characteristic|property|response|performance|composition|yield|efficiency)\b/i;
+  const ADMIN_HEADER=/\b(?:revision|version|approved by|reviewed by|prepared by|document no|description|signature|designation|email|affiliation|orcid)\b/i;
+  const AUTHOR_HEADER=/\b(?:author|name|affiliation|email|orcid|corresponding author|department|institution)\b/i;
+  const REV_HEADER=/\b(?:revision|version|date|description|prepared by|reviewed by|approved by|issue)\b/i;
+  const UNIT_RE=/(?:%|(?:^|[^A-Za-z])(?:mg\s*[\/·]?\s*L(?:[-−]?1)?|g\s*[\/·]?\s*L(?:[-−]?1)?|kg\s*[\/·]?\s*m(?:[-−]?3)?|µg|ug|mg|kg|cm|mm|km|m(?:[²³23])?|L|mL|Pa|kPa|MPa|°C|K|ppm|ppb|Ω\s*m|Ω\s*m|ohm|mol|mmol|µmol|Hz|kHz|MHz|V|mV|A|mA|W|kW|MW)(?=$|[^A-Za-z]))/i;
+  const STAT_RE=/(?:±|p\s*[<=>]\s*0?\.\d+|(?:^|[^A-Za-z])(?:CI|SD|SE)(?=$|[^A-Za-z])|R\s*[²2]|mean\s*±)/i;
+
+  function tableStats(matrix){
+    const cells=matrix.flat().map(norm).filter(Boolean);
+    const body=matrix.slice(1).flat().map(norm).filter(Boolean);
+    const numeric=(body.length?body:cells).filter(numericLike).length;
+    const unit=cells.filter(x=>UNIT_RE.test(x)).length;
+    const stat=cells.filter(x=>STAT_RE.test(x)).length;
+    const header=firstRowText(matrix);
+    const headerSignals=(header.match(new RegExp(SCI_HEADER.source,"gi"))||[]).length;
+    const avgWords=cells.length?cells.reduce((a,x)=>a+words(x).length,0)/cells.length:0;
+    return {cells,body,numericRatio:(body.length?numeric/(body.length):0),unit,stat,header,headerSignals,avgWords};
+  }
+
+  function classifyRole(blocks,i,b){
+    const matrix=(b.cellMatrix&&b.cellMatrix.length)?b.cellMatrix:[[norm(b.fullText||b.text)]];
+    const ctx=nearestHeadingContext(blocks,i);
+    const ab=abbrevPairEvidence(matrix), sym=symbolDefinitionEvidence(matrix), kv=keyValueEvidence(matrix), st=tableStats(matrix);
+    const first=firstRowText(matrix), all=norm(matrix.flat().join(" | "));
+    const rows=b.rows||matrix.length, cols=b.cols||Math.max(0,...matrix.map(r=>r.length));
+    let dataScore=0,structScore=0,role=null,reasons=[];
+
+    if(ctx.role){ role=ctx.role; structScore+=10; reasons.push(`section context: ${ctx.text}`); }
+
+    if(ab.good>=3 && ab.ratio>=0.6){
+      structScore+=9; if(!role||role==="NOMENCLATURE_LIST"||role==="SYMBOL_LIST") role="ABBREVIATION_LIST";
+      reasons.push("repeated abbreviation/full-form cell pairs");
+    }
+    if(sym.good>=3 && sym.ratio>=0.7 && (ctx.role==="SYMBOL_LIST"||ctx.role==="NOMENCLATURE_LIST")){
+      structScore+=7; role=ctx.role; reasons.push("symbol/definition rows");
+    }
+
+    if(kv.good>=2 && kv.ratio>=0.5){ structScore+=8; role=role||"KEY_VALUE_LAYOUT"; reasons.push("key-value metadata structure"); }
+    if(AUTHOR_HEADER.test(first) && cols>=2){ structScore+=8; role="AUTHOR_INFORMATION"; reasons.push("author/contact field headers"); }
+    if(REV_HEADER.test(first) && cols>=3){ structScore+=8; role="REVISION_HISTORY"; reasons.push("revision/document-control headers"); }
+    if(ADMIN_HEADER.test(first) && !SCI_HEADER.test(first)){ structScore+=4; role=role||"DOCUMENT_CONTROL"; reasons.push("administrative headers"); }
+
+    if(/\b(?:prepared for|prepared by|submitted to|submitted by|project title|report title|document no\.?|client|consultant)\b/i.test(all) && rows<=12){
+      structScore+=6; role=role||"DOCUMENT_METADATA"; reasons.push("cover/document metadata fields");
+    }
+    if(/\b(?:to|from|subject|dear|regards|sincerely)\b/i.test(first) && rows<=10){ structScore+=5; role=role||"CORRESPONDENCE_LAYOUT"; reasons.push("correspondence fields"); }
+    if(/\b(?:signature|approved by|authori[sz]ed by|reviewed by|checked by)\b/i.test(all) && rows<=12){ structScore+=6; role=role||"SIGNATURE_OR_APPROVAL"; reasons.push("signature/approval fields"); }
+    if(/(?:☐|☑|□|✓|_{3,}|\b(?:yes\s*\/\s*no|check box)\b)/i.test(all)){ structScore+=6; role=role||"FORM_OR_TEMPLATE"; reasons.push("form fields or checkboxes"); }
+
+    if((ctx.role==="TABLE_OF_CONTENTS_LAYOUT"||ctx.role==="LIST_OF_FIGURES_LAYOUT"||ctx.role==="LIST_OF_TABLES_LAYOUT")){
+      structScore+=7; role=ctx.role; reasons.push("generated/list-style front matter");
+    }
+
+    if(cols===2 && rows>=2 && !role){
+      let termDefs=0;
+      matrix.forEach(r=>{if(words(r[0]).length<=5 && words(r[1]).length>=4)termDefs++;});
+      if(termDefs>=3 && termDefs/matrix.length>=0.7 && ctx.role==="GLOSSARY"){
+        structScore+=8; role="GLOSSARY"; reasons.push("term-definition rows");
+      }
+    }
+
+    if(st.headerSignals>=2){ dataScore+=5; reasons.push("scientific/comparison column headings"); }
+    else if(st.headerSignals===1){ dataScore+=3; }
+    if(st.numericRatio>=0.45){ dataScore+=5; reasons.push("predominantly quantitative body cells"); }
+    else if(st.numericRatio>=0.20){ dataScore+=3; reasons.push("quantitative body cells"); }
+    if(st.unit>=2){ dataScore+=3; reasons.push("measurement units"); }
+    else if(st.unit===1){ dataScore+=1; }
+    if(st.stat){ dataScore+=3; reasons.push("statistical notation"); }
+    if(rows>=3&&cols>=2) dataScore+=1;
+    if(/\b(?:advantage|advantages|limitation|limitations|technology|method|treatment|characteristic|property)\b/i.test(first) && cols>=2){ dataScore+=4; reasons.push("qualitative comparison structure"); }
+
+    // A nomenclature/symbol list can legitimately contain units. Preserve the
+    // stronger heading + definition evidence rather than treating units alone as data.
+    if((ctx.role==="NOMENCLATURE_LIST"||ctx.role==="SYMBOL_LIST") && sym.ratio>=0.5){ structScore+=5; role=ctx.role; }
+
+    // A borderless, prose-heavy, small table with no data signals is often layout.
+    if((b.borderless||/layout|grid/i.test(b.tableStyle||"")) && rows<=4 && cols<=4 && st.avgWords>=8 && dataScore<5 && !role){
+      structScore+=5; role="MULTICOLUMN_TEXT_LAYOUT"; reasons.push("borderless prose layout");
+    }
+
+    if(structScore>=8 && structScore>=dataScore+2){
+      return {role:role||"OTHER_STRUCTURAL_TABLE",confidence:Math.min(.99,.68+Math.min(31,structScore-dataScore*0.35)/100),reasons,dataScore,structScore,heading:ctx.text};
+    }
+    if(dataScore>=6 && dataScore>=structScore-1){
+      return {role:"MANUSCRIPT_DATA_TABLE",confidence:Math.min(.96,.68+Math.min(28,dataScore)/100),reasons,dataScore,structScore,heading:ctx.text};
+    }
+    if(!role && rows>=3&&cols>=2 && (st.numericRatio>=0.15 || st.headerSignals>=1)){
+      return {role:"MANUSCRIPT_DATA_TABLE",confidence:.72,reasons:[...reasons,"row/column scientific structure"],dataScore,structScore,heading:ctx.text};
+    }
+    if(role && structScore>=6){
+      return {role,confidence:.76,reasons,dataScore,structScore,heading:ctx.text};
+    }
+    return {role:"UNCERTAIN_TABLE_ROLE",confidence:.50,reasons:reasons.length?reasons:["insufficient evidence to distinguish layout from manuscript data"],dataScore,structScore,heading:ctx.text};
+  }
+
+  function hasNearbyNumberedCaption(blocks,i){
+    // A nearby caption belongs only to the closest physical Word table. This
+    // prevents a real Table 1 caption from accidentally overriding an
+    // abbreviation/layout table that happens to appear a few blocks earlier.
+    for(let d=-3;d<=3;d++){
+      if(!d) continue; const ci=i+d,b=blocks[ci];
+      if(!b||b.type!=="p"||!b.text) continue;
+      const tc=fteTableCaption(b.text);
+      if(!tc) continue;
+      const styled=/(?:caption|table)/i.test(b.style||"")||b.seqCaptionType==="table";
+      const ev=fteCaptionEvidence(b.text,tc,"table",b.style||"",Math.abs(d));
+      if(!(styled || (ev?.score||0)>=40)) continue;
+      let nearest=-1,best=Infinity;
+      blocks.forEach((x,j)=>{
+        if(x.type!=="table"||x.isEquationLayout) return;
+        const dist=Math.abs(j-ci);
+        if(dist<best || (dist===best && j>ci && nearest<ci)){best=dist;nearest=j;}
+      });
+      if(nearest===i) return true;
+    }
+    return false;
+  }
+
+  function sameSnippet(a,b){
+    const x=norm(a).slice(0,180),y=norm(b).slice(0,180);
+    return !!x && !!y && (x===y || x.startsWith(y) || y.startsWith(x));
+  }
+
+  fteAnalyze=function(blocks){
+    if(!blocks||!blocks.length) return baseFteAnalyze(blocks);
+
+    // Classify every physical table once. Explicit numbered captions override
+    // semantic inference because they clearly express authorial intent.
+    const diagnostics=[];
+    blocks.forEach((b,i)=>{
+      if(b.type!=="table"||b.isEquationLayout) return;
+      let c;
+      if(hasNearbyNumberedCaption(blocks,i)){
+        c={role:"MANUSCRIPT_DATA_TABLE",confidence:1,reasons:["explicit numbered Table caption"],dataScore:99,structScore:0,heading:""};
+      }else c=classifyRole(blocks,i,b);
+      b.tableSemanticRole=c.role; b.tableRoleConfidence=c.confidence; b.tableRoleReasons=c.reasons;
+      diagnostics.push({pos:b.pos,physicalAnchor:b.physicalAnchor||`table:${i}`,rows:b.rows,cols:b.cols,role:c.role,confidence:c.confidence,reasons:c.reasons,heading:c.heading||"",text:fteSnippet(b.fullText||b.text),rawText:fteSnippet(b.text)});
+    });
+
+    // The legacy analyzer remains authoritative for genuine manuscript tables.
+    // Structural/layout tables are hidden ONLY from the FTE table registry. Their
+    // text remains in the document for abbreviation/nomenclature and other modules.
+    const routed=blocks.map((b,i)=>{
+      if(b.type!=="table") return b;
+      const explicit=hasNearbyNumberedCaption(blocks,i);
+      const role=b.tableSemanticRole||"UNCERTAIN_TABLE_ROLE";
+      if(!explicit && STRUCTURAL_TABLE_ROLES.has(role)) return {...b,type:"structural_table",semanticOriginalType:"table"};
+      return {...b};
+    });
+
+    const res=baseFteAnalyze(routed);
+    if(!res || !Array.isArray(res.issues)) return res;
+
+    // Ambiguous uncaptioned tables get a conservative Review instead of the
+    // stronger statement that a manuscript data table is definitely unnumbered.
+    res.issues=res.issues.map(issue=>{
+      if(issue.code!=="TABLE_MISSING_NUMBER") return issue;
+      const u=diagnostics.find(d=>d.role==="UNCERTAIN_TABLE_ROLE"&&(sameSnippet(d.text,issue.context)||sameSnippet(d.rawText,issue.context)));
+      if(!u) return issue;
+      return {...issue,code:"TABLE_ROLE_UNCERTAIN",msg:"A Word table was detected, but its semantic role could not be determined confidently.",suggestion:"Verify whether this is a manuscript data table that requires a numbered Table caption, or a structural/layout table that should remain unnumbered.",severity:"warn"};
+    });
+
+    const registeredAnchors=new Set((res.tables||[]).map(x=>x.physicalAnchor).filter(Boolean));
+    diagnostics.forEach(d=>{
+      if(registeredAnchors.has(d.physicalAnchor) && d.role!=="MANUSCRIPT_DATA_TABLE"){
+        d.role="MANUSCRIPT_DATA_TABLE"; d.confidence=1;
+        d.reasons=["associated with a numbered Table caption",...(d.reasons||[])];
+      }
+    });
+    res.tableDiagnostics=diagnostics;
+    res.wordTableCount=diagnostics.length;
+    res.structuralTableCount=diagnostics.filter(d=>STRUCTURAL_TABLE_ROLES.has(d.role)).length;
+    res.semanticTableCount=(res.tables||[]).length;
+    res.registryVersion="structural-v4-semantic-tables";
+    return res;
+  };
+
+  window.fteClassifySemanticTableRole=classifyRole;
+  window.FTE_STRUCTURAL_TABLE_ROLES=STRUCTURAL_TABLE_ROLES;
+})();
+</script>
+
 </body>
 </html>
