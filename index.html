@@ -229,6 +229,48 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   table.ledger{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
   .ledger-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .ledger-scroll table.ledger{min-width:640px}
+
+  /* Reference Ledger: floating title + column guide for long reference lists.
+     The floating guide is activated by JS only while the Reference Ledger itself
+     is in view, and its horizontal position is synchronized with the body table. */
+  .reference-ledger-block{position:relative}
+  .reference-ledger-table{table-layout:fixed;min-width:900px!important}
+  .reference-ledger-floating{
+    display:none;
+    position:fixed;
+    z-index:40;
+    background:var(--card);
+    border:1px solid var(--hair);
+    border-radius:9px 9px 0 0;
+    box-shadow:0 8px 24px -18px rgba(20,22,26,.42);
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .reference-ledger-floating.is-active{display:block}
+  .reference-ledger-floating-title{
+    margin:0;
+    padding:8px 12px 7px;
+    border-left:3px solid #16736B;
+    border-bottom:1px solid var(--hair);
+    color:#16736B;
+    background:#fff;
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    font-weight:700;
+    line-height:1.4;
+  }
+  .reference-ledger-floating-scroll{width:100%;overflow:hidden;background:#fff}
+  .reference-ledger-floating .ledger{margin:0;table-layout:fixed;min-width:900px!important}
+  .reference-ledger-floating .ledger th{
+    padding:8px 10px 9px;
+    background:#fff;
+    border-bottom:2px solid var(--ink);
+  }
+  @media(max-width:640px){
+    .reference-ledger-floating-title{display:none}
+    .reference-ledger-floating{border-radius:0}
+  }
   table.ledger th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 10px 10px;border-bottom:2px solid var(--ink)}
   table.ledger td{padding:11px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
   table.ledger tr:last-child td{border-bottom:0}
@@ -461,7 +503,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .section-help b{color:var(--ink)}
 
   .dev-note{max-width:640px;margin:14px auto 0;padding:12px 16px;background:var(--pencil-soft);border:1px solid var(--hair);border-radius:9px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:left}
-  @media print{body{background:#fff}#input-card,.report-actions,.rtabs,.report-subnav,.actions,details.rules{display:none}#report,#ref-report,#num-report,#unit-report,#eng-report,#fte-report{box-shadow:none;border:0;padding:0}}
+  @media print{body{background:#fff}#input-card,.report-actions,.rtabs,.report-subnav,.reference-ledger-floating,.actions,details.rules{display:none!important}#report,#ref-report,#num-report,#unit-report,#eng-report,#fte-report{box-shadow:none;border:0;padding:0}}
 
   .home-title-link{
     color:inherit;
@@ -4467,6 +4509,80 @@ function buildReportSubnav(reportId,navId){
     REPORT_SUBNAV_OBSERVERS.set(navId,obs);
   }
   enhanceReportSeverity(reportId,navId);
+}
+
+/* ---------- Floating Reference Ledger guide ---------- */
+let REF_LEDGER_FLOAT_RAF=0;
+let REF_LEDGER_FLOAT_GLOBAL_BOUND=false;
+
+function referenceLedgerStickyTop(){
+  const nav=$("ref-subnav");
+  if(!nav||nav.hidden||!nav.offsetHeight) return 8;
+  const cs=getComputedStyle(nav);
+  const navTop=Number.parseFloat(cs.top)||8;
+  return Math.max(8,navTop+nav.offsetHeight+6);
+}
+
+function updateReferenceLedgerFloatingHeader(){
+  REF_LEDGER_FLOAT_RAF=0;
+  const block=document.querySelector(".reference-ledger-block");
+  if(!block){return;}
+  const bodyScroll=block.querySelector(".reference-ledger-scroll");
+  const normalHead=block.querySelector(".reference-ledger-normal-head");
+  const floating=block.querySelector(".reference-ledger-floating");
+  const floatingScroll=block.querySelector(".reference-ledger-floating-scroll");
+  if(!bodyScroll||!normalHead||!floating||!floatingScroll){return;}
+
+  // Do not float anything when the References report is not the visible report.
+  const group=block.closest(".result-group");
+  if((group&&group.hidden) || $("ref-report")?.hidden){
+    floating.classList.remove("is-active");
+    return;
+  }
+
+  const top=referenceLedgerStickyTop();
+  const blockRect=block.getBoundingClientRect();
+  const headRect=normalHead.getBoundingClientRect();
+  const bodyRect=bodyScroll.getBoundingClientRect();
+  const floatHeight=floating.offsetHeight||72;
+  const withinLedger = headRect.top < top && blockRect.bottom > top + floatHeight + 8;
+  const horizontallyVisible = bodyRect.right>0 && bodyRect.left<window.innerWidth;
+
+  if(!withinLedger || !horizontallyVisible || bodyRect.width<40){
+    floating.classList.remove("is-active");
+    return;
+  }
+
+  floating.style.top=`${top}px`;
+  floating.style.left=`${Math.max(0,bodyRect.left)}px`;
+  floating.style.width=`${Math.min(bodyRect.width,window.innerWidth-Math.max(0,bodyRect.left))}px`;
+  floating.classList.add("is-active");
+  floatingScroll.scrollLeft=bodyScroll.scrollLeft;
+}
+
+function scheduleReferenceLedgerFloatingHeader(){
+  if(REF_LEDGER_FLOAT_RAF) return;
+  REF_LEDGER_FLOAT_RAF=requestAnimationFrame(updateReferenceLedgerFloatingHeader);
+}
+
+function setupReferenceLedgerFloatingHeader(){
+  const block=document.querySelector(".reference-ledger-block");
+  if(!block) return;
+  const bodyScroll=block.querySelector(".reference-ledger-scroll");
+  const floatingScroll=block.querySelector(".reference-ledger-floating-scroll");
+  if(bodyScroll&&!bodyScroll.dataset.refFloatBound){
+    bodyScroll.dataset.refFloatBound="1";
+    bodyScroll.addEventListener("scroll",()=>{
+      if(floatingScroll) floatingScroll.scrollLeft=bodyScroll.scrollLeft;
+      scheduleReferenceLedgerFloatingHeader();
+    },{passive:true});
+  }
+  if(!REF_LEDGER_FLOAT_GLOBAL_BOUND){
+    REF_LEDGER_FLOAT_GLOBAL_BOUND=true;
+    window.addEventListener("scroll",scheduleReferenceLedgerFloatingHeader,{passive:true});
+    window.addEventListener("resize",scheduleReferenceLedgerFloatingHeader,{passive:true});
+  }
+  scheduleReferenceLedgerFloatingHeader();
 }
 
 /* ---------- Rendering ---------- */
@@ -9183,6 +9299,7 @@ function renderRefReport(res, cross){
   bindInfoHelp("ref-report-info","ref-report-help");
   $("ref-report").hidden=false;
   buildReportSubnav("ref-report","ref-subnav");
+  setupReferenceLedgerFloatingHeader();
 }
 function refLedger(parsed){
   if(!parsed.length) return "";
@@ -9195,7 +9312,13 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p.nonJournal?(p._identifierState||p._doiState):p._doiState)}</td></tr>`;
   }).join("");
-  return `<p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Fields are checked according to the detected reference type. yes = field detected; no = expected field missing; n/a = field not required; optional = field is not mandatory; review = the reference structure is uncertain." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p><div class="ledger-scroll"><table class="ledger"><thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Source/container</th><th>Pages/location</th><th>Vol.</th><th>Identifier/link</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  const cols=`<colgroup><col style="width:6%"><col style="width:28%"><col style="width:7%"><col style="width:6%"><col style="width:6%"><col style="width:14%"><col style="width:12%"><col style="width:6%"><col style="width:15%"></colgroup>`;
+  const head=`<thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Source/container</th><th>Pages/location</th><th>Vol.</th><th>Identifier/link</th></tr></thead>`;
+  return `<div class="reference-ledger-block">
+    <div class="reference-ledger-normal-head"><p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Fields are checked according to the detected reference type. yes = field detected; no = expected field missing; n/a = field not required; optional = field is not mandatory; review = the reference structure is uncertain." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p></div>
+    <div class="reference-ledger-floating" aria-hidden="true"><div class="reference-ledger-floating-title">Reference ledger</div><div class="reference-ledger-floating-scroll"><table class="ledger reference-ledger-table">${cols}${head}</table></div></div>
+    <div class="ledger-scroll reference-ledger-scroll"><table class="ledger reference-ledger-table">${cols}${head}<tbody>${body}</tbody></table></div>
+  </div>`;
 }
 function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
