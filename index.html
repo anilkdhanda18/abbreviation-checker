@@ -2827,12 +2827,40 @@ function collectScientificDefs(sent,si,add){
   }
 }
 
+function abbrLooksFormulaLikeDefinitionRhs(raw){
+  const s=String(raw||"").replace(/\s+/g," ").trim();
+  if(!s) return false;
+
+  // Scientific notation definitions such as "Vp = micropore volume" are prose
+  // declarations. Mathematical assignments such as "a = πn(n+1)(n+2)aR" are
+  // equations and must never register the left-hand variable as an abbreviation
+  // or as a semantic definition. This guard intentionally uses mathematical
+  // structure rather than a list of variable names.
+  const binary=(s.match(/[+\-−×*\/^]/g)||[]).length;
+  const grouping=(s.match(/[()\[\]{}]/g)||[]).length;
+  const mathGlyph=/[π∑Σ√∫∞≈≃∝≤≥]/u.test(s);
+  const plainWords=s.match(/\b[A-Za-z]{3,}\b/g)||[];
+  const textualLead=/^[A-Za-z]{3,}(?:[ -]+[A-Za-z]{3,})+\b/.test(s);
+
+  // Preserve ordinary descriptor definitions even when a trailing unit contains
+  // a minus sign or parentheses, e.g. "k = rate constant (d−1)".
+  if(textualLead && binary<=1) return false;
+
+  if(mathGlyph && (binary>=1 || grouping>=2)) return true;
+  if(binary>=2) return true;
+  if(binary>=1 && plainWords.length===0 && /^[A-Za-zα-ωΑ-Ω0-9_(]/u.test(s)) return true;
+  if(grouping>=4 && plainWords.length<=1) return true;
+  return false;
+}
+
 function collectScientificReverseDefs(sent,si,add){
   // Explicit separators are strong declaration syntax: SBET = BET surface area
   // or SBET: BET surface area. Restrict the right side to a scientific descriptor.
-  const sepRe=/(?:^|[;,.]\s*)([A-Za-z][A-Za-z0-9_]{0,14})\s*(?:=|:)\s*([^;,.]{2,140})/g; let m;
+  // Keep the separator so mathematical equations can be rejected explicitly.
+  const sepRe=/(?:^|[;,.]\s*)([A-Za-z][A-Za-z0-9_]{0,14})\s*(=|:)\s*([^;,.]{2,140})/g; let m;
   while((m=sepRe.exec(sent))!==null){
-    const sf=m[1], descriptor=m[2].trim();
+    const sf=m[1], separator=m[2], descriptor=m[3].trim();
+    if(separator==='=' && abbrLooksFormulaLikeDefinitionRhs(descriptor)) continue;
     if(!abbrLooksScientificShort(sf) || !abbrDescriptorLooksScientific(descriptor)) continue;
     const start=m.index+m[0].indexOf(sf);
     add(sf,descriptor,si,"scientific-reverse",{definitionType:abbrScientificDefinitionType(sf,descriptor),shortStart:start,shortEnd:start+sf.length,semanticDefinition:true});
@@ -3051,6 +3079,30 @@ function stripHeadings(text){
    title, authors, affiliations, correspondence, keywords, headers/footers,
    footnotes/endnotes, captions, displayed equations, tables and References
    must not create abbreviation findings. */
+function abbrLooksDisplayedEquationLine(line){
+  const s=String(line||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+  if(!s || s.length>320) return false;
+
+  // Require a relation operator near the beginning so ordinary prose containing
+  // an equals sign is not discarded. The left side may be a single symbol or a
+  // conventional scientific variable with subscripts/qualifiers.
+  const m=s.match(/^([A-Za-zα-ωΑ-Ωηλμσρζ][A-Za-z0-9_α-ωΑ-Ωηλμσρζ₀-₉ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ]{0,30})\s*(=|≈|≃|∝|≤|≥)\s*(.+)$/u);
+  if(!m) return false;
+  const rhs=m[3].trim();
+  if(!rhs) return false;
+
+  // A true semantic declaration such as "Vp = micropore volume" should remain
+  // available to the notation-definition logic. Formula-like right-hand sides
+  // are structural equation content and belong to the equation checker instead.
+  if(abbrLooksFormulaLikeDefinitionRhs(rhs)) return true;
+
+  // Compact symbolic ratios/products such as "R = V/I" contain only one binary
+  // operator, so catch them separately without suppressing prose descriptors.
+  const words=rhs.match(/\b[A-Za-z]{3,}\b/g)||[];
+  if(words.length===0 && /[+\-−×*\/^]/.test(rhs) && /^[A-Za-zα-ωΑ-Ω0-9_()\[\]{}.+\-−×*\/^]+$/u.test(rhs)) return true;
+  return false;
+}
+
 function prepareAbbreviationBody(rawText){
   let text=String(rawText||"");
 
@@ -3128,10 +3180,13 @@ function prepareAbbreviationBody(rawText){
     if(noTerminal && words.length<=24 && upper>=3 && upper/(Math.max(1,upper+lower))>=0.88)
       return "";
 
-    // Pure displayed-equation lines or protected math/table markers.
+    // Pure displayed-equation lines or protected math/table markers. Equations
+    // must not seed abbreviation/notation definitions. This also covers Word
+    // equations that flatten to ordinary text such as "a = πn(n+1)(n+2)aR".
     if(/⟦TABLE_BLOCK⟧|⟦FIELD⟧/.test(s)) return "";
     if(/^\s*(?:⟦MATH:[^⟧]*⟧\s*)+(?:\(?\s*(?:eq\.?\s*)?\d+(?:\.\d+)?\s*\)?)?\s*$/i.test(s))
       return "";
+    if(abbrLooksDisplayedEquationLine(s)) return "";
 
     return line;
   });
