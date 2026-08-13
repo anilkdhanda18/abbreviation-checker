@@ -716,7 +716,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
           <div class="limit-label-row">
             <label class="limit-label" for="paragraph-min">Paragraph minimum</label>
             <button type="button" class="info-help inline-auto-help limit-info"
-              data-help="Paragraphs containing fewer words than this limit will be flagged when the paragraph-length rule applies. Section-aware exclusions remain active."
+              data-help="Paragraphs containing fewer words than this limit will be flagged when the paragraph-length rule applies. Section-aware exclusions, including genuine equation-associated prose, remain active."
               aria-label="Explain paragraph minimum" title="What does paragraph minimum mean?">i</button>
           </div>
           <div class="limit-input-row">
@@ -908,7 +908,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <summary>What the readability and terminology check covers</summary>
     <ol>
       <li><b>Sentence length.</b> Prose sentences exceeding the user-selected maximum are reported for readability review. The default maximum is <b>35 words</b>, and the user may select a value from 10 to 100 words.</li>
-      <li><b>Paragraph length.</b> Main-text prose uses the user-selected minimum and maximum, with defaults of <b>100–300 words</b>. The minimum remains section-aware: a short paragraph is not flagged when it is the only substantive paragraph in its local section, when the local section contains no more words than the selected minimum, or when it belongs to an intentionally concise component such as a Novelty or Significance statement. The selected maximum remains paragraph-specific.</li>
+      <li><b>Paragraph length.</b> Main-text prose uses the user-selected minimum and maximum, with defaults of <b>100–300 words</b>. The minimum remains section-aware: a short paragraph is not flagged when it is the only substantive paragraph in its local section, when the local section contains no more words than the selected minimum, when it belongs to an intentionally concise component such as a Novelty or Significance statement, or when it is a genuine equation-introduction/variable-explanation paragraph directly associated with a displayed equation. The selected maximum remains paragraph-specific.</li>
       <li><b>Readability metrics.</b> Flesch Reading Ease and Flesch-Kincaid Grade Level are calculated from eligible manuscript prose as descriptive indicators. They do not measure scientific quality and do not create automatic language errors.</li>
       <li><b>Terminology consistency.</b> The checker looks for repeated scientific/technical terms used in conflicting open, closed, hyphenated, or internal-capitalization forms, such as <code>wastewater</code>/<code>waste water</code>.</li>
       <li><b>Structural exclusions.</b> References, affiliations, headings, captions, equations, tables, citation-like structures, headers/footers, footnotes/endnotes, and other non-prose structural content are excluded where appropriate. The Abstract is additionally excluded from paragraph-length checking.</li>
@@ -2236,9 +2236,135 @@ function engParagraphShortSuggestion(section,pIndex,settings){
   return "This paragraph is relatively short compared with other prose in the subsection. Consider developing it further only if additional information is scientifically justified; otherwise retain it as a concise standalone paragraph.";
 }
 
+/* Displayed equations legitimately split one scientific explanation into separate
+   Word paragraphs. For the MINIMUM paragraph-length rule only, recognise a short
+   equation-introduction paragraph and/or its immediately following variable/
+   equation explanation as equation-associated prose. The maximum remains fully
+   paragraph-specific. This avoids encouraging authors to pad concise mathematical
+   introductions merely to cross the selected minimum word count. */
+const ENG_EQUATION_INTRO_RE=/(?:\bas\s+follows\b|\b(?:is|are|was|were|can\s+be|may\s+be|could\s+be)\s+(?:calculated|computed|determined|defined|given|expressed|estimated|obtained|derived|written|represented|described|evaluated)\s+(?:as|by|from|using|with)\b|\b(?:following|below)\s+(?:equation|expression|relationship|relation|formula)\b|\b(?:equation|expression|relationship|relation|formula)\s+(?:is|are|can\s+be|may\s+be)\s+(?:given|written|expressed|defined|represented)\b)\s*[:;.]?\s*$/i;
+const ENG_EQUATION_EXPLAIN_RE=/^\s*(?:where(?:in)?\b\s*[,;:]?|in\s+which\b\s*[,;:]?|here\b\s*[,;:]?|with\b\s+|whereby\b\s+)/i;
+
+function engLooksLikeDisplayedEquationRecord(r){
+  if(!r) return false;
+  if(r.type==="EQUATION") return true;
+  const b=r.block||{};
+  if(b.type==="table" && b.isEquationLayout) return true;
+  if(b.type!=="p") return false;
+  if(b.hasMathPara || b.fromEquationTable || (/equation/i.test(String(b.style||"")) && b.hasMath)) return true;
+  try{
+    if(typeof fteDisplayedEquationId==="function" && fteDisplayedEquationId(b)) return true;
+    if(typeof fteLooksLikeUnnumberedDisplayedEquation==="function" && fteLooksLikeUnnumberedDisplayedEquation(b)) return true;
+  }catch(e){}
+  return false;
+}
+
+function engLooksLikeDisplayedEquationText(text){
+  const s=engNormStructuralText(text||"");
+  if(!s || engWordCount(s)>35) return false;
+  try{
+    if(typeof ftePlainEquationLike==="function" && ftePlainEquationLike(s)) return true;
+  }catch(e){}
+  const proseWords=(s.match(/\b[\p{L}]{3,}\b/gu)||[]).length;
+  const relation=/(?:=|≈|≃|≅|≤|≥|≠|∝|→|←|↔|⇌)/.test(s);
+  const mathCue=/(?:[+*/^]|[()\[\]{}]|[α-ωΑ-ΩρπΣ∑∫√]|\b[A-Za-z]\s*\/\s*[A-Za-z]\b)/u.test(s);
+  return relation && mathCue && proseWords<=7;
+}
+
+function engEquationIntroProse(text){
+  const s=engNormStructuralText(text||"");
+  if(!s) return false;
+  if(ENG_EQUATION_INTRO_RE.test(s)) return true;
+  // Common manuscript wording where the equation/relationship is introduced
+  // explicitly but punctuation/layout varies.
+  return /\b(?:calculated|computed|determined|defined|given|expressed|estimated|obtained|derived|written|represented)\s+(?:using|from|by)\s+(?:the\s+)?(?:following\s+)?(?:equation|expression|relationship|relation|formula)\b\s*[:;.]?\s*$/i.test(s);
+}
+
+function engEquationExplanationProse(text){
+  const s=engNormStructuralText(text||"");
+  if(!s) return false;
+  if(ENG_EQUATION_EXPLAIN_RE.test(s)) return true;
+  // Variable-definition prose can occasionally omit "where".
+  return /^(?:[A-Za-zα-ωΑ-Ωρπ][A-Za-z0-9α-ωΑ-Ωρπ_'′″]*(?:\s*\([^)]{0,25}\))?\s+(?:is|denotes?|represents?|refers?\s+to|corresponds?\s+to)\b)/u.test(s);
+}
+
+function engEquationVariableTokens(text){
+  const s=engNormStructuralText(text||"");
+  const out=new Set();
+  // Prefer single-letter/Greek scientific symbols and short indexed variables.
+  for(const m of s.matchAll(/(?:^|[^\p{L}\p{N}_])([A-Za-zα-ωΑ-Ωρπ](?:[_'′″]?[A-Za-z0-9]{0,3})?)(?=$|[^\p{L}\p{N}_])/gu)){
+    const v=m[1];
+    if(!/^(?:a|an|i)$/i.test(v) || /[=+\-*/]/.test(s)) out.add(v.toLowerCase());
+  }
+  return out;
+}
+
+function engEquationVariablesExplained(equationText,proseText){
+  const vars=engEquationVariableTokens(equationText);
+  if(!vars.size) return false;
+  const s=engNormStructuralText(proseText||"");
+  for(const v of vars){
+    const esc=v.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    const re=new RegExp(`(?:^|[,;(]\\s*|\\bwhere\\s+)(?:${esc})\\b[^.!?]{0,55}\\b(?:is|denotes?|represents?|refers?\\s+to|corresponds?\\s+to)\\b`,`iu`);
+    if(re.test(s)) return true;
+  }
+  return false;
+}
+
+function engMarkEquationAssociated(p,role,clusterWords,equationText){
+  if(!p) return;
+  p.equationAssociated=true;
+  p.equationRole=role||"equation-associated prose";
+  if(Number.isFinite(clusterWords)) p.equationClusterWords=clusterWords;
+  if(equationText) p.equationContext=engNormStructuralText(equationText).slice(0,220);
+}
+
+function engAnnotateStructuralEquationAssociations(section,classified){
+  const paras=section?.paragraphs||[];
+  if(!paras.length || !Array.isArray(classified)) return;
+  for(let i=0;i<paras.length-1;i++){
+    const before=paras[i], after=paras[i+1];
+    if(!Number.isInteger(before.blockIndex) || !Number.isInteger(after.blockIndex) || after.blockIndex<=before.blockIndex+1) continue;
+    const between=classified.slice(before.blockIndex+1,after.blockIndex);
+    const equations=between.filter(engLooksLikeDisplayedEquationRecord);
+    if(!equations.length) continue;
+    // Do not bridge across figures, data tables, headings, captions, or other
+    // substantive structural objects. The equation should be the real separator.
+    const disallowed=between.some(r=>/^(?:HEADING|MEDIA|TABLE|FIGURE_CAPTION|TABLE_CAPTION|SCHEME_CAPTION|GRAPHICAL_ABSTRACT|OTHER_CAPTION|CAPTION_CONTINUATION|FIGURE_NOTE|TABLE_NOTE)$/.test(String(r?.type||"")));
+    if(disallowed) continue;
+    const eqText=equations.map(r=>r.text||r.block?.text||"").join(" ").trim();
+    const intro=engEquationIntroProse(before.text);
+    const explain=engEquationExplanationProse(after.text) || engEquationVariablesExplained(eqText,after.text);
+    const clusterWords=before.wordCount+after.wordCount;
+    if(intro) engMarkEquationAssociated(before,"equation introduction",clusterWords,eqText);
+    if(explain) engMarkEquationAssociated(after,"equation explanation",clusterWords,eqText);
+  }
+}
+
+function engAnnotateTextEquationAssociations(section,lines){
+  const paras=section?.paragraphs||[];
+  if(!paras.length || !Array.isArray(lines)) return;
+  for(let i=0;i<paras.length-1;i++){
+    const before=paras[i], after=paras[i+1];
+    if(!Number.isInteger(before.rawIndex) || !Number.isInteger(after.rawIndex) || after.rawIndex<=before.rawIndex+1) continue;
+    const between=lines.slice(before.rawIndex+1,after.rawIndex);
+    const eqLines=between.filter(engLooksLikeDisplayedEquationText);
+    if(!eqLines.length) continue;
+    // Avoid treating a distant display object as an equation bridge.
+    if(between.length>3 || between.some(x=>engIsStandaloneCaptionParagraph(x))) continue;
+    const eqText=eqLines.join(" ");
+    const intro=engEquationIntroProse(before.text);
+    const explain=engEquationExplanationProse(after.text) || engEquationVariablesExplained(eqText,after.text);
+    const clusterWords=before.wordCount+after.wordCount;
+    if(intro) engMarkEquationAssociated(before,"equation introduction",clusterWords,eqText);
+    if(explain) engMarkEquationAssociated(after,"equation explanation",clusterWords,eqText);
+  }
+}
+
 function engParagraphMinEligible(section,p,settings){
   if(!p || !section) return false;
   if(p.shortForm || section.isShortFormSection) return false;
+  if(p.equationAssociated) return false;
   if(section.paragraphs.length<=1) return false;
   if(section.totalWords<=settings.min) return false;
   return true;
@@ -2276,6 +2402,7 @@ function engBuildStructuralParagraphSections(classified,start,end){
     current.totalWords+=wc;
   }
   finish();
+  sections.forEach(section=>engAnnotateStructuralEquationAssociations(section,classified));
   return {sections,totalProse:proseNo};
 }
 
@@ -2287,7 +2414,8 @@ function engBuildTextParagraphSections(text){
   const finish=()=>{ if(current.paragraphs.length) sections.push(current); };
   let proseNo=0;
 
-  for(const raw of lines){
+  for(let rawIndex=0;rawIndex<lines.length;rawIndex++){
+    const raw=lines[rawIndex];
     if(engIsHeadingLike(raw)){
       finish();
       current={title:engParagraphSectionTitle(raw)||raw,rawTitle:raw,level:2,isShortFormSection:engIsShortFormSectionTitle(raw),paragraphs:[],totalWords:0};
@@ -2305,10 +2433,11 @@ function engBuildTextParagraphSections(text){
     if(!p || engIsHeadingLike(p) || engIsStandaloneCaptionParagraph(p)) continue;
     const wc=engWordCount(p);
     proseNo++;
-    const rec={text:p,wordCount:wc,paragraph:proseNo,shortForm:engIsShortFormInlineParagraph(p)};
+    const rec={text:p,wordCount:wc,paragraph:proseNo,rawIndex,shortForm:engIsShortFormInlineParagraph(p)};
     current.paragraphs.push(rec); current.totalWords+=wc;
   }
   finish();
+  sections.forEach(section=>engAnnotateTextEquationAssociations(section,lines));
   return {sections,totalProse:proseNo};
 }
 
@@ -5978,7 +6107,7 @@ function issueHelpText(code,msg=""){
     TERMINOLOGY_VARIANT:"The same technical concept appears in more than one open/closed/hyphenated form. Review whether the variation is intentional.",
     HYPHENATION_INCONSISTENT:"Both a hyphenated and closed form of what appears to be the same technical term occur in the manuscript.",
     CAPITALIZATION_INCONSISTENT:"The same repeated term appears with different capitalization inside manuscript sentences. Normal sentence-initial capitalization, citations, Word fields, equations/math, titles, headers/footers, footnotes/endnotes, and References are excluded.",
-    PARAGRAPH_TOO_SHORT:`A main-text prose paragraph is below the selected ${ENG_CURRENT_PARAGRAPH_MIN}-word guideline inside a sufficiently developed local section. The checker suppresses this warning for single-paragraph sections, sections containing ${ENG_CURRENT_PARAGRAPH_MIN} prose words or fewer, intentionally concise statement sections, and structural content such as headings, captions, notes, equations, tables, back matter, and References.`,
+    PARAGRAPH_TOO_SHORT:`A main-text prose paragraph is below the selected ${ENG_CURRENT_PARAGRAPH_MIN}-word guideline inside a sufficiently developed local section. The checker suppresses this warning for single-paragraph sections, sections containing ${ENG_CURRENT_PARAGRAPH_MIN} prose words or fewer, intentionally concise statement sections, genuine equation-associated introduction/explanation prose, and structural content such as headings, captions, notes, equations, tables, back matter, and References.`,
     PARAGRAPH_TOO_LONG:`A main-text prose paragraph contains more than the selected ${ENG_CURRENT_PARAGRAPH_MAX}-word maximum. Consider splitting only at a logical transition.`
   };
   if(englishHelp[code]) return englishHelp[code];
@@ -10671,7 +10800,7 @@ fteAnalyze=function(blocks){
     html+=`<section class="report-subsection"><p class="sec-label">Sentence length <button type="button" class="info-help inline-auto-help" data-help="Shows eligible prose sentences that exceed the user-selected ${sentenceLimit}-word maximum. Sentence length is a readability indicator, not a grammar judgment." aria-label="Explain Sentence length" title="Explain this section">i</button> · ${sentenceIssues.length}</p>`;
     html+=mcFocusedRenderIssues(sentenceIssues,`No eligible prose sentence exceeded the selected ${sentenceLimit}-word maximum.`)+`</section>`;
 
-    html+=`<section class="report-subsection"><p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks main-text BODY_PROSE using the selected ${paragraphMin}–${paragraphMax}-word range. The minimum is section-aware and is suppressed for single-paragraph or intentionally concise sections; the maximum remains paragraph-specific." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
+    html+=`<section class="report-subsection"><p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks main-text BODY_PROSE using the selected ${paragraphMin}–${paragraphMax}-word range. The minimum is section-aware and is suppressed for single-paragraph, intentionally concise, and genuine equation-associated introduction/explanation prose; the maximum remains paragraph-specific." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
     if(paraIssues.length){
       html+=paraIssues.slice(0,300).map(it=>`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`).join("");
     }else html+=`<p class="verdict clean">No paragraph-length issues were detected among ${res.proseParagraphs||0} eligible main-text prose paragraphs after section-aware minimum-length exemptions.</p>`;
