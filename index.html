@@ -6106,7 +6106,8 @@ function issueHelpText(code,msg=""){
     REPEATED_TRANSITION:"The same transition word is used several times in one paragraph and may sound repetitive.",
     TERMINOLOGY_VARIANT:"The same technical concept appears in more than one open/closed/hyphenated form. Review whether the variation is intentional.",
     HYPHENATION_INCONSISTENT:"Both a hyphenated and closed form of what appears to be the same technical term occur in the manuscript.",
-    CAPITALIZATION_INCONSISTENT:"The same repeated term appears with different capitalization inside manuscript sentences. Normal sentence-initial capitalization, citations, Word fields, equations/math, titles, headers/footers, footnotes/endnotes, and References are excluded.",
+    CAPITALIZATION_INCONSISTENT:"The same repeated term appears with different capitalization in comparable running-prose contexts. Cover letters, subject lines, title pages, document titles, headings, captions, tables, equations, References, sentence-initial capitalization, and likely proper/formal names are excluded.",
+    CAPTION_CAPITALIZATION_INCONSISTENT:"Figure and table captions are evaluated separately from body prose. This note appears only when multiple captions provide clear evidence that sentence-case and title-case caption conventions are being mixed within the same caption family.",
     PARAGRAPH_TOO_SHORT:`A main-text prose paragraph is below the selected ${ENG_CURRENT_PARAGRAPH_MIN}-word guideline inside a sufficiently developed local section. The checker suppresses this warning for single-paragraph sections, sections containing ${ENG_CURRENT_PARAGRAPH_MIN} prose words or fewer, intentionally concise statement sections, genuine equation-associated introduction/explanation prose, and structural content such as headings, captions, notes, equations, tables, back matter, and References.`,
     PARAGRAPH_TOO_LONG:`A main-text prose paragraph contains more than the selected ${ENG_CURRENT_PARAGRAPH_MAX}-word maximum. Consider splitting only at a logical transition.`
   };
@@ -10620,15 +10621,211 @@ fteAnalyze=function(blocks){
     };
   }
 
+  /* ----------------------------------------------------------
+     Structure-aware terminology consistency
+
+     Capitalization and hyphenation are meaningful only when the compared
+     occurrences have comparable editorial roles. Cover letters, subject
+     lines, title pages, document titles, headings, captions, tables, equations,
+     references, and other structural material must not be allowed to create a
+     BODY_PROSE terminology warning.
+
+     Figure/table captions are evaluated separately at the caption-convention
+     level. They are never compared word-by-word with running prose.
+     ---------------------------------------------------------- */
+
+  const MC_TERM_START_HEAD_RE=/^(?:abstract|executive\s+summary|summary|introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+(?:section|analysis))?|results?|discussion|results?\s+and\s+discussion)\s*:?[.\s]*$/i;
+  const MC_TERM_FRONT_STRUCT_RE=/^(?:to|from|date|subject|re\s*:|regards|prepared\s+for|prepared\s+by|conducted\s+(?:and|&)\s+prepared\s+by|a\s+report\s+on|report\s+title|cover\s+letter)\b/i;
+  const MC_TERM_CAPTION_STOP=new Set(["a","an","and","as","at","by","for","from","in","of","on","or","the","to","via","versus","vs","with"]);
+  function mcTermCleanLine(x){
+    return engNormStructuralText(String(x||"").replace(/[*_`#>]/g,""));
+  }
+
+  function mcTermFindStructuralRange(classified){
+    const arr=Array.isArray(classified)?classified:[];
+    let start=-1,end=arr.length;
+
+    // Start at the first genuine scientific prose region. Abstract and Executive
+    // Summary are included because they are manuscript/report prose; cover
+    // letters, subject lines and title pages that precede them are not.
+    for(let i=0;i<Math.min(arr.length,500);i++){
+      const t=mcTermCleanLine(arr[i]?.text);
+      if(!t) continue;
+      if(MC_TERM_START_HEAD_RE.test(t) && (arr[i].type==="HEADING" || engLooksHeadingForScan(t))){
+        start=i+1; break;
+      }
+    }
+    // If Abstract was not styled as a heading, accept an exact standalone label.
+    if(start<0){
+      for(let i=0;i<Math.min(arr.length,500);i++){
+        const t=mcTermCleanLine(arr[i]?.text);
+        if(MC_TERM_START_HEAD_RE.test(t)){ start=i+1; break; }
+      }
+    }
+    // No recognised manuscript/report body boundary: retain the structural
+    // classifier but do not guess that obvious cover/admin paragraphs are prose.
+    if(start<0) start=0;
+
+    for(let i=start;i<arr.length;i++){
+      const t=mcTermCleanLine(arr[i]?.text);
+      if(t && ENG_PARAGRAPH_BACK_HEAD_RE.test(t)){ end=i; break; }
+    }
+    return {start,end};
+  }
+
+  function mcTermTextScope(text){
+    const lines=String(text||"").replace(/\r/g,"").split(/\n/);
+    const clean=mcTermCleanLine;
+    let start=-1,end=lines.length;
+    for(let i=0;i<Math.min(lines.length,500);i++){
+      if(MC_TERM_START_HEAD_RE.test(clean(lines[i]))){ start=i+1; break; }
+    }
+    if(start<0) start=0;
+    for(let i=start;i<lines.length;i++){
+      if(ENG_PARAGRAPH_BACK_HEAD_RE.test(clean(lines[i]))){ end=i; break; }
+    }
+    const kept=[];
+    for(let i=start;i<end;i++){
+      const x=clean(lines[i]);
+      if(!x) continue;
+      if(MC_TERM_FRONT_STRUCT_RE.test(x) && engWordCount(x)<=35) continue;
+      if(engLooksHeadingForScan(x) || engIsParagraphMetadata(x)) continue;
+      if(engIsStandaloneCaptionParagraph(x) || engLooksLikeCaptionContinuation(x)) continue;
+      if(/^(?:figure|fig\.?|table|scheme|plate|chart|graph)\s+[A-Z]?[S]?[0-9IVXLCDM]+\b/i.test(x)) continue;
+      kept.push(x);
+    }
+    return kept.join("\n\n");
+  }
+
+  function mcBuildTerminologyZones(fallbackBody){
+    const zones={body:"",figureCaptions:[],tableCaptions:[],source:"text"};
+    try{
+      if((DOCX_FTE_BLOCKS||[]).length){
+        const classified=engRefreshStructuralParagraphs();
+        const {start,end}=mcTermFindStructuralRange(classified);
+        const prose=[];
+        for(let i=start;i<end;i++){
+          const r=classified[i];
+          const t=mcTermCleanLine(r?.text);
+          if(!t) continue;
+          if(r.type==="BODY_PROSE"){
+            // Additional conservative guard for administrative cover-like lines
+            // in documents where no standard body heading could be located.
+            if(start===0 && MC_TERM_FRONT_STRUCT_RE.test(t) && engWordCount(t)<=35) continue;
+            if(!engIsParagraphMetadata(t)) prose.push(t);
+          }else if(r.type==="FIGURE_CAPTION") zones.figureCaptions.push(t);
+          else if(r.type==="TABLE_CAPTION") zones.tableCaptions.push(t);
+        }
+        if(prose.length){
+          zones.body=prose.join("\n\n");
+          zones.source="docx-structure";
+          return zones;
+        }
+      }
+    }catch(e){ console.warn("Structure-aware terminology scope unavailable; using text fallback.",e); }
+    zones.body=mcTermTextScope(fallbackBody||"");
+    return zones;
+  }
+
+  function mcCaptionCaseStyle(caption){
+    const s=mcTermCleanLine(caption);
+    if(!s) return null;
+    let rest=s;
+    try{
+      const lead=engParseCaptionLead(s);
+      if(lead?.rest) rest=lead.rest;
+      else rest=rest.replace(/^(?:figure|fig\.?|table|scheme|plate|chart|graph)\s+[A-Z]?[S]?[0-9IVXLCDM]+(?:[.:;,-]\s*|\s+)/i,"");
+    }catch(_e){}
+    const words=rest.match(/[A-Za-z][A-Za-z'’\-]*/g)||[];
+    if(words.length<3) return null;
+    const significant=[];
+    words.forEach((w,idx)=>{
+      const low=w.toLowerCase();
+      if(MC_TERM_CAPTION_STOP.has(low)) return;
+      if(/^[A-Z]{2,}(?:-[A-Z0-9]+)?$/.test(w)) return; // acronym, e.g. ERT
+      if(/[A-Z].*[A-Z]/.test(w.slice(1))) return;       // model/proper mixed case
+      significant.push({w,idx,cap:/^[A-Z]/.test(w)});
+    });
+    if(significant.length<3) return null;
+    // The first lexical word may be capitalized in either sentence or title case.
+    const afterFirst=significant.filter(x=>x.idx!==0);
+    const pool=afterFirst.length>=2?afterFirst:significant.slice(1);
+    if(pool.length<2) return null;
+    const capCount=pool.filter(x=>x.cap).length;
+    const ratio=capCount/pool.length;
+    if(ratio>=0.62) return "title";
+    if(ratio<=0.34) return "sentence";
+    return "mixed";
+  }
+
+  function mcCaptionCapitalizationIssues(zones){
+    const out=[];
+    const assess=(kind,captions)=>{
+      const rows=(captions||[]).map(text=>({text,style:mcCaptionCaseStyle(text)})).filter(x=>x.style==="sentence"||x.style==="title");
+      if(rows.length<3) return;
+      const sentenceRows=rows.filter(x=>x.style==="sentence");
+      const titleRows=rows.filter(x=>x.style==="title");
+      if(!sentenceRows.length || !titleRows.length) return;
+      const total=sentenceRows.length+titleRows.length;
+      // Require at least two captions supporting one convention. This avoids
+      // calling two isolated captions a manuscript-wide convention conflict.
+      if(Math.max(sentenceRows.length,titleRows.length)<2) return;
+      const label=kind==="figure"?"Figure":"Table";
+      const sampleA=sentenceRows[0].text;
+      const sampleB=titleRows[0].text;
+      out.push({
+        category:"Terminology consistency",severity:"info",code:"CAPTION_CAPITALIZATION_INCONSISTENT",
+        index:Number.MAX_SAFE_INTEGER-(kind==="figure"?2:1),token:`${label} captions`,
+        msg:`${label} captions use mixed capitalization conventions: ${sentenceRows.length} sentence-case and ${titleRows.length} title-case caption${total===1?"":"s"} were detected.`,
+        suggestion:`Check the target journal or report style and apply one ${label.toLowerCase()}-caption capitalization convention consistently. Caption capitalization is evaluated separately from body prose.`,
+        snippet:`${escapeHtml("Sentence-case example: "+sampleA)}<br>${escapeHtml("Title-case example: "+sampleB)}`
+      });
+    };
+    assess("figure",zones.figureCaptions);
+    assess("table",zones.tableCaptions);
+    return out;
+  }
+
+  function mcIsLikelyFormalNameOccurrence(text,index,raw){
+    // Capitalization inside a recognised multi-word proper/project/institutional
+    // name should not be compared with the same lexical word used generically.
+    const left=Math.max(0,index-70), right=Math.min(text.length,index+raw.length+90);
+    const win=text.slice(left,right);
+    const local=index-left;
+    const tokenRe=/\b[A-Z][\p{L}'’\-]{2,}\b/gu;
+    let m,adjacentTitle=false;
+    while((m=tokenRe.exec(win))){
+      const a=m.index,b=m.index+m[0].length;
+      if(a<=local+raw.length+28 && b>=local-28 && !(a===local&&m[0]===raw)){ adjacentTitle=true; break; }
+    }
+    if(!adjacentTitle) return false;
+    // Strong formal-name anchor near the occurrence.
+    const anchorRe=/\b(?:Agency|Association|Authority|Bank|Board|Centre|Center|Commission|Committee|Company|Corporation|Council|Department|Facility|Foundation|Government|Group|Initiative|Institute|Institution|Laboratory|Limited|Ministry|Mission|Organization|Organisation|Programme|Program|Project|Society|University)\b/g;
+    while((m=anchorRe.exec(win))){
+      if(Math.abs(m.index-local)<=75) return true;
+    }
+    // Two or more adjacent title-case words are also treated conservatively as
+    // a proper-name/title phrase. This prioritises low false-positive rates.
+    const phraseRe=/\b[A-Z][\p{L}'’\-]{2,}(?:\s+(?:(?:of|and|for|the|in|on|at|to|&|and,?)\s+)?[A-Z][\p{L}'’\-]{2,})+\b/gu;
+    while((m=phraseRe.exec(win))){
+      if(m.index<=local && m.index+m[0].length>=local+raw.length) return true;
+    }
+    return false;
+  }
+
   function mcFocusedTerminology(body,displayBody,sentences){
+    const zones=mcBuildTerminologyZones(body);
+    const scopedBody=engGrammarBody(zones.body||"");
+    const scopedDisplay=engPrepareText(zones.body||"");
+    const scopedSentences=engReadableSentences(scopedBody);
     const consistency=[], seen=new Set();
-    const push=(code,index,length,msg,suggestion,token="")=>{
+    const push=(code,index,length,msg,suggestion,token="",snippetOverride="")=>{
       const key=`${code}:${index}:${String(token).toLowerCase()}`;
       if(seen.has(key)) return;
       seen.add(key);
       consistency.push({
         category:"Terminology consistency",severity:"info",code,index,token,msg,suggestion,
-        snippet:engContext(displayBody,index,Math.max(1,length||String(token||"").length))
+        snippet:snippetOverride||engContext(scopedDisplay,index,Math.max(1,length||String(token||"").length))
       });
     };
 
@@ -10636,7 +10833,7 @@ fteAnalyze=function(blocks){
     (ENG_TERM_VARIANT_GROUPS||[]).forEach(group=>{
       const uses=[];
       group.forEach(form=>{
-        const found=engFindPhraseAll(body,form);
+        const found=engFindPhraseAll(scopedBody,form);
         if(found.length) uses.push({form,count:found.length,first:found[0]});
       });
       if(uses.length>1){
@@ -10644,29 +10841,32 @@ fteAnalyze=function(blocks){
         termKeys.add(key);
         const first=uses[0].first;
         push("TERMINOLOGY_VARIANT",first.index,first.length,
-          `The same terminology appears in multiple forms: ${uses.map(x=>`${x.form} (${x.count})`).join(", ")}.`,
+          `The same terminology appears in multiple forms within comparable body prose: ${uses.map(x=>`${x.form} (${x.count})`).join(", ")}.`,
           "Choose one form consistently unless the variants intentionally have different meanings.",uses[0].form);
       }
     });
 
-    // Dynamic hyphenated versus closed form, e.g. long-term / longterm.
+    // Dynamic hyphenated versus closed form. Cover/title/caption occurrences are
+    // absent from scopedBody, so they cannot manufacture a body-prose conflict.
     const hy=/\b([a-z]{3,})-([a-z]{3,})\b/gi;
     let hm; const dynSeen=new Set();
-    while((hm=hy.exec(body))){
+    while((hm=hy.exec(scopedBody))){
       const closed=(hm[1]+hm[2]).toLowerCase();
       if(dynSeen.has(closed)) continue;
       dynSeen.add(closed);
       if(termKeys.has(closed)) continue;
       const cre=new RegExp(`\\b${engEscapeRegex(closed)}\\b`,"gi");
-      const closedUses=[...body.matchAll(cre)];
+      const closedUses=[...scopedBody.matchAll(cre)];
       if(closedUses.length){
         push("HYPHENATION_INCONSISTENT",hm.index,hm[0].length,
-          `Both "${hm[0]}" and "${closedUses[0][0]}" occur in the manuscript.`,
+          `Both "${hm[0]}" and "${closedUses[0][0]}" occur within comparable body prose.`,
           "Verify whether the same technical term should use one hyphenation convention consistently.",hm[0]);
       }
     }
 
-    // Internal capitalization inconsistency for repeated long terms.
+    // Internal capitalization inconsistency for repeated lexical terms. Only
+    // BODY_PROSE is considered. Sentence-initial uses and likely proper/formal
+    // names are excluded before evidence is accumulated.
     const capMap=new Map();
     const wordRe=/\b[\p{L}][\p{L}'’\-]{4,}\b/gu;
     const capExclusions=new Set([
@@ -10675,20 +10875,21 @@ fteAnalyze=function(blocks){
       "supplementary","appendix"
     ]);
     const sentenceInitialPositions=new Set();
-    (sentences||[]).forEach(s=>{
+    (scopedSentences||[]).forEach(s=>{
       const first=/[\p{L}][\p{L}'’\-]*/u.exec(s.text);
       if(first) sentenceInitialPositions.add(s.index+first.index);
     });
     let wm;
-    while((wm=wordRe.exec(body))){
+    while((wm=wordRe.exec(scopedBody))){
       const raw=wm[0], low=raw.toLowerCase();
       if(capExclusions.has(low)||raw===raw.toUpperCase()) continue;
       const kind=/^[A-Z]/.test(raw)?"cap":"lower";
       if(kind==="cap"){
         if(sentenceInitialPositions.has(wm.index)) continue;
         let j=wm.index-1;
-        while(j>=0 && /[\s"'“”‘’(\[]/.test(body[j])) j--;
-        if(j<0 || /[.!?\n]/.test(body[j])) continue;
+        while(j>=0 && /[\s"'“”‘’(\[]/.test(scopedBody[j])) j--;
+        if(j<0 || /[.!?\n]/.test(scopedBody[j])) continue;
+        if(mcIsLikelyFormalNameOccurrence(scopedBody,wm.index,raw)) continue;
       }
       const rec=capMap.get(low)||{cap:[],lower:[]};
       rec[kind].push({raw,index:wm.index});
@@ -10696,12 +10897,16 @@ fteAnalyze=function(blocks){
     }
     capMap.forEach(r=>{
       if(r.cap.length>=2 && r.lower.length>=1){
-        const x=r.cap[0];
+        const x=r.cap[0], y=r.lower[0];
         push("CAPITALIZATION_INCONSISTENT",x.index,x.raw.length,
-          `"${x.raw}" and "${r.lower[0].raw}" are used with different capitalization within body prose.`,
-          "Review whether these internal uses refer to the same technical term.",x.raw);
+          `"${x.raw}" and "${y.raw}" are used with different capitalization in comparable body-prose contexts.`,
+          "Review whether these mid-sentence uses refer to the same technical term. Capitalization in titles, subjects, headings, captions, tables, and proper names is excluded.",x.raw);
       }
     });
+
+    // Caption conventions are assessed independently and never contribute to
+    // word-level body capitalization findings.
+    consistency.push(...mcCaptionCapitalizationIssues(zones));
     return consistency.sort((a,b)=>a.index-b.index);
   }
 
@@ -10818,7 +11023,7 @@ fteAnalyze=function(blocks){
     else html+=`<p class="verdict clean">Readability scores are descriptive only. Interpret them alongside the technical complexity and intended readership of the manuscript.</p>`;
     html+=`</section>`;
 
-    html+=`<section class="report-subsection"><p class="sec-label">Terminology consistency <button type="button" class="info-help inline-auto-help" data-help="Checks repeated technical terms for conflicting open, closed, hyphenated, or internal-capitalization forms within eligible body prose. It does not perform general spelling correction." aria-label="Explain Terminology consistency" title="Explain this section">i</button> · ${termIssues.length}</p>`;
+    html+=`<section class="report-subsection"><p class="sec-label">Terminology consistency <button type="button" class="info-help inline-auto-help" data-help="Checks repeated technical terms only across comparable running-prose contexts. Cover letters, subject lines, title pages, headings, captions, tables, equations, References, sentence-initial capitalization, and likely proper names do not create body-prose capitalization conflicts. Figure and table caption capitalization is assessed separately at the caption-convention level. It does not perform general spelling correction." aria-label="Explain Terminology consistency" title="Explain this section">i</button> · ${termIssues.length}</p>`;
     html+=mcFocusedRenderIssues(termIssues,"No targeted terminology-consistency conflicts were detected in eligible body prose.")+`</section>`;
 
     $("eng-findings").innerHTML=html;
