@@ -930,7 +930,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Cross-references.</b> Grouped citations such as Figs. 2–5, Tables 1 and 2, and Eqs. (3)–(5) are expanded and checked against existing items.</li>
       <li><b>Citation before appearance.</b> Figures and tables should be cited in manuscript text before their first physical appearance. Caption text does not count as the prior citation.</li>
       <li><b>Equations.</b> Only structurally numbered displayed equations are included. Citation-before-equation placement is reported conservatively because journal requirements vary.</li>
-      <li><b>Multipanel figures.</b> Panel-like mentions in captions are classified as declarations or explanatory references. Only declared panels participate in duplicate, gap, and sequence checks; references such as <code>in (d)</code>, <code>shown in (b)</code>, or <code>panel (c)</code> do not create duplicate panels.</li>
+      <li><b>Multipanel figures.</b> Panel-like mentions in captions are classified as panel-label assignments or explanatory references. Only labels that assign content to panels participate in duplicate, gap, and sequence checks; references such as <code>the inset in (d)</code>, <code>shown in (b)</code>, or <code>panel (c)</code> do not create duplicate panels. Introductory structures such as <code>SEM images of (a) sample A, (b) sample B</code> are treated as panel assignments rather than references.</li>
     </ol>
   </details>
   </div><!-- /group fte -->
@@ -5655,7 +5655,13 @@ function ftePanelCheck(figures,issues){
     const pre=String(text||"").slice(Math.max(0,occ.start-100),occ.start).toLowerCase();
     const compact=pre.replace(/\s+/g," ");
     let score=0;
-    if(/\b(?:the\s+)?(?:inset|image|curve|plot|spectrum|micrograph|map|feature|peak|region|value|values|data|result|results)\s+(?:shown\s+)?(?:in|of|from)\s+(?:panel[s]?\s*)?$/.test(compact)) score+=7;
+    // Strong reference evidence should be genuinely anaphoric. A bare noun +
+    // preposition is not enough because captions often introduce panel inventories
+    // as "SEM image of (a) sample A, (b) sample B" or "spectra of (a)...".
+    // Definite/demonstrative wording ("the image in (a)", "this curve in (b)")
+    // and explicit inset wording remain strong reference cues.
+    if(/\b(?:the|this|that|these|those)\s+(?:inset|image|images|curve|plot|spectrum|spectra|micrograph|micrographs|map|feature|peak|region|value|values|data|result|results)\s+(?:shown\s+)?(?:in|of|from)\s+(?:panel[s]?\s*)?$/.test(compact)) score+=7;
+    if(/\binset\s+(?:shown\s+)?(?:in|of|from)\s+(?:panel[s]?\s*)?$/.test(compact)) score+=7;
     if(/\b(?:as\s+shown\s+in|shown\s+in|illustrated\s+in|presented\s+in|depicted\s+in|observed\s+in|seen\s+in|given\s+in|displayed\s+in|compared\s+with|relative\s+to|corresponding\s+to|see)\s+(?:panel[s]?\s*)?$/.test(compact)) score+=7;
     // A bare preposition is only supporting evidence. It must not override a
     // parallel inventory such as "at (c) 200 nm, (d) 50 nm, and (e) 10 nm".
@@ -5808,17 +5814,17 @@ function ftePanelCheck(figures,issues){
 
     const dups=[...new Set(declarationOrder.filter((x,i)=>declarationOrder.indexOf(x)!==i))];
     if(dups.length){
-      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} has duplicated declared panel identifier(s): ${dups.join(", ")}.`,`Check the actual panel inventory and caption enumeration. Repeated explanatory references such as "in (d)" are ignored; this finding is produced only when the same letter is assigned as a panel more than once.`,it.caption,"warn");
+      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} has duplicated panel label(s) in the caption: ${dups.join(", ")}.`,`Check the actual panel labels and caption enumeration. Repeated explanatory references such as "in (d)" are ignored; this finding is produced only when the same letter is assigned to more than one panel description.`,it.caption,"warn");
     }
 
     const miss=recomputeMissing(declarationOrder);
     if(miss.length){
-      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} appears to skip declared panel identifier(s): ${miss.join(", ")}.`,`Check the panel inventory in the caption. Parallel assignments such as "at (c) 200 nm, (d) 50 nm, and (e) 10 nm" are treated as declarations; explanatory references to already declared panels are excluded from the sequence check.`,it.caption,"warn");
+      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} appears to skip panel label(s): ${miss.join(", ")}.`,`Check the panel labels in the caption. Parallel assignments such as "SEM images of (a) sample A, (b) sample B" or "at (c) 200 nm, (d) 50 nm, and (e) 10 nm" are treated as panel-label assignments; explanatory references to existing panels are excluded from the sequence check.`,it.caption,"warn");
     }
 
     const undeclared=[...new Set(references.filter(x=>!declared.has(x)))];
     if(undeclared.length){
-      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_REFERENCE_UNDECLARED",`${fteDisplay("figure",it.id)} refers to panel identifier(s) not found in the declared panel inventory: ${undeclared.join(", ")}.`,`Verify whether these letters are intended references to existing panels, whether the corresponding panel assignments are missing from the caption, or whether the wording should be revised.`,it.caption,"warn");
+      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_REFERENCE_UNDECLARED",`${fteDisplay("figure",it.id)} refers to panel label(s) that were not identified as panel assignments in the caption: ${undeclared.join(", ")}.`,`Verify whether these letters refer to existing panels, whether the corresponding panel labels are missing from the caption, or whether the caption wording caused an assignment to be misread as a reference.`,it.caption,"warn");
     }
   });
 }
@@ -6045,16 +6051,16 @@ function issueHelpText(code,msg=""){
 
   // Figure / table / equation checks
   if(code==="FIGURE_PANEL_SEQUENCE"){
-    if(/duplicated declared panel identifier/i.test(msg)){
-      return "For a multipanel figure, the checker first builds the panel inventory from declaration-like and parallel assignment structures such as “(a) XRD, (b) FTIR” or “at (c) 200 nm, (d) 50 nm, and (e) 10 nm”. Explanatory references such as “the inset in (d)” or “shown in (b)” are classified separately and do not create duplicate panels.";
+    if(/duplicated panel label/i.test(msg)){
+      return "For a multipanel figure, the checker first identifies which labels assign content to panels, including structures such as “(a) XRD, (b) FTIR”, “SEM images of (a) sample A, (b) sample B”, or “at (c) 200 nm, (d) 50 nm, and (e) 10 nm”. Explanatory references such as “the inset in (d)” or “shown in (b)” are classified separately and do not create duplicate panels.";
     }
-    if(/skip declared panel identifier/i.test(msg)){
-      return "The checker builds the panel sequence from declaration-like caption labels only. For example, declarations (a), (b), and (d) suggest that panel (c) may be missing; later explanatory references do not alter that sequence.";
+    if(/skip panel label/i.test(msg)){
+      return "The checker builds the panel sequence from labels that assign content to panels. For example, panel labels (a), (b), and (d) may indicate that (c) is missing. Explanatory references to panels do not alter the sequence.";
     }
-    return "Checks the sequence of declared panel labels in a multipanel caption after separating declarations from explanatory panel references.";
+    return "Checks the sequence of panel labels in a multipanel caption after separating panel-label assignments from explanatory references.";
   }
   if(code==="FIGURE_PANEL_REFERENCE_UNDECLARED")
-    return "The caption contains an explanatory reference to a panel letter that was not found among the declared panel labels. This is kept separate from duplicate-panel checking and is reported conservatively for review.";
+    return "The caption contains an explanatory reference to a panel letter that was not identified among the panel-label assignments. This is kept separate from duplicate-panel checking and is reported conservatively for review.";
   if(/_DUPLICATE_NUMBER$/.test(code))
     return "A duplicate number is reported only when the same identifier is attached to two distinct numbered objects/captions. Ordinary prose references such as “Figure 5 illustrates…” or “as shown in Figure 5” are citations and do not count as a second figure.";
   if(/_MISSING_NUMBER$/.test(code))
