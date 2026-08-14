@@ -708,6 +708,108 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .abbr-definition-key b{color:#26364f}
   .unit-action{min-width:220px;color:#4e5c72;font-size:12px;line-height:1.45}
 
+
+
+  /* User-friendly onboarding and progressive disclosure */
+  .masthead-main{display:flex;align-items:flex-start;justify-content:space-between;gap:28px}
+  .masthead-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding-top:2px}
+  .header-help-btn{appearance:none;border:1px solid var(--hair);background:rgba(255,255,255,.78);color:var(--pencil);font:650 12.5px var(--sans);padding:8px 11px;border-radius:999px;cursor:pointer;white-space:nowrap}
+  .header-help-btn:hover{border-color:var(--pencil);background:#fff}
+  .header-help-btn:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+  .workflow-strip{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:10px;margin-top:24px;padding:13px 16px;border:1px solid #d9e2ef;border-radius:12px;background:linear-gradient(90deg,#fbfcff,#fff)}
+  .workflow-step{display:grid;grid-template-columns:27px minmax(0,1fr);grid-template-rows:auto auto;column-gap:9px;align-items:center;min-width:0}
+  .workflow-step>span{grid-row:1/3;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:var(--pencil-soft);color:var(--pencil);font-size:12px;font-weight:800}
+  .workflow-step b{font-size:12.5px;line-height:1.2}
+  .workflow-step small{font-size:10.5px;color:var(--muted);line-height:1.25;margin-top:2px}
+  .workflow-arrow{color:#9aa7ba;font-size:20px;line-height:1}
+  .local-note{display:flex;gap:9px;align-items:flex-start;margin:13px 2px 0;padding:9px 11px;border-radius:9px;background:#f4faf7;color:#456456;font-size:12.25px;line-height:1.45}
+  .local-note-icon{display:grid;place-items:center;flex:0 0 19px;width:19px;height:19px;border-radius:50%;background:#dff3e7;color:var(--ok);font-weight:800}
+  .check-scope{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 2px}
+  .check-scope span{padding:5px 9px;border:1px solid #dfe5ee;border-radius:999px;background:#fbfcfe;color:#526077;font-size:11.5px;line-height:1.2}
+  details.advanced-settings{margin-top:20px;border:1px solid var(--hair);border-radius:10px;background:#fbfcfe;overflow:hidden}
+  details.advanced-settings>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;cursor:pointer;list-style:none;color:var(--pencil);font-size:13px;font-weight:750}
+  details.advanced-settings>summary::-webkit-details-marker{display:none}
+  details.advanced-settings>summary::after{content:'+';font:700 17px var(--mono);color:#7080a0}
+  details.advanced-settings[open]>summary::after{content:'−'}
+  details.advanced-settings>summary small{margin-left:auto;margin-right:8px;padding:2px 7px;border-radius:999px;background:#eef2f8;color:#718096;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .advanced-settings-body{padding:0 15px 16px;border-top:1px solid var(--hair);background:#fff}
+  .advanced-intro{margin:12px 0 0;color:var(--muted);font-size:12.5px}
+  .analysis-progress{margin-top:18px;padding:14px 15px;border:1px solid #d7e1ef;border-radius:10px;background:#f9fbff}
+  .analysis-progress[hidden]{display:none}
+  .analysis-progress-head{display:flex;align-items:center;gap:11px}
+  .analysis-progress-head b{display:block;font-size:13px}
+  .analysis-progress-head small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+  .analysis-spinner{width:20px;height:20px;border:2px solid #d7e2f2;border-top-color:var(--pencil);border-radius:50%;animation:mcSpin .75s linear infinite}
+  @keyframes mcSpin{to{transform:rotate(360deg)}}
+  .analysis-progress-steps{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:11px}
+  .analysis-progress-steps span{position:relative;padding-top:7px;border-top:3px solid #dfe5ee;color:#8993a0;font-size:9.5px;line-height:1.25}
+  .analysis-progress-steps span.done{border-color:#69a881;color:#42745a}
+  .analysis-progress-steps span.active{border-color:var(--pencil);color:var(--pencil);font-weight:750}
+  .analysis-progress.error{background:#fff7f6;border-color:#efcbc7}
+  .analysis-progress.error .analysis-spinner{border-top-color:var(--err)}
+  .overview-report{margin-top:18px}
+  .overview-kicker{color:var(--ok);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+  .overview-report h2{font-size:25px;margin-bottom:4px}
+  .overview-lede{max-width:72ch;margin:0 0 18px;color:var(--muted);font-size:13.5px}
+  .overview-priorities{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .overview-priority-card{padding:14px 15px;border:1px solid var(--hair);border-radius:10px;background:#fff}
+  .overview-priority-card .n{font:600 27px/1 var(--serif);margin-bottom:5px}
+  .overview-priority-card .k{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+  .overview-priority-card p{margin:5px 0 0;color:var(--muted);font-size:11.5px;line-height:1.4}
+  .overview-priority-card.critical .n{color:var(--err)} .overview-priority-card.review .n{color:var(--warn)} .overview-priority-card.style .n{color:var(--pencil)}
+  .overview-recommendation{margin:12px 0 0;padding:11px 13px;border-left:3px solid var(--pencil);background:#f7f9fd;color:#46546a;font-size:12.5px}
+  .overview-section-label{margin-top:24px}
+  .overview-modules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .overview-module{appearance:none;text-align:left;border:1px solid var(--hair);border-radius:10px;background:#fff;padding:13px 14px;cursor:pointer;min-height:94px;transition:border-color .15s,transform .1s,box-shadow .15s}
+  .overview-module:hover{border-color:#9fb2d1;transform:translateY(-1px);box-shadow:0 7px 18px -16px rgba(42,74,139,.5)}
+  .overview-module:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+  .overview-module-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:750;font-size:13px;color:#26364f}
+  .overview-module-title span:last-child{color:#8090a6;font-size:16px}
+  .overview-module-meta{margin-top:7px;color:var(--muted);font-size:11.5px;line-height:1.45}
+  .overview-module-attn{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:750;color:#8a5a00}
+  .overview-module-clean{color:var(--ok)}
+  .how-read-results{margin-top:22px;padding:16px;border:1px solid var(--hair);border-radius:11px;background:#fbfcfe}
+  .how-read-results h3{margin:0 0 12px;font:600 17px var(--serif)}
+  .how-read-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .how-read-grid p{margin:7px 0 0;color:var(--muted);font-size:11.5px;line-height:1.45}
+  .ledger-key{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--hair);font-size:12px;color:var(--muted)}
+  .overview-caution{margin:14px 0 0;color:#576273;font-size:12px;line-height:1.5}
+  .mc-modal[hidden]{display:none}
+  .mc-modal{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px}
+  .mc-modal-backdrop{position:absolute;inset:0;background:rgba(19,28,42,.46);backdrop-filter:blur(2px)}
+  .mc-modal-panel{position:relative;width:min(620px,100%);max-height:min(760px,calc(100vh - 40px));overflow:auto;background:#fff;border:1px solid var(--hair);border-radius:14px;padding:24px;box-shadow:0 24px 70px -26px rgba(10,20,40,.65)}
+  .mc-modal-close{position:absolute;right:12px;top:10px;appearance:none;border:0;background:transparent;color:#738096;font-size:26px;line-height:1;cursor:pointer;padding:4px 8px}
+  .mc-help-eyebrow{margin:0 0 6px;color:var(--pencil);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;font-weight:800}
+  .mc-modal h2{font:600 25px/1.2 var(--serif);margin:0 36px 8px 0}
+  .mc-modal .mc-help-lede{margin:0 0 16px;color:var(--muted);font-size:13px}
+  .mc-help-steps{display:grid;gap:9px;margin:15px 0}
+  .mc-help-step{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:10px 11px;border:1px solid var(--hair);border-radius:9px}
+  .mc-help-step>span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--pencil-soft);color:var(--pencil);font-size:11px;font-weight:800}
+  .mc-help-step b{display:block;font-size:12.5px}.mc-help-step p{margin:2px 0 0;color:var(--muted);font-size:11.5px;line-height:1.45}
+  .mc-help-note{padding:11px 13px;border-radius:9px;background:#f7f9fd;color:#4f5d73;font-size:12px;line-height:1.5}
+  .mc-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+  .mc-modal-open{overflow:hidden}
+  @media(max-width:760px){
+    .masthead-main{display:block}.masthead-actions{justify-content:flex-start;margin-top:14px}.workflow-strip{grid-template-columns:1fr 1fr;gap:8px}.workflow-arrow{display:none}
+    .overview-modules{grid-template-columns:1fr 1fr}.analysis-progress-steps{grid-template-columns:repeat(4,1fr);row-gap:10px}
+    .rtabs{grid-template-columns:repeat(7,124px)}
+  }
+  @media(max-width:560px){.overview-priorities,.how-read-grid,.overview-modules{grid-template-columns:1fr}.workflow-strip{grid-template-columns:1fr 1fr}.mc-modal-panel{padding:20px 16px}.analysis-progress-steps{grid-template-columns:repeat(2,1fr)}}
+  @media(prefers-reduced-motion:reduce){.analysis-spinner{animation:none}}
+  @media print{.masthead-actions,.workflow-strip,.local-note,.check-scope,.analysis-progress,.mc-modal,.overview-report{display:none!important}}
+
+
+  #results-tabs{grid-template-columns:repeat(7,minmax(0,1fr))}
+  #results-tabs[hidden]{display:none!important}
+  #results-tabs .rtab[data-tab="overview"]{--tab-accent:#385F79;--tab-soft:#EDF5F8;--tab-border:#CADDE5}
+  #results-tabs .rtab[data-tab="abbr"]{--tab-accent:#6545A3;--tab-soft:#F4EFFF;--tab-border:#DCCEF4}
+  #results-tabs .rtab[data-tab="ref"]{--tab-accent:#16736B;--tab-soft:#EAF8F6;--tab-border:#BFE6E1}
+  #results-tabs .rtab[data-tab="num"]{--tab-accent:#946000;--tab-soft:#FFF5DD;--tab-border:#EFD9A6}
+  #results-tabs .rtab[data-tab="unit"]{--tab-accent:#19708A;--tab-soft:#EAF7FB;--tab-border:#BDE0EA}
+  #results-tabs .rtab[data-tab="eng"]{--tab-accent:#3157A4;--tab-soft:#EDF3FF;--tab-border:#C9D8F6}
+  #results-tabs .rtab[data-tab="fte"]{--tab-accent:#A14067;--tab-soft:#FDEEF4;--tab-border:#F0C9D9}
+  @media(max-width:760px){#results-tabs{grid-template-columns:repeat(7,124px)}}
+
 </style>
 
 
@@ -716,14 +818,31 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 <div class="wrap">
 
   <header class="masthead">
-    <p class="eyebrow">Manuscript Proofing</p>
-    <h1><a href="#" id="home-title-link" class="home-title-link" aria-label="Return to Manuscript Check home and start a fresh submission" title="Start a fresh manuscript check">Manuscript Check</a><span class="rule"></span></h1>
-    <p class="lede">Check a research manuscript for abbreviations, references, numerical reporting, units, readability and terminology consistency, and figure/table/equation consistency.</p>
+    <div class="masthead-main">
+      <div>
+        <p class="eyebrow">Manuscript Proofing</p>
+        <h1><a href="#" id="home-title-link" class="home-title-link" aria-label="Return to Manuscript Check home and start a fresh submission" title="Start a fresh manuscript check">Manuscript Check</a><span class="rule"></span></h1>
+        <p class="lede">Upload a Word manuscript, let the checker scan it, then review the findings that need your attention.</p>
+      </div>
+      <div class="masthead-actions" aria-label="Help and privacy">
+        <button type="button" class="header-help-btn" id="how-to-use-btn">How to use?</button>
+        <button type="button" class="header-help-btn" id="privacy-btn">Privacy</button>
+      </div>
+    </div>
+    <div class="workflow-strip" aria-label="How Manuscript Check works">
+      <div class="workflow-step"><span>1</span><b>Upload</b><small>Add your DOCX</small></div>
+      <div class="workflow-arrow" aria-hidden="true">›</div>
+      <div class="workflow-step"><span>2</span><b>Check</b><small>Automatic screening</small></div>
+      <div class="workflow-arrow" aria-hidden="true">›</div>
+      <div class="workflow-step"><span>3</span><b>Review</b><small>Inspect the evidence</small></div>
+      <div class="workflow-arrow" aria-hidden="true">›</div>
+      <div class="workflow-step"><span>4</span><b>Fix</b><small>Revise and recheck</small></div>
+    </div>
   </header>
 
   <section class="card" id="input-card">
-    <h2 class="help-row">Your manuscript <button type="button" class="info-help inline-auto-help" data-help="The tool reads only Microsoft Word .docx manuscripts. Different modules use the Word structure differently: references are isolated from the bibliography section; affiliations are excluded from Units and English checks; Word tables are retained for table-specific precision/unit checks; figures, tables, and equations use Word document order where available." aria-label="Explain manuscript scanning" title="What is scanned?">i</button></h2>
-    <p class="sub">Upload your complete manuscript as a Microsoft Word <b>.docx</b> file. Word structure allows the checker to read paragraph boundaries, headings, lists, tables, and references more reliably.</p>
+    <h2 class="help-row">Check your manuscript <button type="button" class="info-help inline-auto-help" data-help="The tool reads only Microsoft Word .docx manuscripts. Different modules use the Word structure differently: references are isolated from the bibliography section; affiliations are excluded from Units and English checks; Word tables are retained for table-specific precision/unit checks; figures, tables, and equations use Word document order where available." aria-label="Explain manuscript scanning" title="What is scanned?">i</button></h2>
+    <p class="sub">Start with the DOCX file. The default settings are suitable for a general scientific manuscript, so you can usually click <b>Check manuscript</b> without changing anything else.</p>
 
     <div class="panel" id="panel-upload">
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a Word DOCX file or drop it here">
@@ -735,6 +854,17 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       </div>
       <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" />
     </div>
+
+    <div class="local-note"><span class="local-note-icon" aria-hidden="true">✓</span><span><b>Private by default.</b> Manuscript checking runs in your browser; the uploaded manuscript text is not sent to the site analytics service.</span></div>
+
+    <div class="check-scope" aria-label="Checks included">
+      <span>References</span><span>Abbreviations</span><span>Figures, tables &amp; equations</span><span>Units &amp; numbers</span><span>Readability</span><span>Terminology</span>
+    </div>
+
+    <details class="advanced-settings" id="advanced-settings">
+      <summary><span>Advanced check settings</span><small>Optional</small></summary>
+      <div class="advanced-settings-body">
+        <p class="advanced-intro">Defaults are designed for general scientific manuscripts. Change these only when your journal, institution, or workflow requires different rules.</p>
 
     <label class="fld" for="title">Paper title <span style="text-transform:none;font-weight:400;color:var(--faint)">(optional, enables the title check)</span></label>
     <input class="text" id="title" type="text" placeholder="e.g. Nutrient recovery from source-separated urine using a stacked bio-electroconcentration system" />
@@ -798,7 +928,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     </section>
 
     <details class="adv">
-      <summary>Advanced: terms treated as standard (no definition required)</summary>
+      <summary>Terms treated as standard (no definition required)</summary>
       <p class="hint">One per line. Abbreviations listed here are assumed universally known and are not flagged as undefined. The default list is deliberately short. Add your own field terms (for example COD, BOD, TSS) only if your target journal accepts them without definition.</p>
       <textarea id="whitelist" style="min-height:120px" aria-label="Standard abbreviations"></textarea>
     </details>
@@ -809,21 +939,54 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <textarea id="ref-style" style="min-height:70px" placeholder="e.g. Marcano, D. C., Kosynkin, D. V., & Tour, J. M. (2010). Improved synthesis of graphene oxide. ACS Nano, 4(8), 4806–4814. https://doi.org/10.1021/nn1006368" aria-label="Reference style example"></textarea>
     </details>
 
+      </div>
+    </details>
+
     <div class="actions">
       <button class="btn btn-primary" id="run">Check manuscript</button>
       <button class="btn btn-ghost" id="clear">Clear</button>
       <span class="statusline" id="status"></span>
     </div>
+
+    <div class="analysis-progress" id="analysis-progress" hidden aria-live="polite">
+      <div class="analysis-progress-head"><span class="analysis-spinner" aria-hidden="true"></span><div><b>Checking your manuscript</b><small id="analysis-progress-current">Preparing…</small></div></div>
+      <div class="analysis-progress-steps" id="analysis-progress-steps">
+        <span>Read document</span><span>Abbreviations</span><span>References</span><span>Numbers &amp; units</span><span>Writing</span><span>Figures, tables &amp; equations</span><span>Prepare report</span>
+      </div>
+    </div>
   </section>
 
   <div class="rtabs" id="results-tabs" role="tablist" aria-label="Results" hidden>
-    <button class="rtab active" data-tab="abbr" role="tab" aria-selected="true" title="Abbreviations"><span class="rtab-label">Abbreviations</span></button>
+    <button class="rtab active" data-tab="overview" role="tab" aria-selected="true" title="Manuscript overview"><span class="rtab-label">Overview</span></button>
+    <button class="rtab" data-tab="abbr" role="tab" aria-selected="false" title="Abbreviations"><span class="rtab-label">Abbreviations</span></button>
     <button class="rtab" data-tab="ref" role="tab" aria-selected="false" title="References"><span class="rtab-label">References</span></button>
     <button class="rtab" data-tab="num" role="tab" aria-selected="false" title="Numbers, pH and precision"><span class="rtab-label">Numbers</span></button>
     <button class="rtab" data-tab="unit" role="tab" aria-selected="false" title="Units and notation"><span class="rtab-label">Units</span></button>
-    <button class="rtab" data-tab="eng" role="tab" aria-selected="false" title="Readability and terminology consistency"><span class="rtab-label">English</span></button>
+    <button class="rtab" data-tab="eng" role="tab" aria-selected="false" title="Readability and terminology consistency"><span class="rtab-label">Writing</span></button>
     <button class="rtab" data-tab="fte" role="tab" aria-selected="false" title="Figures, tables and equations"><span class="rtab-label">Figures/Tables</span></button>
   </div>
+
+  <div class="result-group" data-group="overview" hidden>
+    <section class="card overview-report" id="overview-report" aria-live="polite">
+      <div class="overview-kicker">Manuscript check complete</div>
+      <h2>Your results at a glance</h2>
+      <p class="overview-lede">Start with Critical errors, then inspect Review items. Style notes are lower-priority observations and may depend on your target journal.</p>
+      <div class="overview-priorities" id="overview-priorities"></div>
+      <div class="overview-recommendation"><b>Recommended workflow:</b> fix high-confidence problems first, inspect the manuscript text shown with each finding, then apply a suggestion only when it is scientifically and editorially appropriate.</div>
+      <p class="sec-label overview-section-label">Check by section</p>
+      <div class="overview-modules" id="overview-modules"></div>
+      <div class="how-read-results">
+        <h3>How to read the results</h3>
+        <div class="how-read-grid">
+          <div><span class="priority-tag critical">Critical error</span><p>High-confidence problem that should normally be corrected.</p></div>
+          <div><span class="priority-tag review">Review</span><p>Potential issue that needs author judgement or journal-specific checking.</p></div>
+          <div><span class="priority-tag style">Style note</span><p>Lower-priority consistency or readability suggestion.</p></div>
+        </div>
+        <p class="ledger-key"><b>In ledgers:</b> <span class="yn y">yes</span> = field found · <span class="yn n">no</span> = expected field missing · <span class="yn na">n/a</span> = not required for that item.</p>
+      </div>
+      <p class="overview-caution"><b>Important:</b> Manuscript Check is an editorial screening tool. A highlighted item is something worth checking, not proof that the manuscript is wrong. Scientific meaning and the target journal's instructions take priority.</p>
+    </section>
+  </div><!-- /group overview -->
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
@@ -997,6 +1160,14 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     </ol>
   </details>
   </div><!-- /group fte -->
+
+  <div class="mc-modal" id="mc-help-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mc-help-title">
+    <div class="mc-modal-backdrop" data-close-help></div>
+    <div class="mc-modal-panel" role="document">
+      <button type="button" class="mc-modal-close" data-close-help aria-label="Close help">×</button>
+      <div id="mc-help-content"></div>
+    </div>
+  </div>
 
   <footer>
     <div class="credit">
@@ -6556,7 +6727,27 @@ function setFile(f){
   }
   currentFile=f; chip.style.display="inline-flex"; chip.textContent="📄 "+f.name; status("");
 }
-function status(msg,isErr){ const el=$("status"); el.textContent=msg; el.className="statusline"+(isErr?" error":""); }
+function mcProgressStageFromMessage(msg){
+  const m=String(msg||"").toLowerCase();
+  if(/reading word|reading document/.test(m)) return 0;
+  if(/named-entity|abbreviation/.test(m)) return 1;
+  if(/journal database|reference/.test(m)) return 2;
+  if(/numbers|precision|units|notation/.test(m)) return 3;
+  if(/readability|terminology|writing/.test(m)) return 4;
+  if(/figures|tables and equations|figure\/table/.test(m)) return 5;
+  if(/preparing report|prepare report/.test(m)) return 6;
+  return -1;
+}
+function mcUpdateAnalysisProgress(msg,isErr){
+  const box=$("analysis-progress"),cur=$("analysis-progress-current"),steps=$("analysis-progress-steps");
+  if(!box||!cur||!steps) return;
+  if(!msg){ box.hidden=true; box.classList.remove("error"); return; }
+  const idx=mcProgressStageFromMessage(msg);
+  if(isErr && idx<0){box.hidden=true;box.classList.remove("error");return;}
+  box.hidden=false; box.classList.toggle("error",!!isErr); cur.textContent=msg;
+  [...steps.children].forEach((el,i)=>{el.classList.toggle("done",idx>=0&&i<idx&&!isErr);el.classList.toggle("active",idx===i&&!isErr);});
+}
+function status(msg,isErr){ const el=$("status"); el.textContent=msg; el.className="statusline"+(isErr?" error":""); mcUpdateAnalysisProgress(msg,isErr); }
 
 $("download").onclick=()=>{
   if(!LAST) return;
@@ -10237,8 +10428,10 @@ $("run").onclick=async()=>{
       renderFteReport(fteAnalyze(DOCX_FTE_BLOCKS));
     }catch(e){ console.error("figure/table/equation check failed:",e); renderFteReport({reliable:false,issues:[],figures:[],tables:[],equations:[],citations:{figure:[],table:[],equation:[]},unverified:0}); }
 
+    status("Preparing report…");
+    renderManuscriptOverview();
     $("results-tabs").hidden=false;
-    showTab(currentTab||"abbr");
+    showTab("overview");
     $("results-tabs").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
     status("");
   }catch(err){ console.error(err); status(err.message||"Something went wrong reading the Word file. Please verify that it is a valid .docx file.",true); }
@@ -10251,7 +10444,7 @@ $("clear").onclick=()=>{
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
-  currentTab="abbr"; status(""); LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[]; DOCX_STRUCTURAL_PARAGRAPHS=[]; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null;
+  currentTab="overview"; status(""); const op=$("overview-priorities"),om=$("overview-modules"); if(op)op.innerHTML=""; if(om)om.innerHTML=""; LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[]; DOCX_STRUCTURAL_PARAGRAPHS=[]; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null;
 };
 
 $("ref-download").onclick=()=>{ if(!LAST_REF_OUT) return; const blob=new Blob([refReportText(LAST_REF_OUT.res,LAST_REF_OUT.cross)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reference-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
@@ -10264,7 +10457,78 @@ $("eng-print").onclick=()=>window.print();
 $("fte-download").onclick=()=>{ if(!LAST_FTE) return; const blob=new Blob([fteReportText(LAST_FTE)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="figure-table-equation-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
 $("fte-print").onclick=()=>window.print();
 
-let currentTab="abbr";
+function mcReportPriorityCounts(reportId){
+  const report=$(reportId); const out={critical:0,review:0,style:0,total:0};
+  if(!report) return out;
+  report.querySelectorAll(".issue").forEach(issue=>{
+    const p=issue.dataset.priority || issuePriorityInfo(issue)?.key;
+    if(p&&Object.prototype.hasOwnProperty.call(out,p)){out[p]++;out.total++;}
+  });
+  return out;
+}
+function mcReferenceMissingFieldCount(){
+  const wrap=$("ref-ledger-wrap"); return wrap ? wrap.querySelectorAll("tbody .yn.n").length : 0;
+}
+function mcModuleSummary(tab,title,detected,reportId,extraAttention,attentionNoun="item"){
+  const c=mcReportPriorityCounts(reportId);
+  const att=(c.total||extraAttention||0);
+  const noun=attentionNoun||"item";
+  const attention=att?`${att} ${noun}${att===1?"":"s"} need attention`:`No findings requiring attention`;
+  return `<button type="button" class="overview-module" data-overview-tab="${tab}"><div class="overview-module-title"><span>${escapeHtml(title)}</span><span aria-hidden="true">→</span></div><div class="overview-module-meta">${escapeHtml(detected||"Check completed")}</div><span class="overview-module-attn ${att?"":"overview-module-clean"}">${escapeHtml(attention)}</span></button>`;
+}
+function renderManuscriptOverview(){
+  const ids=["report","num-report","unit-report","eng-report","fte-report"];
+  const total={critical:0,review:0,style:0};
+  ids.forEach(id=>{const c=mcReportPriorityCounts(id);total.critical+=c.critical;total.review+=c.review;total.style+=c.style;});
+  const p=$("overview-priorities");
+  if(p) p.innerHTML=`
+    <div class="overview-priority-card critical"><div class="n">${total.critical}</div><div class="k">Critical errors</div><p>High-confidence problems to check first.</p></div>
+    <div class="overview-priority-card review"><div class="n">${total.review}</div><div class="k">Review items</div><p>Potential issues requiring author judgement.</p></div>
+    <div class="overview-priority-card style"><div class="n">${total.style}</div><div class="k">Style notes</div><p>Lower-priority consistency or readability observations.</p></div>`;
+  const refMissing=mcReferenceMissingFieldCount();
+  const refDetected=LAST_REF_OUT?.res?.count!=null?`${LAST_REF_OUT.res.count} reference${LAST_REF_OUT.res.count===1?"":"s"} detected`:`Reference section not confidently located`;
+  const fteDetected=LAST_FTE?`${(LAST_FTE.figures||[]).length} figures · ${(LAST_FTE.tables||[]).length} tables · ${(LAST_FTE.equations||[]).length} equations`:"Structural check completed";
+  const unitDetected=LAST_UNIT?.recognized!=null?`${LAST_UNIT.recognized} unit occurrence${LAST_UNIT.recognized===1?"":"s"} recognised`:"Units check completed";
+  const writingDetected=LAST_ENG?.proseParagraphs!=null?`${LAST_ENG.proseParagraphs} prose paragraph${LAST_ENG.proseParagraphs===1?"":"s"} assessed`:"Writing check completed";
+  const modules=$("overview-modules");
+  if(modules) modules.innerHTML=[
+    mcModuleSummary("abbr","Abbreviations",LAST?`${LAST.totalAbbr} non-standard abbreviation/notation item${LAST.totalAbbr===1?"":"s"}`:"Abbreviation check completed","report",0),
+    mcModuleSummary("ref","References",refDetected,"ref-report",refMissing,"field"),
+    mcModuleSummary("fte","Figures, tables & equations",fteDetected,"fte-report",0),
+    mcModuleSummary("num","Numbers & precision","Numeric reporting check completed","num-report",0),
+    mcModuleSummary("unit","Units & notation",unitDetected,"unit-report",0),
+    mcModuleSummary("eng","Writing & terminology",writingDetected,"eng-report",0)
+  ].join("");
+  modules?.querySelectorAll("[data-overview-tab]").forEach(b=>b.addEventListener("click",()=>{showTab(b.dataset.overviewTab);$("results-tabs")?.scrollIntoView({behavior:"smooth",block:"start"});}));
+}
+
+function mcHelpMarkup(kind){
+  if(kind==="privacy") return `<p class="mc-help-eyebrow">Privacy</p><h2 id="mc-help-title">Your manuscript stays on your device</h2><p class="mc-help-lede">Manuscript analysis runs locally in your browser. The uploaded manuscript text, filename, analysis results, and generated reports are not sent to GoatCounter site analytics.</p><div class="mc-help-note"><b>What does use the network?</b> The page may download generic software libraries and static resources required by the checker. Those requests do not contain your manuscript text.</div><div class="mc-modal-actions"><button type="button" class="btn btn-primary" data-close-help>Got it</button></div>`;
+  return `<p class="mc-help-eyebrow">Using Manuscript Check</p><h2 id="mc-help-title">Four steps from upload to revision</h2><p class="mc-help-lede">Start by uploading your DOCX manuscript. The tool will organise the findings and guide you through the items that may need attention.</p><div class="mc-help-steps">
+    <div class="mc-help-step"><span>1</span><div><b>Upload</b><p>Drop or choose a complete Microsoft Word DOCX manuscript.</p></div></div>
+    <div class="mc-help-step"><span>2</span><div><b>Run the check</b><p>Default settings are suitable for a general scientific manuscript. Advanced settings are optional.</p></div></div>
+    <div class="mc-help-step"><span>3</span><div><b>Start with Overview</b><p>Review Critical errors first, then Review items. Style notes are lower priority.</p></div></div>
+    <div class="mc-help-step"><span>4</span><div><b>Inspect, revise, recheck</b><p>Each finding shows the manuscript evidence and a suggested action. Apply it only when appropriate for the science and target journal.</p></div></div>
+  </div><div class="mc-help-note"><b>Remember:</b> a highlighted item is something worth checking, not proof that the manuscript is wrong. Journal instructions and scientific meaning take priority.</div><div class="mc-modal-actions"><button type="button" class="btn btn-ghost" data-close-help data-scroll-upload>Go to upload</button><button type="button" class="btn btn-primary" data-close-help>Start checking</button></div>`;
+}
+function mcOpenHelp(kind="how") {
+  const modal=$("mc-help-modal"),content=$("mc-help-content"); if(!modal||!content)return;
+  content.innerHTML=mcHelpMarkup(kind); modal.hidden=false; document.body.classList.add("mc-modal-open");
+  const close=modal.querySelector(".mc-modal-close"); if(close) close.focus();
+}
+function mcCloseHelp(){const modal=$("mc-help-modal");if(!modal)return;modal.hidden=true;document.body.classList.remove("mc-modal-open");}
+(function mcInitFriendlyHelp(){
+  $("how-to-use-btn")?.addEventListener("click",()=>mcOpenHelp("how"));
+  $("privacy-btn")?.addEventListener("click",()=>mcOpenHelp("privacy"));
+  $("mc-help-modal")?.addEventListener("click",e=>{if(e.target.closest("[data-close-help]")){const scroll=!!e.target.closest("[data-scroll-upload]");mcCloseHelp();if(scroll)setTimeout(()=>$("input-card")?.scrollIntoView({behavior:"smooth",block:"start"}),50);}});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("mc-help-modal")?.hidden)mcCloseHelp();});
+  try{
+    const key="manuscript-check-onboarding-v1";
+    if(!localStorage.getItem(key)){setTimeout(()=>{mcOpenHelp("how");try{localStorage.setItem(key,"1");}catch(_e){}},350);}
+  }catch(_e){}
+})();
+
+let currentTab="overview";
 function showTab(which){
   currentTab=which;
   document.querySelectorAll(".result-group").forEach(el=>{ el.hidden = el.dataset.group!==which; });
