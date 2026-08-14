@@ -809,6 +809,11 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   }
   @media(max-width:560px){.overview-priorities,.how-read-grid,.overview-modules{grid-template-columns:1fr}.workflow-strip{grid-template-columns:1fr 1fr}.mc-modal-panel{padding:20px 16px}.analysis-progress-steps{grid-template-columns:repeat(2,1fr)}}
   @media(prefers-reduced-motion:reduce){.analysis-spinner{animation:none}}
+  .abbr-scope-setting{margin:16px 0 4px;padding:13px 14px;border:1px solid #e3e8f0;border-radius:10px;background:#fbfcfe}
+  .abbr-scope-setting label{display:block;margin:0 0 7px;font-size:12px;font-weight:700;color:#33415c;letter-spacing:.02em}
+  .abbr-scope-setting select{width:min(100%,360px);background:#fff}
+  .abbr-scope-setting .hint{margin:7px 0 0}
+  .abbr-scope-note{margin:10px 0 0;padding:9px 11px;border:1px solid #dbe7f6;border-radius:8px;background:#f7fbff;color:#41536c;font-size:12px;line-height:1.45}
   @media print{.masthead-actions,.workflow-strip,.local-note,.check-scope,.analysis-progress,.mc-modal,.overview-report,.results-coachmark{display:none!important}}
 
 
@@ -885,6 +890,16 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <div class="opts">
       <label class="opt"><input type="checkbox" id="opt-refs" checked /> Skip the References or Bibliography section when checking abbreviations (recommended)</label>
       <label class="opt"><input type="checkbox" id="opt-tables" checked /> Skip tables and numeric data blocks (recommended)</label>
+    </div>
+
+    <div class="abbr-scope-setting">
+      <label for="abbr-scope-policy">Long-document abbreviation scope</label>
+      <select class="text" id="abbr-scope-policy" aria-describedby="abbr-scope-policy-help">
+        <option value="auto" selected>Automatic</option>
+        <option value="whole">Whole document</option>
+        <option value="chapter">Each major chapter</option>
+      </select>
+      <p class="hint" id="abbr-scope-policy-help">Automatic uses Word structure to detect theses, dissertations and other independently structured long documents. When reliable chapter boundaries are found, abbreviations are checked within each major chapter and may be reintroduced in a new chapter without a duplicate-definition warning.</p>
     </div>
 
     <section class="readability-settings" aria-labelledby="readability-settings-title">
@@ -1003,7 +1018,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. Acronym-like text is first classified from local context so commercial instrument/model/product names and manufacturer identifiers are not treated as scientific abbreviations merely because they contain capital letters. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For confidently detected theses and other long documents, first-use checks are chapter-aware: reintroducing an abbreviation in a new major chapter is not treated as a duplicate definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <nav class="report-subnav" id="abbr-subnav" aria-label="Abbreviation report sections" hidden></nav>
     <div class="scorecard" id="scorecard"></div>
@@ -1027,12 +1042,12 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Do not use before defining.</b> The full form must appear at or before the first use, not later.</li>
       <li><b>Earn the abbreviation.</b> Defined terms that are then used only once or twice are flagged.</li>
       <li><b>Titles and headings excluded.</b> The paper title and section/subsection headings, including numbered, ALL-CAPS, and Title Case headings, are not used for abbreviation-definition checks.</li><li><b>Front matter excluded.</b> Author/affiliation blocks, correspondence details, and Keywords/Index terms are not used for abbreviation-definition checks.</li>
-      <li><b>Plurals without apostrophes.</b> <code>MFCs</code>, not <code>MFC's</code>.</li>
+      <li><b>Plural and possessive forms are normalised.</b> <code>MFCs</code> is treated as the plural of <code>MFC</code>, while <code>MFC’s performance</code> is treated as a valid possessive use. A final uppercase letter remains part of the abbreviation, so <code>TSS</code>, <code>VSS</code>, <code>TDS</code>, and <code>GIS</code> are not shortened.</li>
       <li><b>Do not begin a sentence with an abbreviation.</b></li>
       <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
       <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are authoritative.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are accepted even when the body prose does not repeat the full form. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are recognised globally.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are retained as manuscript-level declarations. In chapter-aware thesis mode, a chapter-level reintroduction is still allowed and is never treated as a duplicate. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
     </ol>
   </details>
 
@@ -1215,6 +1230,10 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 <script>
 "use strict";
 /* Build note: instrument/model-aware abbreviation classification added 2026-08-12. */
+/* Build note: ordinary lowercase parenthetical qualifiers and structured front-matter prose exclusions hardened 2026-08-14. */
+/* Build note: abbreviation candidate taxonomy, unit disambiguation, named-title protection, and long-document back-matter exclusion hardened 2026-08-15. */
+/* Build note: abbreviation plural/possessive morphology canonicalisation and possessive-safe apostrophe checking added 2026-08-15. */
+/* Build note: internal composite-fragment definitions (e.g. MFC inside F-MFCs) are blocked before scope reconciliation. */
 
 /* ---------- Standard abbreviations (kept short on purpose) ---------- */
 const DEFAULT_STANDARD = [
@@ -2122,6 +2141,20 @@ function engClassifyStructuralBlocks(blocks){
     }
   }
 
+  // Generated front-matter indexes and declaration lists are structured content,
+  // not narrative prose. Reuse Word styles/field-aware list detection so entries
+  // such as "Table 4.7 ... 94" never enter sentence/readability checks.
+  try{
+    const idxInfo=mcStructuredIndexParagraphInfo(src);
+    for(let i=0;i<out.length;i++){
+      if(idxInfo.mask.has(i)){
+        out[i].type="STRUCTURED_INDEX";
+        out[i].confidence=.995;
+        out[i].reasons.push(idxInfo.reasonByIndex.get(i)||"generated/front-matter index entry");
+      }
+    }
+  }catch(e){}
+
   // Third pass: table/figure notes may occur after the physical table/image, not
   // immediately after the caption paragraph. Associate note/source/legend lines
   // with nearby structural objects without globally excluding ordinary "Note" prose.
@@ -2152,7 +2185,7 @@ function engRefreshStructuralParagraphs(){
 }
 
 function engIsStructuralProseExcludedType(type){
-  return /^(?:FIGURE_CAPTION|TABLE_CAPTION|SCHEME_CAPTION|GRAPHICAL_ABSTRACT|OTHER_CAPTION|CAPTION_CONTINUATION|FIGURE_NOTE|TABLE_NOTE|MEDIA|TABLE|EQUATION|OTHER_STRUCTURAL)$/.test(String(type||""));
+  return /^(?:FIGURE_CAPTION|TABLE_CAPTION|SCHEME_CAPTION|GRAPHICAL_ABSTRACT|OTHER_CAPTION|CAPTION_CONTINUATION|FIGURE_NOTE|TABLE_NOTE|MEDIA|TABLE|EQUATION|OTHER_STRUCTURAL|STRUCTURED_INDEX)$/.test(String(type||""));
 }
 
 /* Single-paragraph caption check used by plain-text fallbacks. The Word-aware
@@ -2239,6 +2272,7 @@ function engExcludeNonBodyMaterial(text){
 
 function engPrepareText(text){
   let body=excludeReferences(text||"",true).text;
+  body=mcExcludeStructuredIndexMaterial(body);
   body=engExcludeNonBodyMaterial(body);
 
   // Mathematical variables and expressions are preserved for context display,
@@ -3000,7 +3034,7 @@ function abbrListClean(s){
     .trim();
 }
 function abbrListKey(s){
-  return norm(String(s||"").replace(/^[*#$%^&†‡§¶]+\s*/,"").trim());
+  return abbrCanonicalAbbreviationKey(String(s||"").replace(/^[*#$%^&†‡§¶]+\s*/,"").trim());
 }
 function abbrLooksListShort(s){
   const raw=abbrListClean(s).replace(/^[*#$%^&†‡§¶]+\s*/,"").replace(/[,:;]+$/,"").trim();
@@ -3070,6 +3104,35 @@ function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;","
 function humanIssueCode(code){return String(code||"").replace(/_+/g," ").replace(/\s+/g," ").trim();}
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\-]/g,"\\$&");}
 function norm(s){return s.replace(/[^A-Za-z0-9]/g,"").toUpperCase();}
+
+/* Conventional abbreviation morphology is canonicalised before definition/use
+   comparison. The final lowercase s in MFCs/CNTs/NPs is grammatical plural,
+   whereas the final uppercase S in TSS/VSS/TDS/GIS belongs to the abbreviation.
+   Apostrophe possessives (MFC's / MFC’s) and plural possessives (MFCs' / MFCs’)
+   resolve to the same base family without being treated as separate abbreviations. */
+function abbrAcronymFamily(raw){
+  const observed=String(raw||"").trim();
+  if(!observed) return null;
+  const s=observed.replace(/[‘’]/g,"'");
+  const stem=`[A-Z]{2,}(?:-[A-Z]{2,})*`;
+  let m=s.match(new RegExp(`^(${stem})s'$`));
+  if(m) return {base:m[1],observed,plural:true,possessive:true,pluralPossessive:true};
+  m=s.match(new RegExp(`^(${stem})'s$`));
+  if(m) return {base:m[1],observed,plural:false,possessive:true,pluralPossessive:false};
+  m=s.match(new RegExp(`^(${stem})s$`));
+  if(m) return {base:m[1],observed,plural:true,possessive:false,pluralPossessive:false};
+  m=s.match(new RegExp(`^(${stem})$`));
+  if(m) return {base:m[1],observed,plural:false,possessive:false,pluralPossessive:false};
+  return null;
+}
+function abbrCanonicalAbbreviationKey(raw){
+  const fam=abbrAcronymFamily(raw);
+  return norm(fam?fam.base:raw);
+}
+function abbrCanonicalAbbreviationForm(raw){
+  const fam=abbrAcronymFamily(raw);
+  return fam?fam.base:String(raw||"").trim();
+}
 function letters(s){return s.replace(/[^A-Za-z0-9]/g,"").length;}
 function tailWords(text,n){const w=text.trim().split(/\s+/).filter(Boolean);return w.slice(Math.max(0,w.length-n)).join(" ");}
 
@@ -3117,24 +3180,46 @@ function collectDefs(sent,si,add){
   while((p=paren.exec(sent))!==null){
     const inner=p[1].trim(), pre=sent.slice(0,p.index);
     let matchedA=false;
-    const cand=inner.match(/[A-Z]{2,}(?:-[A-Z]{2,})*/g)||[];
-    for(const c of cand){
-      if(STOPWORDS.has(norm(c))) continue;
-      const lf=validLongForm(c, tailWords(pre, letters(c)+7));
+
+    // Capture the whole observed acronym family, not merely the uppercase stem.
+    // Thus "microbial fuel cells (MFCs)" defines canonical MFC at this exact
+    // position, while TSS remains canonical TSS because its final S is uppercase.
+    const candRe=/\b([A-Z]{2,}(?:-[A-Z]{2,})*)(s)?\b/g; let cm;
+    while((cm=candRe.exec(inner))!==null){
+      const base=cm[1], observed=cm[0];
+      // Never promote an internal fragment of a larger hyphenated/alphanumeric
+      // short form into a standalone definition. For example, in
+      // "Fenton-assisted MFCs (F-MFCs)", the internal MFCs segment is not a
+      // second definition of MFC. This also protects forms such as PEM-MFC and
+      // MFC-based from seeding false standalone definitions.
+      const left=cm.index>0?inner[cm.index-1]:"";
+      const right=inner[cm.index+observed.length]||"";
+      if(/[A-Za-z0-9-]/.test(left) || /[A-Za-z0-9-]/.test(right)) continue;
+      if(STOPWORDS.has(norm(base))) continue;
+      const lf=validLongForm(base, tailWords(pre, letters(base)+7));
       const balancedLf=lf && (lf.match(/\(/g)||[]).length===(lf.match(/\)/g)||[]).length;
       if(balancedLf){
-        const rel=inner.indexOf(c);
-        add(c,lf,si,"parenthetical",{definitionType:"conventional_acronym",shortStart:p.index+1+Math.max(0,rel),shortEnd:p.index+1+Math.max(0,rel)+c.length});
+        add(base,lf,si,"parenthetical",{
+          definitionType:"conventional_acronym",
+          observedForm:observed,
+          grammaticalPlural:!!cm[2],
+          shortStart:p.index+1+cm.index,
+          shortEnd:p.index+1+cm.index+observed.length
+        });
         matchedA=true;
       }
+      if(cm[0].length===0) candRe.lastIndex++;
     }
     if(matchedA) continue;
-    const preTok=(pre.trim().split(/\s+/).pop()||"").replace(/[^A-Za-z0-9-]/g,"");
+
+    const preObserved=(pre.trim().split(/\s+/).pop()||"").replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9'’\-]+$/g,"");
+    const fam=abbrAcronymFamily(preObserved);
+    const preTok=fam?fam.base:preObserved;
     if(/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(preTok) && !STOPWORDS.has(norm(preTok)) && /\s/.test(inner) && /[A-Za-z]/.test(inner[0])){
       const lf=validLongForm(preTok,inner);
       if(lf){
-        const start=Math.max(0,pre.lastIndexOf(preTok));
-        add(preTok,lf,si,"parenthetical-reverse",{definitionType:"conventional_acronym",shortStart:start,shortEnd:start+preTok.length});
+        const rawStart=Math.max(0,pre.lastIndexOf(preObserved));
+        add(preTok,lf,si,"parenthetical-reverse",{definitionType:"conventional_acronym",observedForm:preObserved,shortStart:rawStart,shortEnd:rawStart+preObserved.length});
       }
     }
   }
@@ -3154,23 +3239,95 @@ function abbrScientificSymbolKey(s){
   return String(s||"").replace(/[₀-₉ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ]/g,c=>subMap[c]||c)
     .replace(/[\s_{}]/g,"").replace(/[^A-Za-z0-9α-ωΑ-Ωηλμσρζ]/g,"").toUpperCase();
 }
+const ABBR_ORDINARY_PAREN_QUALIFIER_RE=/^(?:fixed|constant|continuous|discontinuous|initial|final|average|mean|median|minimum|maximum|control|controlled|treated|untreated|modified|unmodified|commercial|synthetic|natural|wet|dry|fresh|raw|blank|baseline|reference|experimental|measured|calculated|estimated|predicted|observed|reported|selected|normal|standard|typical|total|overall|relative|absolute|positive|negative|open|closed|static|dynamic|steady|transient|manual|automatic|internal|external)$/i;
+
+/* Lowercase scientific notation must have positive symbol-like morphology. A
+   lowercase word is not promoted merely because it occurs in parentheses after a
+   scientific noun. This replaces the old permissive "any 1-5 lowercase letters"
+   rule, which could turn ordinary prose words into parameters. */
+function abbrLooksLowercaseScientificParameter(raw){
+  const s=String(raw||"").trim();
+  if(!/^[a-z][a-z0-9]{0,8}$/.test(s)) return false;
+  if(s.length===1) return true;
+  if(/\d/.test(s)) return /^[a-z]{1,4}\d{1,3}$/.test(s);          // j0, r2, x1
+  if(s.length<=2) return true;                                    // qe, qt, ks
+  // Compact parameter morphology: one leading variable letter plus a short
+  // scientific qualifier. This is intentionally narrow because ordinary words
+  // must not be inferred as notation from parentheses alone.
+  return /^(?:k(?:app|obs|cat|eff|eq|d|a|s)|q(?:e|t|m|max|eq)|r(?:m|max|eq)|j(?:lim|max)|x(?:m|max|eq)|c(?:e|max|eq)|p(?:max|eq)|v(?:max|eq)|t(?:max|eq)|n(?:max|eq)|s(?:bet|lang)|a(?:max|eq))$/.test(s);
+}
+function abbrLooksOrdinaryLowercaseWord(raw){
+  const s=String(raw||"").trim();
+  if(!/^[a-z]{2,24}$/.test(s)) return false;
+  if(ABBR_ORDINARY_PAREN_QUALIFIER_RE.test(s)) return true;
+  if(s.length>=4 && /(?:ed|ing|ly|tion|sion|ment|ness|ous|ive|able|ible|less|ful|ary|al|ic|ism|ist|ize|ise)$/i.test(s)) return true;
+  // Default ordinary-language presumption for unformatted lowercase words.
+  if(s.length>=4 && !abbrLooksLowercaseScientificParameter(s)) return true;
+  return false;
+}
 function abbrLooksScientificShort(raw){
   const s=String(raw||"").trim().replace(/^[,;:]|[,;:]$/g,"").trim();
   if(!s || s.length>24) return false;
+  if(abbrLooksOrdinaryLowercaseWord(s)) return false;
   if(/\b(?:et\s+al\.?|fig\.?|figure|table|eq\.?|equation|ref\.?|reference|doi|vol\.?|pp?\.?|inc\.?|ltd\.?|corp\.?)\b/i.test(s)) return false;
   if(/[<>=±%°\/]/.test(s) || /\b(?:19|20)\d{2}\b/.test(s)) return false;
   if(/^\d/.test(s)) return false;
-  // Flattened subscript forms such as S BET are allowed only in a compact
-  // symbol-like shape, never as an ordinary multiword phrase.
+  // Multi-character recognised units (min, mol, m2, cm, rpm, etc.) stay in the
+  // unit system. Single-letter collisions such as m or A can also be variables,
+  // so descriptor and occurrence context resolve those separately.
+  try{ if(isUnitExpr(s) && [...s].length>1) return false; }catch(_e){}
   if(/\s/.test(s) && !/^[A-Za-zα-ωΑ-Ωηλμσρζ]\s*(?:_?\s*)?[A-Z]{2,8}$/u.test(s)) return false;
   const compact=s.replace(/[\s_]/g,"");
   if(/^[α-ωΑ-Ωηλμσρζ]$/u.test(compact)) return true;
   if(/^[A-Za-z]$/.test(compact)) return true;
   if(/^[A-Z]{2,14}$/.test(compact)) return true;
   if(/^[A-Z][a-z]{1,3}\d{0,3}$/.test(compact)) return true;       // Ce, Vp, Cmax
-  if(/^[a-z]{1,5}\d{0,3}$/.test(compact)) return true;           // qe, kapp, j0
+  if(abbrLooksLowercaseScientificParameter(compact)) return true; // qe, kapp, j0
   if(/^[A-Za-z][A-Za-z0-9]{0,10}\d[A-Za-z0-9]{0,4}$/.test(compact)) return true;
   return false;
+}
+
+function abbrDescriptorExpectedDim(descriptor){
+  const d=String(descriptor||"").toLowerCase().replace(/\s+/g," ").trim();
+  if(!d) return null;
+  const dims={
+    length:{L:1}, area:{L:2}, volume:{L:3}, mass:{M:1}, time:{T:1}, temperature:{Th:1},
+    frequency:{T:-1}, current:{I:1}, voltage:{M:1,L:2,T:-3,I:-1},
+    resistance:{M:1,L:2,T:-3,I:-2}, pressure:{M:1,L:-1,T:-2},
+    energy:{M:1,L:2,T:-2}, power:{M:1,L:2,T:-3}, flow:{L:3,T:-1}, density:{M:1,L:-3},
+    conductivity:{M:-1,L:-3,T:3,I:2}, resistivity:{M:1,L:3,T:-3,I:-2}
+  };
+  if(/\b(?:surface\s+area|projected\s+area|cross[- ]sectional\s+area|area)\b/.test(d)) return dims.area;
+  if(/\b(?:volume|pore\s+volume)\b/.test(d)) return dims.volume;
+  if(/\b(?:length|width|height|diameter|radius|thickness|distance|depth|wavelength|particle\s+size|pore\s+(?:diameter|size))\b/.test(d)) return dims.length;
+  if(/\b(?:retention\s+time|residence\s+time|reaction\s+time|contact\s+time|time)\b/.test(d)) return dims.time;
+  if(/\btemperature\b/.test(d)) return dims.temperature;
+  if(/\bfrequency\b/.test(d)) return dims.frequency;
+  if(/\bcurrent\s+density\b/.test(d)) return {I:1,L:-2};
+  if(/\bpower\s+density\b/.test(d)) return {M:1,T:-3};
+  if(/\benergy\s+density\b/.test(d)) return {M:1,L:-1,T:-2};
+  if(/\b(?:flow\s+rate|flow)\b/.test(d)) return dims.flow;
+  if(/\bconductivity\b/.test(d)) return dims.conductivity;
+  if(/\bresistivity\b/.test(d)) return dims.resistivity;
+  if(/\bresistance\b/.test(d)) return dims.resistance;
+  if(/\b(?:voltage|potential)\b/.test(d)) return dims.voltage;
+  if(/\bcurrent\b/.test(d)) return dims.current;
+  if(/\bpressure\b/.test(d)) return dims.pressure;
+  if(/\bpower\b/.test(d)) return dims.power;
+  if(/\benergy\b/.test(d)) return dims.energy;
+  if(/\b(?:mass|weight)\b/.test(d)) return dims.mass;
+  if(/\bdensity\b/.test(d)) return dims.density;
+  return null;
+}
+function abbrDimsEqual(a,b){
+  try{return unitDimKey(a||{})===unitDimKey(b||{});}catch(_e){return false;}
+}
+function abbrParentheticalIsUnitMeaning(raw,descriptor){
+  let p=null; try{p=unitParseExpression(String(raw||"").trim());}catch(_e){}
+  if(!(p&&p.valid&&p.recognized)) return false;
+  const expected=abbrDescriptorExpectedDim(descriptor);
+  if(expected) return abbrDimsEqual(p.dim,expected);
+  return [...String(raw||"").trim()].length>1;
 }
 function abbrParentheticalNotDefinition(inner){
   const s=String(inner||"").trim();
@@ -3234,10 +3391,11 @@ function collectScientificDefs(sent,si,add){
     const inner=p[1].trim();
     if(abbrParentheticalNotDefinition(inner)) continue;
 
-    // Forward semantic definition: descriptor (symbol/parameter).
+    // Forward semantic definition: descriptor (symbol/parameter). Resolve
+    // unit-vs-symbol ambiguity before creating a notation definition.
     if(abbrLooksScientificShort(inner)){
       const descriptor=abbrScientificDescriptorBefore(sent,p.index);
-      if(abbrDescriptorLooksScientific(descriptor)){
+      if(abbrDescriptorLooksScientific(descriptor) && !abbrParentheticalIsUnitMeaning(inner,descriptor)){
         // If strict acronym matching already works, leave it to collectDefs so
         // conventional acronym behaviour and messages remain unchanged.
         const strictEligible=/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(inner.replace(/[\s_]/g,""));
@@ -3258,7 +3416,7 @@ function collectScientificDefs(sent,si,add){
     // Reverse semantic definition: symbol (descriptor).
     const pre=sent.slice(0,p.index).trim();
     const pm=pre.match(/([A-Za-zα-ωΑ-Ωηλμσρζ][A-Za-z0-9_α-ωΑ-Ωηλμσρζ₀-₉ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ]{0,14})\s*$/u);
-    if(pm && abbrLooksScientificShort(pm[1]) && abbrDescriptorLooksScientific(inner) && !abbrParentheticalNotDefinition(inner)){
+    if(pm && abbrLooksScientificShort(pm[1]) && abbrDescriptorLooksScientific(inner) && !abbrParentheticalNotDefinition(inner) && !abbrParentheticalIsUnitMeaning(pm[1],inner)){
       const sf=pm[1], start=p.index-pm[0].length+pm[0].lastIndexOf(sf);
       add(sf,inner,si,"scientific-parenthetical-reverse",{
         definitionType:abbrScientificDefinitionType(sf,inner),
@@ -3650,7 +3808,7 @@ function prepareAbbreviationBody(rawText){
 */
 const ABBR_INSTRUMENT_HEAD_RE=/\b(?:electron\s+microscope|scanning\s+electron\s+microscope|transmission\s+electron\s+microscope|mass\s+spectrometer|raman\s+spectrometer|ftir\s+spectrometer|x-ray\s+photoelectron\s+spectrometer|gas\s+adsorption\s+analy[sz]er|surface\s+area\s+analy[sz]er|particle\s+size\s+analy[sz]er|elemental\s+analy[sz]er|thermal\s+analy[sz]er|electrochemical\s+workstation|chromatography\s+system|microscope|spectrometer|spectrophotometer|analy[sz]er|detector|diffractometer|chromatograph|workstation|incubator|furnace|oven|balance|microbalance|sonicator|homogenizer|shaker|pump|autosampler|reactor|calorimeter|system|instrument|equipment|apparatus|platform|unit)\b/i;
 const ABBR_EXPERIMENT_ACTION_RE=/\b(?:using|using\s+an?|performed\s+(?:using|on)|carried\s+out\s+using|recorded\s+(?:using|on)|acquired\s+(?:using|with)|measured\s+(?:using|with)|determined\s+using|analys(?:ed|zed)\s+using|characteri[sz]ed\s+using|conducted\s+using|collected\s+using|equipped\s+with|operated\s+using)\s*$/i;
-const ABBR_CORP_SUFFIX_RE=/\b(?:Pvt\.?\s*(?:Ltd\.?)?|Private\s+Limited|Pte\.?\s+Ltd\.?|Inc\.?|Incorporated|Ltd\.?|Limited|LLP|LLC|Corp\.?|Corporation|Co\.?|Company|PLC|GmbH|AG|S\.A\.?|S\.p\.A\.?|B\.?V\.?|N\.?V\.?)\b/i;
+const ABBR_CORP_SUFFIX_RE=/\b(?:Pvt\.?\s*(?:Ltd\.?)?|Private\s+Limited|Pte\.?\s+Ltd\.?|Inc\.?|Incorporated|Ltd\.?|Limited|LLP|LLC|Corp\.?|Corporation|Co\.?|Company|PLC|GmbH|AG|S\.?A\.?|SAS|S\.?A\.?S\.?|SARL|S\.?A\.?R\.?L\.?|SRL|S\.?R\.?L\.?|S\.?p\.?A\.?|SpA|B\.?V\.?|N\.?V\.?|Pty\.?\s+Ltd\.?|AB|AS|Oy|A\/?S|K\.?K\.?|Co\.?\s*Ltd\.?)\b/i;
 const ABBR_COUNTRY_HINT_RE=/\b(?:USA|U\.S\.A\.|United\s+States|UK|U\.K\.|Germany|Japan|France|China|India|Switzerland|Netherlands|Korea|Republic\s+of\s+Korea|Singapore|Canada|Italy|Spain|Sweden|Denmark|Finland|Norway|Austria|Belgium|Australia|Taiwan)\b/i;
 
 function abbrSpanContains(sp,index,len=1){
@@ -3690,12 +3848,12 @@ function abbrLooksCorporateOccurrence(sent,index,raw){
   const left=sent.slice(Math.max(0,index-70),index);
   const right=sent.slice(index+raw.length,Math.min(sent.length,index+raw.length+70));
   // Strong corporate syntax such as "SMT AG", "BEL Corp.", "JEOL Ltd.".
-  if(/^\s*(?:[,.-]?\s*)?(?:Pvt\.?\s*(?:Ltd\.?)?|Private\s+Limited|Pte\.?\s+Ltd\.?|Inc\.?|Ltd\.?|Limited|LLP|LLC|Corp\.?|Corporation|Co\.?|Company|PLC|GmbH|AG|S\.A\.?|S\.p\.A\.?|B\.?V\.?|N\.?V\.?)\b/i.test(right)) return true;
+  if(/^\s*(?:[,.-]?\s*)?(?:Pvt\.?\s*(?:Ltd\.?)?|Private\s+Limited|Pte\.?\s+Ltd\.?|Inc\.?|Ltd\.?|Limited|LLP|LLC|Corp\.?|Corporation|Co\.?|Company|PLC|GmbH|AG|S\.?A\.?|SAS|SARL|SRL|S\.?R\.?L\.?|S\.?p\.?A\.?|SpA|B\.?V\.?|N\.?V\.?|Pty\.?\s+Ltd\.?|AB|AS|Oy)\b/i.test(right)) return true;
 
   // The candidate itself may be the legal suffix, e.g. "Carl Zeiss SMT AG".
   // Require a plausible company-name phrase immediately before it so technical
   // uses of strings such as PLC elsewhere are not globally suppressed.
-  if(/^(?:AG|LLC|PLC|INC|LTD|CORP|CO)$/i.test(raw)){
+  if(/^(?:AG|LLC|PLC|INC|LTD|CORP|CO|GMBH|SAS|SARL|SRL|SPA|BV|NV|AB|AS|OY)$/i.test(raw)){
     const companyLead=left.match(/(?:^|[,(;])?\s*((?:[A-Z][A-Za-z0-9&.'’\-]{1,}\s+){1,5})$/);
     if(companyLead) return true;
   }
@@ -3710,7 +3868,7 @@ function abbrLooksCorporateOccurrence(sent,index,raw){
    resolved as phrase-level entities first. Protection is occurrence-specific:
    the same token is checked normally if it later appears independently in body
    prose (e.g. "ABC Technologies Pvt. Ltd." vs "the ABC process"). */
-const ABBR_ENTITY_LEGAL_SUFFIX_RE=/\b(?:Pvt\.?\s*(?:Ltd\.?)?|Private\s+Limited|Pte\.?\s+Ltd\.?|Inc\.?|Incorporated|Ltd\.?|Limited|LLP|LLC|Corp\.?|Corporation|Co\.?|Company|PLC|GmbH|AG|S\.A\.?|S\.p\.A\.?|B\.?V\.?|N\.?V\.?)\b/gi;
+const ABBR_ENTITY_LEGAL_SUFFIX_RE=/\b(?:Pvt\.?\s*(?:Ltd\.?)?|Private\s+Limited|Pte\.?\s+Ltd\.?|Inc\.?|Incorporated|Ltd\.?|Limited|LLP|LLC|Corp\.?|Corporation|Co\.?|Company|PLC|GmbH|AG|S\.?A\.?|SAS|S\.?A\.?S\.?|SARL|S\.?A\.?R\.?L\.?|SRL|S\.?R\.?L\.?|S\.?p\.?A\.?|SpA|B\.?V\.?|N\.?V\.?|Pty\.?\s+Ltd\.?|AB|AS|Oy|A\/?S|K\.?K\.?|Co\.?\s*Ltd\.?)\b/gi;
 const ABBR_ENTITY_ORG_END_RE=/\b(?:University|Institute|Institution|Laborator(?:y|ies)|Centre|Center|Department|Ministry|Authority|Agency|Board|Commission|Council|Foundation|Association|Society|Organisation|Organization|Programme|Program|Bank|Office|Mission)\b/gi;
 const ABBR_ENTITY_CONNECTOR_RE=/^(?:of|and|&|for|the|in|at|on|de|la)$/i;
 function abbrEntityNameToken(tok){
@@ -3733,7 +3891,7 @@ function abbrEntityBackwardStart(sent,end,maxTokens=9,maxChars=150){
     const t=toks[i];
     // Do not leap across substantial punctuation or prose between tokens.
     const gap=sent.slice(t.end,start);
-    if(start!==end && /[.!?;:\n]/.test(gap)) break;
+    if(/[.!?;:\n]/.test(gap)) break;
     if(!abbrEntityNameToken(t.raw)) break;
     start=t.start; kept++;
   }
@@ -3765,6 +3923,208 @@ function abbrFindProperNameSpans(sent){
       abbrPushSpan(spans,start,end,'organisation_name',9,'institutional-name-ending');
     }
     if(!m[0].length) ABBR_ENTITY_ORG_END_RE.lastIndex++;
+  }
+  // Some organisation heads occur before a connector phrase, e.g.
+  // "Indian Institute of Technology". Extend a recognised organisation span
+  // through a short "of/for/and + Proper Name" continuation before resolving
+  // a parenthetical alias.
+  for(const sp of [...spans]){
+    if(sp.kind!=="organisation_name") continue;
+    const tail=sent.slice(sp.end,Math.min(sent.length,sp.end+100));
+    const ext=tail.match(/^(?:\s+(?:of|for|and|&|the|in|at)\s+(?:[A-Z][A-Za-z0-9&.'’\-]*)(?:\s+(?:[A-Z][A-Za-z0-9&.'’\-]*|of|for|and|&|the|in|at)){0,5})/);
+    if(ext){
+      const newEnd=sp.end+ext[0].length;
+      abbrPushSpan(spans,sp.start,newEnd,'organisation_name',Math.max(10,sp.score||0),'institutional-name-continuation');
+    }
+  }
+  // Parenthetical aliases immediately following a recognised organisation are
+  // part of the organisation identity, not scientific abbreviations. This is
+  // occurrence-specific, so the same letters remain eligible elsewhere.
+  for(const sp of [...spans]){
+    if(sp.kind!=="organisation_name") continue;
+    const tail=sent.slice(sp.end,Math.min(sent.length,sp.end+40));
+    const am=tail.match(/^\s*\(\s*([A-Z][A-Z0-9&.'’\-]{1,14})\s*\)/);
+    if(am){
+      const rel=tail.indexOf(am[1]);
+      abbrPushSpan(spans,sp.end+rel,sp.end+rel+am[1].length,'organisation_alias',12,'organisation-parenthetical-alias');
+    }
+  }
+  return spans.sort((a,b)=>a.start-b.start||b.end-a.end);
+}
+
+/* ---------- Supplier / manufacturer entity resolver ----------
+   Procurement prose frequently names suppliers without legal suffixes, e.g.
+   "Sigma Aldrich, USA; Merck, India; SRL, India; and LobaChemi, India".
+   Acronym morphology alone must not turn those entity names into undefined
+   scientific abbreviations. Resolve supplier/manufacturer spans from procurement
+   cues, parallel-list structure and location metadata before abbreviation scan.
+
+   This is deliberately occurrence-specific. An uppercase token protected here
+   can still be a genuine scientific abbreviation in another sentence.
+*/
+const ABBR_SUPPLIER_STRONG_CUE_RE=/\b(?:purchased|procured|sourced|ordered|bought|supplied)\s+(?:commercially\s+|directly\s+)?(?:from|by|through)\b|\b(?:manufactured|produced|distributed)\s+by\b|\b(?:supplier|vendor|manufacturer)\s*(?::|=|was|were)?\s*/gi;
+const ABBR_SUPPLIER_WEAK_CUE_RE=/\b(?:obtained|received|acquired)\s+(?:commercially\s+|directly\s+)?from\b|\bprovided\s+by\b/gi;
+const ABBR_SUPPLIER_COUNTRY_RE=/\b(?:Afghanistan|Albania|Algeria|Argentina|Australia|Austria|Bangladesh|Belgium|Brazil|Bulgaria|Canada|Chile|China|Colombia|Croatia|Cyprus|Czech(?:ia|\s+Republic)|Denmark|Egypt|Estonia|Finland|France|Germany|Greece|Hong\s+Kong|Hungary|Iceland|India|Indonesia|Iran|Ireland|Israel|Italy|Japan|Jordan|Kenya|Korea|Republic\s+of\s+Korea|South\s+Korea|Latvia|Lithuania|Luxembourg|Malaysia|Mexico|Morocco|Netherlands|New\s+Zealand|Nigeria|Norway|Pakistan|Peru|Philippines|Poland|Portugal|Romania|Russia|Saudi\s+Arabia|Serbia|Singapore|Slovakia|Slovenia|South\s+Africa|Spain|Sri\s+Lanka|Sweden|Switzerland|Taiwan|Thailand|Turkey|Türkiye|Ukraine|United\s+Arab\s+Emirates|UAE|United\s+Kingdom|UK|U\.K\.|United\s+States(?:\s+of\s+America)?|USA|U\.S\.A\.|Vietnam)\b/i;
+const ABBR_SUPPLIER_GENERIC_ENTITY_STOP_RE=/\b(?:analysis|method|methods|technique|techniques|spectroscopy|microscopy|chromatography|equation|figure|table|sample|samples|data|results|solution|solutions|water|wastewater|membrane|membranes|reactor|reactors|current|voltage|temperature|pressure|time|concentration|material|materials|chemical|chemicals|reagent|reagents)\b/i;
+
+function abbrSupplierLooksLocation(part){
+  const p=String(part||"").trim().replace(/^[()\[\]]+|[()\[\].]+$/g,"");
+  if(!p) return false;
+  if(ABBR_SUPPLIER_COUNTRY_RE.test(p)||ABBR_COUNTRY_HINT_RE.test(p)) return true;
+  if(/^(?:[A-Z]{2,3}|[A-Z][a-z]+(?:[ -][A-Z][a-z]+){0,3})(?:\s+\d{4,6})?$/.test(p) && !ABBR_SUPPLIER_GENERIC_ENTITY_STOP_RE.test(p)) return true;
+  return false;
+}
+function abbrSupplierNamePhraseInfo(raw){
+  let phrase=String(raw||"").trim();
+  phrase=phrase.replace(/^(?:and|or)\s+/i,"").replace(/^(?:the|a|an)\s+/i,"").trim();
+  phrase=phrase.replace(/[,:;]+$/g,"").trim();
+  if(!phrase||phrase.length>140) return {ok:false,phrase};
+  const toks=phrase.match(/[A-Za-z][A-Za-z0-9&.'’\-]*/g)||[];
+  if(!toks.length||toks.length>10) return {ok:false,phrase};
+  const meaningful=toks.filter(t=>!ABBR_ENTITY_CONNECTOR_RE.test(t));
+  if(!meaningful.length) return {ok:false,phrase};
+  const legal=ABBR_CORP_SUFFIX_RE.test(phrase);
+  const caps=meaningful.filter(t=>/^[A-Z]{2,}[A-Z0-9&.'’\-]*$/.test(t)).length;
+  const title=meaningful.filter(t=>/^[A-Z][a-z][A-Za-z0-9&.'’\-]*$/.test(t)).length;
+  const mixed=meaningful.filter(t=>/^[A-Za-z][A-Za-z0-9&.'’\-]*[A-Z][A-Za-z0-9&.'’\-]*$/.test(t)&&! /^[A-Z]+$/.test(t)).length;
+  const bad=meaningful.some(t=>/^[a-z]{3,}$/.test(t)&&!ABBR_ENTITY_CONNECTOR_RE.test(t));
+  const generic=ABBR_SUPPLIER_GENERIC_ENTITY_STOP_RE.test(phrase);
+  // Generic commercial nouns such as "Chemicals", "Scientific" or
+  // "Laboratories" may legitimately be part of a supplier name. Do not reject
+  // them by vocabulary alone; the surrounding procurement/location evidence
+  // decides whether the phrase is an entity at this occurrence.
+  const ok=legal || (!bad && (title+mixed+caps>=meaningful.length));
+  return {ok,phrase,legal,caps,title,mixed,tokens:meaningful.length,allCapsOnly:caps===meaningful.length,generic};
+}
+function abbrSupplierSegmentEntity(sent,segStart,segEnd,{strong=false,parallel=false}={}){
+  let text=sent.slice(segStart,segEnd);
+  const lead=text.match(/^\s*(?:(?:and|or)\s+)?/i); const leadLen=lead?lead[0].length:0;
+  let start=segStart+leadLen;
+  text=sent.slice(start,segEnd).trimEnd();
+  const trimRight=sent.slice(start,segEnd).length-text.length; segEnd-=trimRight;
+  if(!text) return null;
+
+  // Name normally precedes parenthetical or comma-separated manufacturer location.
+  let cut=text.length;
+  const comma=text.indexOf(','); if(comma>=0) cut=Math.min(cut,comma);
+  const par=text.indexOf('('); if(par>=0) cut=Math.min(cut,par);
+  // Stop before a clear prose continuation when no metadata delimiter exists.
+  const clause=text.search(/\s+(?:which|that|where|for\s+use|to\s+prepare|was|were|is|are)\b/i);
+  if(clause>=0) cut=Math.min(cut,clause);
+  let rawName=text.slice(0,cut).trim();
+  if(!rawName) return null;
+  const info=abbrSupplierNamePhraseInfo(rawName);
+  if(!info.ok) return null;
+  const nameOffset=text.indexOf(rawName);
+  const nameStart=start+nameOffset, nameEnd=nameStart+rawName.length;
+
+  const rest=text.slice(cut);
+  const commaParts=text.split(',').slice(1).map(x=>x.trim()).filter(Boolean);
+  const paren=(rest.match(/\(([^()]*)\)/)||[])[1]||"";
+  const hasLocation=commaParts.some(abbrSupplierLooksLocation) || paren.split(/[,;]/).some(abbrSupplierLooksLocation);
+  const hasLegal=info.legal || ABBR_CORP_SUFFIX_RE.test(rawName);
+
+  // Weak source language ("obtained from") is not enough to reinterpret a
+  // scientific technique such as "data obtained from SEM" as a vendor.
+  // Require location/legal/list structure there. Strong procurement language can
+  // establish a title-case/mixed brand directly; an all-caps singleton still
+  // requires parallel/location/legal support unless the cue explicitly says
+  // supplier/vendor/manufacturer.
+  let score=0;
+  if(hasLocation) score+=5;
+  if(hasLegal) score+=5;
+  if(parallel) score+=3;
+  if(strong) score+=3;
+  if(info.title+info.mixed>=1) score+=2;
+  if(info.allCapsOnly) score+=1;
+  const accept=hasLegal || hasLocation || (parallel && score>=5) || (strong && score>=4);
+  if(!accept) return null;
+  return {start:nameStart,end:nameEnd,kind:'supplier_manufacturer_name',score:Math.max(9,score),reason:hasLocation?'supplier-location-metadata':hasLegal?'supplier-legal-entity':parallel?'parallel-supplier-list':'procurement-context'};
+}
+function abbrPushSupplierLocationSpans(spans,sent,start,end){
+  const chunk=sent.slice(start,end);
+  const token=/[^,;()]+/g; let m;
+  while((m=token.exec(chunk))!==null){
+    const raw=m[0],trim=raw.trim();
+    if(!trim||!abbrSupplierLooksLocation(trim)) continue;
+    const lead=raw.indexOf(trim),a=start+m.index+lead,b=a+trim.length;
+    abbrPushSpan(spans,a,b,'supplier_location_metadata',10,'supplier-location-metadata');
+  }
+}
+function abbrFindSupplierManufacturerSpans(sent){
+  sent=String(sent||"");
+  const spans=[];
+
+  function scanCue(re,strong){
+    re.lastIndex=0; let m;
+    while((m=re.exec(sent))!==null){
+      const tailStart=m.index+m[0].length;
+      let tailEnd=sent.length;
+      const stop=sent.slice(tailStart).search(/[.!?](?:\s|$)/); if(stop>=0) tailEnd=tailStart+stop;
+      if(tailEnd<=tailStart) continue;
+      const tail=sent.slice(tailStart,tailEnd);
+      const semis=[]; let base=0;
+      // Semicolon-delimited supplier lists are high-confidence peer structures.
+      for(const part of tail.split(';')){ semis.push({start:tailStart+base,end:tailStart+base+part.length}); base+=part.length+1; }
+      const parallel=semis.length>=2;
+      let accepted=0;
+      for(const seg of semis){
+        const rec=abbrSupplierSegmentEntity(sent,seg.start,seg.end,{strong,parallel});
+        if(rec){
+          abbrPushSpan(spans,rec.start,rec.end,rec.kind,rec.score,rec.reason);
+          abbrPushSupplierLocationSpans(spans,sent,seg.start,seg.end);
+          accepted++;
+        }
+      }
+
+      // Comma-only lists such as "Merck, Germany, Sigma-Aldrich, USA" are
+      // recovered as name/location pairs when at least two location endpoints exist.
+      if(!parallel){
+        const parts=[]; let p0=tailStart;
+        const reComma=/,/g; let cm;
+        while((cm=reComma.exec(tail))!==null){parts.push({start:p0,end:tailStart+cm.index,text:sent.slice(p0,tailStart+cm.index)});p0=tailStart+cm.index+1;}
+        parts.push({start:p0,end:tailEnd,text:sent.slice(p0,tailEnd)});
+        const locIdx=[]; parts.forEach((p,i)=>{if(abbrSupplierLooksLocation(p.text)) locIdx.push(i);});
+        if(locIdx.length>=2){
+          let prev=0;
+          for(const li of locIdx){
+            if(li<=prev) continue;
+            const segStart=parts[prev].start,segEnd=parts[li].end;
+            const rec=abbrSupplierSegmentEntity(sent,segStart,segEnd,{strong:true,parallel:true});
+            if(rec){
+              abbrPushSpan(spans,rec.start,rec.end,rec.kind,Math.max(10,rec.score),'parallel-supplier-location-pairs');
+              abbrPushSupplierLocationSpans(spans,sent,segStart,segEnd);
+            }
+            prev=li+1;
+          }
+        }
+      }
+      if(!m[0].length) re.lastIndex++;
+    }
+  }
+  scanCue(ABBR_SUPPLIER_STRONG_CUE_RE,true);
+  scanCue(ABBR_SUPPLIER_WEAK_CUE_RE,false);
+
+  // Parenthetical manufacturer metadata can appear without an explicit purchase
+  // verb, e.g. "sodium chloride (SRL, India)" or "instrument (ABC Ltd., UK)".
+  const par=/\(([^()]{2,140})\)/g; let pm;
+  while((pm=par.exec(sent))!==null){
+    const inner=pm[1],parts=inner.split(',').map(x=>x.trim()).filter(Boolean);
+    if(parts.length<2) continue;
+    const info=abbrSupplierNamePhraseInfo(parts[0]);
+    const hasLocation=parts.slice(1).some(abbrSupplierLooksLocation);
+    if(!info.ok || !hasLocation) continue;
+    const rel=pm[0].indexOf(parts[0]);
+    abbrPushSpan(spans,pm.index+rel,pm.index+rel+parts[0].length,'supplier_manufacturer_name',11,'parenthetical-supplier-location');
+    abbrPushSupplierLocationSpans(spans,sent,pm.index,pm.index+pm[0].length);
+  }
+
+  // Explicit labels in methods/tables: "Supplier: SRL", "Manufacturer - ABC".
+  const label=/\b(?:supplier|vendor|manufacturer)\s*(?::|=|[-–—])\s*((?:[A-Z]{2,14}|[A-Z][a-z][A-Za-z0-9&.'’\-]*)(?:\s+(?:[A-Z]{2,14}|[A-Z][a-z][A-Za-z0-9&.'’\-]*|of|and|&)){0,7})/gi; let lm;
+  while((lm=label.exec(sent))!==null){
+    const info=abbrSupplierNamePhraseInfo(lm[1]); if(!info.ok) continue;
+    const rel=lm[0].lastIndexOf(lm[1]);
+    abbrPushSpan(spans,lm.index+rel,lm.index+rel+lm[1].length,'supplier_manufacturer_name',12,'explicit-supplier-label');
   }
   return spans.sort((a,b)=>a.start-b.start||b.end-a.end);
 }
@@ -3871,9 +4231,13 @@ function abbrFindCommercialEquipmentSpans(sent){
 }
 
 function abbrFindProtectedInstrumentSpans(sent){
-  // Resolve phrase-level proper names first, then add generalized commercial
-  // equipment protection. Both are occurrence-specific protected spans.
+  // Resolve phrase-level proper names and procurement/manufacturer entities first,
+  // then add generalized commercial equipment protection. All protections are
+  // occurrence-specific rather than global whitelists.
   const spans=abbrFindProperNameSpans(sent);
+  for(const sp of abbrFindSupplierManufacturerSpans(sent)){
+    abbrPushSpan(spans,sp.start,sp.end,sp.kind,sp.score,sp.reason);
+  }
   for(const sp of abbrFindCommercialEquipmentSpans(sent)){
     abbrPushSpan(spans,sp.start,sp.end,sp.kind,sp.score,sp.reason);
   }
@@ -4137,6 +4501,39 @@ function abbrOverlapsProtectedSpan(spans,index,len){
   return (spans||[]).some(sp=>index<sp.end && end>sp.start);
 }
 
+function abbrUnitTokenBefore(text,index){
+  const left=String(text||"").slice(0,index);
+  const m=left.match(/([A-Za-zµμΩ°]+(?:[²³23]|\^[-+]?\d+)?)\s*([\/·×])\s*$/);
+  return m?{token:m[1],op:m[2]}:null;
+}
+function abbrUnitTokenAfter(text,end){
+  const right=String(text||"").slice(end);
+  const m=right.match(/^\s*([\/·×])\s*([A-Za-zµμΩ°]+(?:[²³23]|\^[-+]?\d+)?)/);
+  return m?{token:m[2],op:m[1]}:null;
+}
+function abbrIsMeasurementUnitOccurrence(sent,index,raw){
+  const token=String(raw||"").trim();
+  let parsed=null; try{parsed=unitParseExpression(token);}catch(_e){}
+  if(!(parsed&&parsed.valid&&parsed.recognized)) return false;
+  const before=String(sent||"").slice(0,index);
+  const end=index+String(raw||"").length;
+  if(/(?:^|[^A-Za-z])[-+]?\d+(?:\.\d+)?(?:\s*[×x]\s*10\s*\^?[-−]?\d+)?\s*$/.test(before)) return true;
+  if(/\b(?:in|expressed\s+in|reported\s+in|measured\s+in|units?\s+of)\s*$/i.test(before)) return true;
+  const prev=abbrUnitTokenBefore(sent,index);
+  if(prev){ try{if(isUnitExpr(`${prev.token}${prev.op}${token}`)) return true;}catch(_e){} }
+  const next=abbrUnitTokenAfter(sent,end);
+  if(next){ try{if(isUnitExpr(`${token}${next.op}${next.token}`)) return true;}catch(_e){} }
+  const leftParen=before.lastIndexOf('('), close=String(sent||"").indexOf(')',end);
+  if(leftParen>=0 && close>=end){
+    const inner=String(sent||"").slice(leftParen+1,close).trim();
+    if(inner===token){
+      const descriptor=abbrScientificDescriptorBefore(sent,leftParen);
+      if(abbrParentheticalIsUnitMeaning(token,descriptor)) return true;
+    }
+  }
+  return false;
+}
+
 function abbrScientificOccurrenceScore(sent,index,raw,definition){
   const token=String(raw||"").trim();
   const compact=token.replace(/[\s_]/g,"");
@@ -4190,6 +4587,7 @@ function abbrScientificOccurrenceScore(sent,index,raw,definition){
 }
 function abbrIsScientificSymbolOccurrence(sent,index,raw,definition,isDefinitionOccurrence=false){
   if(isDefinitionOccurrence) return true;
+  if(abbrIsMeasurementUnitOccurrence(sent,index,raw)) return false;
   const compact=String(raw||"").replace(/[\s_]/g,"");
   if([...compact].length>1) return true;
   return abbrScientificOccurrenceScore(sent,index,raw,definition)>=4;
@@ -4259,6 +4657,7 @@ function abbrShouldReportUndefinedCandidate(g,disp,context={}){
   if(context.std || context.listDef || context.declared || (g&&g.defs&&g.defs.length)) return false;
   if(!g || !g.occ || !g.occ.length) return false;
   if(g.occ.every(o=>o.protectedIdentifier || o.role==='ordinary_language' || o.role==='ambiguous')) return false;
+  if(abbrLooksLexicalAllCapsWord(disp) && g.occ.length<3) return false;
   return true;
 }
 
@@ -4349,6 +4748,66 @@ function abbrResolveNestedCandidate(raw,groups,firstSent){
   return {...best,status:"NESTED_ABBREVIATION_INFERRED",confidence:0.96};
 }
 
+/* ---------- Named event/project/title protection ----------
+   Multiword names are not abbreviation inventories. Protect all-capital words
+   when they form a quoted title or a coherent multiword name. This remains
+   occurrence-specific, so the same token can still be checked elsewhere. */
+const ABBR_NAMED_TITLE_CUE_RE=/\b(?:competition|contest|event|award|prize|project|programme|program|conference|congress|symposium|workshop|seminar|exhibition|fair|festival|challenge|hackathon|model|prototype|theme|title|paper|presentation|lecture|campaign|initiative)\b/i;
+function abbrLooksLikeNamedTitlePhrase(raw,context=""){
+  const text=String(raw||"").trim();
+  const words=text.match(/[A-Za-z][A-Za-z'’\-]*/g)||[];
+  if(!words.length || words.length>20) return false;
+  if(words.length===1){
+    const one=words[0];
+    return /\b(?:named|called|entitled|titled|known\s+as)\b/i.test(String(context||"")) && /^[A-Z][A-Z'’\-]{2,}$/.test(one);
+  }
+  const longCaps=words.filter(w=>/^[A-Z][A-Z'’\-]{3,}$/.test(w));
+  const caps=words.filter(w=>/^[A-Z][A-Z'’\-]{1,}$/.test(w));
+  if(longCaps.length>=2 && caps.length>=Math.min(2,Math.ceil(words.length*.4))) return true;
+  if(ABBR_NAMED_TITLE_CUE_RE.test(String(context||"")) && (longCaps.length>=1 || words.length>=3)) return true;
+  return false;
+}
+function abbrFindProtectedNamedTitleSpans(sent){
+  const s=String(sent||""),spans=[];
+  const push=(start,end,reason)=>{if(end>start)abbrPushSpan(spans,start,end,'named_title',9,reason);};
+  let m;
+  const quote=/["“]([^"”]{3,220})["”]/g;
+  while((m=quote.exec(s))!==null){
+    const inner=m[1],ctx=s.slice(Math.max(0,m.index-70),Math.min(s.length,m.index+m[0].length+70));
+    if(abbrLooksLikeNamedTitlePhrase(inner,ctx)) push(m.index,m.index+m[0].length,'quoted-title');
+  }
+  const run=/\b(?:[A-Z][A-Z'’\-]{3,}\s+){1,9}[A-Z][A-Z'’\-]{3,}\b/g;
+  while((m=run.exec(s))!==null){
+    const ctx=s.slice(Math.max(0,m.index-70),Math.min(s.length,m.index+m[0].length+70));
+    if(abbrLooksLikeNamedTitlePhrase(m[0],ctx)) push(m.index,m.index+m[0].length,'all-caps-title');
+  }
+  return spans.sort((a,b)=>a.start-b.start||b.end-a.end);
+}
+function abbrLooksLexicalAllCapsWord(raw){
+  const s=String(raw||"").trim();
+  if(!/^[A-Z]{7,}$/.test(s)) return false;
+  const vowels=(s.match(/[AEIOU]/g)||[]).length;
+  return vowels>=2 && vowels/s.length>=.20;
+}
+
+/* Apostrophe + s is normally possessive, e.g. "MFC’s performance". Report a
+   plural-apostrophe style problem only when surrounding grammar provides strong
+   plural evidence. This intentionally prefers precision over recall. */
+function abbrFindClearApostrophePlural(text,base){
+  const b=abbrCanonicalAbbreviationForm(base);
+  if(!/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(b)) return null;
+  const re=new RegExp(`\\b${escapeRegExp(b)}['’]s\\b`,'g'); let m;
+  const quant=/(?:\b(?:two|three|four|five|six|seven|eight|nine|ten|several|many|multiple|numerous|various|both|these|those|all)\s+|\b\d+\s+)$/i;
+  const pluralAfter=/^\s*(?:(?:are|were|have|show|showed|indicate|indicated|demonstrate|demonstrated|contain|contained|include|included|exhibit|exhibited|perform|performed|operate|operated|can|may|will|do|did)\b|,|;|\.)/i;
+  while((m=re.exec(String(text||"")))!==null){
+    const before=String(text||"").slice(Math.max(0,m.index-50),m.index);
+    const after=String(text||"").slice(m.index+m[0].length,m.index+m[0].length+40);
+    if(quant.test(before) || pluralAfter.test(after)) return {index:m.index,raw:m[0]};
+    if(m[0].length===0) re.lastIndex++;
+  }
+  return null;
+}
+
 /* ---------- Core analysis ---------- */
 function analyze(rawText, title, standardSet, skipRefs, skipTables){
   // Establish the bibliography boundary from the ORIGINAL manuscript before any
@@ -4395,13 +4854,14 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     }
   });
   const addDefinition=(sf,lf,s2,kind="parenthetical",meta={})=>{
-    const key=abbrScientificSymbolKey(sf)||norm(sf);
+    const dtype=meta.definitionType||"conventional_acronym";
+    const canonicalForm=dtype==="conventional_acronym"?abbrCanonicalAbbreviationForm(sf):String(sf||"").trim();
+    const key=dtype==="conventional_acronym"?abbrCanonicalAbbreviationKey(sf):(abbrScientificSymbolKey(sf)||norm(sf));
     if(!key || STOPWORDS.has(key)) return;
     const g=G(key);
-    const dtype=meta.definitionType||"conventional_acronym";
     if(!g.defs.some(d=>d.sent===s2 && d.long.toLowerCase()===String(lf).toLowerCase() && d.definitionType===dtype)){
-      g.defs.push({form:sf,long:lf,sent:s2,kind,definitionType:dtype,semanticDefinition:!!meta.semanticDefinition});
-      bump(g,sf);
+      g.defs.push({form:canonicalForm,long:lf,sent:s2,kind,definitionType:dtype,semanticDefinition:!!meta.semanticDefinition,observedForm:meta.observedForm||String(sf||"").trim(),grammaticalPlural:!!meta.grammaticalPlural});
+      bump(g,canonicalForm);
     }
     if(dtype!=="conventional_acronym"){
       if(!scientificFormsByKey.has(key)) scientificFormsByKey.set(key,new Set());
@@ -4439,6 +4899,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     const spans=parenSpans(sent);
     const protectedInstrumentSpans=abbrFindProtectedInstrumentSpans(sent);
     const protectedIdentifierSpans=abbrFindProtectedIdentifierSpans(sent,designatedIdentifierForms);
+    const protectedNamedTitleSpans=abbrFindProtectedNamedTitleSpans(sent);
     const protectedScientific=scientificDefSpansBySentence.get(si)||[];
     acroRe.lastIndex=0; let m;
     while((m=acroRe.exec(sent))!==null){
@@ -4462,6 +4923,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       // protected unit. Never create an artificial abbreviation from an internal
       // fragment such as MFC-ZIF within MFC-ZIF-8.
       if(abbrOverlapsProtectedSpan(protectedIdentifierSpans,m.index,raw.length)) continue;
+      if(abbrOverlapsProtectedSpan(protectedNamedTitleSpans,m.index,raw.length)) continue;
 
       // If Word formatting flattened a compound scientific symbol such as
       // S_BET, do not let the internal BET fragment become a separate candidate.
@@ -4477,7 +4939,14 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       const um=sent.slice(m.index).match(/^[A-Za-zµμΩ°]+[\u2070-\u2079\u00B2\u00B3\u00B9\u2080-\u2089\d]*(?:\s?[\/·×]\s?[A-Za-zµμΩ°]+[\u2070-\u2079\u00B2\u00B3\u00B9\u2080-\u2089\d\u2212-]*)*/);
       const fullTok=um?um[0]:raw;
       const numBefore=/[\d.]\s*[-–]?\s*$/.test(sent.slice(0,m.index));
-      if(isUnitExpr(fullTok) && (/[a-zµμ°\/·×]/.test(fullTok) || numBefore)) continue;
+      let unitLike=false;
+      try{unitLike=isUnitExpr(fullTok);}catch(_e){}
+      // Non-standard all-capital spellings after a number (30 MIN, 6 CM, 2 HR)
+      // are still measurement-unit occurrences, although the Unit module may
+      // separately recommend the correct case/notation. They must not become
+      // undefined abbreviations.
+      if(!unitLike && numBefore){ try{unitLike=isUnitExpr(String(fullTok).toLowerCase());}catch(_e){} }
+      if(unitLike && (/[a-zµμ°\/·×]/.test(fullTok) || numBefore)) continue;
       addOccurrence(raw,key,sent,si,m.index,spans);
     }
 
@@ -4497,6 +4966,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           if(/[A-Za-z0-9_]/.test(left)||/[A-Za-z0-9_]/.test(right)) continue;
           if(abbrOverlapsProtectedSpan(protectedIdentifierSpans,sm.index,raw.length)) continue;
           if(abbrOverlapsProtectedSpan(protectedInstrumentSpans,sm.index,raw.length)) continue;
+          if(abbrOverlapsProtectedSpan(protectedNamedTitleSpans,sm.index,raw.length)) continue;
 
           const defSpan=protectedScientific.find(sp=>sp.key===key && sm.index>=sp.start && sm.index+raw.length<=sp.end);
           const defRec=(groups.get(key)?.defs||[]).find(d=>d.definitionType!=="conventional_acronym")||null;
@@ -4638,13 +5108,10 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         warnings.push({abbr:disp, msg:`Used only ${count} time${count===1?"":"s"}. Abbreviate only terms that recur; otherwise spell it out each time.`, snip:null});
       }
 
-      let apoHit=false;
-      for(const f of g.forms.keys()){
-        if(new RegExp("\\b"+escapeRegExp(f)+"['\u2019]s\\b").test(text)){apoHit=true;break;}
-      }
+      const apoHit=abbrFindClearApostrophePlural(text,disp);
       if(apoHit){
         if(status==="ok") status="warn";
-        warnings.push({abbr:disp, msg:`Written with an apostrophe for a plural ("${disp}'s"). Use "${disp}s" with no apostrophe.`, snip:null});
+        warnings.push({abbr:disp, msg:`An apostrophe appears to be used to form a plural ("${disp}'s"). Use "${disp}s" for the plural. Possessive forms such as "${disp}’s performance" are valid and are not flagged.`, snip:null});
       }
 
       const initOcc=g.occ.filter(o=>o.initial);
@@ -6184,6 +6651,144 @@ function fteIsGeneratedFigureTableListParagraph(block,index,listInfo){
   const b=block||{};
   if(fteIsGeneratedFigureTableListStyle(b.style||"")) return true;
   return false;
+}
+
+/* ---------------------------------------------------------------------
+   Shared non-prose front-matter/index detector.
+
+   Word-generated Tables of Contents use TOC styles, while both List of
+   Figures and List of Tables commonly use the built-in "Table of Figures"
+   style. These paragraphs are useful structural metadata, but they are not
+   narrative sentences and must not feed Writing or prose-number rules.
+   --------------------------------------------------------------------- */
+function mcStructuredIndexStyleKey(style){
+  return String(style||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+}
+function mcIsTocEntryStyle(style){
+  const k=mcStructuredIndexStyleKey(style);
+  return /^(?:toc\d+|tableofcontents\d*|contents\d*|tocentry\d*)$/.test(k);
+}
+function mcStructuredIndexHeadingKind(text){
+  const s=fteNormalizeGeneratedListText(text).replace(/[.:;\-]+\s*$/,"").trim().toLowerCase();
+  if(/^(?:table\s+of\s+contents|contents)$/.test(s)) return "toc";
+  if(/^(?:list|table)\s+of\s+(?:figures?|illustrations?|plates?|schemes?|charts?|graphs?|images?|photographs?)$/.test(s)) return "figure";
+  if(/^(?:list|table)\s+of\s+tables?$/.test(s)) return "table";
+  if(/^(?:list\s+of\s+)?(?:abbreviations?|acronyms?|symbols)|nomenclature|glossary$/.test(s)) return "declarations";
+  return "";
+}
+function mcLooksLikeTocEntry(text){
+  const s=fteNormalizeGeneratedListText(text);
+  if(!s) return false;
+  const terminalPage=/(?:\.{2,}|\s)\d{1,4}\s*$/.test(s);
+  if(!terminalPage) return false;
+  return /^(?:(?:chapter|part|appendix)\s+(?:\d+|[ivxlcdm]+|[a-z])\b|(?:\d+(?:\.\d+)*|[ivxlcdm]+)[.)]?\s*\S+|[A-Z][A-Z0-9 ,:&'’\-]{3,})/i.test(s);
+}
+function mcLooksLikeGeneratedFigureTableEntryEitherOrder(text,kind=""){
+  const s=fteNormalizeGeneratedListText(text);
+  if(!s) return false;
+  if(fteLooksLikeGeneratedListEntry(s,kind||undefined)) return true;
+  // DOCX conversion can flatten the terminal page-number field before the
+  // caption text. Accept that reordered form only inside a recognised list.
+  const prefixPage=s.match(/^\d{1,4}\s+(.+)$/);
+  if(prefixPage && fteLooksLikeGeneratedListEntry(prefixPage[1],kind||undefined)) return true;
+  return false;
+}
+function mcLooksLikeDeclarationListEntry(text){
+  const s=fteNormalizeGeneratedListText(text);
+  if(!s) return false;
+  if(typeof abbrLooksListShort!=="function") return false;
+  const m=s.match(/^([A-Za-z][A-Za-z0-9./\-]{0,19})\s*(?:\t+|\s{2,}|[:=]\s*|\s+[–—-]\s+)(.{2,220})$/);
+  return !!(m && abbrLooksListShort(m[1]) && abbrLooksListLong(m[2],m[1]));
+}
+function mcStructuredIndexParagraphInfo(blocks){
+  const src=Array.isArray(blocks)?blocks:[];
+  const mask=new Set(), reasonByIndex=new Map();
+  const mark=(i,reason)=>{mask.add(i);if(reason)reasonByIndex.set(i,reason);};
+
+  try{
+    const generated=fteGeneratedFigureTableListInfo(src);
+    generated.mask.forEach(i=>mark(i,"Word-generated List of Figures/Tables"));
+  }catch(e){}
+
+  let active="";
+  for(let i=0;i<src.length;i++){
+    const b=src[i]||{};
+    if(b.type!=="p"){
+      if(active && active!=="declarations") active="";
+      continue;
+    }
+    const text=fteNormalizeGeneratedListText(b.text||"");
+    const heading=mcStructuredIndexHeadingKind(text);
+    const style=String(b.style||"");
+
+    if(heading){
+      mark(i,`front-matter ${heading} heading`);
+      active=heading;
+      continue;
+    }
+    if(mcIsTocEntryStyle(style)){
+      mark(i,"Word-generated Table of Contents entry");
+      active="toc";
+      continue;
+    }
+    if(fteIsGeneratedFigureTableListStyle(style)){
+      const k=fteGeneratedListEntryKind(text)||active||"generated-list";
+      mark(i,"Word-generated List of Figures/Tables entry");
+      if(k==="figure"||k==="table") active=k;
+      continue;
+    }
+
+    if(!active) continue;
+    if(!text){ mark(i,"blank line inside structured front matter"); continue; }
+
+    let entry=false;
+    if(active==="toc") entry=mcLooksLikeTocEntry(text);
+    else if(active==="figure"||active==="table") entry=mcLooksLikeGeneratedFigureTableEntryEitherOrder(text,active);
+    else if(active==="declarations") entry=mcLooksLikeDeclarationListEntry(text);
+    if(entry){ mark(i,`structured ${active} entry`); continue; }
+
+    const structuralHeading=(b.outlineLvl!=null) || /(?:^|\b)(?:heading\s*[1-9]?|title|chapter)(?:\b|$)/i.test(style);
+    const heuristicHeading=typeof engLooksHeadingForScan==="function" ? engLooksHeadingForScan(text) : false;
+    if(structuralHeading || heuristicHeading || /^(?:abstract|introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental|results?|discussion|conclusions?|references?|bibliography|chapter\b|part\b|appendix\b)/i.test(text)){
+      active="";
+    }else{
+      // Stop immediately on ordinary prose. This prevents a malformed/manual
+      // front-matter list from swallowing body text.
+      active="";
+    }
+  }
+  return {mask,reasonByIndex};
+}
+function mcExcludeStructuredIndexMaterial(text){
+  let body=String(text||"");
+  try{
+    const info=mcStructuredIndexParagraphInfo(DOCX_FTE_BLOCKS||[]);
+    info.mask.forEach(i=>{
+      const t=DOCX_FTE_BLOCKS?.[i]?.text;
+      if(t) body=engFlexibleRemove(body,t);
+    });
+  }catch(e){}
+
+  // Plain-text fallback for manually generated lists or conversion variants.
+  // Only remove lines that have an explicit list heading plus an index-like
+  // entry shape; never discard arbitrary text merely because it contains
+  // "Table" or "Figure".
+  const lines=body.split(/\n/);
+  let active="";
+  for(let i=0;i<lines.length;i++){
+    const raw=lines[i], t=fteNormalizeGeneratedListText(raw);
+    const heading=mcStructuredIndexHeadingKind(t);
+    if(heading){ active=heading; lines[i]=""; continue; }
+    if(!active || !t) continue;
+    let hit=false;
+    if(active==="toc") hit=mcLooksLikeTocEntry(t);
+    else if(active==="figure"||active==="table") hit=mcLooksLikeGeneratedFigureTableEntryEitherOrder(t,active);
+    else if(active==="declarations") hit=mcLooksLikeDeclarationListEntry(t);
+    if(hit){ lines[i]=""; continue; }
+    if(engLooksHeadingForScan(t) || /^(?:abstract|introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental|results?|discussion|conclusions?|references?|bibliography|chapter\b|part\b|appendix\b)/i.test(t)) active="";
+    else active="";
+  }
+  return lines.join("\n");
 }
 
 function fteSnippet(t){ t=(t||"").replace(/\s+/g," ").trim(); return t.length>220?t.slice(0,217)+"…":t; }
@@ -10285,7 +10890,7 @@ function renderNumReport(findings){
     {k:"pH",label:"pH reporting",kind:"warn",help:"Checks measured/adjusted/target pH formatting and manuscript-wide pH precision. Comparable forms such as pH 7 and pH 7.0 are reported together when inconsistent."},
     {k:"zero",label:"Missing leading zero",kind:"warn",help:"Flags genuine decimal values written without a leading zero, such as .25 instead of 0.25. In-text numbered citations are protected from this rule."},
     {k:"count",label:"Small counts in prose (spell out 0 to 9)",kind:"info",help:"Checks ordinary whole-number counts in prose. Measurements, units, statistics, ratios, dates, identifiers, pH, and labels remain numerals."},
-    {k:"start",label:"Sentence begins with a numeral",kind:"info",help:"Flags prose sentences beginning directly with a numeral so the wording can be reviewed. Equations, labels, headings, and similar structures are excluded where possible."},
+    {k:"start",label:"Sentence begins with a numeral",kind:"info",help:"Flags genuine narrative-prose sentences beginning directly with a numeral so the wording can be reviewed. Table of Contents, List of Figures, List of Tables, abbreviation/nomenclature lists, equations, captions, labels, headings, and other structured material are excluded."},
     {k:"precision",label:"Numeric precision and comparable series",kind:"warn",help:"Looks for inconsistent decimal-place/significant-figure patterns only among values inferred to be genuinely comparable. Unrelated quantities are not forced to match."},
     {k:"table",label:"Word-table column precision",kind:"warn",help:"Checks precision patterns vertically within genuinely comparable Word-table measurement columns. Predefined threshold/category LB/UB tables and externally defined limits are excluded."},
     {k:"uncertainty",label:"Value ± uncertainty precision",kind:"warn",help:"Checks only whether the reported value and its ± variation/uncertainty end at the same decimal place, for example 12.40 ± 0.35. No separate 1–2 significant-digit rule is imposed on uncertainty."},
@@ -10410,7 +11015,9 @@ $("run").onclick=async()=>{
     // Numbers, pH & precision (references and headings excluded; Word tables checked separately by column)
     try{
       status("Checking numbers, pH and precision…");
-      let nb=excludeReferences(text,true).text; nb=stripHeadings(nb).text;
+      let nb=excludeReferences(text,true).text;
+      nb=mcExcludeStructuredIndexMaterial(nb);
+      nb=stripHeadings(nb).text;
       renderNumReport(numberCheck(nb,DOCX_NUMERIC_TABLES));
     }catch(e){ console.error("number check failed:",e); }
 
@@ -10455,6 +11062,7 @@ $("run").onclick=async()=>{
 $("clear").onclick=()=>{
   currentFile=null; fileInput.value=""; chip.style.display="none";
   if(window.mcResetWinkCache) window.mcResetWinkCache();
+  if(window.mcResetAbbreviationScopeCache) window.mcResetAbbreviationScopeCache();
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
@@ -11028,6 +11636,40 @@ fteEquationCitationsLoose=function(text){
 extractDocxStructure=async function(buf){
   if(typeof JSZip==="undefined") throw new Error("Structured Word reader failed to load.");
   const zip=await JSZip.loadAsync(buf);
+
+  // Resolve paragraph-style hierarchy so custom university chapter styles can
+  // participate in structural detection even when the paragraph itself does not
+  // carry a direct w:outlineLvl value.
+  const styleMeta=new Map();
+  try{
+    const sf=zip.file("word/styles.xml");
+    if(sf){
+      const sx=await sf.async("string");
+      const sd=new DOMParser().parseFromString(sx,"application/xml");
+      const styles=[...sd.getElementsByTagNameNS(FTE_W_NS,"style")];
+      styles.forEach(st=>{
+        const type=st.getAttributeNS(FTE_W_NS,"type")||st.getAttribute("w:type")||st.getAttribute("type")||"";
+        if(type && type!=="paragraph") return;
+        const id=st.getAttributeNS(FTE_W_NS,"styleId")||st.getAttribute("w:styleId")||st.getAttribute("styleId")||"";
+        if(!id) return;
+        const nameEl=st.getElementsByTagNameNS(FTE_W_NS,"name")[0];
+        const basedEl=st.getElementsByTagNameNS(FTE_W_NS,"basedOn")[0];
+        const pPr=st.getElementsByTagNameNS(FTE_W_NS,"pPr")[0];
+        const ol=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"outlineLvl")[0]:null;
+        const pb=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"pageBreakBefore")[0]:null;
+        const val=el=>el?(el.getAttributeNS(FTE_W_NS,"val")||el.getAttribute("w:val")||el.getAttribute("val")||""):"";
+        const raw=val(ol);
+        styleMeta.set(id,{id,name:val(nameEl),basedOn:val(basedEl),outlineLvl:/^\d+$/.test(raw)?parseInt(raw,10):null,pageBreakBefore:!!pb && !/^(?:0|false|off)$/i.test(val(pb))});
+      });
+      const resolve=(id,seen=new Set())=>{
+        if(!id||seen.has(id)||!styleMeta.has(id)) return {outlineLvl:null,pageBreakBefore:false,chain:[]};
+        seen.add(id); const m=styleMeta.get(id); const parent=resolve(m.basedOn,seen);
+        return {outlineLvl:m.outlineLvl!=null?m.outlineLvl:parent.outlineLvl,pageBreakBefore:m.pageBreakBefore||parent.pageBreakBefore,chain:[id,...parent.chain]};
+      };
+      styleMeta.forEach((m,id)=>Object.assign(m,resolve(id)));
+    }
+  }catch(e){ console.warn("Word style hierarchy could not be resolved for chapter detection.",e); }
+
   const f=zip.file("word/document.xml"); if(!f) throw new Error("Word document XML was not found.");
   const xml=await f.async("string");
   const doc=new DOMParser().parseFromString(xml,"application/xml");
@@ -11037,6 +11679,7 @@ extractDocxStructure=async function(buf){
 
   const paragraphBlock=(el,extra={})=>{
     const text=fteXmlText(el),style=ftePStyle(el),seqCaptionType=fteSeqCaptionType(el);
+    const sm=styleMeta.get(style)||null;
     const hasDrawing=el.getElementsByTagNameNS(FTE_W_NS,"drawing").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"pict").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"object").length>0;
     const mathCount=el.getElementsByTagNameNS(FTE_M_NS,"oMath").length;
     const hasMathPara=el.getElementsByTagNameNS(FTE_M_NS,"oMathPara").length>0;
@@ -11044,7 +11687,8 @@ extractDocxStructure=async function(buf){
     const pPr=el.getElementsByTagNameNS(FTE_W_NS,"pPr")[0];
     const outlineEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"outlineLvl")[0]:null;
     const outlineRaw=outlineEl?(outlineEl.getAttributeNS(FTE_W_NS,"val")||outlineEl.getAttribute("w:val")||outlineEl.getAttribute("val")):null;
-    const outlineLvl=outlineRaw!=null&&/^\d+$/.test(String(outlineRaw))?parseInt(outlineRaw,10):null;
+    const directOutlineLvl=outlineRaw!=null&&/^\d+$/.test(String(outlineRaw))?parseInt(outlineRaw,10):null;
+    const outlineLvl=directOutlineLvl!=null?directOutlineLvl:(Number.isInteger(sm?.outlineLvl)?sm.outlineLvl:null);
     const numPr=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"numPr")[0]:null;
     const ilvlEl=numPr?numPr.getElementsByTagNameNS(FTE_W_NS,"ilvl")[0]:null;
     const ilvlRaw=ilvlEl?(ilvlEl.getAttributeNS(FTE_W_NS,"val")||ilvlEl.getAttribute("w:val")||ilvlEl.getAttribute("val")):null;
@@ -11054,8 +11698,13 @@ extractDocxStructure=async function(buf){
     const textAlign=jcEl?(jcEl.getAttributeNS(FTE_W_NS,"val")||jcEl.getAttribute("w:val")||jcEl.getAttribute("val")||""):"";
     const tabsEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"tabs")[0]:null;
     const rightTabStop=!!(tabsEl&&[...tabsEl.getElementsByTagNameNS(FTE_W_NS,"tab")].some(t=>/^(?:right|decimal)$/i.test(t.getAttributeNS(FTE_W_NS,"val")||t.getAttribute("w:val")||t.getAttribute("val")||"")));
+    const pageBreakBeforeEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"pageBreakBefore")[0]:null;
+    const attrVal=x=>x?(x.getAttributeNS(FTE_W_NS,"val")||x.getAttribute("w:val")||x.getAttribute("val")||""):"";
+    const pageBreakBefore=(!!pageBreakBeforeEl && !/^(?:0|false|off)$/i.test(attrVal(pageBreakBeforeEl))) || !!sm?.pageBreakBefore;
+    const hasPageBreak=[...el.getElementsByTagNameNS(FTE_W_NS,"br")].some(br=>/^(?:page)$/i.test(attrVal(br)));
+    const sectionBreakAfter=!!(pPr&&pPr.getElementsByTagNameNS(FTE_W_NS,"sectPr").length);
     const eqBinding=fteWordParagraphEquationBinding(el,{hasMath,hasMathPara,mathCount,tabCount,textAlign,rightTabStop,style});
-    return {type:"p",pos:pos++,text,style,seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,hasNumbering:!!numPr,ilvl,tabCount,textAlign,rightTabStop,attachedEquationId:eqBinding?.id||null,equationNumberOnlyId:eqBinding?.numberOnlyId||null,equationCoreText:eqBinding?.coreText||"",equationLabelSource:eqBinding?.source||"",...extra};
+    return {type:"p",pos:pos++,text,style,styleName:sm?.name||"",styleBasedOn:sm?.basedOn||"",styleChain:sm?.chain||[],seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,directOutlineLvl,hasNumbering:!!numPr,ilvl,tabCount,textAlign,rightTabStop,pageBreakBefore,hasPageBreak,sectionBreakAfter,attachedEquationId:eqBinding?.id||null,equationNumberOnlyId:eqBinding?.numberOnlyId||null,equationCoreText:eqBinding?.coreText||"",equationLabelSource:eqBinding?.source||"",...extra};
   };
 
   const addEmbeddedCaptionBlocks=(p,containerAnchor)=>{
@@ -12606,6 +13255,575 @@ fteAnalyze=function(blocks){
     });
     return res;
   };
+})();
+</script>
+
+
+<script id="abbr-long-document-scope-v1">
+(()=>{
+  "use strict";
+
+  /* ==========================================================
+     LONG-DOCUMENT / THESIS ABBREVIATION SCOPING
+
+     This layer is additive. The established abbreviation analyser remains the
+     source of truth inside each scope. When a thesis/dissertation-like document
+     is identified confidently, the existing analyser is run independently on
+     the Abstract and each major chapter, then the results are reconciled at
+     manuscript level. This prevents a definition in Chapter 2 from suppressing
+     first-use checking in Chapter 5, while also preventing valid reintroduction
+     in Chapter 5 from being labelled as a duplicate definition.
+     ========================================================== */
+
+  const FRONT_RE=/^(?:title\s+page|certificate|approval(?:\s+of\s+viva\s+voce\s+board)?|declaration|dedication|acknowledg(?:e)?ments?|preface|abstract|executive\s+summary|table\s+of\s+contents|contents|list\s+of\s+figures|list\s+of\s+tables|list\s+of\s+abbreviations|abbreviations|acronyms|symbols(?:\s+and\s+abbreviations)?|nomenclature|glossary)$/i;
+  const BACK_RE=/^(?:references?|bibliography|works\s+cited|literature\s+cited|appendix|appendices|supplementary\s+(?:material|materials|information)|supporting\s+information|publications?|list\s+of\s+publications|curriculum\s+vitae|c\.?v\.?|r[ée]sum[ée]|bio[- ]?data|biodata|biography|author\s+biography|author\s+profile|personal\s+profile|academic\s+profile|professional\s+profile|personal\s+details|educational\s+qualifications?|qualifications|professional\s+experience|work\s+experience|positions?\s+held|achievements?|academic\s+achievements?|awards?(?:\s+and\s+achievements?)?|honours?\s+and\s+awards?)$/i;
+  const ABSTRACT_RE=/^(?:\d+(?:\.\d+)*\.?\s*)?abstract\s*:?$/i;
+  const CHAPTER_WORDS="one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty";
+  const EXPLICIT_CHAPTER_RE=new RegExp(`^(?:chapter|chap\\.?)\\s*(?:\\d{1,3}|[IVXLCDM]{1,10}|${CHAPTER_WORDS})\\b(?:\\s*[:.\\-–—]?\\s*.*)?$`,'i');
+  const EXPLICIT_PAPER_RE=/^(?:paper|article|manuscript|publication|study)\s+(?:\d{1,3}|[IVXLCDM]{1,10})\b(?:\s*[:.\-–—]?\s*.*)?$/i;
+  const PART_RE=/^part\s+(?:\d{1,3}|[IVXLCDM]{1,10}|one|two|three|four|five|six|seven|eight|nine|ten)\b(?:\s*[:.\-–—]?\s*.*)?$/i;
+  const APPENDIX_RE=/^appendix(?:es)?(?:\s+[A-Z0-9IVXLCDM.-]+)?\b/i;
+  const NUMBERED_MAJOR_RE=/^(?:\d{1,2}|[IVXLCDM]{1,8})[.):]?\s+[A-Za-z][\s\S]{0,180}$/i;
+  const ARTICLE_SECTION_RE=/^(?:introduction|background|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+section)?|results?|discussion|results?\s+and\s+discussion|conclusions?|summary)$/i;
+  const THESIS_TEXT_RE=/\b(?:thesis\s+submitted|this\s+thesis|organisation\s+of\s+the\s+thesis|organization\s+of\s+the\s+thesis|doctoral\s+thesis|master'?s\s+thesis|dissertation|doctor\s+of\s+philosophy|ph\.?d\.?)\b/i;
+  const FRONT_SIGNAL_RE=/^(?:certificate|declaration|dedication|acknowledg(?:e)?ments?|table\s+of\s+contents|contents|list\s+of\s+figures|list\s+of\s+tables|list\s+of\s+abbreviations|symbols(?:\s+and\s+abbreviations)?|nomenclature)$/i;
+
+  const CACHE=window.MC_ABBR_SCOPE_CACHE=window.MC_ABBR_SCOPE_CACHE||{blocks:null,detection:null,lastResult:null};
+
+  function txt(x){ return String(x||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim(); }
+  function titleCaseLoose(s){
+    s=txt(s); if(!s) return s;
+    if((s.match(/[a-z]/g)||[]).length===0) return s.toLowerCase().replace(/(^|\s|[-:])([a-z])/g,(m,p,c)=>p+c.toUpperCase());
+    return s;
+  }
+  function styleKey(b){ return `${b?.style||""} ${b?.styleName||""}`.toLowerCase(); }
+  function isTocLike(b){ return /(?:^|\s)(?:toc\s*\d*|tableofcontents|tableoffigures|index\d*|contents\d*)(?:\s|$)/i.test(styleKey(b)); }
+  function headingishText(s){
+    s=txt(s); if(!s || s.length>220) return false;
+    const words=s.split(/\s+/); if(words.length>26) return false;
+    const noEnd=!/[.!?]["'’\)\]]?$/.test(s);
+    if(!noEnd) return false;
+    const up=(s.match(/[A-Z]/g)||[]).length, lo=(s.match(/[a-z]/g)||[]).length;
+    if(up>=3 && up/Math.max(1,up+lo)>=.82) return true;
+    const alpha=words.filter(w=>/[A-Za-z]/.test(w));
+    if(alpha.length && alpha.filter(w=>/^[A-Z][A-Za-z0-9'’\-]*$/.test(w)||/^(?:a|an|and|as|at|by|for|from|in|of|on|or|the|to|with)$/i.test(w)).length/alpha.length>=.82) return true;
+    return NUMBERED_MAJOR_RE.test(s);
+  }
+  function isReferenceHeadingText(s){
+    s=txt(s);
+    try{ if(typeof isReferenceHeading==="function" && isReferenceHeading(s)) return true; }catch(_e){}
+    return /^(?:references?|reference\s+list|bibliography|works\s+cited|literature\s+cited|cited\s+literature)\s*:?$/i.test(s);
+  }
+  function headingClass(b,rec){
+    const s=txt(b?.text); if(!s) return {heading:false,top:false,explicit:false,part:false,paper:false,appendix:false};
+    const st=styleKey(b);
+    const styleTop=(Number.isInteger(b?.outlineLvl) && b.outlineLvl===0) || /(?:^|\s)(?:heading\s*1|heading1|chapter\s*(?:title|heading)?|main\s*heading|major\s*heading|thesis\s*(?:main|chapter)|level\s*1)(?:\s|$)/i.test(st);
+    const structural=rec?.type==="HEADING" || Number.isInteger(b?.outlineLvl) || styleTop;
+    const shortStandalone=headingishText(s) && s.split(/\s+/).length<=18;
+    const explicit=EXPLICIT_CHAPTER_RE.test(s) && (structural||shortStandalone);
+    const paper=EXPLICIT_PAPER_RE.test(s) && (structural||shortStandalone);
+    const part=PART_RE.test(s) && (structural||shortStandalone);
+    const appendix=APPENDIX_RE.test(s) && (structural||shortStandalone);
+    const numberedTop=!!b?.hasNumbering && b?.ilvl===0 && NUMBERED_MAJOR_RE.test(s) && structural;
+    const top=styleTop || numberedTop;
+    return {heading:structural||explicit||paper||part||appendix||headingishText(s),top:top||explicit||paper||part||appendix,explicit,paper,part,appendix};
+  }
+  function breakEvidence(blocks,i){
+    const b=blocks[i]||{},p=i>0?blocks[i-1]||{}:{};
+    return !!(b.pageBreakBefore || p.hasPageBreak || p.sectionBreakAfter);
+  }
+  function contentWordsBetween(blocks,classed,a,b){
+    let n=0;
+    for(let i=Math.max(0,a+1);i<Math.min(blocks.length,b);i++){
+      const r=classed[i],x=blocks[i];
+      if(!x||x.type!=="p") continue;
+      if(r && /^(?:HEADING|EMPTY|MEDIA|TABLE|EQUATION|FIGURE_CAPTION|TABLE_CAPTION|SCHEME_CAPTION|OTHER_CAPTION|CAPTION_CONTINUATION|FIGURE_NOTE)$/.test(r.type)) continue;
+      const s=txt(x.text); if(!s) continue;
+      n+=(s.match(/[A-Za-z0-9]+(?:['’\-][A-Za-z0-9]+)*/g)||[]).length;
+    }
+    return n;
+  }
+  function scopeLabelFor(blocks,classed,candidate,ordinal){
+    const base=txt(candidate.text);
+    let extra="";
+    if(EXPLICIT_CHAPTER_RE.test(base) || /^part\b/i.test(base) || EXPLICIT_PAPER_RE.test(base)){
+      for(let j=candidate.index+1;j<Math.min(blocks.length,candidate.index+4);j++){
+        const s=txt(blocks[j]?.text); if(!s) continue;
+        if(classed[j]?.type==="HEADING" && !isReferenceHeadingText(s) && !FRONT_RE.test(s) && !BACK_RE.test(s)) { extra=s; break; }
+        if(classed[j]?.type==="BODY_PROSE") break;
+      }
+    }
+    const b=titleCaseLoose(base),e=titleCaseLoose(extra);
+    return e && e.toLowerCase()!==b.toLowerCase()?`${b}: ${e}`:(b||`Major section ${ordinal}`);
+  }
+  function makeId(label,ordinal,kind){
+    const m=String(label||"").match(/\bchapter\s+([A-Za-z0-9]+)/i);
+    if(m) return `chapter-${m[1].toLowerCase()}`;
+    if(kind==="appendix"){
+      const a=String(label||"").match(/\bappendix\s+([A-Za-z0-9]+)/i); if(a) return `appendix-${a[1].toLowerCase()}`;
+    }
+    return `${kind||"major"}-${ordinal}`;
+  }
+
+  function detect(blocks){
+    blocks=Array.isArray(blocks)?blocks:[];
+    if(CACHE.blocks===blocks && CACHE.detection) return CACHE.detection;
+    let classed=[];
+    try{ classed=(DOCX_STRUCTURAL_PARAGRAPHS||[]).length===blocks.length?DOCX_STRUCTURAL_PARAGRAPHS:engClassifyStructuralBlocks(blocks); }
+    catch(_e){ classed=blocks.map(b=>({block:b,text:txt(b?.text),type:headingishText(b?.text)?"HEADING":"BODY_PROSE"})); }
+
+    const nonEmpty=blocks.map((b,i)=>({i,b,s:txt(b?.text)})).filter(x=>x.s);
+    const early=nonEmpty.slice(0,Math.min(nonEmpty.length,260)).map(x=>x.s).join("\n");
+    const thesisText=THESIS_TEXT_RE.test(early) || nonEmpty.slice(0,700).some(x=>THESIS_TEXT_RE.test(x.s));
+    const frontSignals=new Set(nonEmpty.slice(0,420).map(x=>x.s.replace(/^\d+(?:\.\d+)*\.?\s*/,"").replace(/:$/,"")).filter(x=>FRONT_SIGNAL_RE.test(x)));
+    const toc1=blocks.filter(b=>/(?:^|\s)toc\s*1(?:\s|$)/i.test(styleKey(b))).length;
+    const tocAny=blocks.filter(b=>/(?:^|\s)toc\s*\d+(?:\s|$)/i.test(styleKey(b))).length;
+
+    const structuralTop=[];
+    const explicit=[];
+    const papers=[];
+    const parts=[];
+    const appendices=[];
+    const manualBreak=[];
+    for(let i=0;i<blocks.length;i++){
+      const b=blocks[i],s=txt(b?.text); if(!s||b?.type!=="p"||isTocLike(b)) continue;
+      const hc=headingClass(b,classed[i]);
+      const c={index:i,text:s,block:b,rec:classed[i],...hc,breakBefore:breakEvidence(blocks,i)};
+      if(hc.explicit) explicit.push(c);
+      if(hc.paper) papers.push(c);
+      if(hc.part) parts.push(c);
+      if(hc.appendix) appendices.push(c);
+      if(hc.top && !FRONT_RE.test(s) && !BACK_RE.test(s) && !ABSTRACT_RE.test(s)) structuralTop.push(c);
+      if(!hc.top && c.breakBefore && headingishText(s) && !FRONT_RE.test(s) && !BACK_RE.test(s) && !ABSTRACT_RE.test(s)) manualBreak.push(c);
+    }
+
+    let score=0; const evidence=[];
+    if(explicit.length>=2){score+=52;evidence.push(`${explicit.length} explicit chapter headings`);} else if(explicit.length===1){score+=18;evidence.push("one explicit chapter heading");}
+    if(explicit.length>=4) score+=8;
+    if(thesisText){score+=22;evidence.push("thesis/dissertation wording");}
+    if(frontSignals.size>=3){score+=14;evidence.push(`${frontSignals.size} thesis front-matter signals`);} else if(frontSignals.size>=1) score+=4;
+    if(toc1>=3){score+=10;evidence.push("top-level Table of Contents hierarchy");} else if(tocAny>=6){score+=6;evidence.push("Table of Contents structure");}
+    if(structuralTop.length>=4){score+=7;evidence.push(`${structuralTop.length} structural top-level headings`);}
+    if(blocks.length>=350){score+=5;evidence.push("long document structure");}
+    if(nonEmpty.some(x=>/organisation|organization\s+of\s+the\s+thesis/i.test(x.s))){score+=7;evidence.push("thesis organisation section");}
+    if(papers.length>=2){score+=12;evidence.push("publication-based major sections");}
+    if(thesisText && frontSignals.size>=2 && (structuralTop.length>=2 || papers.length>=2)){score+=24;evidence.push("thesis wording + front matter + repeated major structure");}
+
+    const articleNames=structuralTop.map(x=>x.text.replace(/^\d+(?:\.\d+)*\.?\s*/,"").replace(/:$/,""));
+    const articleOnly=articleNames.length>=4 && articleNames.every(x=>ARTICLE_SECTION_RE.test(x));
+    if(articleOnly && !thesisText && explicit.length===0 && frontSignals.size<2){score-=28;evidence.push("journal-article section pattern");}
+
+    const confidence=Math.max(0,Math.min(.99,score/100));
+
+    // Major chapter candidates: explicit chapter markers have priority. If none
+    // exist, use publication units or equivalent top-level structural headings.
+    let candidates=[];
+    if(explicit.length>=2) candidates=[...explicit];
+    else if(papers.length>=2 && (thesisText||frontSignals.size>=2)) candidates=[...papers];
+    else {
+      candidates=structuralTop.filter(c=>!c.part && !c.appendix && !FRONT_RE.test(c.text) && !BACK_RE.test(c.text));
+      // Manual-format fallback is allowed only when several new-page peers exist.
+      if(candidates.length<2 && manualBreak.length>=3 && (thesisText||frontSignals.size>=2||tocAny>=3)) candidates=[...manualBreak];
+    }
+
+    // Part headings are containers when lower chapter candidates exist. If Parts
+    // are the only coherent top-level units, they may serve as major scopes.
+    if(candidates.length<2 && parts.length>=2 && (thesisText||frontSignals.size>=2)) candidates=[...parts];
+
+    candidates.sort((a,b)=>a.index-b.index);
+    // Remove front/back/TOC artifacts and require substantive content between
+    // non-explicit peers so an isolated formatted label does not create a scope.
+    candidates=candidates.filter((c,i,arr)=>{
+      if(FRONT_RE.test(c.text)||BACK_RE.test(c.text)||isReferenceHeadingText(c.text)||isTocLike(c.block)) return false;
+      if(c.explicit||c.paper||c.part) return true;
+      const next=arr[i+1]?.index ?? blocks.length;
+      return contentWordsBetween(blocks,classed,c.index,next)>=45 || c.breakBefore;
+    });
+
+    const scopes=[];
+    candidates.forEach((c,i)=>{
+      const end=candidates[i+1]?.index ?? blocks.length;
+      const label=scopeLabelFor(blocks,classed,c,i+1);
+      scopes.push({id:makeId(label,i+1,c.paper?"paper":c.part?"part":"chapter"),label,start:c.index,end,kind:c.paper?"chapter":c.part?"part":"chapter",order:i+1,confidence:Math.max(confidence,c.explicit?.95:0,c.top?.78:0),evidence:[c.explicit?"explicit chapter heading":"top-level document structure",c.breakBefore?"new-page/section evidence":""].filter(Boolean)});
+    });
+
+    // Appendices are optional independent scopes. Add only top-level appendix
+    // headings after the body scopes, never as ordinary chapters.
+    const appendixTop=appendices.filter(a=>a.top && !isTocLike(a.block)).sort((a,b)=>a.index-b.index);
+    appendixTop.forEach((a,ai)=>{
+      if(scopes.some(s=>s.start===a.index)) return;
+      const next=appendixTop[ai+1]?.index ?? blocks.length;
+      const priorBody=scopes.filter(s=>s.start<a.index).sort((x,y)=>y.start-x.start)[0];
+      if(!priorBody || contentWordsBetween(blocks,classed,a.index,next)<20) return;
+      scopes.push({id:makeId(a.text,ai+1,"appendix"),label:titleCaseLoose(a.text),start:a.index,end:next,kind:"appendix",order:1000+ai,confidence:Math.max(.7,confidence),evidence:["top-level appendix structure"]});
+      if(priorBody && priorBody.end> a.index) priorBody.end=a.index;
+    });
+    scopes.sort((a,b)=>a.start-b.start).forEach((s,i)=>s.order=i+1);
+    for(let i=0;i<scopes.length-1;i++) scopes[i].end=Math.min(scopes[i].end,scopes[i+1].start);
+
+    // Abstract is always an independent scope when it can be located before the
+    // first body chapter. It does not count toward thesis-mode confidence.
+    const firstMajor=scopes[0]?.start ?? blocks.length;
+    let abstract=null;
+    for(let i=0;i<Math.min(firstMajor,blocks.length);i++){
+      const s=txt(blocks[i]?.text); if(!ABSTRACT_RE.test(s)||isTocLike(blocks[i])) continue;
+      let end=firstMajor;
+      for(let j=i+1;j<firstMajor;j++){
+        const h=txt(blocks[j]?.text);
+        if(h && classed[j]?.type==="HEADING" && FRONT_RE.test(h) && !ABSTRACT_RE.test(h)){end=j;break;}
+      }
+      if(contentWordsBetween(blocks,classed,i,end)>=20){ abstract={id:"abstract",label:"Abstract",start:i,end,kind:"abstract",order:0,confidence:.95,evidence:["Abstract heading"]}; }
+      break;
+    }
+
+    const result={blocks,classed,confidence,score,evidence,thesisText,frontSignals:[...frontSignals],toc1,tocAny,explicitCount:explicit.length,topLevelCount:structuralTop.length,scopes,abstract,articleOnly};
+    CACHE.blocks=blocks; CACHE.detection=result;
+    return result;
+  }
+
+  function policy(){
+    const el=document.getElementById("abbr-scope-policy");
+    return el && /^(?:auto|whole|chapter)$/.test(el.value)?el.value:"auto";
+  }
+  function decision(det,pol=policy()){
+    const chapterScopes=(det?.scopes||[]).filter(s=>s.kind!=="appendix");
+    if(pol==="whole") return {active:false,forced:false,reason:"Whole-document checking selected."};
+    if(pol==="chapter"){
+      if(chapterScopes.length>=2) return {active:true,forced:true,reason:"Chapter-level checking selected by the user."};
+      return {active:false,forced:true,reason:"Major section boundaries could not be identified reliably, so whole-document abbreviation checking was used."};
+    }
+    if(chapterScopes.length>=2 && det.confidence>=.58) return {active:true,forced:false,reason:"Long-document structure detected automatically."};
+    return {active:false,forced:false,reason:det.confidence>=.35?"Major section boundaries were not reliable enough for chapter-level checking.":""};
+  }
+
+  function scopeContentEnd(det,scope){
+    for(let i=scope.start+1;i<scope.end;i++){
+      const s=txt(det.blocks[i]?.text); if(!s) continue;
+      const r=det.classed[i]||{};
+      if(isReferenceHeadingText(s) && (r.type==="HEADING" || headingishText(s))) return i;
+      if(BACK_RE.test(s) && ((r.type==="HEADING" && (!Number.isFinite(r.level)||r.level<=1)) || det.blocks[i]?.breakBefore || det.blocks[i]?.sectionBreakBefore)) return i;
+    }
+    return scope.end;
+  }
+  function buildChunk(det,scope){
+    const end=scopeContentEnd(det,scope);
+    const lines=[];
+    for(let i=scope.start+1;i<end;i++){
+      const b=det.blocks[i],r=det.classed[i]; if(!b||b.type!=="p") continue;
+      const s=txt(b.text); if(!s) continue;
+      const type=r?.type||"BODY_PROSE";
+      // Narrative prose participates normally. Table notes remain available as
+      // definition sources, preserving the established table-note policy.
+      if(type!=="BODY_PROSE" && type!=="TABLE_NOTE") continue;
+      try{ if(typeof engIsParagraphMetadata==="function" && engIsParagraphMetadata(s)) continue; }catch(_e){}
+      try{ if(typeof abbrLooksDisplayedEquationLine==="function" && abbrLooksDisplayedEquationLine(s)) continue; }catch(_e){}
+      lines.push(s);
+    }
+    return {...scope,text:lines.join("\n"),referenceExcluded:end<scope.end};
+  }
+  function chunks(det){
+    const all=[];
+    if(det.abstract) all.push(buildChunk(det,det.abstract));
+    (det.scopes||[]).forEach(s=>all.push(buildChunk(det,s)));
+    return all.filter(s=>txt(s.text).length>=20);
+  }
+
+  function localDefinitions(text){
+    const ss=splitIntoSentences(String(text||""));
+    const map=new Map();
+    const add=(sf,lf,si,kind="parenthetical",meta={})=>{
+      const dtype=meta.definitionType||"conventional_acronym";
+      const key=dtype==="conventional_acronym"?abbrCanonicalAbbreviationKey(sf):(abbrScientificSymbolKey(sf)||norm(sf));
+      if(!key||STOPWORDS.has(key)) return;
+      if(!map.has(key)) map.set(key,[]);
+      const arr=map.get(key);
+      const form=dtype==="conventional_acronym"?abbrCanonicalAbbreviationForm(sf):sf;
+      if(!arr.some(d=>d.sent===si && d.long.toLowerCase()===String(lf).toLowerCase() && d.definitionType===dtype)) arr.push({form,long:lf,sent:si,kind,definitionType:dtype,observedForm:meta.observedForm||sf,grammaticalPlural:!!meta.grammaticalPlural});
+    };
+    ss.forEach((s,i)=>{collectDefs(s,i,add);collectScientificDefs(s,i,add);collectReverseDefs(s,i,add);collectScientificReverseDefs(s,i,add);});
+    return map;
+  }
+  function meaningKey(s){
+    return txt(s).toLowerCase().replace(/[‐‑‒–—-]+/g," ").replace(/[^a-z0-9\s]/g," ").replace(/\b([a-z]{4,})s\b/g,"$1").replace(/\s+/g," ").trim();
+  }
+  function issueKey(it){ return `${norm(it?.abbr||"")}|${String(it?.msg||"").replace(/\d+/g,"#").slice(0,120)}`; }
+  function addUnique(arr,it,seen){ const k=issueKey(it); if(seen.has(k)) return; seen.add(k); arr.push(it); }
+  function humanScope(scope){ return scope?.label||"this major section"; }
+  function localSource(defs){
+    if(!defs||!defs.length) return null;
+    return defs.some(d=>d.definitionType && d.definitionType!=="conventional_acronym")?"scientific":"prose";
+  }
+
+  function analyzeScoped(rawText,title,standardSet,skipRefs,skipTables,det,priorAnalyze){
+    const cs=chunks(det);
+    const bodyScopes=cs.filter(s=>s.kind==="chapter"||s.kind==="part");
+    if(bodyScopes.length<2){
+      const r=priorAnalyze(rawText,title,standardSet,skipRefs,skipTables);
+      r.scopeInfo={mode:"whole",confidence:det.confidence,reason:"Major section boundaries could not be identified reliably; abbreviation checking was performed at document level."};
+      return r;
+    }
+
+    const analyses=[];
+    cs.forEach(scope=>{
+      const defs=localDefinitions(scope.text);
+      const r=priorAnalyze(scope.text,"",standardSet,false,false);
+      analyses.push({scope,defs,r});
+    });
+
+    const definitionsByKey=new Map();
+    analyses.forEach(a=>a.defs.forEach((defs,key)=>{
+      if(!definitionsByKey.has(key)) definitionsByKey.set(key,[]);
+      defs.forEach(d=>definitionsByKey.get(key).push({...d,scope:a.scope}));
+    }));
+
+    // Learn whether the document itself predominantly reintroduces abbreviations
+    // chapter by chapter. This only tunes Review suppression; it never suppresses
+    // a genuinely undefined abbreviation.
+    let eligiblePairs=0,localPairs=0;
+    analyses.filter(a=>a.scope.kind==="chapter"||a.scope.kind==="part").forEach(a=>{
+      a.r.rows.forEach(row=>{
+        const key=norm(row.base); if(!key||row.definitionSource==="nested") return;
+        eligiblePairs++;
+        if(a.defs.has(key)) localPairs++;
+      });
+    });
+    const localRate=eligiblePairs?localPairs/eligiblePairs:null;
+    const globalPattern=eligiblePairs>=8 && localRate<.35;
+    const localPattern=eligiblePairs>=8 && localRate>=.65;
+
+    const errors=[],warnings=[],infos=[];
+    const seenErr=new Set(),seenWarn=new Set(),seenInfo=new Set();
+    const rowBuckets=new Map();
+    const standardSeen=new Set(),declaredSeen=new Set();
+    let sentenceCount=0,referenceExcluded=false;
+
+    analyses.forEach(a=>{
+      sentenceCount+=a.r.sentenceCount||0;
+      referenceExcluded=referenceExcluded||a.scope.referenceExcluded;
+      (a.r.standardSeen||[]).forEach(x=>standardSeen.add(x));
+      (a.r.declaredSeen||[]).forEach(x=>declaredSeen.add(x));
+
+      a.r.rows.forEach(row=>{
+        const key=norm(row.base); if(!key) return;
+        if(!rowBuckets.has(key)) rowBuckets.set(key,{key,forms:new Map(),scopeRows:[],defs:[]});
+        const b=rowBuckets.get(key);
+        b.forms.set(row.base,(b.forms.get(row.base)||0)+(row.count||0));
+        const local=a.defs.get(key)||[];
+        b.scopeRows.push({...row,scope:a.scope,localDefs:local});
+        local.forEach(d=>b.defs.push({...d,scope:a.scope}));
+      });
+
+      // Critical errors are reconciled after every chapter has been analysed so
+      // "not defined anywhere" can be corrected when a definition exists in a
+      // different chapter or in the Abstract.
+      (a.r.errors||[]).forEach(it=>{
+        errors.push({...it,_scope:a.scope});
+      });
+      (a.r.warnings||[]).forEach(it=>{
+        if(/^Used only \d+ time/i.test(String(it.msg||""))) return; // recalc manuscript-wide below
+        addUnique(warnings,{...it,_scope:a.scope},seenWarn);
+      });
+      (a.r.infos||[]).forEach(it=>{
+        const m=String(it.msg||"");
+        if(/^Detected an abbreviation\/nomenclature list/i.test(m) || /non-standard abbreviations but no/i.test(m)) return;
+        if(/^Defined \d+ times\./i.test(m)){
+          addUnique(infos,{...it,msg:m.replace(/Define once at first use\.[\s\S]*/i,`Define once at first use within ${humanScope(a.scope)}.`),_scope:a.scope},seenInfo);
+        }else addUnique(infos,{...it,_scope:a.scope},seenInfo);
+      });
+    });
+
+    const scopeOrder=new Map(cs.map((s,i)=>[s.id,i]));
+    const reconciledErrors=[];
+    errors.forEach(it=>{
+      const key=norm(it.abbr||"");
+      const msg=String(it.msg||"");
+      const current=it._scope;
+      const elsewhere=key?(definitionsByKey.get(key)||[]).filter(d=>d.scope.id!==current?.id):[];
+      const isUndefined=/Not defined anywhere|Not defined before or elsewhere in the manuscript/i.test(msg);
+      if(isUndefined && elsewhere.length){
+        const earlier=elsewhere.filter(d=>(scopeOrder.get(d.scope.id)??999)<(scopeOrder.get(current?.id)??999));
+        const onlyAbstract=elsewhere.every(d=>d.scope.kind==="abstract");
+        // If the thesis overwhelmingly uses a whole-document convention, do not
+        // manufacture repeated chapter warnings. Otherwise this remains Review,
+        // never a Critical Error.
+        if(!globalPattern){
+          let wording;
+          if(onlyAbstract) wording=`${it.abbr} is defined in the Abstract but not introduced in ${humanScope(current)}. Check whether your institution requires abbreviations to be defined at first use in each chapter.`;
+          else if(earlier.length) wording=`${it.abbr} is defined earlier in the thesis but not introduced in ${humanScope(current)}. Check whether your institution requires abbreviations to be defined at first use in each chapter.`;
+          else wording=`${it.abbr} is defined in another major section of the thesis but not introduced in ${humanScope(current)}. Check whether your institution requires abbreviations to be defined at first use in each chapter.`;
+          addUnique(warnings,{abbr:it.abbr,msg:wording,snip:it.snip,_scope:current,scopeReview:true},seenWarn);
+        }
+        return;
+      }
+      if(/Used before it is (?:defined|introduced)/i.test(msg) && current){
+        const scientific=/notation|parameter|symbol/i.test(msg);
+        const m2=scientific
+          ?`${it.abbr} is used before it is introduced in ${humanScope(current)}. Introduce the scientific notation or parameter at its first use in this chapter.`
+          :`${it.abbr} is used before it is defined in ${humanScope(current)}. Spell it out at its first use in this chapter.`;
+        addUnique(reconciledErrors,{...it,msg:m2},seenErr); return;
+      }
+      if(isUndefined && current && /Not defined anywhere/i.test(msg)){
+        addUnique(reconciledErrors,{...it,msg:msg.replace(/Not defined anywhere\./i,"Not defined anywhere in the thesis.")},seenErr); return;
+      }
+      addUnique(reconciledErrors,it,seenErr);
+    });
+
+    const rows=[];
+    rowBuckets.forEach(bucket=>{
+      const all=bucket.scopeRows;
+      const base=[...bucket.forms.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||bucket.key;
+      const count=all.reduce((n,r)=>n+(r.count||0),0);
+      const localScopeRows=all.filter(r=>r.localDefs&&r.localDefs.length);
+      const missingScopeRows=all.filter(r=>!(r.localDefs&&r.localDefs.length) && !["list","declared","nested"].includes(r.definitionSource));
+      const meanings=[];
+      bucket.defs.forEach(d=>{if(d.long) meanings.push({long:d.long,key:meaningKey(d.long),scope:d.scope});});
+      const listDef=DECLARED_ABBR_MAP.get(bucket.key)||null;
+      if(listDef?.long) meanings.push({long:listDef.long,key:meaningKey(listDef.long),scope:{id:"list",label:"List of Abbreviations",kind:"list",order:-1}});
+      const uniqueMeaningMap=new Map(); meanings.forEach(m=>{if(m.key&&!uniqueMeaningMap.has(m.key))uniqueMeaningMap.set(m.key,m);});
+      const uniqueMeanings=[...uniqueMeaningMap.values()];
+      const conflict=uniqueMeanings.length>1;
+      const localScopes=[...new Map(localScopeRows.map(r=>[r.scope.id,r.scope])).values()];
+      const allFirstOk=all.every(r=>r.firstUseOK!==false || ["list","declared"].includes(r.definitionSource));
+      const anyErr=reconciledErrors.some(e=>norm(e.abbr||"")===bucket.key);
+      const anyReview=warnings.some(e=>norm(e.abbr||"")===bucket.key);
+      let status=anyErr?"err":(anyReview||conflict?"warn":"ok");
+      let definitionSource="none";
+      if(conflict) definitionSource="conflict";
+      else if(localScopes.length>=2) definitionSource=missingScopeRows.length?(globalPattern?"scope_elsewhere":"scope_review"):"multi_scope";
+      else if(localScopes.length===1){
+        if(missingScopeRows.length) definitionSource=globalPattern?"scope_elsewhere":"scope_review";
+        else definitionSource=localSource(localScopeRows[0].localDefs)||localScopeRows[0].definitionSource||"prose";
+      }else if(all.some(r=>r.definitionSource==="list")) definitionSource="list";
+      else if(all.some(r=>r.definitionSource==="nested")) definitionSource="nested";
+      else if(all.some(r=>r.definitionSource==="declared")) definitionSource="declared";
+
+      const scopeSummary=localScopes.length
+        ?`Defined in ${localScopes.map(s=>s.label).join(", ")}${missingScopeRows.length?`; not locally introduced in ${missingScopeRows.map(r=>r.scope.label).join(", ")}`:""}`
+        :(definitionSource==="list"?"Defined in the List of Abbreviations":"No local chapter definition detected");
+      const longForm=conflict?uniqueMeanings.map(m=>m.long).slice(0,3).join(" / "):(uniqueMeanings[0]?.long || all.find(r=>r.longForm)?.longForm || null);
+      rows.push({base,longForm,count,firstUseOK:allFirstOk&&!anyErr,status,definitionSource,definitionType:localScopeRows[0]?.localDefs?.[0]?.definitionType||all[0]?.definitionType||null,nestedFrom:all.find(r=>r.nestedFrom)?.nestedFrom||null,scopeAware:true,scopeSummary,conflictForms:conflict?uniqueMeanings.map(m=>m.long):null,localScopeCount:localScopes.length,scopeCount:all.length});
+
+      if(conflict){
+        const detail=uniqueMeanings.map(m=>`"${m.long}" (${m.scope.label})`).join("; ");
+        addUnique(warnings,{abbr:base,msg:`${base} is associated with different full forms in different thesis sections: ${detail}. Verify that the abbreviation is unambiguous throughout the thesis.`,snip:null,semanticConflict:true},seenWarn);
+      }
+    });
+
+    // Restore the existing low-use principle at manuscript level rather than
+    // incorrectly applying it once per chapter.
+    rows.forEach(row=>{
+      const key=norm(row.base);
+      if(row.count<=2 && row.longForm && !DECLARED_ABBRS.has(key) && !["scientific","list","nested","conflict"].includes(row.definitionSource)){
+        addUnique(warnings,{abbr:row.base,msg:`Used only ${row.count} time${row.count===1?"":"s"} across the analysed thesis scopes. Abbreviate only terms that recur; otherwise spell it out each time.`,snip:null},seenWarn);
+        if(row.status==="ok") row.status="warn";
+      }
+    });
+
+    if(DECLARED_ABBR_LIST_FOUND || DECLARED_ABBR_MAP.size){
+      infos.unshift({abbr:null,msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. The list is retained as a manuscript-level declaration source, and chapter-level reintroduction is allowed without a duplicate-definition warning.`,snip:null});
+    }else if(rows.length>=8){
+      infos.push({abbr:null,msg:`You use ${rows.length} non-standard abbreviations but no "List of Abbreviations" or "Nomenclature" section was detected. Consider adding one for the reader's reference.`,snip:null});
+    }
+
+    const convention=localRate==null?"insufficient evidence":localPattern?"chapter-level reintroduction is common":globalPattern?"whole-document reuse is common":"mixed chapter/global practice";
+    const scopeInfo={
+      mode:"chapter",confidence:det.confidence,reason:"Long-document structure detected. Abbreviation first-use checks are chapter-aware.",
+      scopeCount:bodyScopes.length,allScopeCount:cs.length,labels:bodyScopes.map(s=>s.label),abstract:!!det.abstract,
+      convention,localDefinitionRate:localRate,evidence:det.evidence||[],policy:policy()
+    };
+    CACHE.lastResult=scopeInfo;
+    return {errors:reconciledErrors,warnings,infos,rows:rows.sort((a,b)=>a.base.localeCompare(b.base)),
+      standardSeen:[...standardSeen].sort(),declaredSeen:[...declaredSeen].sort(),totalAbbr:rows.length,
+      hasList:DECLARED_ABBR_LIST_FOUND||DECLARED_ABBR_MAP.size>0,listDefinitionCount:DECLARED_ABBR_MAP.size,
+      listSections:[...new Set([...(DOCX_ABBR_LIST_SECTIONS||[])])],sentenceCount,
+      refExcluded:skipRefs?referenceExcluded:false,refRequested:skipRefs,tableLinesRemoved:0,tablesRequested:skipTables,scopeInfo};
+  }
+
+  // Install the scope-aware wrapper before the commercial product/grade wrapper.
+  if(typeof analyze==="function"){
+    const priorAnalyze=analyze;
+    analyze=function(rawText,title,standardSet,skipRefs,skipTables){
+      const det=detect(DOCX_FTE_BLOCKS||[]),dec=decision(det,policy());
+      if(dec.active) return analyzeScoped(rawText,title,standardSet,skipRefs,skipTables,det,priorAnalyze);
+      const r=priorAnalyze(rawText,title,standardSet,skipRefs,skipTables);
+      if(dec.forced || (policy()==="auto" && det.confidence>=.35 && (det.scopes||[]).length)){
+        r.scopeInfo={mode:"whole",confidence:det.confidence,reason:dec.reason||"Abbreviation checking was performed at document level.",scopeCount:(det.scopes||[]).length,policy:policy()};
+      }
+      return r;
+    };
+  }
+
+  // Chapter-aware ledger wording. Whole-document manuscripts retain the existing
+  // ledger renderer unchanged.
+  if(typeof ledger==="function"){
+    const priorLedger=ledger;
+    ledger=function(rows){
+      if(!Array.isArray(rows)||!rows.some(x=>x.scopeAware)) return priorLedger(rows);
+      if(!rows.length) return "";
+      const body=rows.map(x=>{
+        const dot=`<span class="dot ${x.status}"></span>`;
+        const long=x.longForm?`<span class="t-long">${escapeHtml(x.longForm)}</span>`:`<span class="t-long none">not defined</span>`;
+        const tip=escapeHtml(x.scopeSummary||"");
+        let def;
+        if(x.definitionSource==="multi_scope") def=`<span class="yn y" title="${tip}">Defined in multiple chapters</span>`;
+        else if(x.definitionSource==="scope_review") def=`<span class="yn rev" title="${tip}">Check chapter first use</span>`;
+        else if(x.definitionSource==="scope_elsewhere") def=`<span class="yn y" title="${tip}">Defined elsewhere in thesis</span>`;
+        else if(x.definitionSource==="conflict") def=`<span class="yn rev" title="${tip}">Different meanings</span>`;
+        else if(x.definitionSource==="list") def=`<span class="yn y" title="Defined in a recognised Abbreviations, Acronyms, Nomenclature, or Glossary list.">Defined in list</span>`;
+        else if(x.definitionSource==="nested") def=`<span class="yn rev" title="The standalone abbreviation was inferred from a longer abbreviation within the relevant scope. Check the required first-use convention.">Inferred from ${escapeHtml(x.nestedFrom||"earlier term")}</span>`;
+        else if(x.definitionSource==="scientific") def=x.firstUseOK?`<span class="yn y" title="${tip}">Scientific definition</span>`:`<span class="yn n" title="${tip}">Scientific definition later</span>`;
+        else if(x.definitionSource==="prose") def=x.firstUseOK?`<span class="yn y" title="${tip}">Defined in chapter</span>`:`<span class="yn n" title="${tip}">Defined after first use</span>`;
+        else if(x.definitionSource==="declared") def=`<span class="yn y" title="Accepted from a recognised manuscript declaration.">Accepted declaration</span>`;
+        else def=x.longForm?(x.firstUseOK?`<span class="yn y" title="${tip}">Defined</span>`:`<span class="yn n" title="${tip}">Definition found later</span>`):`<span class="yn na" title="No definition source was assigned.">—</span>`;
+        return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${def}</td></tr>`;
+      }).join("");
+      return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("For theses and other long documents, this ledger consolidates abbreviation use across detected major chapters. Definitions may legitimately recur in different chapters; duplicate-definition findings are limited to the same scope. Hover over a definition status to see the detected chapter coverage.","Explain Abbreviation Ledger")}</p>
+        <div class="abbr-definition-key"><b>Chapter-aware definition status:</b>
+          <b>Defined in multiple chapters</b> = the abbreviation is explicitly introduced in more than one independent chapter and this is accepted;
+          <b>Defined in chapter</b> = a local definition was found in the relevant chapter;
+          <b>Check chapter first use</b> = the term is defined elsewhere but a chapter-local introduction may be required;
+          <b>Defined elsewhere in thesis</b> = the document predominantly follows a whole-document reuse pattern, so no chapter-local error was asserted;
+          <b>Different meanings</b> = materially different full forms were detected in different scopes and should be reviewed;
+          <b>Defined in list</b> = declared in the recognised abbreviation/nomenclature list.
+        </div>
+        <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Abbrev./notation</th><th>Full form / descriptor</th><th>Uses</th><th>Definition status</th></tr></thead><tbody>${body}</tbody></table></div>`;
+    };
+  }
+
+  if(typeof renderReport==="function"){
+    const priorRender=renderReport;
+    renderReport=function(r){
+      priorRender(r);
+      const info=r?.scopeInfo,wrap=document.getElementById("std-wrap");
+      if(!info||!wrap) return;
+      let text="";
+      if(info.mode==="chapter"){
+        text=`Long-document structure detected. Abbreviation first-use checks are chapter-aware across ${info.scopeCount} major chapter${info.scopeCount===1?"":"s"}. Reintroducing an abbreviation in a new chapter is not treated as a duplicate definition.`;
+      }else if(info.reason){ text=info.reason; }
+      if(text) wrap.insertAdjacentHTML("beforeend",`<p class="abbr-scope-note"><b>Abbreviation scope:</b> ${escapeHtml(text)}</p>`);
+      const sub=document.getElementById("report-sub");
+      if(sub && info.mode==="chapter" && !/chapter-aware/i.test(sub.textContent||"")) sub.textContent+=` · chapter-aware (${info.scopeCount} major chapters)`;
+    };
+  }
+
+  if(typeof reportText==="function"){
+    const priorReportText=reportText;
+    reportText=function(r){
+      let t=priorReportText(r);
+      if(!r?.scopeInfo) return t;
+      const lines=[];
+      lines.push(`Abbreviation scope: ${r.scopeInfo.mode==="chapter"?`chapter-aware across ${r.scopeInfo.scopeCount} major chapters`:"whole document"}`);
+      if(r.scopeInfo.convention) lines.push(`Detected definition pattern: ${r.scopeInfo.convention}`);
+      return t.replace("ABBREVIATION PROOFING REPORT\n","ABBREVIATION PROOFING REPORT\n"+lines.join("\n")+"\n");
+    };
+  }
+
+  window.mcDetectLongDocumentAbbreviationStructure=(blocks=DOCX_FTE_BLOCKS||[])=>detect(blocks);
+  window.mcGetAbbreviationScopeDiagnostics=()=>{
+    const d=detect(DOCX_FTE_BLOCKS||[]),dec=decision(d,policy());
+    return {policy:policy(),active:dec.active,reason:dec.reason,confidence:d.confidence,score:d.score,evidence:d.evidence,explicitCount:d.explicitCount,topLevelCount:d.topLevelCount,abstract:d.abstract?{label:d.abstract.label,start:d.abstract.start,end:d.abstract.end}:null,scopes:(d.scopes||[]).map(s=>({id:s.id,label:s.label,start:s.start,end:s.end,kind:s.kind,confidence:s.confidence,evidence:s.evidence}))};
+  };
+  window.mcResetAbbreviationScopeCache=()=>{CACHE.blocks=null;CACHE.detection=null;CACHE.lastResult=null;};
 })();
 </script>
 
