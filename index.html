@@ -787,6 +787,9 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .mc-help-step>span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--pencil-soft);color:var(--pencil);font-size:11px;font-weight:800}
   .mc-help-step b{display:block;font-size:12.5px}.mc-help-step p{margin:2px 0 0;color:var(--muted);font-size:11.5px;line-height:1.45}
   .mc-help-note{padding:11px 13px;border-radius:9px;background:#f7f9fd;color:#4f5d73;font-size:12px;line-height:1.5}
+  .mc-help-preference{display:flex;align-items:center;gap:8px;margin:14px 2px 0;color:#59667a;font-size:12px;line-height:1.4;cursor:pointer;user-select:none}
+  .mc-help-preference input{width:15px;height:15px;margin:0;accent-color:var(--pencil);cursor:pointer}
+  .mc-help-preference span{display:inline-block}
   .mc-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
   .mc-modal-open{overflow:hidden}
   @media(max-width:760px){
@@ -10509,23 +10512,32 @@ function mcHelpMarkup(kind){
     <div class="mc-help-step"><span>2</span><div><b>Run the check</b><p>Default settings are suitable for a general scientific manuscript. Advanced settings are optional.</p></div></div>
     <div class="mc-help-step"><span>3</span><div><b>Start with Overview</b><p>Review Critical errors first, then Review items. Style notes are lower priority.</p></div></div>
     <div class="mc-help-step"><span>4</span><div><b>Inspect, revise, recheck</b><p>Each finding shows the manuscript evidence and a suggested action. Apply it only when appropriate for the science and target journal.</p></div></div>
-  </div><div class="mc-help-note"><b>Remember:</b> a highlighted item is something worth checking, not proof that the manuscript is wrong. Journal instructions and scientific meaning take priority.</div><div class="mc-modal-actions"><button type="button" class="btn btn-ghost" data-close-help data-scroll-upload>Go to upload</button><button type="button" class="btn btn-primary" data-close-help>Start checking</button></div>`;
+  </div><div class="mc-help-note"><b>Remember:</b> a highlighted item is something worth checking, not proof that the manuscript is wrong. Journal instructions and scientific meaning take priority.</div><label class="mc-help-preference"><input type="checkbox" id="mc-help-dont-show"><span>Don't show this guide automatically again</span></label><div class="mc-modal-actions"><button type="button" class="btn btn-ghost" data-close-help data-scroll-upload>Go to upload</button><button type="button" class="btn btn-primary" data-close-help>Start checking</button></div>`;
+}
+const MC_HELP_PREF_KEY="manuscriptCheckHideHowToGuide";
+function mcHelpAutoHidden(){try{return localStorage.getItem(MC_HELP_PREF_KEY)==="1";}catch(e){return false;}}
+function mcSaveHelpPreference(){
+  const box=$("mc-help-dont-show");
+  if(!box)return;
+  try{ if(box.checked)localStorage.setItem(MC_HELP_PREF_KEY,"1"); else localStorage.removeItem(MC_HELP_PREF_KEY); }catch(e){}
 }
 function mcOpenHelp(kind="how") {
   const modal=$("mc-help-modal"),content=$("mc-help-content"); if(!modal||!content)return;
-  content.innerHTML=mcHelpMarkup(kind); modal.hidden=false; document.body.classList.add("mc-modal-open");
+  content.innerHTML=mcHelpMarkup(kind);
+  if(kind==="how"){const box=$("mc-help-dont-show");if(box)box.checked=mcHelpAutoHidden();}
+  modal.dataset.helpKind=kind; modal.hidden=false; document.body.classList.add("mc-modal-open");
   const close=modal.querySelector(".mc-modal-close"); if(close) close.focus();
 }
-function mcCloseHelp(){const modal=$("mc-help-modal");if(!modal)return;modal.hidden=true;document.body.classList.remove("mc-modal-open");}
+function mcCloseHelp(){const modal=$("mc-help-modal");if(!modal)return;if(modal.dataset.helpKind==="how")mcSaveHelpPreference();modal.hidden=true;delete modal.dataset.helpKind;document.body.classList.remove("mc-modal-open");}
 (function mcInitFriendlyHelp(){
   $("how-to-use-btn")?.addEventListener("click",()=>mcOpenHelp("how"));
   $("privacy-btn")?.addEventListener("click",()=>mcOpenHelp("privacy"));
   $("mc-help-modal")?.addEventListener("click",e=>{if(e.target.closest("[data-close-help]")){const scroll=!!e.target.closest("[data-scroll-upload]");mcCloseHelp();if(scroll)setTimeout(()=>$("input-card")?.scrollIntoView({behavior:"smooth",block:"start"}),50);}});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("mc-help-modal")?.hidden)mcCloseHelp();});
-  try{
-    const key="manuscript-check-onboarding-v1";
-    if(!localStorage.getItem(key)){setTimeout(()=>{mcOpenHelp("how");try{localStorage.setItem(key,"1");}catch(_e){}},350);}
-  }catch(_e){}
+  // Show the short usage guide automatically unless the user has explicitly
+  // opted out. The permanent "How to use?" button always remains available,
+  // and reopening the guide lets the user change this preference again.
+  if(!mcHelpAutoHidden()) setTimeout(()=>mcOpenHelp("how"),350);
 })();
 
 let currentTab="overview";
