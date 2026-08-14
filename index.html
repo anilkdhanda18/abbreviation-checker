@@ -847,7 +847,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <details class="rules">
     <summary>What this checks</summary>
     <ol>
-      <li><b>Define or introduce at first use.</b> Conventional abbreviations should be expanded at first use, while scientific parameters and symbols may be introduced by a clear descriptor such as <code>BET surface area (SBET)</code> or <code>micropore volume (Vp)</code>.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument and product names.</b> Complete manufacturer/brand/family/model phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, model codes, nearby technique wording, instrument nouns, and manufacturer/location metadata. Recognition does not depend on a vendor whitelist, so unseen equipment names can be handled while genuine technique abbreviations remain subject to the normal definition rules.</li><li><b>Nested abbreviations.</b> A shorter acronym such as <code>SEM</code> may be inferred from an earlier explicit definition such as <code>field emission scanning electron microscopy (FESEM)</code> when the letter-to-word mapping is exact. Because journal first-use policies vary, this is reported for Review rather than as a missing-definition Critical Error.</li><li><b>Scholarly metadata terms.</b> Publishing metadata labels are interpreted in context. For example, <code>CREDIT</code> followed by recognised author-contribution roles is treated as the CRediT Contributor Role Taxonomy rather than as an undefined scientific abbreviation.</li>
+      <li><b>Define or introduce at first use.</b> Conventional abbreviations should be expanded at first use, while scientific parameters and symbols may be introduced by a clear descriptor such as <code>BET surface area (SBET)</code> or <code>micropore volume (Vp)</code>.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument, product and grade names.</b> Complete manufacturer/brand/family/model/grade phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, technical product lists, model codes, nearby category nouns, and manufacturer/location metadata. Commercial identifiers such as <code>Selemion AMV</code>, <code>CMI-7000</code>, or an instrument model are classified by occurrence rather than treated automatically as abbreviations. Recognition does not depend on a vendor whitelist, so unseen product grades can be handled while genuine scientific abbreviations remain subject to the normal definition rules.</li><li><b>Nested abbreviations.</b> A shorter acronym such as <code>SEM</code> may be inferred from an earlier explicit definition such as <code>field emission scanning electron microscopy (FESEM)</code> when the letter-to-word mapping is exact. Because journal first-use policies vary, this is reported for Review rather than as a missing-definition Critical Error.</li><li><b>Scholarly metadata terms.</b> Publishing metadata labels are interpreted in context. For example, <code>CREDIT</code> followed by recognised author-contribution roles is treated as the CRediT Contributor Role Taxonomy rather than as an undefined scientific abbreviation.</li>
       <li><b>Do not use before defining.</b> The full form must appear at or before the first use, not later.</li>
       <li><b>Earn the abbreviation.</b> Defined terms that are then used only once or twice are flagged.</li>
       <li><b>Titles and headings excluded.</b> The paper title and section/subsection headings, including numbered, ALL-CAPS, and Title Case headings, are not used for abbreviation-definition checks.</li><li><b>Front matter excluded.</b> Author/affiliation blocks, correspondence details, and Keywords/Index terms are not used for abbreviation-definition checks.</li>
@@ -12266,6 +12266,195 @@ fteAnalyze=function(blocks){
     });
     return res;
   };
+})();
+</script>
+
+
+<script id="abbr-commercial-product-grade-v1">
+(()=>{
+  "use strict";
+
+  /* ==========================================================
+     COMMERCIAL PRODUCT / MODEL / GRADE RESOLVER
+
+     Uppercase morphology is not enough to establish a scientific
+     abbreviation. This layer protects occurrence-specific commercial
+     product, model, grade and catalogue identifiers before the normal
+     undefined-abbreviation rule runs.
+
+     It is intentionally contextual rather than whitelist-based. Strong
+     signals include a technical product category, a coordinated list of
+     comparable model-like items, a brand/family immediately before a
+     grade token, an attached alphanumeric model suffix, or a previously
+     introduced product grade reused with the same technical noun.
+     ========================================================== */
+
+  const STATE=window.MC_ABBR_PRODUCT_STATE=window.MC_ABBR_PRODUCT_STATE||{
+    grades:new Map(),
+    detections:[]
+  };
+
+  const PRODUCT_CATEGORY_SRC=String.raw`(?:ion[-\s]?exchange\s+)?(?:membranes?|resins?|columns?|filters?|cartridges?|sensors?|electrodes?|modules?|instruments?|devices?|systems?|spectrometers?|spectrophotometers?|microscopes?|detectors?|analy[sz]ers?|chromatographs?|reactors?|workstations?|pumps?|autosamplers?|materials?|products?)`;
+  const PRODUCT_CATEGORY_RE=new RegExp('\\b'+PRODUCT_CATEGORY_SRC+'\\b','i');
+  const PRODUCT_NOUN_AFTER_RE=new RegExp('^\\s+(?:commercial\\s+)?'+PRODUCT_CATEGORY_SRC+'\\b','i');
+  const PRODUCT_DESIGNATOR_RE=/\b(?:model|series|type|grade|class|mark|mk|version|generation|gen|catalog(?:ue)?|cat\.?\s*no\.?)\s*$/i;
+  const LIST_CUE_RE=/\b(?:such\s+as|including|includes?|included|comprising|comprised\s+of|like|namely|e\.g\.|for\s+example)\b/i;
+  const GENERIC_BRAND_STOP=new Set([
+    'THE','THIS','THAT','THESE','THOSE','OTHER','VARIOUS','DIFFERENT','COMMERCIAL',
+    'COMMON','AVAILABLE','ALTERNATIVE','ALTERNATIVES','USING','USED','WITH','WITHOUT',
+    'AND','OR','FOR','FROM','IN','ON','AT','BY','AS','SUCH','INCLUDING','MODEL','TYPE',
+    'GRADE','SERIES','MEMBRANE','MEMBRANES','ELECTRODE','ELECTRODES','MATERIAL','MATERIALS'
+  ]);
+
+  function norm(s){return String(s||'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();}
+  function reset(){STATE.grades.clear();STATE.detections.length=0;}
+  function sentenceClauseBefore(sent,index,max=320){
+    let s=String(sent||'').slice(Math.max(0,index-max),index);
+    const cut=Math.max(s.lastIndexOf('. '),s.lastIndexOf('? '),s.lastIndexOf('! '));
+    if(cut>=0) s=s.slice(cut+2);
+    return s;
+  }
+  function productListContext(sent,index){
+    const pre=sentenceClauseBefore(sent,index,360);
+    const catMatches=[...pre.matchAll(new RegExp(PRODUCT_CATEGORY_RE.source,'ig'))];
+    if(!catMatches.length) return null;
+    const cueMatches=[...pre.matchAll(new RegExp(LIST_CUE_RE.source,'ig'))];
+    if(!cueMatches.length) return null;
+    const cat=catMatches[catMatches.length-1],cue=cueMatches[cueMatches.length-1];
+    if(cat.index>cue.index) return null;
+    if(cue.index-(cat.index+cat[0].length)>90) return null;
+    const category=(cat[0].match(/[A-Za-z]+/g)||[]).slice(-1)[0]||cat[0];
+    return {category:category.toLowerCase(),pre,cueIndex:cue.index};
+  }
+  function immediateBrandBefore(sent,index){
+    const pre=String(sent||'').slice(Math.max(0,index-70),index);
+    const m=pre.match(/\b([A-Za-z][A-Za-z0-9&.'’\-]{2,})\s+$/);
+    if(!m) return null;
+    const raw=m[1],key=raw.toUpperCase();
+    if(GENERIC_BRAND_STOP.has(key)) return null;
+    // Product-family spelling is often title/mixed case. Pure ALL CAPS is accepted
+    // only when it contains a digit; this avoids interpreting adjacent acronyms as
+    // a brand-grade pair without other evidence.
+    const brandLike=/[a-z]/.test(raw) || (/\d/.test(raw)&&/[A-Z]/.test(raw));
+    return brandLike?{raw,start:index-m[0].length+m[0].indexOf(raw)}:null;
+  }
+  function attachedModelSuffix(sent,index,raw){
+    const tail=String(sent||'').slice(index+String(raw||'').length,index+String(raw||'').length+28);
+    const m=tail.match(/^\s*(?:[-–—]\s*)?(\d{2,}[A-Za-z0-9-]*)/);
+    return m?m[0]:null;
+  }
+  function designatorBefore(sent,index){
+    return PRODUCT_DESIGNATOR_RE.test(String(sent||'').slice(Math.max(0,index-55),index));
+  }
+  function categoryAfter(sent,index,raw){
+    const tail=String(sent||'').slice(index+String(raw||'').length,index+String(raw||'').length+80);
+    const m=tail.match(PRODUCT_NOUN_AFTER_RE);
+    return m?m[0].trim().toLowerCase():null;
+  }
+  function nearbyParallelProductEvidence(sent,index){
+    const pre=sentenceClauseBefore(sent,index,380);
+    const cue=[...pre.matchAll(new RegExp(LIST_CUE_RE.source,'ig'))].pop();
+    if(!cue) return 0;
+    const segment=pre.slice(cue.index+cue[0].length)+' '+String(sent||'').slice(index,Math.min(String(sent||'').length,index+180));
+    const modelCodes=segment.match(/\b[A-Z]{2,12}\s*[- ]\s*\d{2,}[A-Za-z0-9-]*\b/g)||[];
+    const brandGrades=segment.match(/\b[A-Z][a-z][A-Za-z0-9&.'’\-]{2,}\s+[A-Z]{2,10}\b/g)||[];
+    return Math.min(4,modelCodes.length+brandGrades.length);
+  }
+  function registerGrade(raw,meta){
+    const key=String(raw||'').toUpperCase();
+    if(!key) return;
+    const old=STATE.grades.get(key);
+    const rec={token:key,category:meta.category||old?.category||'',brand:meta.brand||old?.brand||'',confidence:meta.confidence||0,span:meta.span||''};
+    if(!old || rec.confidence>(old.confidence||0)) STATE.grades.set(key,rec);
+  }
+  function localDefinitionEvidence(sent,index,token){
+    const s=String(sent||'');
+    try{
+      if(typeof abbrExplicitDefinitionEvidence==='function' && abbrExplicitDefinitionEvidence(s,index,token)) return true;
+    }catch(_e){}
+    // The main definition collector also accepts forms that the occurrence-level
+    // helper can miss, especially CamelCase material names such as
+    // PolyTetraFluoroEthylene (PTFE). Reproduce only the narrow, high-confidence
+    // parenthetical evidence here so product-list inference never suppresses a
+    // genuine explicit definition.
+    const before=s.slice(Math.max(0,index-220),index);
+    if(!/\(\s*$/.test(before)) return false;
+    const pre=before.replace(/\(\s*$/,'').trim();
+    const phrase=(pre.match(/(?:[A-Za-z][A-Za-z'’\-]*\s+){0,9}[A-Za-z][A-Za-z'’\-]*$/)||[])[0]||'';
+    if(phrase){
+      try{ if(typeof validLongForm==='function' && validLongForm(token,phrase)) return true; }catch(_e){}
+    }
+    const last=(pre.match(/([A-Za-z][A-Za-z0-9]*)$/)||[])[1]||'';
+    if(last){
+      const caps=(last.match(/[A-Z]/g)||[]).join('');
+      if(caps===token && /[a-z]/.test(last)) return true;
+    }
+    return false;
+  }
+
+  function detect(sent,index,raw){
+    const s=String(sent||''),token=String(raw||'');
+    if(!token || !/^[A-Z]{2,14}(?:-[A-Z]{2,14})?$/.test(token)) return null;
+
+    // A genuine explicit abbreviation definition always wins, even if it appears
+    // in a sentence that also lists commercial products (e.g. PTFE in a membrane list).
+    if(localDefinitionEvidence(s,index,token)) return null;
+
+    const list=productListContext(s,index);
+    const brand=immediateBrandBefore(s,index);
+    const suffix=attachedModelSuffix(s,index,token);
+    const afterCat=categoryAfter(s,index,token);
+    const prior=STATE.grades.get(token.toUpperCase())||null;
+    const parallel=list?nearbyParallelProductEvidence(s,index):0;
+    const designator=designatorBefore(s,index);
+
+    let score=0;
+    const reasons=[];
+    let category=(list?.category||afterCat||prior?.category||'').toLowerCase();
+
+    if(list){score+=4;reasons.push('technical-product-list');}
+    if(brand){score+=4;reasons.push('brand-or-family-prefix');}
+    if(suffix){score+=5;reasons.push('attached-model-code');}
+    if(afterCat){score+=3;reasons.push('technical-product-noun');}
+    if(designator){score+=4;reasons.push('model-or-grade-designator');}
+    if(parallel>=2){score+=3;reasons.push('parallel-model-items');}
+    if(prior && afterCat){score+=6;reasons.push('previously-introduced-product-grade');}
+
+    // Pure-letter grades are accepted only when phrase/list semantics are strong.
+    // This is what protects "Selemion AMV" without globally whitelisting AMV.
+    const high=score>=7 && (!!brand || !!suffix || !!designator || !!afterCat || parallel>=2 || !!prior);
+    if(!high) return null;
+
+    const span=brand?`${brand.raw} ${token}${suffix||''}`:`${token}${suffix||''}`;
+    const confidence=Math.min(.99,.72+(score-7)*.035);
+    registerGrade(token,{category,brand:brand?.raw||prior?.brand||'',confidence,span});
+    const rec={kind:suffix?'product_model_component':'product_grade',confidence,evidence:reasons.join(', '),productSpan:span,category};
+    STATE.detections.push({raw:token,index,sentence:s, ...rec});
+    return rec;
+  }
+
+  // Reset product memory for every manuscript analysis, while preserving it during
+  // the sequential sentence scan so a later phrase such as "the AMV membrane" can
+  // resolve to an earlier "Selemion AMV membrane" occurrence.
+  if(typeof analyze==='function'){
+    const priorAnalyze=analyze;
+    analyze=function(...args){reset();return priorAnalyze(...args);};
+  }
+
+  if(typeof window.abbrClassifyCandidateOccurrence==='function'){
+    const priorClassify=window.abbrClassifyCandidateOccurrence;
+    window.abbrClassifyCandidateOccurrence=function(sent,index,raw,protectedSpans){
+      const base=priorClassify(sent,index,raw,protectedSpans);
+      // Existing stronger structural roles (math script, company/proper name,
+      // instrument model, named entity, etc.) remain authoritative.
+      if(base && base.kind && !['technical_abbreviation','ambiguous'].includes(base.kind)) return base;
+      const product=detect(sent,index,raw);
+      return product||base;
+    };
+  }
+
+  window.mcAbbrDetectCommercialProductOccurrence=detect;
+  window.mcAbbrResetCommercialProductState=reset;
 })();
 </script>
 
