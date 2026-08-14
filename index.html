@@ -48,12 +48,20 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .card h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:0 0 4px}
   .card .sub{color:var(--muted);font-size:13.5px;margin:0 0 18px}
   .panel[hidden]{display:none}
-  .drop{border:1.5px dashed var(--hair-strong);border-radius:10px;padding:38px 20px;text-align:center;background:var(--paper);transition:border-color .15s,background .15s;cursor:pointer}
-  .drop.drag{border-color:var(--pencil);background:var(--pencil-soft)}
+  .drop{position:relative;overflow:hidden;border:1.5px dashed var(--hair-strong);border-radius:10px;padding:38px 20px;text-align:center;background:var(--paper);transition:border-color .15s,background .15s,box-shadow .15s;cursor:pointer}
+  .drop.drag{border-color:var(--pencil);background:var(--pencil-soft);box-shadow:0 0 0 3px rgba(42,74,139,.10) inset}
   .drop:focus-visible{outline:2px solid var(--pencil);outline-offset:3px}
-  .drop .big{font-family:var(--serif);font-size:17px;margin:0 0 4px}
-  .drop .small{color:var(--muted);font-size:13px;margin:0}
-  .drop .formats{color:var(--faint);font-size:12px;margin-top:12px;letter-spacing:.02em}
+  .drop .big{font-family:var(--serif);font-size:17px;margin:0 0 4px;transition:opacity .15s}
+  .drop .small{color:var(--muted);font-size:13px;margin:0;transition:opacity .15s}
+  .drop .formats{color:var(--faint);font-size:12px;margin-top:12px;letter-spacing:.02em;transition:opacity .15s}
+  .drop .filechip{transition:opacity .15s}
+  .drop-ready{position:absolute;inset:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(42,74,139,.24);border-radius:8px;background:rgba(234,240,250,.96);color:var(--pencil);font-weight:700;letter-spacing:.01em;opacity:0;transform:scale(.985);pointer-events:none;transition:opacity .14s ease,transform .14s ease}
+  .drop-ready-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid rgba(42,74,139,.28);font-size:23px;line-height:1;animation:dropReadyPulse 1.05s ease-in-out infinite}
+  .drop-ready-text{font-size:14px}
+  .drop.drag .drop-ready{opacity:1;transform:scale(1)}
+  .drop.drag>.big,.drop.drag>.small,.drop.drag>.formats,.drop.drag>.filechip{opacity:.12}
+  @keyframes dropReadyPulse{0%,100%{transform:translateY(0);box-shadow:0 0 0 0 rgba(42,74,139,.16)}50%{transform:translateY(3px);box-shadow:0 0 0 7px rgba(42,74,139,0)}}
+  @media (prefers-reduced-motion:reduce){.drop-ready,.drop-ready-icon,.drop .big,.drop .small,.drop .formats,.drop .filechip{transition:none}.drop-ready-icon{animation:none}}
   .filechip{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:var(--pencil-soft);color:var(--pencil);font-weight:600;font-size:13px;padding:6px 12px;border-radius:20px}
   textarea{width:100%;min-height:220px;resize:vertical;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:10px;padding:14px}
   textarea:focus{outline:2px solid var(--pencil);outline-offset:1px;border-color:var(--pencil)}
@@ -230,9 +238,9 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .ledger-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .ledger-scroll table.ledger{min-width:640px}
 
-  /* Reference Ledger: floating title + column guide for long reference lists.
-     The floating guide is activated by JS only while the Reference Ledger itself
-     is in view, and its horizontal position is synchronized with the body table. */
+  /* Reference Ledger: restored spacious single-row layout.
+     The full ledger may scroll horizontally when the viewport is narrow; the floating
+     header remains synchronized with the body table. */
   .reference-ledger-block{position:relative}
   .reference-ledger-table{table-layout:fixed;min-width:900px!important}
   .reference-ledger-floating{
@@ -266,7 +274,14 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     padding:8px 10px 9px;
     background:#fff;
     border-bottom:2px solid var(--ink);
+    white-space:nowrap;
+    word-break:normal;
+    overflow-wrap:normal;
+    hyphens:none;
   }
+  .reference-ledger-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .reference-ledger-table thead th{white-space:nowrap;word-break:normal;overflow-wrap:normal;hyphens:none}
+  .reference-ledger-table tbody td{vertical-align:top}
   @media(max-width:640px){
     .reference-ledger-floating-title{display:none}
     .reference-ledger-floating{border-radius:0}
@@ -597,6 +612,11 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     border-color:#6f8fc4;
     background:#edf4ff;
   }
+  #input-card .drop.drag{
+    border-color:var(--pencil);
+    background:#edf4ff;
+    box-shadow:0 0 0 3px rgba(42,74,139,.10) inset;
+  }
   #input-card .drop .big{color:#1d457f;font-weight:600;}
   #input-card .drop .formats{color:#7084a5;}
   #input-card input.text{background:#f8faff;border-color:#d6deec;}
@@ -711,6 +731,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
         <p class="small">or click to browse</p>
         <div class="formats">Microsoft Word · .docx only</div>
         <div id="filechip" class="filechip" style="display:none"></div>
+        <div class="drop-ready" aria-hidden="true"><span class="drop-ready-icon">↓</span><span class="drop-ready-text">Release to add this manuscript</span></div>
       </div>
       <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" />
     </div>
@@ -806,7 +827,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. Acronym-like text is first classified from local context so commercial instrument/model/product names and manufacturer identifiers are not treated as scientific abbreviations merely because they contain capital letters. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. Acronym-like text is first classified from local context so commercial instrument/model/product names and manufacturer identifiers are not treated as scientific abbreviations merely because they contain capital letters. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <nav class="report-subnav" id="abbr-subnav" aria-label="Abbreviation report sections" hidden></nav>
     <div class="scorecard" id="scorecard"></div>
@@ -826,7 +847,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <details class="rules">
     <summary>What this checks</summary>
     <ol>
-      <li><b>Define or introduce at first use.</b> Conventional abbreviations should be expanded at first use, while scientific parameters and symbols may be introduced by a clear descriptor such as <code>BET surface area (SBET)</code> or <code>micropore volume (Vp)</code>.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument and product names.</b> Complete manufacturer/brand/family/model phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, model codes, nearby technique wording, instrument nouns, and manufacturer/location metadata. Recognition does not depend on a vendor whitelist, so unseen equipment names can be handled while genuine technique abbreviations remain subject to the normal definition rules.</li>
+      <li><b>Define or introduce at first use.</b> Conventional abbreviations should be expanded at first use, while scientific parameters and symbols may be introduced by a clear descriptor such as <code>BET surface area (SBET)</code> or <code>micropore volume (Vp)</code>.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument and product names.</b> Complete manufacturer/brand/family/model phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, model codes, nearby technique wording, instrument nouns, and manufacturer/location metadata. Recognition does not depend on a vendor whitelist, so unseen equipment names can be handled while genuine technique abbreviations remain subject to the normal definition rules.</li><li><b>Nested abbreviations.</b> A shorter acronym such as <code>SEM</code> may be inferred from an earlier explicit definition such as <code>field emission scanning electron microscopy (FESEM)</code> when the letter-to-word mapping is exact. Because journal first-use policies vary, this is reported for Review rather than as a missing-definition Critical Error.</li><li><b>Scholarly metadata terms.</b> Publishing metadata labels are interpreted in context. For example, <code>CREDIT</code> followed by recognised author-contribution roles is treated as the CRediT Contributor Role Taxonomy rather than as an undefined scientific abbreviation.</li>
       <li><b>Do not use before defining.</b> The full form must appear at or before the first use, not later.</li>
       <li><b>Earn the abbreviation.</b> Defined terms that are then used only once or twice are flagged.</li>
       <li><b>Titles and headings excluded.</b> The paper title and section/subsection headings, including numbered, ALL-CAPS, and Title Case headings, are not used for abbreviation-definition checks.</li><li><b>Front matter excluded.</b> Author/affiliation blocks, correspondence details, and Keywords/Index terms are not used for abbreviation-definition checks.</li>
@@ -835,7 +856,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
       <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks.</li><li><b>Dedicated abbreviation lists are authoritative.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are accepted even when the body prose does not repeat the full form. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are authoritative.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are accepted even when the body prose does not repeat the full form. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
     </ol>
   </details>
 
@@ -1541,7 +1562,7 @@ function renderUnitReport(res){
         :"Checks whether directly comparable values using the same unit/context follow a consistent decimal-place pattern.";
       ih+=`<p class="sec-label">${title} ${inlineHelpButton(sectionHelp,`Explain ${title}`)} · ${a.length}</p>`;
       a.slice(0,250).forEach(it=>{
-        ih+=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,420))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;
+        ih+=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(humanIssueCode(it.code))}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,420))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;
       });
     };
     draw("Unit-format consistency",fmt);
@@ -1585,7 +1606,7 @@ function unitReportText(res){
   if(res.issues.length){
     L.push("ISSUES");
     res.issues.forEach(i=>{
-      L.push(`${i.code} | ${i.parameter||"Unit"} | ${i.msg}`);
+      L.push(`${humanIssueCode(i.code)} | ${i.parameter||"Unit"} | ${i.msg}`);
       if(i.context)L.push(`  Location: ${i.context}`);
       if(i.snippet)L.push(`  Examples: ${i.snippet}`);
       if(i.suggestion)L.push(`  Suggested: ${i.suggestion}`);
@@ -2862,6 +2883,7 @@ function extractDeclaredAbbrs(text){
 }
 /* ---------- Helpers ---------- */
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function humanIssueCode(code){return String(code||"").replace(/_+/g," ").replace(/\s+/g," ").trim();}
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\-]/g,"\\$&");}
 function norm(s){return s.replace(/[^A-Za-z0-9]/g,"").toUpperCase();}
 function letters(s){return s.replace(/[^A-Za-z0-9]/g,"").length;}
@@ -4056,6 +4078,93 @@ function abbrShouldReportUndefinedCandidate(g,disp,context={}){
   return true;
 }
 
+/* ---------- Nested abbreviations and scholarly metadata terms ----------
+   A longer acronym definition does not formally define every shorter acronym
+   embedded in it. However, when a later shorter token maps cleanly to a semantic
+   prefix/suffix of an explicitly defined parent acronym (FESEM -> SEM, HRTEM ->
+   TEM, PEMFC -> PEM/MFC), the relationship is strong enough to downgrade the
+   finding from a Critical Error to Review. The author can then follow the target
+   journal's first-use policy without being told that the term is wholly unknown.
+
+   CRediT is handled separately as a scholarly metadata taxonomy. All-caps CREDIT
+   in a genuine author-contribution statement is an occurrence-level metadata
+   label, not a scientific abbreviation requiring expansion. */
+const ABBR_NESTED_STOPWORDS=new Set(["A","AN","THE","OF","AND","OR","FOR","TO","IN","ON","WITH","BY","FROM"]);
+const ABBR_CREDIT_ROLE_PATTERNS=[
+  /\bconceptuali[sz]ation\b/i,/\bdata\s+curation\b/i,/\bformal\s+analysis\b/i,
+  /\bfunding\s+acquisition\b/i,/\binvestigation\b/i,/\bmethodology\b/i,
+  /\bproject\s+administration\b/i,/\bresources\b/i,/\bsoftware\b/i,
+  /\bsupervision\b/i,/\bvalidation\b/i,/\bvisuali[sz]ation\b/i,
+  /\bwriting\s*[—–-]\s*original\s+draft\b/i,
+  /\bwriting\s*[—–-]\s*review\s+and\s+editing\b/i
+];
+function abbrCreditRoleCount(text){
+  const s=String(text||"");
+  return ABBR_CREDIT_ROLE_PATTERNS.reduce((n,re)=>n+(re.test(s)?1:0),0);
+}
+function abbrIsCreditTaxonomyOccurrence(sent,index,raw){
+  if(String(raw||"").toUpperCase()!=="CREDIT") return false;
+  const s=String(sent||"");
+  const before=s.slice(Math.max(0,index-80),index);
+  const after=s.slice(index+String(raw||"").length,Math.min(s.length,index+String(raw||"").length+700));
+  const labelSyntax=/^\s*[:\-–—]/.test(after) || /(?:^|[;.]\s*)\s*CREDIT\s*:/i.test(s);
+  const contributionHint=/\bauthor\s+contributions?\b/i.test(before) || /\bcontributor(?:ship)?\b/i.test(before);
+  const roles=abbrCreditRoleCount(after);
+  // Role vocabulary is deliberately the strongest signal because heading removal
+  // may have stripped "Author contributions" before abbreviation tokenisation.
+  return labelSyntax && (roles>=3 || (contributionHint&&roles>=2));
+}
+function abbrNestedTokenizeLongForm(longForm,dropStops=false){
+  const raw=String(longForm||"")
+    .replace(/[‐‑‒–—-]+/g," ")
+    .replace(/[’']/g,"");
+  let tokens=raw.match(/[A-Za-z][A-Za-z0-9]*/g)||[];
+  if(dropStops) tokens=tokens.filter(t=>!ABBR_NESTED_STOPWORDS.has(t.toUpperCase()));
+  return tokens;
+}
+function abbrNestedMapping(parentAbbr,longForm,childAbbr){
+  const parent=norm(parentAbbr),child=norm(childAbbr);
+  if(!parent||!child||child.length<3||parent.length<=child.length) return null;
+  // Strong inference is limited to meaningful prefix/suffix components. This
+  // avoids inferring arbitrary internal substrings merely because letters match.
+  const relation=parent.startsWith(child)?"prefix":(parent.endsWith(child)?"suffix":null);
+  if(!relation) return null;
+  const variants=[abbrNestedTokenizeLongForm(longForm,false),abbrNestedTokenizeLongForm(longForm,true)];
+  for(const tokens of variants){
+    if(!tokens.length) continue;
+    const initials=tokens.map(t=>t[0].toUpperCase()).join("");
+    if(initials!==parent) continue;
+    const start=relation==="prefix"?0:parent.length-child.length;
+    const end=start+child.length;
+    const phrase=tokens.slice(start,end).join(" ").trim();
+    if(!phrase || norm(phrase.split(/\s+/).map(w=>w[0]).join(""))!==child) continue;
+    return {relation,phrase,tokens,initials};
+  }
+  return null;
+}
+function abbrResolveNestedCandidate(raw,groups,firstSent){
+  const child=norm(raw);
+  if(!/^[A-Z0-9]{3,8}$/.test(child)) return null;
+  const hits=[];
+  for(const g of groups.values()){
+    if(!g||g.key===child||!g.defs||!g.defs.length) continue;
+    const parentForm=(()=>{let best=null,n=-1;for(const [f,c] of g.forms||[]){if(c>n){best=f;n=c;}}return best||g.key;})();
+    const parentKey=norm(parentForm);
+    if(parentKey.length<=child.length) continue;
+    for(const d of g.defs){
+      if(!d || d.definitionType!=="conventional_acronym" || !Number.isFinite(d.sent) || d.sent>firstSent) continue;
+      const map=abbrNestedMapping(parentKey,d.long,child);
+      if(!map) continue;
+      hits.push({parent:parentForm,parentKey,parentLong:d.long,inferredLong:map.phrase,definitionSent:d.sent,relation:map.relation});
+    }
+  }
+  if(!hits.length) return null;
+  // Prefer the closest earlier explicit definition, then the shortest parent.
+  hits.sort((a,b)=>b.definitionSent-a.definitionSent || a.parentKey.length-b.parentKey.length);
+  const best=hits[0];
+  return {...best,status:"NESTED_ABBREVIATION_INFERRED",confidence:0.96};
+}
+
 /* ---------- Core analysis ---------- */
 function analyze(rawText, title, standardSet, skipRefs, skipTables){
   // Establish the bibliography boundary from the ORIGINAL manuscript before any
@@ -4086,6 +4195,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
   const scientificDefSpansBySentence=new Map();
   const designatedIdentifierForms=new Map();
   const designationSpansBySentence=new Map();
+  let creditMetadataDetected=false;
 
   // Discover explicit sample/material/device/configuration designations before
   // abbreviation tokenisation so internal fragments can never become candidates.
@@ -4150,6 +4260,10 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     while((m=acroRe.exec(sent))!==null){
       const raw=m[1], key=norm(raw);
       if(STOPWORDS.has(key)) continue;
+      if(abbrIsCreditTaxonomyOccurrence(sent,m.index,raw)){
+        creditMetadataDetected=true;
+        continue;
+      }
 
       // Defensive longest-span guard: never report a partial abbreviation when the
       // manuscript contains a larger structured identifier at the same location.
@@ -4250,6 +4364,23 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       const compositeResolution=(!std && !listDef && !declared && !defined)
         ? abbrResolveCompositeCandidate(disp,groups,firstSent,sentences,standardSet)
         : null;
+      const nestedResolution=(!std && !listDef && !declared && !defined && !compositeResolution)
+        ? abbrResolveNestedCandidate(disp,groups,firstSent)
+        : null;
+
+      // A shorter acronym that maps cleanly to an earlier explicitly defined
+      // parent acronym is inferable, but the usual editorial first-use rule may
+      // still require a separate standalone definition. Report this as Review,
+      // never as "not defined anywhere".
+      if(nestedResolution?.status==="NESTED_ABBREVIATION_INFERRED"){
+        warnings.push({
+          abbr:disp,
+          msg:`Not explicitly defined as a standalone abbreviation, but ${disp} can be inferred from the earlier definition of ${nestedResolution.parent} as "${nestedResolution.parentLong}". The mapped term is "${nestedResolution.inferredLong}". Check whether the target journal requires ${disp} to be defined separately at its first standalone use.`,
+          snip:snippet
+        });
+        rows.push({base:disp,longForm:nestedResolution.inferredLong,count,firstUseOK:false,status:"warn",definitionSource:"nested",definitionType:"nested_abbreviation",nestedFrom:nestedResolution.parent});
+        return;
+      }
 
       // Transparent composites inherit the already-valid definitions of their
       // components. Do not create a redundant ledger row or undefined finding.
@@ -4350,6 +4481,13 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     });
 
   const nonStd=rows.length;
+  if(creditMetadataDetected){
+    infos.unshift({
+      abbr:"CRediT",
+      msg:`"CREDIT" was recognised as the CRediT Contributor Role Taxonomy label in an author-contribution statement and was excluded from abbreviation-definition checking. Consider the standard styling "CRediT" if required by the target journal.`,
+      snip:null
+    });
+  }
   if(hasList && DECLARED_ABBR_MAP.size){
     infos.unshift({
       abbr:null,
@@ -4641,6 +4779,7 @@ function ledger(rows){
     const long=x.longForm?`<span class="t-long">${escapeHtml(x.longForm)}</span>`:`<span class="t-long none">not defined</span>`;
     let def;
     if(x.definitionSource==="list") def=`<span class="yn y" title="Defined in a recognised Abbreviations, Acronyms, Nomenclature, or Glossary list.">Defined in list</span>`;
+    else if(x.definitionSource==="nested") def=`<span class="yn rev" title="The standalone abbreviation was not explicitly defined, but its meaning maps cleanly to an earlier explicitly defined longer abbreviation. Check the target journal's first-use policy.">Inferred from ${escapeHtml(x.nestedFrom||"earlier term")}</span>`;
     else if(x.definitionSource==="scientific") def=x.firstUseOK
       ?`<span class="yn y" title="Scientific notation or a parameter is introduced by a clear descriptor at or before its first use.">Scientific definition</span>`
       :`<span class="yn n" title="Scientific notation or a parameter is introduced only after it has already been used.">Scientific definition later</span>`;
@@ -4658,6 +4797,7 @@ function ledger(rows){
       <b>Scientific definition</b> = a scientific symbol or parameter is clearly introduced by a descriptor at or before first use;
       <b>Scientific definition later</b> = the scientific symbol or parameter is explained only after it has already been used;
       <b>Defined in list</b> = defined in a recognised abbreviation or nomenclature list;
+      <b>Inferred from earlier term</b> = the standalone abbreviation was not explicitly defined, but its meaning maps cleanly to an earlier explicitly defined longer abbreviation; check the target journal's first-use policy;
       <b>Accepted declaration</b> = accepted from a recognised manuscript declaration;
       <b>Excluded structural content</b> = headings, captions, tables, equations, references, and similar structural material are not treated as first-use manuscript text;
       <b>—</b> = no definition status was assigned or required.
@@ -4681,7 +4821,7 @@ function reportText(r){
   blk("Critical errors",r.errors); blk("Review items",r.warnings); blk("Style notes",r.infos);
   L.push("ABBREVIATION LEDGER");
   L.push("  Abbrev | Full form | Uses | Definition status");
-  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.definitionSource==="list"?"Defined in list":(x.definitionSource==="scientific"?(x.firstUseOK?"Scientific definition":"Scientific definition later"):(x.definitionSource==="prose"?(x.firstUseOK?"Defined in main text":"Defined after first use"):(x.definitionSource==="declared"?"Accepted declaration":(x.longForm?(x.firstUseOK?"Defined":"Definition found later"):"-"))))}`));
+  r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.definitionSource==="list"?"Defined in list":(x.definitionSource==="scientific"?(x.firstUseOK?"Scientific definition":"Scientific definition later"):(x.definitionSource==="prose"?(x.firstUseOK?"Defined in main text":"Defined after first use"):(x.definitionSource==="nested"?`Inferred from ${x.nestedFrom||"earlier term"}`:(x.definitionSource==="declared"?"Accepted declaration":(x.longForm?(x.firstUseOK?"Defined":"Definition found later"):"-")))))}`));
   if(r.standardSeen.length){ L.push(""); L.push("Treated as standard: "+r.standardSeen.join(", ")); }
   return L.join("\n");
 }
@@ -4800,24 +4940,62 @@ async function extractDocxStructuredReferences(buf){
   const children=[...body.childNodes].filter(n=>n.nodeType===1);
   const refHead=/^\s*(?:\d+(?:\.\d+)*\.?\s*)?(?:references?|reference\s+list|bibliography|works\s+cited|literature\s+cited|cited\s+literature|references\s+cited|notes\s+and\s+references|references\s+and\s+notes|literature\s+references)\s*:?\.?\s*$/i;
   const afterRef=/^\s*(?:appendix|appendices|supplementary\s+(?:material|materials|information)|supporting\s+information|acknowledg(?:e)?ments?|funding|data\s+availability|author\s+contributions?|conflicts?\s+of\s+interest|competing\s+interests?|declarations?|disclaimer(?:\/publisher(?:’|'|s)?\s+note)?|publisher(?:’|'|s)?\s+note)\b/i;
+  const normStyle=st=>String(st||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+  const isBibliographyStyle=st=>{
+    const n=normStyle(st);
+    if(!n) return false;
+    return /(?:endnote|mendeley|zotero|refworks)?bibliograph/.test(n) ||
+      /^(?:bibliography|bibliographyentry|referenceentry|referencesentry|refentry|citationbibliography)$/.test(n);
+  };
+  const metas=children.map((el,i)=>{
+    if((el.localName||"").toLowerCase()!=="p") return null;
+    const text=fteXmlText(el).replace(/\s+/g," ").trim();
+    const style=ftePStyle(el)||"";
+    return {el,i,text,style,bibStyle:isBibliographyStyle(style)};
+  }).filter(Boolean);
 
   let hi=-1,heading="";
-  for(let i=0;i<children.length;i++){
-    const el=children[i];
-    if((el.localName||"").toLowerCase()!=="p") continue;
-    const t=fteXmlText(el).replace(/\s+/g," ").trim();
-    if(refHead.test(t) || (typeof isReferenceHeading==="function" && isReferenceHeading(t))){ hi=i; heading=t; }
+  for(const m of metas){
+    if(refHead.test(m.text) || (typeof isReferenceHeading==="function" && isReferenceHeading(m.text))){ hi=m.i; heading=m.text; }
   }
-  if(hi<0) return null;
 
-  // Read list-start values from numbering.xml when available. The fallback is 1.
-  const starts=new Map(); // numId|ilvl -> starting integer
+  // Headingless bibliography support: citation-manager bibliography styles are
+  // stronger evidence than generic reference-like text elsewhere in the document.
+  let styleStart=-1,styleName="";
+  if(hi<0){
+    let best=null,cur=null;
+    const commit=()=>{ if(cur && (!best || cur.count>best.count || (cur.count===best.count && cur.strong>best.strong))) best=cur; cur=null; };
+    for(const m of metas){
+      if(m.bibStyle && m.text){
+        const strong=refStartsAuthor(m.text) && /\b(?:19|20)\d{2}[a-z]?\b/i.test(m.text) && refScore(m.text)>=4;
+        if(!cur || cur.style!==normStyle(m.style) || m.i-cur.lastIndex>2){
+          commit();
+          cur={start:m.i,lastIndex:m.i,count:1,strong:strong?1:0,style:normStyle(m.style),styleName:m.style};
+        }else{
+          cur.lastIndex=m.i; cur.count++; if(strong) cur.strong++;
+        }
+      }else if(cur && m.i-cur.lastIndex>1){ commit(); }
+    }
+    commit();
+    if(best && best.count>=3 && best.strong>=Math.max(2,Math.ceil(best.count*0.60)) && best.start>=Math.floor(children.length*0.35)){
+      styleStart=best.start;
+      styleName=best.styleName;
+    }
+  }
+
+  if(hi<0 && styleStart<0) return null;
+  const startIndex=hi>=0?hi+1:styleStart;
+  const bodyEndIndex=hi>=0?hi:styleStart;
+  const mode=hi>=0?"word_reference_heading":"word_bibliography_style";
+
+  // Recover automatic Word list numbering when present.
+  const starts=new Map();
   try{
     const nf=zip.file("word/numbering.xml");
     if(nf){
       const nxml=await nf.async("string");
       const nd=new DOMParser().parseFromString(nxml,"application/xml");
-      const absStart=new Map(); // abstractNumId|ilvl -> start
+      const absStart=new Map();
       [...nd.getElementsByTagNameNS(FTE_W_NS,"abstractNum")].forEach(a=>{
         const aid=a.getAttributeNS(FTE_W_NS,"abstractNumId")||a.getAttribute("w:abstractNumId")||a.getAttribute("abstractNumId")||"";
         [...a.getElementsByTagNameNS(FTE_W_NS,"lvl")].forEach(lvl=>{
@@ -4847,8 +5025,7 @@ async function extractDocxStructuredReferences(buf){
     }
   }catch(e){ console.warn("Could not read Word numbering metadata for References.",e); }
 
-  const counters=new Map();
-  const entries=[];
+  const counters=new Map(),entries=[];
   let cur=null;
   const finish=()=>{
     if(!cur) return;
@@ -4856,13 +5033,16 @@ async function extractDocxStructuredReferences(buf){
     if(cur.raw) entries.push(cur);
     cur=null;
   };
+  const strongAuthorStart=txt=>refStartsAuthor(txt) && /\b(?:19|20)\d{2}[a-z]?\b/i.test(txt) && refScore(txt)>=4;
+  const publisherMetaOnly=txt=>/^\s*(?:\[\s*)?(?:CrossRef|PubMed|PubMed\s+Central|PMC|Google\s+Scholar|Scopus|Web\s+of\s+Science|WoS|MEDLINE)(?:\s*\])?\s*$/i.test(txt);
 
-  for(let i=hi+1;i<children.length;i++){
+  for(let i=startIndex;i<children.length;i++){
     const el=children[i],ln=(el.localName||"").toLowerCase();
-    if(ln!=="p") continue; // references in tables are left to the ordinary fallback
+    if(ln!=="p") continue;
     const txt=fteXmlText(el).replace(/\s+/g," ").trim();
     if(!txt) continue;
     if(afterRef.test(txt)){ finish(); break; }
+    const style=ftePStyle(el)||"",bibStyle=isBibliographyStyle(style);
 
     const numPr=el.getElementsByTagNameNS(FTE_W_NS,"numPr")[0];
     let listNum=null;
@@ -4874,70 +5054,59 @@ async function extractDocxStructuredReferences(buf){
       if(numId && numId!=="0"){
         const key=`${numId}|${ilvl}`;
         const next=counters.has(key)?counters.get(key)+1:(starts.get(key)||1);
-        counters.set(key,next);
-        listNum=next;
+        counters.set(key,next); listNum=next;
       }
     }
 
-    // Literal numbering is retained if Word stored it as text instead of numPr.
     let literal=null,rest=txt;
-    let m=txt.match(/^\s*(?:\[(\d{1,4})\]|\((\d{1,4})\)|(\d{1,4})[.)])\s*(.*)$/);
-    if(m){ literal=parseInt(m[1]||m[2]||m[3],10); rest=m[4].trim(); }
+    const lm=txt.match(/^\s*(?:\[(\d{1,4})\]|\((\d{1,4})\)|(\d{1,4})[.)])\s*(.*)$/);
+    if(lm){ literal=parseInt(lm[1]||lm[2]||lm[3],10); rest=lm[4].trim(); }
     const n=literal!=null?literal:listNum;
 
     if(n!=null){
-      finish();
-      cur={
-        num:n,
-        raw:rest||txt,
-        // Keep the provenance of the number. Literal numbers typed into the
-        // reference text are authoritative. Word automatic-list numbers are
-        // structurally reliable for entry boundaries, but Word may split one
-        // continuous bibliography across several numbering instances/HTML lists.
-        numSource:literal!=null?"literal":"word_auto"
-      };
-    }else if(cur){
-      // Continuation paragraphs, including standalone [CrossRef]/[PubMed] lines,
-      // belong to the preceding numbered reference.
+      finish(); cur={num:n,raw:rest||txt,numSource:literal!=null?"literal":"word_auto"}; continue;
+    }
+    if(bibStyle){
+      finish(); cur={num:null,raw:txt,numSource:"word_bibliography_style",style}; continue;
+    }
+    if(cur){
+      if(publisherMetaOnly(txt) || /^(?:doi\s*:|https?:\/\/(?:dx\.)?doi\.org\/)/i.test(txt)){
+        cur.raw=(cur.raw+" "+txt).replace(/\s+/g," ").trim(); continue;
+      }
+      if(strongAuthorStart(txt)){
+        finish(); cur={num:null,raw:txt,numSource:"word_paragraph_boundary",style}; continue;
+      }
+      if(mode==="word_bibliography_style" && entries.length>=2){ finish(); break; }
       cur.raw=(cur.raw+" "+txt).replace(/\s+/g," ").trim();
+    }else if(strongAuthorStart(txt)){
+      cur={num:null,raw:txt,numSource:"word_paragraph_boundary",style};
     }
   }
   finish();
-
   if(entries.length<2) return null;
 
-  /*
-    Word automatic numbering can be represented by more than one numbering
-    instance even when the bibliography is visually one continuous list.
-    Likewise, page/layout changes can make HTML conversion restart an <ol> at 1.
-    Entry ORDER from document.xml is authoritative, so for a bibliography whose
-    numbers are generated by Word rather than typed literally, repair accidental
-    resets by assigning one continuous sequence in document order.
-
-    Literal numbers are never rewritten here because they may intentionally be
-    non-standard. Only automatic-list numbering is normalized.
-  */
-  const nums=entries.map(e=>Number(e.num));
-  const allAuto=entries.every(e=>e.numSource==="word_auto");
-  const contiguous=nums.every((n,i)=>
-    Number.isInteger(n) && n>0 && (i===0 || n===nums[i-1]+1)
-  );
+  const numberedEntries=entries.filter(e=>e.num!=null);
   let numberingNormalized=false;
-  if(allAuto && !contiguous){
-    const start=Number.isInteger(nums[0]) && nums[0]>0 ? nums[0] : 1;
-    entries.forEach((e,i)=>{ e.num=start+i; });
-    numberingNormalized=true;
+  if(numberedEntries.length===entries.length){
+    const nums=entries.map(e=>Number(e.num));
+    const allAuto=entries.every(e=>e.numSource==="word_auto");
+    const contiguous=nums.every((n,i)=>Number.isInteger(n)&&n>0&&(i===0||n===nums[i-1]+1));
+    if(allAuto && !contiguous){
+      const first=Number.isInteger(nums[0])&&nums[0]>0?nums[0]:1;
+      entries.forEach((e,i)=>{e.num=first+i;}); numberingNormalized=true;
+    }
   }
 
-  const refs=entries.map(e=>`${e.num}. ${e.raw}`).join("\n");
+  const refs=entries.map(e=>e.num!=null?`${e.num}. ${e.raw}`:e.raw).join("\n");
+  const bodyText=children.slice(0,bodyEndIndex).map(el=>fteXmlText(el).replace(/\s+/g," ").trim()).filter(Boolean).join("\n");
   return {
-    found:true,heading,entries,refs,count:entries.length,
-    method:"word_list_structure",
+    found:true,heading:hi>=0?heading:null,entries,refs,count:entries.length,
+    body:bodyText,method:mode,styleName:styleName||null,
+    confidence:mode==="word_bibliography_style"?99:98,
     numberingNormalized,
-    numberingSequence:entries.map(e=>e.num)
+    numberingSequence:numberedEntries.length===entries.length?entries.map(e=>e.num):null
   };
 }
-
 
 async function extractDocxAbbreviationDefinitions(buf){
   if(typeof JSZip==="undefined") return {found:false,map:new Map(),sections:[]};
@@ -5216,6 +5385,109 @@ function ftePlainEquationLike(text){
   return ev.score>=9 && ev.relationCount>=1 && prose.score<9;
 }
 
+/*
+  Recover equation numbers that are visually parenthesized by Word's Office Math
+  delimiter structure rather than stored as literal "(" and ")" characters.
+
+  Example visible Word layout:
+      8H+ + 8e- -> 4H2                                  (17)
+
+  can be stored as a formula m:oMath plus a separate numeric m:d delimiter. The
+  ordinary flattened text is then "8H+ + 8e- -> 4H2 17", so regex-only label
+  parsing loses the parentheses and cannot bind 17 to the equation.
+
+  This helper is deliberately structural and conservative. A numeric delimiter is
+  treated as an equation label only when it is terminal and either separated from
+  the formula as its own math object or supported by tab/right-tab layout. A
+  parenthesized number that is merely part of the mathematics is therefore not
+  automatically promoted to an equation number.
+*/
+function fteMathAttr(el,name){
+  if(!el) return "";
+  return el.getAttributeNS(FTE_M_NS,name)||el.getAttribute(`m:${name}`)||el.getAttribute(name)||"";
+}
+function fteAncestorMath(node,local){
+  let n=node;
+  while(n){
+    if(n.nodeType===1 && (n.namespaceURI||"")===FTE_M_NS && (n.localName||"").toLowerCase()===local) return n;
+    n=n.parentNode;
+  }
+  return null;
+}
+function fteOrderedVisibleTextElements(node){
+  const out=[];
+  const walk=n=>{
+    if(!n||n.nodeType!==1) return;
+    const ns=n.namespaceURI||"",ln=(n.localName||"").toLowerCase();
+    if(ns===FTE_W_NS && (ln==="del"||ln==="movefrom"||ln==="drawing"||ln==="pict"||ln==="object"||ln==="txbxcontent")) return;
+    if(ns===FTE_W_NS && (ln==="instrtext"||ln==="deltext")) return;
+    if(ln==="t" && (ns===FTE_W_NS||ns===FTE_M_NS)){ if(String(n.textContent||"").trim()) out.push(n); return; }
+    [...n.childNodes].forEach(walk);
+  };
+  walk(node); return out;
+}
+function fteTerminalOmmlParenNumber(node){
+  if(!node) return null;
+  const textEls=fteOrderedVisibleTextElements(node);
+  if(!textEls.length) return null;
+  const order=new Map(textEls.map((n,i)=>[n,i]));
+  const ds=[...node.getElementsByTagNameNS(FTE_M_NS,"d")];
+  for(let di=ds.length-1;di>=0;di--){
+    const d=ds[di];
+    const inner=String(fteXmlText(d)||"").replace(/\s+/g," ").trim();
+    const id=fteCanonId(inner);
+    if(!id || !new RegExp('^'+fteEquationIdPattern()+'$','i').test(inner)) continue;
+    const dPr=d.getElementsByTagNameNS(FTE_M_NS,"dPr")[0];
+    const begEl=dPr?dPr.getElementsByTagNameNS(FTE_M_NS,"begChr")[0]:null;
+    const endEl=dPr?dPr.getElementsByTagNameNS(FTE_M_NS,"endChr")[0]:null;
+    const beg=begEl?fteMathAttr(begEl,"val"):"(";
+    const end=endEl?fteMathAttr(endEl,"val"): ")";
+    if(beg!=="("||end!==")") continue;
+
+    const inside=[...d.getElementsByTagNameNS(FTE_W_NS,"t"),...d.getElementsByTagNameNS(FTE_M_NS,"t")].filter(n=>order.has(n));
+    if(!inside.length) continue;
+    const last=Math.max(...inside.map(n=>order.get(n)));
+    if(textEls.slice(last+1).some(n=>String(n.textContent||"").trim())) continue;
+
+    const labelMath=fteAncestorMath(d,"omath");
+    const labelMathText=labelMath?String(fteXmlText(labelMath)||"").replace(/\s+/g," ").trim():"";
+    const mathObjects=[...node.getElementsByTagNameNS(FTE_M_NS,"oMath")];
+    const separateMathLabel=!!(labelMath && labelMathText===inner && mathObjects.length>=2);
+    return {id,inner,delimiter:d,separateMathLabel};
+  }
+  return null;
+}
+function fteWordNodeNumberOnlyEquationId(node){
+  if(!node) return null;
+  const text=String(fteXmlText(node)||"").replace(/\s+/g," ").trim();
+  const plain=fteEquationNumberOnly(text); if(plain) return plain;
+  const om=fteTerminalOmmlParenNumber(node);
+  if(!om) return null;
+  // Number-only OMML cell/paragraph: the visible text consists solely of the
+  // numeric content because the parentheses themselves are structural.
+  return text===om.inner ? om.id : null;
+}
+function fteWordParagraphEquationBinding(p,meta={}){
+  if(!p) return null;
+  const full=String(fteXmlText(p)||"").replace(/\s+/g," ").trim();
+  const om=fteTerminalOmmlParenNumber(p);
+  if(om){
+    const idx=full.lastIndexOf(om.inner);
+    const core=idx>=0?full.slice(0,idx).replace(/\s+/g," ").trim():"";
+    if(!core) return {numberOnlyId:om.id,id:null,coreText:"",source:"omml_parenthesized_number_only"};
+    const separated=!!(om.separateMathLabel || meta.rightTabStop || (meta.tabCount||0)>0);
+    if(separated) return {id:om.id,numberOnlyId:null,coreText:core,source:"omml_parenthesized_terminal",confidence:.995};
+  }
+  // Literal terminal labels remain handled by the established parser. Record a
+  // structural binding when Word math and the visible label share one paragraph.
+  const literal=fteEquationLabel(full);
+  if(literal && meta.hasMath){
+    const core=fteStripTerminalEquationLabel(full);
+    if(core) return {id:literal,numberOnlyId:null,coreText:core,source:"same_paragraph_literal_label",confidence:.99};
+  }
+  return null;
+}
+
 
 function fteClassifyEquationLayoutRows(rows){
   /*
@@ -5244,7 +5516,7 @@ function fteClassifyEquationLayoutRows(rows){
 
     const labelCells=[];
     cells.forEach((c,ci)=>{
-      const id=fteEquationNumberOnly(c.text);
+      const id=c.equationNumberId||fteEquationNumberOnly(c.text);
       if(id) labelCells.push({ci,id});
     });
     if(labelCells.length!==1) return {isEquationLayout:false,rows:[]};
@@ -5278,6 +5550,7 @@ function fteClassifyEquationLayoutRows(rows){
     parsed.push({
       id:label.id,
       text:cells.map(c=>String(c.text||"").trim()).filter(Boolean).join(" ").replace(/\s+/g," ").trim(),
+      expressionText:nonLabelText,
       mathCount:r.mathCount||mathCount,
       mathParaCount:r.mathParaCount||mathParaCount,
       hasMath:hasOfficeMath,
@@ -5303,7 +5576,8 @@ function fteWordTableRowSummaries(tbl){
         text:fteXmlText(tc),
         hasMath:mathCount>0 || mathParaCount>0,
         mathCount,
-        mathParaCount
+        mathParaCount,
+        equationNumberId:fteWordNodeNumberOnlyEquationId(tc)
       };
     });
 
@@ -5449,7 +5723,8 @@ function fteNormalizeCrossRefText(text){
 }
 function fteDisplayedEquationId(block){
   if(!block || block.type!=="p" || !block.text) return null;
-  const id=fteEquationLabel(block.text); if(!id) return null;
+  const structuralId=block.attachedEquationId?fteCanonId(block.attachedEquationId):null;
+  const id=structuralId||fteEquationLabel(block.text); if(!id) return null;
   const t=fteNormalizeCrossRefText(block.text);
 
   // A prose sentence ending in a grouped/ranged cross-reference such as
@@ -5458,7 +5733,7 @@ function fteDisplayedEquationId(block){
   const unique=[...new Set(refs.map(x=>x.id))];
   if(unique.length>1) return null;
 
-  const core=fteStripTerminalEquationLabel(t);
+  const core=structuralId&&block.equationCoreText?String(block.equationCoreText).trim():fteStripTerminalEquationLabel(t);
   if(!core) return null; // number-only blocks are paired separately.
 
   const expr=fteEquationExpressionEvidence(core);
@@ -5472,6 +5747,15 @@ function fteDisplayedEquationId(block){
     (block.tabCount||0)>0 ||
     /^(?:center|both|distribute)$/i.test(block.textAlign||"")
   );
+
+  // A structurally recovered terminal equation number is stronger evidence than
+  // flattened text. This specifically covers Office Math delimiters whose visible
+  // parentheses are stored as m:begChr/m:endChr and disappear from textContent.
+  if(structuralId){
+    if(block.fromEquationTable) return id;
+    if(block.hasMathPara && (expr.relationCount>=1 || expr.score>=5 || prose.score<6)) return id;
+    if(block.hasMath && layoutCue && prose.score<9 && (expr.relationCount>=1 || expr.score>=8)) return id;
+  }
 
   // Ordinary manuscript prose can contain an inline variable and end with
   // "Equation 2.3". Inline Office Math is therefore NOT enough by itself.
@@ -5548,7 +5832,15 @@ function fteAdjacentEquationExpression(blocks,labelIndex,maxDist=2){
     Pair a number-only paragraph such as "Eq. 2.4" or "(2.4)" with a nearby
     displayed expression. This covers Word templates that place the formula and
     its number in separate paragraphs/text runs instead of a single OMML block.
+    A label extracted from a text box anchored to the equation paragraph is bound
+    to that physical container before any generic proximity search is attempted.
   */
+  const labelBlock=blocks[labelIndex];
+  const sharedAnchor=labelBlock?.containerAnchor||null;
+  if(sharedAnchor){
+    const j=blocks.findIndex((b,k)=>k!==labelIndex && b?.type==="p" && (b.physicalAnchor===sharedAnchor||b.containerAnchor===sharedAnchor) && fteLooksLikeUnnumberedDisplayedEquation(b));
+    if(j>=0) return {j,b:blocks[j],d:Math.abs(j-labelIndex),dir:j<labelIndex?-1:1,sameContainer:true};
+  }
   const candidates=[];
   for(const dir of [-1,1]){
     for(let d=1;d<=maxDist;d++){
@@ -5970,7 +6262,7 @@ function renderFteReport(res){
   if(!res.issues.length) $("fte-findings").innerHTML=`<p class="verdict clean">No figure, table, or numbered-equation consistency issues detected.</p>`;
   else{
     const order=["figure","table","equation"]; let html="";
-    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering. Entries in a Word-generated or manually headed List of Figures are excluded from figure detection and citation-order checks.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution. Entries in a Word-generated or manually headed List of Tables are excluded from table detection and citation-order checks. Borderless Word layout tables used only to align displayed equations with equation numbers are classified as equation containers and excluded from Table findings.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, parent-to-sub-equation references such as Eq. 2 referring to Eq. 2a and Eq. 2b, cross-reference resolution, and first-reference order. The detector separates prose citations such as \"can be calculated using Equation 2.3\" from actual displayed equations, and supports Office Math, equation-layout tables, Equation-styled paragraphs, and strongly equation-like formatted text even when Word did not store it as OMML."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
+    order.forEach(kind=>{ const a=res.issues.filter(x=>x.kind===kind); if(!a.length)return; const groupHelp=kind==="figure"?"Figure checks include numbering, caption/physical appearance, in-text citations, citation order, cross-reference resolution, and multipanel lettering. Entries in a Word-generated or manually headed List of Figures are excluded from figure detection and citation-order checks.":kind==="table"?"Table checks include numbered captions, numbering sequence, in-text citations, citation-before-appearance, and cross-reference resolution. Entries in a Word-generated or manually headed List of Tables are excluded from table detection and citation-order checks. Borderless Word layout tables used only to align displayed equations with equation numbers are classified as equation containers and excluded from Table findings.":"Equation checks include numbered displayed equations, numbering sequence, grouped/ranged in-text references, parent-to-sub-equation references such as Eq. 2 referring to Eq. 2a and Eq. 2b, cross-reference resolution, and first-reference order. The detector separates prose citations such as \"can be calculated using Equation 2.3\" from actual displayed equations, and supports Office Math, equation-layout tables, Equation-styled paragraphs, and strongly equation-like formatted text even when Word did not store it as OMML."; html+=`<p class="sec-label">${kind==="figure"?"Figures":kind==="table"?"Tables":"Equations"} ${inlineHelpButton(groupHelp,`Explain ${kind} checks`)} · ${a.length}</p>`; a.forEach(it=>{ const cls=it.severity==="err"?"err":it.severity==="info"?"info":"warn",sym=cls==="err"?"×":cls==="warn"?"!":"i"; html+=`<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(humanIssueCode(it.code))}</span> ${issueHelpButton(it.code,it.msg)} <b>${escapeHtml(it.id&&it.id!=="?"?fteDisplay(it.kind,it.id):it.kind)}</b> · ${escapeHtml(it.msg)}</p>${it.context?`<div class="snip">${escapeHtml(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`; }); });
     $("fte-findings").innerHTML=html;
   }
   $("fte-report").hidden=false;
@@ -5981,7 +6273,7 @@ function fteReportText(res){
   L.push(`Figures detected: ${res.figures.length}`); L.push(`Tables detected: ${res.tables.length}`); L.push(`Numbered equations detected: ${res.equations.length}`); L.push(`Items to review: ${res.issues.length}`,"");
   if(!res.reliable){ L.push("Unable to verify placement reliably from the Word document structure."); return L.join("\n"); }
   if(!res.issues.length) L.push("No figure, table, or numbered-equation consistency issues detected.");
-  else res.issues.forEach(x=>{ L.push(`${x.code} | ${x.id&&x.id!=="?"?fteDisplay(x.kind,x.id):x.kind}`); L.push(`  Issue: ${x.msg}`); if(x.context)L.push(`  Context: ${x.context}`); if(x.suggestion)L.push(`  Suggested: ${x.suggestion}`); L.push(""); });
+  else res.issues.forEach(x=>{ L.push(`${humanIssueCode(x.code)} | ${x.id&&x.id!=="?"?fteDisplay(x.kind,x.id):x.kind}`); L.push(`  Issue: ${x.msg}`); if(x.context)L.push(`  Context: ${x.context}`); if(x.suggestion)L.push(`  Suggested: ${x.suggestion}`); L.push(""); });
   return L.join("\n");
 }
 
@@ -6221,7 +6513,7 @@ function issueHelpText(code,msg=""){
 
 function issueHelpButton(code,msg=""){
   const help=issueHelpText(code,msg);
-  return help ? inlineHelpButton(help,`Explain ${code}`) : "";
+  return help ? inlineHelpButton(help,`Explain ${humanIssueCode(code)}`) : "";
 }
 
 let currentFile=null;
@@ -6247,9 +6539,13 @@ if($("sentence-max")){
 const drop=$("drop"),fileInput=$("file"),chip=$("filechip");
 drop.onclick=()=>fileInput.click();
 drop.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fileInput.click(); } };
-["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag");}));
-["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag");}));
-drop.addEventListener("drop",e=>{ if(e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]); });
+let dropDragDepth=0;
+function setDropReady(active){drop.classList.toggle("drag",!!active);}
+drop.addEventListener("dragenter",e=>{e.preventDefault();dropDragDepth++;setDropReady(true);if(e.dataTransfer)e.dataTransfer.dropEffect="copy";});
+drop.addEventListener("dragover",e=>{e.preventDefault();setDropReady(true);if(e.dataTransfer)e.dataTransfer.dropEffect="copy";});
+drop.addEventListener("dragleave",e=>{e.preventDefault();dropDragDepth=Math.max(0,dropDragDepth-1);if(dropDragDepth===0)setDropReady(false);});
+drop.addEventListener("drop",e=>{e.preventDefault();dropDragDepth=0;setDropReady(false);if(e.dataTransfer&&e.dataTransfer.files.length)setFile(e.dataTransfer.files[0]);});
+window.addEventListener("dragend",()=>{dropDragDepth=0;setDropReady(false);});
 fileInput.onchange=()=>{ if(fileInput.files.length) setFile(fileInput.files[0]); };
 function setFile(f){
   const name=(f&&f.name||"").toLowerCase();
@@ -6304,10 +6600,15 @@ function refSplitList(text){
     return refScore(x)>=5 && /[.;)]\s*$/.test(x);
   };
 
-  // Split a marker-delimited chunk further only when a later line clearly begins
-  // with a new author list AND the accumulated preceding reference is already
-  // bibliographically complete. This safely recovers a missing/lost reference
-  // number without breaking ordinary wrapped author lines.
+  const hasPubYear=s=>/\b(?:19|20)\d{2}[a-z]?\b/i.test(String(s||""));
+  const independentlyStartsReference=(line,current)=>{
+    const l=String(line||""),c=String(current||"");
+    return refStartsAuthor(l) && hasPubYear(l) && refScore(l)>=4 && hasPubYear(c) && refScore(c)>=4;
+  };
+
+  // Split when a later line independently starts a new author-year reference.
+  // The preceding entry need not be complete; otherwise a missing field can be
+  // hidden by incorrectly merging the next reference into it.
   const splitLostMarker=(raw,num)=>{
     const lines=String(raw||"").split(/\n/).map(l=>l.trim()).filter(Boolean);
     if(!lines.length) return [];
@@ -6315,7 +6616,7 @@ function refSplitList(text){
     let cur={num,raw:lines[0]};
     for(let i=1;i<lines.length;i++){
       const l=lines[i];
-      if(refStartsAuthor(l) && complete(cur.raw)){
+      if(refStartsAuthor(l) && (independentlyStartsReference(l,cur.raw) || complete(cur.raw))){
         out.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
         cur={num:null,raw:l};
       }else{
@@ -6373,7 +6674,7 @@ function refSplitList(text){
         if(cur) entries.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
         cur={num:hit.num,raw:hit.rest.trim()};
       }else if(cur){
-        if(refStartsAuthor(l) && complete(cur.raw)){
+        if(refStartsAuthor(l) && (independentlyStartsReference(l,cur.raw) || complete(cur.raw))){
           entries.push({...cur,raw:cur.raw.replace(/\s+/g," ").trim()});
           cur={num:null,raw:l};
         }else{
@@ -6385,14 +6686,14 @@ function refSplitList(text){
     return {style:"numbered",marker:"number",entries};
   }
 
-  // Unnumbered/Word-numbering-lost lists. Start a new author-led entry only
-  // after the accumulated reference already has a plausible bibliographic tail.
-  // This preserves wrapped author lists split across Word paragraphs.
+  // Unnumbered lists. A line with its own author start and publication year
+  // establishes a new reference even if the previous entry lacks a locator, DOI,
+  // or volume. Wrapped author continuations normally do not contain their own year.
   const merged=[]; let cur="";
   for(const l of rawLines){
     const begins=refStartsAuthor(l);
     if(!cur){ cur=l; continue; }
-    if(begins && complete(cur)){
+    if(begins && (independentlyStartsReference(l,cur) || complete(cur))){
       merged.push(cur.replace(/\s+/g," ").trim());
       cur=l;
     }else{
@@ -6417,10 +6718,10 @@ const REF_SURNAME_SHORT=String.raw`[\p{Lu}][\p{L}'’\-]*`;
 // "Gnana kumar G". Restrict it to alphabetic name-like tokens and only use
 // it inside the leading author parser, never as a general title rule.
 const REF_SURNAME_CONT=String.raw`[\p{L}][\p{L}'’\-]{1,}`;
-const REF_SURNAME_PHRASE=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?${REF_SURNAME_WORD}(?:\s+${REF_SURNAME_CONT})?`;
+const REF_SURNAME_PHRASE=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?${REF_SURNAME_WORD}(?:\s+(?:(?:${REF_SURNAME_PARTICLE})|${REF_SURNAME_CONT})){0,5}`;
 const REF_SURNAME_PHRASE_LOWER=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?(?:[\p{Ll}][\p{L}'’\-]{1,}\s+)?${REF_SURNAME_WORD}(?:\s+${REF_SURNAME_CONT})?`;
 // Initials may be compact, dotted, spaced or hyphenated: BE, J.A., J. A., W.-J., S.M.S.G.D.
-const REF_INITIALS=String.raw`(?:(?:[\p{Lu}]\.){1,8}|(?:[\p{Lu}]\.-[\p{Lu}]\.|[\p{Lu}]\.?)(?:\s+(?:[\p{Lu}]\.-[\p{Lu}]\.|[\p{Lu}]\.?)){0,7}|[\p{Lu}]{1,8}\.?)`;
+const REF_INITIALS=String.raw`(?:(?:[\p{Lu}]\.)(?:(?:-?|\s+)[\p{Lu}]\.){0,7}|[\p{Lu}]{1,8}\.?)`;
 
 function refParsePersonalAuthorAt(text){
   let t=(text||"").trimStart();
@@ -7751,7 +8052,8 @@ function refVolumeIssueCandidates(raw, sourceRegion){
   const seen=new Set();
   const add=(volume,issue,source)=>{
     volume=String(volume||"").trim(); issue=issue==null?null:String(issue).replace(/\s+/g," ").trim();
-    if(!/^\d{1,6}$/.test(volume)) return;
+    if(!/^\d{1,6}(?:\s*[-–—]\s*\d{1,6})?$/.test(volume)) return;
+    volume=volume.replace(/\s*[-–—]\s*/g,"-");
     const key=volume+"|"+(issue||"")+"|"+source;
     if(seen.has(key)) return; seen.add(key);
     out.push({volume,issue,source});
@@ -7770,7 +8072,7 @@ function refVolumeIssueCandidates(raw, sourceRegion){
   }
 
   // Explicit volume labels, with or without issue parentheses.
-  const volRe=/\bvol(?:ume)?\.?\s*(\d{1,6})\b(?:\s*\(\s*([^()]{1,40})\s*\))?/ig;
+  const volRe=/\bvol(?:ume)?\.?\s*(\d{1,6}(?:\s*[-–—]\s*\d{1,6})?)\b(?:\s*\(\s*([^()]{1,40})\s*\))?/ig;
   while((m=volRe.exec(t))) add(m[1],m[2]||null,"explicit-volume");
 
   // Strongest fallback: a detected journal/source immediately followed by a
@@ -7778,7 +8080,7 @@ function refVolumeIssueCandidates(raw, sourceRegion){
   if(sourceRegion){
     try{
       const esc=String(sourceRegion).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6})(?:\\s*\\(\\s*([^()]{1,40})\\s*\\))?","ig");
+      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6}(?:\\s*[-–—]\\s*\\d{1,6})?)(?:\\s*\\(\\s*([^()]{1,40})\\s*\\))?","ig");
       while((m=re.exec(t))) add(m[1],m[2]||null,"source-adjacent");
     }catch(e){}
   }
@@ -7799,7 +8101,7 @@ function refHasVolume(raw, year, sourceRegion){
   if(refVolumeIssueCandidates(raw,sourceRegion).length) return true;
 
   // Explicit volume labels are unambiguous.
-  if(/\bvol(?:ume)?\.?\s*\d{1,6}\b/i.test(t)) return true;
+  if(/\bvol(?:ume)?\.?\s*\d{1,6}(?:\s*[-–—]\s*\d{1,6})?\b/i.test(t)) return true;
 
   // Common journal tails: 396 (2020), 2, no. 4 (2022), 592 (2024): 118171.
   if(/\b\d{1,6}\s*\(\s*(?:19|20)\d{2}[a-z]?\s*\)/i.test(t)) return true;
@@ -7813,7 +8115,7 @@ function refHasVolume(raw, year, sourceRegion){
   if(sourceRegion){
     const esc=sourceRegion.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
     try{
-      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6})(?=\\s*(?:,|;|:|\\.|\\(|\\bno\\.?\\b|\\bissue\\b|$))","i");
+      const re=new RegExp(esc+"\\s*[.,;:]?\\s*(\\d{1,6}(?:\\s*[-–—]\\s*\\d{1,6})?)(?=\\s*(?:,|;|:|\\.|\\(|\\bno\\.?\\b|\\bissue\\b|$))","i");
       if(re.test(t)) return true;
     }catch(e){}
   }
@@ -8270,7 +8572,7 @@ function refParseLocatorFields(rest, yearInfo){
   const s=refStripDoiUrl(rest);
   let volume=null, issue=null, locator=null, locatorKind=null;
 
-  let m=s.match(/\bvol(?:ume)?\.?\s*(\d{1,6})\b/i);
+  let m=s.match(/\bvol(?:ume)?\.?\s*(\d{1,6}(?:\s*[-–—]\s*\d{1,6})?)\b/i);
   if(m) volume=m[1];
 
   m=s.match(/\b(?:no\.?|issue)\s*(\d{1,6})\b/i);
@@ -8344,7 +8646,8 @@ function refParseLocatorFields(rest, yearInfo){
   let genericDesignatorRe=new RegExp(
     "(?:^|[,;.\\s])(\\d{1,6})"+
     issueDesignator+
-    "\\s*[,;:]\\s*"+locatorToken
+    "\\s*[,;:]\\s*"+locatorToken,
+    "i"
   );
   m=s.match(genericDesignatorRe);
   if(m){
@@ -8359,6 +8662,21 @@ function refParseLocatorFields(rest, yearInfo){
         /[-–—]/.test(m[3]) ? "pages" :
         (/^[eE]\d+/i.test(m[3]) || /^\d{5,10}$/.test(m[3]) ? "article" : "locator")
       );
+    }
+  }
+
+  // Journal volume ranges, e.g. "Enzyme and Microbial Technology, 61-62, 67-75".
+  // The first range is the volume span and the second field is the page/article locator.
+  // This must be resolved before the generic page-range fallback, otherwise 61-62 can be
+  // mistaken for pages and the actual volume is reported as missing.
+  m=s.match(/(?:^|[,;])\s*(\d{1,6}\s*[-–—]\s*\d{1,6})\s*[,;:]\s*([eE]?\d{1,10}(?:\s*[-–—]\s*[eE]?\d{1,10})?)\s*[.]?\s*$/i);
+  if(m){
+    const py=yearInfo?yearInfo.year.replace(/[a-z]$/i,""):null;
+    const vr=m[1].replace(/\s*[-–—]\s*/g,"-");
+    if(!(py && vr===py)){
+      volume=volume||vr;
+      locator=locator||m[2];
+      locatorKind=locatorKind||(/[-–—]/.test(m[2])?"pages":(/[eE]/i.test(m[2])||m[2].length>=5?"article":"locator"));
     }
   }
 
@@ -8432,7 +8750,7 @@ function refPrefixBeforePublicationTail(rest, yearInfo, locatorFields){
   // Strip only a terminal bibliographic volume/locator sequence, never numbers
   // occurring inside the article title.
   const numericTail=prefix.match(
-    /\s*[,;]\s*\d{1,6}(?:\s*\(\s*\d{1,6}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[,;:]?\s*$/
+    /\s*[,;]\s*\d{1,6}(?:\s*[-–—]\s*\d{1,6})?(?:\s*\(\s*[^()]{1,40}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[,;:]?\s*$/
   );
   if(numericTail) prefix=prefix.slice(0,numericTail.index);
 
@@ -8460,7 +8778,7 @@ function refParseStructuredFields(raw, authorInfo, type){
     // Cut before the first strong volume/locator tail.
     let cut=afterYear.length;
     const patterns=[
-      /\s*[,;]\s*(?:vol(?:ume)?\.?\s*)?\d{1,6}(?:\s*\(\s*\d{1,6}\s*\))?\s*[,;:]/i,
+      /\s*[,;]\s*(?:vol(?:ume)?\.?\s*)?\d{1,6}(?:\s*[-–—]\s*\d{1,6})?(?:\s*\(\s*[^()]{1,40}\s*\))?\s*[,;:]/i,
       /\s+\d{1,6}\s*\(\s*\d{1,6}\s*\)\s*[,;:]/,
       /\s*[,;]\s*pp?\.?\s*\d/i
     ];
@@ -8759,7 +9077,7 @@ function refTrimPublicationTailFromSource(source){
   let s=refCleanField(source||"");
   if(!s) return s;
 
-  const commaTail=/\s*[,;]\s*\d{1,6}(?:\s*\(\s*[^()]{1,40}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i;
+  const commaTail=/\s*[,;]\s*\d{1,6}(?:\s*[-–—]\s*\d{1,6})?(?:\s*\(\s*[^()]{1,40}\s*\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?\s*[.]?\s*$/i;
   let cleaned=s.replace(commaTail,"");
 
   // Period-delimited publication tails:
@@ -8769,6 +9087,22 @@ function refTrimPublicationTailFromSource(source){
 
   cleaned=cleaned.replace(/[\s,;:.]+$/g,"").trim();
   return cleaned || s;
+}
+
+function refSeparateTerminalVolumeFromSource(source,raw,year){
+  const s=refCleanField(source||"");
+  if(!s) return null;
+  const m=s.match(/^(.*?)[,;]\s*(\d{1,6})\s*\.?$/);
+  if(!m) return null;
+  const base=refCleanField(m[1]),volume=m[2];
+  if(!base) return null;
+  const py=year?String(year).replace(/[a-z]$/i,""):null;
+  if(py && volume===py) return null;
+  const cleanRaw=refStripDoiUrl(raw||"").replace(/\s+/g," ").trim();
+  if(!new RegExp("[,;]\\s*"+volume+"\\s*\\.?\\s*$").test(cleanRaw)) return null;
+  const db=journalDbMatch(base,true);
+  if(!db.matched && refSourceScore(base,true)<4) return null;
+  return {source:base,volume,sourceDbMatch:db.matched?db.type:null};
 }
 
 function refParseEntry(raw){
@@ -8912,6 +9246,19 @@ function refParseEntry(raw){
     }
   }
 
+  // Volume-only journal tails such as "Fuel, 328." and "Chemosphere, 286."
+  // are valid. If source recovery swallowed the terminal volume into the journal
+  // name, separate it before calculating the ledger field states.
+  let terminalSourceVolume=null;
+  if(type==="journal article" && sourceRegion){
+    const sv=refSeparateTerminalVolumeFromSource(sourceRegion,raw,year);
+    if(sv){
+      sourceRegion=sv.source; terminalSourceVolume=sv.volume;
+      sourceDbMatch=sourceDbMatch||sv.sourceDbMatch;
+      if(structured){structured.source=sourceRegion;structured.volume=structured.volume||terminalSourceVolume;}
+    }
+  }
+
   // Keep publication fields separate from the journal/source label. Some
   // fallback source recoveries intentionally capture a wider suffix; once the
   // volume/locator tail is structurally clear, remove it from sourceRegion.
@@ -8928,7 +9275,7 @@ function refParseEntry(raw){
   const hasTitle=!!title;
   const hasSource=!!sourceRegion;
 
-  const hasVolume=!!structured?.volume || refHasVolume(raw,year,sourceRegion);
+  const hasVolume=!!terminalSourceVolume || !!structured?.volume || refHasVolume(raw,year,sourceRegion);
 
   // Numeric parentheses after a volume normally indicate an issue, e.g. 50(4).
   // However, in VOLUME (YEAR) styles such as 482 (2021): 228949, the
@@ -8992,6 +9339,15 @@ function refScore(s){
   return sc;
 }
 function isRefLike(s){ return refScore(s)>=4; }
+function refLooksLikeTableNoteOrAbbreviationKey(s){
+  const t=String(s||"").replace(/\s+/g," ").trim();
+  if(!t) return false;
+  const semis=(t.match(/;/g)||[]).length;
+  const pairs=(t.match(/(?:^|;)\s*[A-Z][A-Z0-9+\-/]{1,12}\s*[–—-]\s*[A-Za-z]/g)||[]).length;
+  if(semis>=2 && pairs>=2) return true;
+  if(/^\s*(?:note|notes|abbreviations?|symbols?|source)\s*:/i.test(t) && semis>=1) return true;
+  return false;
+}
 
 function detectCiteStyle(body){
   const br=(body.match(/\[\d{1,3}(?:[–,\-]\s*\d{1,3})*\]/g)||[]).length;
@@ -9079,21 +9435,52 @@ function refSplitManuscript(text){
       return {found:true, refs:text.slice(start), body:text.slice(0,start), heading:null, method:"headingless_pattern", citeStyle, confidence:74};
   }
 
-  // CASE B2: headingless sustained reference-like paragraph run in the latter part
+  // CASE B2: headingless author-year bibliography. Generic reference-like
+  // density is too permissive because table notes and citation-rich body prose can
+  // contain years and publication-like numbers. Each core paragraph in the run
+  // must independently look like an author-year reference.
   const paras=toParagraphs(text); const cut=N*0.45;
+  const strongAuthorRef=p=>{
+    const t=p.text;
+    return !refLooksLikeTableNoteOrAbbreviationKey(t) && refStartsAuthor(t) &&
+      /\b(?:19|20)\d{2}[a-z]?\b/i.test(t) && refScore(t)>=4;
+  };
+  let bestRun=null;
   for(let i=0;i<paras.length;i++){
-    if(paras[i].start<cut) continue;
-    const win=paras.slice(i,i+5);
-    const strong=win.filter(p=>isRefLike(p.text)).length;
-    if((win.length>=5 && strong>=4) || (win.length>=2 && win.length<5 && strong===win.length)){
-      return {found:true, refs:text.slice(paras[i].start), body:text.slice(0,paras[i].start), heading:null, method:"headingless_pattern", citeStyle, confidence:70};
+    if(paras[i].start<cut || !strongAuthorRef(paras[i])) continue;
+    let j=i,strong=0,total=0,weakAllowance=1;
+    while(j<paras.length){
+      const p=paras[j];
+      if(strongAuthorRef(p)){strong++;total++;j++;continue;}
+      if(weakAllowance>0 && total>0 && (/^(?:doi\s*:|https?:\/\/|\[?(?:CrossRef|PubMed|Scopus)\]?)/i.test(p.text) || p.text.length<90)){
+        weakAllowance--;total++;j++;continue;
+      }
+      break;
     }
+    if(strong>=4 || (strong>=3 && j===paras.length)){
+      const cand={strong,total,start:paras[i].start};
+      if(!bestRun || cand.strong>bestRun.strong || (cand.strong===bestRun.strong && cand.start>bestRun.start)) bestRun=cand;
+    }
+  }
+  if(bestRun){
+    return {found:true,refs:text.slice(bestRun.start),body:text.slice(0,bestRun.start),heading:null,method:"headingless_author_run",citeStyle,confidence:82};
   }
 
   return {found:false, refs:"", body:text, heading:null, method:null, citeStyle, confidence:0};
 }
-function refCheck(refText, bodyText){
-  const {style, marker, entries}=refSplitList(refText);
+function refCheck(refText, bodyText, presegmentedEntries=null){
+  let style,marker,entries;
+  if(Array.isArray(presegmentedEntries) && presegmentedEntries.length){
+    // Word XML has already established the physical paragraph boundaries of the
+    // bibliography. Do not feed those entries back through text segmentation,
+    // which can merge an intentionally incomplete reference with its neighbour.
+    const allNumbered=presegmentedEntries.every(e=>e.num!=null);
+    style=allNumbered?"numbered":"author–year";
+    marker=allNumbered?"number":"none";
+    entries=presegmentedEntries.map(e=>({num:e.num!=null?e.num:null,raw:String(e.raw||"").trim()}));
+  }else{
+    ({style,marker,entries}=refSplitList(refText));
+  }
   const parsed=entries.map(e=>({...e, ...refParseEntry(e.raw)}));
   const titleConvention=inferTitleConvention(parsed);
 
@@ -9291,7 +9678,7 @@ function renderRefReport(res, cross){
     `Detected style: ${res.style} · ${res.count} references`+
     (res.titleConvention&&res.titleConvention!=="uncertain"?` · titles ${res.titleConvention}`:"")+
     (res.doiConvention&&res.doiConvention!=="uncertain"?` · DOIs ${res.doiConvention}`:"")+
-    (res.detect ? ` · section found by ${res.detect.method==="explicit_heading"?("heading “"+(res.detect.heading||"References")+"”"):"citation-pattern detection"} (confidence ${res.detect.confidence})` : "")+
+    (res.detect ? ` · section found by ${res.detect.method==="explicit_heading"?("heading “"+(res.detect.heading||"References")+"”"):(res.detect.method==="word_bibliography_style"?"Word bibliography style":(String(res.detect.method||"").startsWith("word_")?"Word document structure":"citation-pattern detection"))} (confidence ${res.detect.confidence})` : "")+
     (res.hadBody?"":" · in-text check skipped (no manuscript body detected)");
   // The References tab intentionally shows only the ledger. Validation findings remain internal
   // for field-state calculation but are not rendered as warning/suggestion sections.
@@ -9312,8 +9699,8 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p.nonJournal?(p._identifierState||p._doiState):p._doiState)}</td></tr>`;
   }).join("");
-  const cols=`<colgroup><col style="width:6%"><col style="width:28%"><col style="width:7%"><col style="width:6%"><col style="width:6%"><col style="width:14%"><col style="width:12%"><col style="width:6%"><col style="width:15%"></colgroup>`;
-  const head=`<thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Source/container</th><th>Pages/location</th><th>Vol.</th><th>Identifier/link</th></tr></thead>`;
+  const cols=`<colgroup><col style="width:6%"><col style="width:28%"><col style="width:7%"><col style="width:6%"><col style="width:6%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:17%"></colgroup>`;
+  const head=`<thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Source</th><th>Pages</th><th>Vol.</th><th>DOI / Link</th></tr></thead>`;
   return `<div class="reference-ledger-block">
     <div class="reference-ledger-normal-head"><p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Fields are checked according to the detected reference type. yes = field detected; no = expected field missing; n/a = field not required; optional = field is not mandatory; review = the reference structure is uncertain." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p></div>
     <div class="reference-ledger-floating" aria-hidden="true"><div class="reference-ledger-floating-title">Reference ledger</div><div class="reference-ledger-floating-scroll"><table class="ledger reference-ledger-table">${cols}${head}</table></div></div>
@@ -9324,7 +9711,7 @@ function refReportText(res, cross){
   const L=["REFERENCE LEDGER","",`Detected style: ${res.style}`,`References: ${res.count}`];
   if(res.titleConvention&&res.titleConvention!=="uncertain") L.push(`Title convention: ${res.titleConvention}`);
   if(res.doiConvention&&res.doiConvention!=="uncertain") L.push(`DOI convention: ${res.doiConvention}`);
-  L.push("", "Ref | Entry / type | Author | Year | Title | Source/container | Pages/location | Vol. | Identifier/link");
+  L.push("", "Ref | Entry / type | Author | Year | Title | Source | Pages | Vol. | DOI / Link");
   const state=st=>st==="yes"?"yes":(st==="no"?"no":(st==="optional"?"optional":(st==="review"?"review":"n/a")));
   res.parsed.forEach((p,i)=>{
     const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
@@ -9774,41 +10161,36 @@ $("run").onclick=async()=>{
       await ensureJournalDbLoaded();
       status("Checking references…");
       const split=refSplitManuscript(text);
-      if(split.found){
-        let refsForCheck=split.refs;
-        let detectMethod=split.method;
-        let detectConfidence=split.confidence;
-        // Prefer Word's actual automatic-list structure when it yields a richer
-        // reference ledger than flattened text. This is especially important for
-        // publisher DOCX files where visible list numbers are stored only in numPr.
-        if(DOCX_STRUCTURED_REFERENCES?.found){
-          const plainParsed=refSplitList(split.refs);
-          const plainCount=plainParsed.entries.length;
+      const structuredReady=!!(DOCX_STRUCTURED_REFERENCES?.found && (DOCX_STRUCTURED_REFERENCES.count||0)>=2);
+      if(split.found || structuredReady){
+        let refsForCheck=split.found?split.refs:DOCX_STRUCTURED_REFERENCES.refs;
+        let bodyForCheck=split.found?split.body:(DOCX_STRUCTURED_REFERENCES.body||text);
+        let detectMethod=split.found?split.method:DOCX_STRUCTURED_REFERENCES.method;
+        let detectConfidence=split.found?split.confidence:(DOCX_STRUCTURED_REFERENCES.confidence||98);
+        let detectHeading=split.found?split.heading:(DOCX_STRUCTURED_REFERENCES.heading||null);
+        let detectedCiteStyle=split.found?split.citeStyle:detectCiteStyle(bodyForCheck);
+        let presegmentedForCheck=null;
+
+        // Word structure is authoritative when it recovers comparable or richer
+        // coverage, including headingless EndNote/Mendeley/Zotero bibliographies.
+        // Use its body boundary too so an earlier table note cannot truncate the
+        // in-text citation scan.
+        if(structuredReady){
+          const plainCount=split.found?refSplitList(split.refs).entries.length:0;
           const structuredCount=DOCX_STRUCTURED_REFERENCES.count||0;
-
-          /*
-            Prefer Word XML structure whenever it recovers essentially the same
-            bibliography as flattened text. Word XML preserves the real document
-            order and automatic-list boundaries; HTML/text fallback may restart
-            numbering when Mammoth creates several <ol> blocks. The old strict
-            `structuredCount > plainCount` test was wrong when both methods found
-            all entries but only the HTML numbering had reset.
-
-            If structured extraction is substantially incomplete, retain the
-            richer text fallback rather than discarding valid references.
-          */
-          const closeCoverage = structuredCount>=2 &&
-            (plainCount<2 || structuredCount>=plainCount || structuredCount>=Math.ceil(plainCount*0.90));
+          const closeCoverage=!split.found || plainCount<2 || structuredCount>=plainCount || structuredCount>=Math.ceil(plainCount*0.90);
           if(closeCoverage){
             refsForCheck=DOCX_STRUCTURED_REFERENCES.refs;
-            detectMethod=DOCX_STRUCTURED_REFERENCES.numberingNormalized
-              ? "word_list_structure_numbering_normalized"
-              : "word_list_structure";
-            detectConfidence=99;
+            bodyForCheck=DOCX_STRUCTURED_REFERENCES.body||bodyForCheck;
+            detectMethod=DOCX_STRUCTURED_REFERENCES.numberingNormalized?"word_list_structure_numbering_normalized":(DOCX_STRUCTURED_REFERENCES.method||"word_list_structure");
+            detectConfidence=DOCX_STRUCTURED_REFERENCES.confidence||99;
+            detectHeading=DOCX_STRUCTURED_REFERENCES.heading||null;
+            detectedCiteStyle=detectCiteStyle(bodyForCheck);
+            presegmentedForCheck=DOCX_STRUCTURED_REFERENCES.entries||null;
           }
         }
-        const refResult=refCheck(refsForCheck, split.body);
-        refResult.detect={heading:split.heading, method:detectMethod, confidence:detectConfidence, citeStyle:split.citeStyle};
+        const refResult=refCheck(refsForCheck, bodyForCheck, presegmentedForCheck);
+        refResult.detect={heading:detectHeading,method:detectMethod,confidence:detectConfidence,citeStyle:detectedCiteStyle};
         if(!refResult.count){ showRefNote("A references section was found, but no reference entries could be parsed from it."); LAST_REF_OUT=null; }
         else {
           const styleEx=$("ref-style").value.trim();
@@ -10332,7 +10714,8 @@ extractDocxStructure=async function(buf){
     const textAlign=jcEl?(jcEl.getAttributeNS(FTE_W_NS,"val")||jcEl.getAttribute("w:val")||jcEl.getAttribute("val")||""):"";
     const tabsEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"tabs")[0]:null;
     const rightTabStop=!!(tabsEl&&[...tabsEl.getElementsByTagNameNS(FTE_W_NS,"tab")].some(t=>/^(?:right|decimal)$/i.test(t.getAttributeNS(FTE_W_NS,"val")||t.getAttribute("w:val")||t.getAttribute("val")||"")));
-    return {type:"p",pos:pos++,text,style,seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,hasNumbering:!!numPr,ilvl,tabCount,textAlign,rightTabStop,...extra};
+    const eqBinding=fteWordParagraphEquationBinding(el,{hasMath,hasMathPara,mathCount,tabCount,textAlign,rightTabStop,style});
+    return {type:"p",pos:pos++,text,style,seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,hasNumbering:!!numPr,ilvl,tabCount,textAlign,rightTabStop,attachedEquationId:eqBinding?.id||null,equationNumberOnlyId:eqBinding?.numberOnlyId||null,equationCoreText:eqBinding?.coreText||"",equationLabelSource:eqBinding?.source||"",...extra};
   };
 
   const addEmbeddedCaptionBlocks=(p,containerAnchor)=>{
@@ -10340,9 +10723,9 @@ extractDocxStructure=async function(buf){
     boxes.forEach((box,bi)=>{
       const t=fteXmlText(box,{includeEmbedded:true}).replace(/\s+/g," ").trim();
       if(!t) return;
-      const fc=fteFigureCaption(t),tc=fteTableCaption(t),eq=fteEquationNumberOnly(t)||fteEquationLabel(t);
+      const fc=fteFigureCaption(t),tc=fteTableCaption(t),structEq=fteWordNodeNumberOnlyEquationId(box),eq=structEq||fteEquationNumberOnly(t)||fteEquationLabel(t);
       if(fc||tc||eq){
-        blocks.push({type:"p",pos:pos++,text:t,style:"TextBoxStructural",seqCaptionType:fc?"figure":tc?"table":"",hasDrawing:false,hasMath:false,hasMathPara:false,mathCount:0,outlineLvl:null,hasNumbering:false,ilvl:null,tabCount:0,textAlign:"",rightTabStop:false,fromTextBox:true,physicalAnchor:`${containerAnchor}:textbox:${bi}`});
+        blocks.push({type:"p",pos:pos++,text:t,style:"TextBoxStructural",seqCaptionType:fc?"figure":tc?"table":"",hasDrawing:false,hasMath:false,hasMathPara:false,mathCount:0,outlineLvl:null,hasNumbering:false,ilvl:null,tabCount:0,textAlign:"",rightTabStop:false,fromTextBox:true,containerAnchor,equationNumberOnlyId:structEq||null,physicalAnchor:`${containerAnchor}:textbox:${bi}`});
       }
     });
   };
@@ -10363,7 +10746,7 @@ extractDocxStructure=async function(buf){
     if(eqLayout.isEquationLayout){
       eqLayout.rows.forEach((r,ri)=>{
         const anchor=`equation-table:${pos}:row:${ri}`;
-        blocks.push({type:"p",pos:pos++,text:r.text,style:"EquationLayout",hasDrawing:false,hasMath:true,hasMathPara:(r.mathParaCount||0)>0,mathCount:r.mathCount||0,fromEquationTable:true,physicalAnchor:anchor,seqCaptionType:"",outlineLvl:null,hasNumbering:false,ilvl:null,tabCount:0,textAlign:"",rightTabStop:true});
+        blocks.push({type:"p",pos:pos++,text:r.text,style:"EquationLayout",hasDrawing:false,hasMath:true,hasMathPara:(r.mathParaCount||0)>0,mathCount:r.mathCount||0,fromEquationTable:true,physicalAnchor:anchor,seqCaptionType:"",outlineLvl:null,hasNumbering:false,ilvl:null,tabCount:0,textAlign:"",rightTabStop:true,attachedEquationId:r.id,equationCoreText:r.expressionText||"",equationLabelSource:"equation_table_row"});
       });
       return;
     }
@@ -10539,7 +10922,7 @@ fteAnalyze=function(blocks){
   active.forEach((b,i)=>{
     if(equationConsumed.has(i)||fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
     if(!b||b.type!=="p"||!b.text) return;
-    const id=fteEquationNumberOnly(b.text); if(!id) return;
+    const id=b.equationNumberOnlyId||fteEquationNumberOnly(b.text); if(!id) return;
     const pair=fteAdjacentEquationExpression(active,i,2); if(!pair||equationConsumed.has(pair.j)) return;
     equationConsumed.add(i); equationConsumed.add(pair.j); eqBlocks.add(i); eqBlocks.add(pair.j);
     equations.push({kind:"equation",id,pos:Math.min(b.pos,pair.b.pos),caption:`${pair.b.text} ${b.text}`.replace(/\s+/g," ").trim(),context:`${pair.b.text} ${b.text}`.replace(/\s+/g," ").trim(),placementReliable:true,physicalAnchor:`equation-pair:${Math.min(i,pair.j)}:${Math.max(i,pair.j)}`,fromEquationTable:false,mathObjectPresent:!!pair.b.hasMath,confidence:.96});
@@ -11060,7 +11443,7 @@ fteAnalyze=function(blocks){
     if(!items.length) return `<p class="verdict clean">${escapeHtml(emptyText)}</p>`;
     return items.slice(0,300).map(it=>{
       const badge=it.severity==="warn"?"warn":"info";
-      return `<div class="issue"><span class="badge ${badge}">${it.severity==="warn"?"!":"i"}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`;
+      return `<div class="issue"><span class="badge ${badge}">${it.severity==="warn"?"!":"i"}</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(humanIssueCode(it.code))}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`;
     }).join("");
   }
 
@@ -11093,7 +11476,7 @@ fteAnalyze=function(blocks){
 
     html+=`<section class="report-subsection"><p class="sec-label">Paragraph length <button type="button" class="info-help inline-auto-help" data-help="Checks main-text narrative BODY_PROSE using the selected ${paragraphMin}–${paragraphMax}-word range. Bulleted/numbered list items are excluded from paragraph-length thresholds. The minimum is section-aware and is also suppressed for single-paragraph, intentionally concise, genuine equation-associated, and genuine list-introduction prose; the maximum remains paragraph-specific for narrative prose." aria-label="Explain Paragraph length" title="Explain this section">i</button> · ${paraIssues.length}</p>`;
     if(paraIssues.length){
-      html+=paraIssues.slice(0,300).map(it=>`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(it.code)}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`).join("");
+      html+=paraIssues.slice(0,300).map(it=>`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(humanIssueCode(it.code))}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p><div class="snip">${it.snippet}</div><p class="std-note"><b>Suggested:</b> ${escapeHtml(it.suggestion)}</p></div></div>`).join("");
     }else html+=`<p class="verdict clean">No paragraph-length issues were detected among ${res.proseParagraphs||0} eligible main-text prose paragraphs after section-aware minimum-length exemptions.</p>`;
     html+=`</section>`;
 
@@ -11137,10 +11520,10 @@ fteAnalyze=function(blocks){
       `Flesch-Kincaid grade level: ${Number.isFinite(m.fleschKincaidGrade)?Number(m.fleschKincaidGrade).toFixed(1):"n/a"}`,
       ""
     ];
-    if(sentenceIssues.length){L.push("SENTENCE LENGTH");sentenceIssues.forEach(i=>{L.push(`${i.code} | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
+    if(sentenceIssues.length){L.push("SENTENCE LENGTH");sentenceIssues.forEach(i=>{L.push(`${humanIssueCode(i.code)} | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
     if(paraIssues.length){L.push("PARAGRAPH LENGTH");paraIssues.forEach(i=>{L.push(`Paragraph ${i.paragraph} | ${i.wordCount} words | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
     L.push("READABILITY",`Prose words analysed: ${m.words||0}`,`Sentences checked: ${m.sentences||0}`,`Average sentence length: ${Number(m.averageSentenceWords||0).toFixed(1)} words`,`Longest sentence: ${m.longestSentenceWords||0} words`,"");
-    if(termIssues.length){L.push("TERMINOLOGY CONSISTENCY");termIssues.forEach(i=>{L.push(`${i.code} | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
+    if(termIssues.length){L.push("TERMINOLOGY CONSISTENCY");termIssues.forEach(i=>{L.push(`${humanIssueCode(i.code)} | ${i.msg}`);L.push(`  Suggested: ${i.suggestion}`);});L.push("");}
     L.push("General grammar, spelling, punctuation, tense, pronoun/person, passive-voice, and generic clarity editing are intentionally outside this module.");
     return L.join("\n");
   };
@@ -11209,6 +11592,312 @@ fteAnalyze=function(blocks){
   }
 })();
 </script>
+<script id="abbr-mathematical-script-guard-v1">
+(()=>{
+  "use strict";
+
+  /* ==========================================================
+     MATHEMATICAL SUBSCRIPT / SUPERSCRIPT GUARD
+     Abbreviation checking is occurrence-aware. A short token used
+     as a mathematical script is not a conventional abbreviation.
+
+     Evidence is deliberately multi-source:
+       1) Office Math sub/sup structure (authoritative)
+       2) Word w:vertAlign subscript/superscript (authoritative)
+       3) Word baseline position (strong, when formula-attached)
+       4) locally reduced font size (supporting, only when a short
+          run is attached to mathematical content)
+       5) flattened-text formula morphology as a final fallback
+
+     This also covers manuscripts where authors imitate a script by
+     shrinking/raising/lowering a Word run instead of using the
+     formal Subscript/Superscript control.
+     ========================================================== */
+
+  const W_NS = typeof FTE_W_NS!=="undefined" ? FTE_W_NS : "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+  const M_NS = typeof FTE_M_NS!=="undefined" ? FTE_M_NS : "http://schemas.openxmlformats.org/officeDocument/2006/math";
+  const STATE = window.MC_ABBR_MATH_SCRIPT = window.MC_ABBR_MATH_SCRIPT || {entries:[],source:null};
+
+  function clean(s){ return String(s||"").replace(/\u00a0/g," ").replace(/[\u200B-\u200D\uFEFF]/g,"").replace(/\s+/g," ").trim(); }
+  function compactContext(s){ return String(s||"").replace(/\u00a0/g," ").replace(/[\u200B-\u200D\uFEFF]/g,"").replace(/\s+/g," ").trim(); }
+  function attr(el,ns,name){
+    if(!el) return "";
+    return el.getAttributeNS(ns,name)||el.getAttribute(`w:${name}`)||el.getAttribute(name)||"";
+  }
+  function ancestor(el,pred){
+    let n=el;
+    while(n){ if(n.nodeType===1 && pred(n)) return n; n=n.parentNode; }
+    return null;
+  }
+  function runAncestor(el){
+    return ancestor(el,n=>n.localName==="r" && (n.namespaceURI===W_NS || n.namespaceURI===M_NS));
+  }
+  function wordRunProps(run){
+    if(!run || run.namespaceURI!==W_NS) return {vert:"",position:null,size:null};
+    const rPr=[...run.childNodes].find(x=>x.nodeType===1&&x.localName==="rPr")||null;
+    if(!rPr) return {vert:"",position:null,size:null};
+    const va=[...rPr.childNodes].find(x=>x.nodeType===1&&x.localName==="vertAlign")||null;
+    const pos=[...rPr.childNodes].find(x=>x.nodeType===1&&x.localName==="position")||null;
+    const sz=[...rPr.childNodes].find(x=>x.nodeType===1&&(x.localName==="sz"||x.localName==="szCs"))||null;
+    const pv=parseFloat(attr(pos,W_NS,"val"));
+    const sv=parseFloat(attr(sz,W_NS,"val"));
+    return {
+      vert:String(attr(va,W_NS,"val")||"").toLowerCase(),
+      position:Number.isFinite(pv)?pv:null,
+      size:Number.isFinite(sv)?sv:null
+    };
+  }
+  function mathScriptRole(el){
+    // In Office Math, m:sSub / m:sSup wrap BOTH the base and the script. Only
+    // descendants of the explicit m:sub or m:sup child are scripts. Looking at
+    // the wrapper itself would wrongly classify the base expression as a script.
+    const sub=ancestor(el,n=>n.namespaceURI===M_NS && n.localName==="sub");
+    const sup=ancestor(el,n=>n.namespaceURI===M_NS && n.localName==="sup");
+    if(sub) return "subscript";
+    if(sup) return "superscript";
+    return "";
+  }
+  function orderedTextSegments(p){
+    const seg=[];
+    function walk(n){
+      if(n.nodeType!==1) return;
+      if(n.localName==="t" && (n.namespaceURI===W_NS || n.namespaceURI===M_NS)){
+        const value=String(n.textContent||"");
+        if(value) seg.push({el:n,text:value});
+        return;
+      }
+      [...n.childNodes].forEach(walk);
+    }
+    walk(p);
+    let offset=0;
+    return seg.map(x=>{
+      const run=runAncestor(x.el), props=wordRunProps(run), mathRole=mathScriptRole(x.el);
+      const rec={...x,run,start:offset,end:offset+x.text.length,props,mathRole};
+      offset=rec.end;
+      return rec;
+    });
+  }
+  function paraText(segs){ return segs.map(s=>s.text).join(""); }
+  function shortScriptToken(s){
+    const t=clean(s);
+    if(!t || t.length>4 || /\s/.test(t)) return false;
+    return /^[A-Za-zα-ωΑ-Ω0-9+−-]{1,4}$/u.test(t);
+  }
+  function formulaNeighbourhood(text,start,end){
+    const before=text.slice(Math.max(0,start-35),start);
+    const after=text.slice(end,Math.min(text.length,end+35));
+    const near=before+text.slice(start,end)+after;
+    const attachedLeft=start>0 && !/\s/.test(text[start-1]||"");
+    const attachedRight=end<text.length && !/\s/.test(text[end]||"");
+    const math=/[=≈≃∝≤≥<>+−\-×*\/^()\[\]{}°]/u.test(near);
+    const baseLike=/[A-Za-zα-ωΑ-Ω0-9)\]}]$/u.test(before);
+    return {before,after,near,attachedLeft,attachedRight,math,baseLike,formulaAttached:math && (attachedLeft||attachedRight) && (baseLike||/[)\]}]$/u.test(before))};
+  }
+  function localReferenceSize(segs,i){
+    const vals=[];
+    for(let d=1;d<=4;d++){
+      for(const j of [i-d,i+d]){
+        if(j<0||j>=segs.length) continue;
+        const s=segs[j];
+        if(!clean(s.text) || !Number.isFinite(s.props.size)) continue;
+        if(s.mathRole || /^(?:subscript|superscript)$/.test(s.props.vert)) continue;
+        vals.push(s.props.size);
+      }
+    }
+    if(!vals.length) return null;
+    vals.sort((a,b)=>a-b);
+    return vals[Math.floor(vals.length/2)];
+  }
+  function entryFromSegment(seg,text,evidence,role,confidence){
+    const token=clean(seg.text);
+    const left=text.slice(Math.max(0,seg.start-36),seg.start);
+    const right=text.slice(seg.end,Math.min(text.length,seg.end+36));
+    return {token,left:compactContext(left),right:compactContext(right),paragraph:compactContext(text),evidence,role,confidence};
+  }
+  function detectFromXml(xml){
+    const doc=new DOMParser().parseFromString(xml,"application/xml");
+    if(doc.getElementsByTagName("parsererror").length) return [];
+    const out=[];
+    const paras=[...doc.getElementsByTagNameNS(W_NS,"p")];
+    for(const p of paras){
+      const segs=orderedTextSegments(p);
+      const text=paraText(segs);
+      if(!text) continue;
+      segs.forEach((seg,i)=>{
+        const token=clean(seg.text);
+        if(!shortScriptToken(token)) return;
+        const ctx=formulaNeighbourhood(text,seg.start,seg.end);
+        let evidence="", role="", confidence=0;
+
+        if(seg.mathRole){
+          evidence="office-math-structure"; role=seg.mathRole; confidence=.995;
+        }else if(/^(?:subscript|superscript)$/.test(seg.props.vert)){
+          evidence="word-vertAlign"; role=seg.props.vert; confidence=.995;
+        }else if(Number.isFinite(seg.props.position) && Math.abs(seg.props.position)>=2 && ctx.formulaAttached){
+          evidence="word-baseline-position"; role=seg.props.position>0?"superscript":"subscript"; confidence=.92;
+        }else if(Number.isFinite(seg.props.size) && ctx.formulaAttached){
+          const ref=localReferenceSize(segs,i);
+          if(Number.isFinite(ref) && ref>0 && seg.props.size<=ref*.82){
+            evidence="locally-reduced-font-size"; role="pseudo-script"; confidence=.84;
+          }
+        }
+        if(evidence) out.push(entryFromSegment(seg,text,evidence,role,confidence));
+      });
+    }
+    return out;
+  }
+  async function buildRegistryFromDocx(file){
+    STATE.entries=[]; STATE.source=null;
+    try{
+      if(!file || !/\.docx$/i.test(String(file.name||"")) || typeof JSZip==="undefined") return;
+      const buf=await file.arrayBuffer();
+      const zip=await JSZip.loadAsync(buf);
+      const f=zip.file("word/document.xml"); if(!f) return;
+      const xml=await f.async("string");
+      STATE.entries=detectFromXml(xml);
+      STATE.source=String(file.name||"");
+    }catch(e){
+      console.warn("Mathematical script formatting analysis unavailable; text-context fallback remains active.",e);
+      STATE.entries=[]; STATE.source=null;
+    }
+  }
+
+  function suffixMatch(a,b){
+    a=compactContext(a); b=compactContext(b); let n=0;
+    for(let i=1;i<=Math.min(a.length,b.length,30);i++){
+      if(a[a.length-i]!==b[b.length-i]) break; n=i;
+    }
+    return n;
+  }
+  function prefixMatch(a,b){
+    a=compactContext(a); b=compactContext(b); let n=0;
+    for(let i=0;i<Math.min(a.length,b.length,30);i++){
+      if(a[i]!==b[i]) break; n=i+1;
+    }
+    return n;
+  }
+  function registryMatch(sent,index,raw){
+    const token=clean(raw);
+    if(!token || !STATE.entries.length) return null;
+    const left=sent.slice(Math.max(0,index-40),index);
+    const right=sent.slice(index+String(raw).length,Math.min(sent.length,index+String(raw).length+40));
+    let best=null,bestScore=0;
+    for(const e of STATE.entries){
+      if(e.token!==token) continue;
+      const lm=suffixMatch(left,e.left), rm=prefixMatch(right,e.right);
+      let score=lm+rm;
+      if(lm>=8) score+=8;
+      if(rm>=8) score+=8;
+      if(e.paragraph && compactContext(sent).includes(e.paragraph.slice(0,Math.min(45,e.paragraph.length)))) score+=10;
+      if(score>bestScore){bestScore=score;best=e;}
+    }
+    return bestScore>=12?{...best,matchScore:bestScore}:null;
+  }
+
+  function flattenedFormulaAttachedScript(sent,index,raw){
+    const token=String(raw||"").trim();
+    if(!/^[A-Za-zα-ωΑ-Ω0-9]{1,3}$/u.test(token)) return false;
+    const before=sent.slice(0,index), after=sent.slice(index+String(raw).length);
+    const leftChar=before.slice(-1), rightChar=after.slice(0,1);
+    const attachedLeft=!!leftChar && !/\s/.test(leftChar);
+    if(!attachedLeft) return false;
+
+    // Strong flattened-script forms: (...)a, ]i, }max, X1, etc. Require nearby
+    // mathematical structure so ordinary words and hyphenated prose are untouched.
+    const leftBase=/[A-Za-zα-ωΑ-Ω0-9)\]}]$/u.test(before);
+    if(!leftBase) return false;
+    const near=sent.slice(Math.max(0,index-55),Math.min(sent.length,index+String(raw).length+30));
+    const hasRelation=/[=≈≃∝≤≥<>]/u.test(near);
+    const hasMathOps=/[+−\-×*\/^]/u.test(near);
+    const parenthesizedBase=/\([^()]{1,24}\)[A-Za-zα-ωΑ-Ω0-9]{1,3}$/u.test(before+token);
+    const bracketBase=/[\]\}][A-Za-zα-ωΑ-Ω0-9]{1,3}$/u.test(before+token);
+    const formulaContext=hasRelation || (hasMathOps && /[()\[\]]/.test(near));
+    if(formulaContext && (parenthesizedBase||bracketBase)) return true;
+
+    // If the right side immediately continues as an operator/punctuation/end and
+    // the left side is a compact mathematical base, this is also strong evidence.
+    if(formulaContext && attachedLeft && /^(?:\s*(?:[,+;:.=≈≃∝≤≥<>+−\-×*\/^)]|$))/u.test(after)){
+      const baseTail=before.match(/(?:\([^()]{1,24}\)|[A-Za-zα-ωΑ-Ω][A-Za-z0-9]{0,5})$/u);
+      if(baseTail) return true;
+    }
+    return false;
+  }
+
+  function isMathematicalScriptOccurrence(sent,index,raw){
+    if(flattenedFormulaAttachedScript(sent,index,raw)) return {matched:true,evidence:"flattened-formula-context",role:"mathematical-script",confidence:.94};
+    const e=registryMatch(sent,index,raw);
+    if(e) return {matched:true,evidence:e.evidence,role:e.role,confidence:e.confidence||.9};
+    return {matched:false};
+  }
+
+  // Build DOCX formatting evidence before the normal reader flattens the file.
+  if(typeof readFile==="function"){
+    const priorReadFile=readFile;
+    readFile=async function(file){
+      await buildRegistryFromDocx(file);
+      return priorReadFile(file);
+    };
+  }
+
+  // Parenthesized single letters such as (a), (b), (c) are frequently figure
+  // panels or list labels. They must not become scientific-symbol definitions
+  // merely because the preceding caption phrase ends in a word like "rate",
+  // "area", "potential", or "value". Preserve genuine definitions such as
+  // "electrode spacing (a)" when no panel/list structure is present.
+  function singleLetterParentheticalLooksStructural(sent,start,end,sf){
+    if(!/^[A-Ia-i]$/.test(String(sf||""))) return false;
+    const left=Math.max(0,start-220), right=Math.min(sent.length,end+220);
+    const around=sent.slice(left,right);
+    const labels=around.match(/\([A-Ia-i]\)/g)||[];
+    if(labels.length>=2) return true;
+    if(/(?:fig(?:ure)?|panel|panels|image|images|micrograph|micrographs|spectrum|spectra|plot|plots|curve|curves|inset|SEM|TEM|XRD|FTIR|scale|magnification)/i.test(around)) return true;
+    return false;
+  }
+  if(typeof collectScientificDefs==="function"){
+    const priorCollectScientificDefs=collectScientificDefs;
+    collectScientificDefs=function(sent,si,add){
+      const guardedAdd=(sf,lf,s2,kind,meta={})=>{
+        const start=Number(meta.shortStart), end=Number(meta.shortEnd);
+        if((kind==="scientific-parenthetical"||kind==="scientific-parenthetical-reverse") &&
+           Number.isFinite(start)&&Number.isFinite(end) &&
+           singleLetterParentheticalLooksStructural(sent,start,end,sf)) return;
+        add(sf,lf,s2,kind,meta);
+      };
+      return priorCollectScientificDefs(sent,si,guardedAdd);
+    };
+  }
+
+  // Scientific single-letter notation is the main collision point (a, c, i, k,
+  // etc.). A script occurrence is structural mathematical notation, not an
+  // abbreviation use, even if the same character is defined elsewhere as a
+  // legitimate scientific variable.
+  if(typeof abbrIsScientificSymbolOccurrence==="function"){
+    const priorScientificOccurrence=abbrIsScientificSymbolOccurrence;
+    abbrIsScientificSymbolOccurrence=function(sent,index,raw,definition,isDefinitionOccurrence=false){
+      if(!isDefinitionOccurrence){
+        const s=isMathematicalScriptOccurrence(sent,index,raw);
+        if(s.matched) return false;
+      }
+      return priorScientificOccurrence(sent,index,raw,definition,isDefinitionOccurrence);
+    };
+  }
+
+  // Apply the same occurrence-level protection to conventional uppercase
+  // abbreviation candidates that happen to be used as formula scripts.
+  if(typeof window.abbrClassifyCandidateOccurrence==="function"){
+    const priorClassify=window.abbrClassifyCandidateOccurrence;
+    window.abbrClassifyCandidateOccurrence=function(sent,index,raw,protectedSpans){
+      const s=isMathematicalScriptOccurrence(sent,index,raw);
+      if(s.matched) return {kind:"mathematical_script",confidence:s.confidence,evidence:s.evidence};
+      return priorClassify(sent,index,raw,protectedSpans);
+    };
+  }
+
+  window.mcAbbrIsMathematicalScriptOccurrence=isMathematicalScriptOccurrence;
+  window.mcAbbrDetectDocxScriptRunsFromXml=detectFromXml;
+})();
+</script>
+
 <script id="fte-semantic-table-role-v4">
 (()=>{
   "use strict";
