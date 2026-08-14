@@ -791,6 +791,16 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .mc-help-preference input{width:15px;height:15px;margin:0;accent-color:var(--pencil);cursor:pointer}
   .mc-help-preference span{display:inline-block}
   .mc-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+  .results-coachmark[hidden]{display:none}
+  .results-coachmark{position:fixed;z-index:950;width:min(285px,calc(100vw - 24px));padding:13px 38px 13px 14px;border:1px solid #cbd8ea;border-radius:11px;background:#fff;box-shadow:0 16px 38px -20px rgba(31,52,86,.48);color:#33445e;line-height:1.42}
+  .results-coachmark b{display:block;margin-bottom:3px;color:#243a66;font-size:12.5px}
+  .results-coachmark p{margin:0;color:#5b687c;font-size:11.75px}
+  .results-coachmark-close{position:absolute;right:8px;top:7px;appearance:none;border:0;background:transparent;color:#8290a4;font-size:18px;line-height:1;cursor:pointer;padding:3px 5px;border-radius:5px}
+  .results-coachmark-close:hover{background:#f0f4f9;color:#40516c}
+  .results-coachmark-close:focus-visible{outline:2px solid var(--pencil);outline-offset:1px}
+  .results-coachmark-arrow{position:absolute;width:12px;height:12px;background:#fff;transform:rotate(45deg)}
+  .results-coachmark.above .results-coachmark-arrow{bottom:-7px;border-right:1px solid #cbd8ea;border-bottom:1px solid #cbd8ea}
+  .results-coachmark.below .results-coachmark-arrow{top:-7px;border-left:1px solid #cbd8ea;border-top:1px solid #cbd8ea}
   .mc-modal-open{overflow:hidden}
   @media(max-width:760px){
     .masthead-main{display:block}.masthead-actions{justify-content:flex-start;margin-top:14px}.workflow-strip{grid-template-columns:1fr 1fr;gap:8px}.workflow-arrow{display:none}
@@ -799,7 +809,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   }
   @media(max-width:560px){.overview-priorities,.how-read-grid,.overview-modules{grid-template-columns:1fr}.workflow-strip{grid-template-columns:1fr 1fr}.mc-modal-panel{padding:20px 16px}.analysis-progress-steps{grid-template-columns:repeat(2,1fr)}}
   @media(prefers-reduced-motion:reduce){.analysis-spinner{animation:none}}
-  @media print{.masthead-actions,.workflow-strip,.local-note,.check-scope,.analysis-progress,.mc-modal,.overview-report{display:none!important}}
+  @media print{.masthead-actions,.workflow-strip,.local-note,.check-scope,.analysis-progress,.mc-modal,.overview-report,.results-coachmark{display:none!important}}
 
 
   #results-tabs{grid-template-columns:repeat(7,minmax(0,1fr))}
@@ -10437,6 +10447,7 @@ $("run").onclick=async()=>{
     showTab("overview");
     $("results-tabs").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
     status("");
+    MC_RESULTS_COACHMARK_TIMER=setTimeout(mcShowResultsCoachmark,matchMedia("(prefers-reduced-motion: reduce)").matches?80:650);
   }catch(err){ console.error(err); status(err.message||"Something went wrong reading the Word file. Please verify that it is a valid .docx file.",true); }
   finally{ btn.disabled=false; }
 };
@@ -10447,7 +10458,7 @@ $("clear").onclick=()=>{
   $("title").value=""; $("ref-style").value="";
   $("report").hidden=true; $("ref-report").hidden=true; $("num-report").hidden=true; $("unit-report").hidden=true; $("eng-report").hidden=true; $("fte-report").hidden=true;
   $("results-tabs").hidden=true; document.querySelectorAll(".result-group").forEach(el=>el.hidden=true);
-  currentTab="overview"; status(""); const op=$("overview-priorities"),om=$("overview-modules"); if(op)op.innerHTML=""; if(om)om.innerHTML=""; LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[]; DOCX_STRUCTURAL_PARAGRAPHS=[]; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null;
+  currentTab="overview"; mcHideResultsCoachmark(); status(""); const op=$("overview-priorities"),om=$("overview-modules"); if(op)op.innerHTML=""; if(om)om.innerHTML=""; LAST=null; LAST_REF_OUT=null; LAST_FTE=null; LAST_UNIT=null; LAST_ENG=null; DOCX_FTE_BLOCKS=[]; DOCX_STRUCTURAL_PARAGRAPHS=[]; DOCX_ENGLISH_EXCLUDE_TEXTS=[]; DOCX_ENGLISH_TEXT=""; DOCX_STRUCTURED_REFERENCES=null;
 };
 
 $("ref-download").onclick=()=>{ if(!LAST_REF_OUT) return; const blob=new Blob([refReportText(LAST_REF_OUT.res,LAST_REF_OUT.cross)],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="reference-report.txt"; a.click(); URL.revokeObjectURL(a.href); };
@@ -10540,13 +10551,66 @@ function mcCloseHelp(){const modal=$("mc-help-modal");if(!modal)return;if(modal.
   if(!mcHelpAutoHidden()) setTimeout(()=>mcOpenHelp("how"),350);
 })();
 
+let MC_RESULTS_COACHMARK_TIMER=null;
+function mcEnsureResultsCoachmark(){
+  let el=$("results-coachmark");
+  if(el) return el;
+  el=document.createElement("aside");
+  el.id="results-coachmark";
+  el.className="results-coachmark above";
+  el.hidden=true;
+  el.setAttribute("role","status");
+  el.setAttribute("aria-live","polite");
+  el.innerHTML='<button type="button" class="results-coachmark-close" aria-label="Dismiss this tip" title="Dismiss">×</button><b>Check individual items</b><p>Click any category above to review its detailed results.</p><span class="results-coachmark-arrow" aria-hidden="true"></span>';
+  document.body.appendChild(el);
+  el.querySelector(".results-coachmark-close")?.addEventListener("click",mcHideResultsCoachmark);
+  return el;
+}
+function mcPositionResultsCoachmark(){
+  const el=$("results-coachmark"), target=document.querySelector('#results-tabs .rtab[data-tab="abbr"]');
+  if(!el||el.hidden||!target||$("results-tabs")?.hidden) return;
+  const r=target.getBoundingClientRect();
+  const gap=13, edge=12;
+  const w=el.offsetWidth||285, h=el.offsetHeight||72;
+  let left=r.left+r.width/2-w/2;
+  left=Math.max(edge,Math.min(left,window.innerWidth-w-edge));
+  const canSitAbove=r.top>=h+gap+edge;
+  let top;
+  if(canSitAbove){
+    el.classList.add("above"); el.classList.remove("below");
+    top=r.top-h-gap;
+  }else{
+    el.classList.add("below"); el.classList.remove("above");
+    top=Math.min(window.innerHeight-h-edge,r.bottom+gap);
+  }
+  el.style.left=Math.round(left)+"px";
+  el.style.top=Math.round(Math.max(edge,top))+"px";
+  const arrow=el.querySelector(".results-coachmark-arrow");
+  if(arrow){
+    const arrowLeft=Math.max(18,Math.min(w-28,r.left+r.width/2-left-6));
+    arrow.style.left=Math.round(arrowLeft)+"px";
+  }
+}
+function mcShowResultsCoachmark(){
+  clearTimeout(MC_RESULTS_COACHMARK_TIMER);
+  const el=mcEnsureResultsCoachmark();
+  el.hidden=false;
+  requestAnimationFrame(mcPositionResultsCoachmark);
+}
+function mcHideResultsCoachmark(){
+  clearTimeout(MC_RESULTS_COACHMARK_TIMER);
+  const el=$("results-coachmark"); if(el) el.hidden=true;
+}
+window.addEventListener("resize",mcPositionResultsCoachmark,{passive:true});
+window.addEventListener("scroll",mcPositionResultsCoachmark,{passive:true});
+
 let currentTab="overview";
 function showTab(which){
   currentTab=which;
   document.querySelectorAll(".result-group").forEach(el=>{ el.hidden = el.dataset.group!==which; });
   document.querySelectorAll("#results-tabs .rtab").forEach(btn=>{ const on=btn.dataset.tab===which; btn.classList.toggle("active",on); btn.setAttribute("aria-selected",on?"true":"false"); });
 }
-document.querySelectorAll("#results-tabs .rtab").forEach(btn=>{ btn.onclick=()=>showTab(btn.dataset.tab); });
+document.querySelectorAll("#results-tabs .rtab").forEach(btn=>{ btn.onclick=()=>{mcHideResultsCoachmark();showTab(btn.dataset.tab);}; });
 
 document.addEventListener("click",e=>{
   const b=e.target.closest&&e.target.closest(".inline-auto-help");
