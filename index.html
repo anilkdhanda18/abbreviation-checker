@@ -752,6 +752,9 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   details.advanced-settings>summary::after{content:'+';font:700 17px var(--mono);color:#7080a0}
   details.advanced-settings[open]>summary::after{content:'−'}
   details.advanced-settings>summary small{margin-left:auto;margin-right:8px;padding:2px 7px;border-radius:999px;background:#eef2f8;color:#718096;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  details.advanced-settings>summary .advanced-settings-title{min-width:0;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  details.advanced-settings>summary .advanced-settings-cue{font-size:11.5px;font-weight:500;color:var(--muted);letter-spacing:0;text-transform:none}
+  @media(max-width:640px){details.advanced-settings>summary .advanced-settings-cue{font-size:10.5px;line-height:1.35}}
   .advanced-settings-body{padding:0 15px 16px;border-top:1px solid var(--hair);background:#fff}
   .advanced-intro{margin:12px 0 0;color:var(--muted);font-size:12.5px}
   .analysis-progress{margin-top:18px;padding:14px 15px;border:1px solid #d7e1ef;border-radius:10px;background:#f9fbff}
@@ -1039,7 +1042,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     </div>
 
     <details class="advanced-settings mc-full-width-advanced" id="advanced-settings">
-          <summary><span>Advanced check settings</span><small>Optional</small></summary>
+          <summary><span class="advanced-settings-title">Advanced check settings <span class="advanced-settings-cue">(Click here to change sentence length, paragraph length, abbreviation scope, and other optional settings)</span></span><small>Optional</small></summary>
           <div class="advanced-settings-body">
             <p class="advanced-intro">Defaults are designed for general scientific manuscripts. Change these only when your journal, institution, or workflow requires different rules.</p>
     
