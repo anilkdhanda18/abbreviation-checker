@@ -574,10 +574,19 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     background:linear-gradient(90deg,#244b91,#7895c7);
   }
   .home-title-link,.home-title-link:hover,.home-title-link:focus{color:#183f7a;}
+  .masthead-tagline{
+    margin:14px 0 0;
+    color:#244b91;
+    font-family:var(--sans);
+    font-size:18px;
+    line-height:1.35;
+    font-weight:700;
+    letter-spacing:.01em;
+  }
   .lede{
     width:100%;
     max-width:none;
-    margin-top:12px;
+    margin-top:8px;
     color:#4d5e78;
     font-size:15.5px;
     line-height:1.65;
@@ -862,6 +871,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <div>
         <p class="eyebrow">Manuscript Proofing</p>
         <h1><a href="#" id="home-title-link" class="home-title-link" aria-label="Return to Manuscript Check home and start a fresh submission" title="Start a fresh manuscript check">Manuscript Check</a><span class="rule"></span></h1>
+        <p class="masthead-tagline">Review smartly. Submit with confidence.</p>
         <p class="lede">Upload a Word manuscript, let the checker scan it, then review the findings that need your attention.</p>
       </div>
       <div class="masthead-actions" aria-label="Help and privacy">
@@ -1040,7 +1050,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <section class="card overview-report" id="overview-report" aria-live="polite">
       <div class="overview-kicker">Manuscript check complete</div>
       <h2>Your results at a glance</h2>
-      <p class="overview-lede" id="overview-lede">Start with High-priority findings, then inspect Review findings. Editorial notes are lower-priority observations and may depend on your target journal.</p>
+      <p class="overview-lede" id="overview-lede">Start with Critical errors, then inspect Review items. Editorial notes are lower-priority observations and may depend on your target journal.</p>
       <div id="mc-manuscript-summary"></div>
       <div class="mc-overview-actions" id="mc-overview-actions">
         <button type="button" class="btn btn-primary" id="mc-start-guided">Start guided review</button>
@@ -1057,8 +1067,8 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <div class="how-read-results">
         <h3>How to read the results</h3>
         <div class="how-read-grid">
-          <div><span class="priority-tag critical">High-priority finding</span><p>High-confidence finding that should normally be addressed.</p></div>
-          <div><span class="priority-tag review">Review finding</span><p>Potential inconsistency that needs author judgement or journal-specific checking.</p></div>
+          <div><span class="priority-tag critical">Critical error</span><p>High-confidence finding that should normally be addressed.</p></div>
+          <div><span class="priority-tag review">Review item</span><p>Potential inconsistency that needs author judgement or journal-specific checking.</p></div>
           <div><span class="priority-tag style">Editorial note</span><p>Lower-priority consistency or readability observation.</p></div>
         </div>
         <p class="ledger-key"><b>In ledgers:</b> <span class="yn y">yes</span> = field found · <span class="yn n">no</span> = expected field missing · <span class="yn na">n/a</span> = not required for that item.</p>
@@ -1089,7 +1099,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <details class="rules">
     <summary>What this checks</summary>
     <ol>
-      <li><b>Define or introduce at first use.</b> Conventional abbreviations should be expanded at first use, while scientific parameters and symbols may be introduced by a clear descriptor such as <code>BET surface area (SBET)</code> or <code>micropore volume (Vp)</code>.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument, product and grade names.</b> Complete manufacturer/brand/family/model/grade phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, technical product lists, model codes, nearby category nouns, and manufacturer/location metadata. Commercial identifiers such as <code>Selemion AMV</code>, <code>CMI-7000</code>, or an instrument model are classified by occurrence rather than treated automatically as abbreviations. Recognition does not depend on a vendor whitelist, so unseen product grades can be handled while genuine scientific abbreviations remain subject to the normal definition rules.</li><li><b>Nested abbreviations.</b> A shorter acronym such as <code>SEM</code> may be inferred from an earlier explicit definition such as <code>field emission scanning electron microscopy (FESEM)</code> when the letter-to-word mapping is exact. Because journal first-use policies vary, this is reported as a Review finding rather than as a High-priority finding.</li><li><b>Scholarly metadata terms.</b> Publishing metadata labels are interpreted in context. For example, <code>CREDIT</code> followed by recognised author-contribution roles is treated as the CRediT Contributor Role Taxonomy rather than as an undefined scientific abbreviation.</li>
+      <li><b>Define or introduce at first use.</b> Conventional abbreviations should be expanded at first use, while scientific parameters and symbols may be introduced by a clear descriptor such as <code>BET surface area (SBET)</code> or <code>micropore volume (Vp)</code>.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument, product and grade names.</b> Complete manufacturer/brand/family/model/grade phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, technical product lists, model codes, nearby category nouns, and manufacturer/location metadata. Commercial identifiers such as <code>Selemion AMV</code>, <code>CMI-7000</code>, or an instrument model are classified by occurrence rather than treated automatically as abbreviations. Recognition does not depend on a vendor whitelist, so unseen product grades can be handled while genuine scientific abbreviations remain subject to the normal definition rules.</li><li><b>Nested abbreviations.</b> A shorter acronym such as <code>SEM</code> may be inferred from an earlier explicit definition such as <code>field emission scanning electron microscopy (FESEM)</code> when the letter-to-word mapping is exact. Because journal first-use policies vary, this is reported as a Review item rather than as a Critical error.</li><li><b>Scholarly metadata terms.</b> Publishing metadata labels are interpreted in context. For example, <code>CREDIT</code> followed by recognised author-contribution roles is treated as the CRediT Contributor Role Taxonomy rather than as an undefined scientific abbreviation.</li>
       <li><b>Do not use before defining.</b> The full form must appear at or before the first use, not later.</li>
       <li><b>Earn the abbreviation.</b> Defined terms that are then used only once or twice are flagged.</li>
       <li><b>Titles and headings excluded.</b> The paper title and section/subsection headings, including numbered, ALL-CAPS, and Title Case headings, are not used for abbreviation-definition checks.</li><li><b>Front matter excluded.</b> Author/affiliation blocks, correspondence details, and Keywords/Index terms are not used for abbreviation-definition checks.</li>
@@ -5233,8 +5243,8 @@ function issuePriorityInfo(issue){
   if(!issue) return null;
   const badge=issue.querySelector(".badge");
   if(!badge) return null;
-  if(badge.classList.contains("err")) return {key:"critical",label:"High-priority finding"};
-  if(badge.classList.contains("warn")) return {key:"review",label:"Review finding"};
+  if(badge.classList.contains("err")) return {key:"critical",label:"Critical error"};
+  if(badge.classList.contains("warn")) return {key:"review",label:"Review item"};
   if(badge.classList.contains("info")) return {key:"style",label:"Editorial note"};
   return null;
 }
@@ -5275,12 +5285,12 @@ function enhanceReportSeverity(reportId,navId){
   toolbar.innerHTML=`
     <span class="priority-toolbar-label">Priority
       <button type="button" class="info-help inline-auto-help"
-        data-help="High-priority finding = a high-confidence finding that should normally be addressed. Review finding = a likely inconsistency or substantive point that needs author judgement. Editorial note = a lower-priority readability or presentation observation that may be acceptable depending on journal requirements. These labels prioritise findings; they do not change the underlying manuscript checks."
+        data-help="Critical error = a high-confidence finding that should normally be addressed. Review item = a likely inconsistency or substantive point that needs author judgement. Editorial note = a lower-priority readability or presentation observation that may be acceptable depending on journal requirements. These labels prioritise findings; they do not change the underlying manuscript checks."
         aria-label="Explain issue priority levels" title="What do the priority levels mean?">i</button>
     </span>
     <button type="button" class="priority-btn active" data-priority="all">All ${total}</button>
-    <button type="button" class="priority-btn" data-priority="critical">High-priority findings ${counts.critical}</button>
-    <button type="button" class="priority-btn" data-priority="review">Review findings ${counts.review}</button>
+    <button type="button" class="priority-btn" data-priority="critical">Critical errors ${counts.critical}</button>
+    <button type="button" class="priority-btn" data-priority="review">Review items ${counts.review}</button>
     <button type="button" class="priority-btn" data-priority="style">Editorial notes ${counts.style}</button>`;
   if(nav && nav.parentNode===report) nav.insertAdjacentElement("afterend",toolbar);
   else {
@@ -5435,8 +5445,8 @@ function renderReport(r){
 
   const okCount=r.rows.filter(x=>x.status==="ok").length;
   document.getElementById("scorecard").innerHTML=[
-    {n:r.errors.length,k:"High-priority findings",cls:"err"},
-    {n:r.warnings.length,k:"Review findings",cls:"warn"},
+    {n:r.errors.length,k:"Critical errors",cls:"err"},
+    {n:r.warnings.length,k:"Review items",cls:"warn"},
     {n:r.infos.length,k:"Editorial notes",cls:""},
     {n:okCount,k:"Clean",cls:"ok"}
   ].map(s=>`<div class="score ${s.cls}"><div class="n">${s.n}</div><div class="k">${s.k}</div></div>`).join("");
@@ -5446,8 +5456,8 @@ function renderReport(r){
   else if(r.errors.length===0){ v.className="verdict"; v.textContent="No high-priority findings were detected. A few findings are worth reviewing below."; }
   else { v.className="verdict"; v.textContent=`${r.errors.length} high-priority finding${r.errors.length===1?"":"s"} should be addressed before submission.`; }
 
-  document.getElementById("errors-wrap").innerHTML=section("High-priority findings",r.errors,"err");
-  document.getElementById("warnings-wrap").innerHTML=section("Review findings",r.warnings,"warn");
+  document.getElementById("errors-wrap").innerHTML=section("Critical errors",r.errors,"err");
+  document.getElementById("warnings-wrap").innerHTML=section("Review items",r.warnings,"warn");
   document.getElementById("infos-wrap").innerHTML=section("Editorial notes",r.infos,"info");
   document.getElementById("ledger-wrap").innerHTML=ledger(r.rows);
   document.getElementById("std-wrap").innerHTML=
@@ -5460,8 +5470,8 @@ function section(label,items,kind){
   if(!items.length) return "";
   const sym=kind==="info"?"i":"!";
   const helpMap={
-    "High-priority findings":"High-confidence abbreviation findings such as missing first-use definitions or use before definition. These should normally be addressed before submission. References and configured table/numeric blocks are excluded from this analysis.",
-    "Review findings":"Potential abbreviation consistency findings that need author judgement before editing.",
+    "Critical errors":"High-confidence abbreviation findings such as missing first-use definitions or use before definition. These should normally be addressed before submission. References and configured table/numeric blocks are excluded from this analysis.",
+    "Review items":"Potential abbreviation consistency findings that need author judgement before editing.",
     "Editorial notes":"Lower-priority abbreviation/style observations. These are not automatically treated as errors."
   };
   const rows=items.map(it=>`
@@ -5520,7 +5530,7 @@ function reportText(r){
   L.push(`Errors: ${r.errors.length} | Warnings: ${r.warnings.length} | Suggestions: ${r.infos.length}`);
   L.push("");
   const blk=(t,arr)=>{ if(!arr.length) return; L.push(t.toUpperCase()); arr.forEach(i=>L.push(`  - ${i.abbr&&i.abbr!=="units"?"["+i.abbr+"] ":""}${i.msg}`)); L.push(""); };
-  blk("High-priority findings",r.errors); blk("Review findings",r.warnings); blk("Editorial notes",r.infos);
+  blk("Critical errors",r.errors); blk("Review items",r.warnings); blk("Editorial notes",r.infos);
   L.push("ABBREVIATION LEDGER");
   L.push("  Abbrev | Full form | Uses | Definition status");
   r.rows.forEach(x=>L.push(`  ${x.base} | ${x.longForm||"NOT DEFINED"} | ${x.count} | ${x.definitionSource==="list"?"Defined in list":(x.definitionSource==="scientific"?(x.firstUseOK?"Scientific definition":"Scientific definition later"):(x.definitionSource==="prose"?(x.firstUseOK?"Defined in main text":"Defined after first use"):(x.definitionSource==="nested"?`Inferred from ${x.nestedFrom||"earlier term"}`:(x.definitionSource==="declared"?"Accepted declaration":(x.longForm?(x.firstUseOK?"Defined":"Definition found later"):"-")))))}`));
@@ -11179,8 +11189,8 @@ function combinedReportText(){
     `Generated: ${new Date().toLocaleString()}`,
     "",
     "MANUSCRIPT SUMMARY",sub,
-    `High-priority findings: ${priority.critical}`,
-    `Review findings: ${priority.review}`,
+    `Critical errors: ${priority.critical}`,
+    `Review items: ${priority.review}`,
     `Editorial notes: ${priority.style}`,
     `Abbreviations/notations detected: ${LAST?.totalAbbr??0}`,
     `References detected: ${LAST_REF_OUT?.res?.count??0}`,
@@ -11190,7 +11200,7 @@ function combinedReportText(){
     `Tables detected: ${LAST_FTE?.tables?.length??0}`,
     `Numbered equations detected: ${LAST_FTE?.equations?.length??0}`,
     "",
-    "Priority guide: High-priority finding = high-confidence finding to address; Review finding = author judgement required; Editorial note = lower-priority consistency or readability observation.",
+    "Priority guide: Critical error = high-confidence finding to address; Review item = author judgement required; Editorial note = lower-priority consistency or readability observation.",
     ""
   ];
   const add=(heading,text)=>{
@@ -11245,8 +11255,8 @@ function renderManuscriptOverview(){
   ids.forEach(id=>{const c=mcReportPriorityCounts(id);total.critical+=c.critical;total.review+=c.review;total.style+=c.style;});
   const p=$("overview-priorities");
   if(p) p.innerHTML=`
-    <div class="overview-priority-card critical"><div class="n">${total.critical}</div><div class="k">High-priority findings</div><p>High-confidence findings to review first.</p></div>
-    <div class="overview-priority-card review"><div class="n">${total.review}</div><div class="k">Review findings</div><p>Potential inconsistencies requiring author judgement.</p></div>
+    <div class="overview-priority-card critical"><div class="n">${total.critical}</div><div class="k">Critical errors</div><p>High-confidence findings to review first.</p></div>
+    <div class="overview-priority-card review"><div class="n">${total.review}</div><div class="k">Review items</div><p>Potential inconsistencies requiring author judgement.</p></div>
     <div class="overview-priority-card style"><div class="n">${total.style}</div><div class="k">Editorial notes</div><p>Lower-priority consistency or readability observations.</p></div>`;
   const refMissing=mcReferenceMissingFieldCount();
   const refDetected=LAST_REF_OUT?.res?.count!=null?`${LAST_REF_OUT.res.count} reference${LAST_REF_OUT.res.count===1?"":"s"} detected`:`Reference section not confidently located`;
@@ -11270,7 +11280,7 @@ function mcHelpMarkup(kind){
   return `<p class="mc-help-eyebrow">Using Manuscript Check</p><h2 id="mc-help-title">Four steps from upload to revision</h2><p class="mc-help-lede">Start by uploading your DOCX manuscript. The tool will organise the findings and guide you through the items that may need attention.</p><div class="mc-help-steps">
     <div class="mc-help-step"><span>1</span><div><b>Upload</b><p>Drop or choose a complete Microsoft Word DOCX manuscript.</p></div></div>
     <div class="mc-help-step"><span>2</span><div><b>Run the check</b><p>Default settings are suitable for a general scientific manuscript. Advanced settings are optional.</p></div></div>
-    <div class="mc-help-step"><span>3</span><div><b>Start with Overview</b><p>Review High-priority findings first, then Review findings. Editorial notes are lower priority.</p></div></div>
+    <div class="mc-help-step"><span>3</span><div><b>Start with Overview</b><p>Review Critical errors first, then Review items. Editorial notes are lower priority.</p></div></div>
     <div class="mc-help-step"><span>4</span><div><b>Inspect, revise, recheck</b><p>Each finding shows the manuscript evidence and a suggested action. Apply it only when appropriate for the science and target journal.</p></div></div>
   </div><div class="mc-help-note"><b>Remember:</b> a highlighted item is something worth checking, not proof that the manuscript is wrong. Journal instructions and scientific meaning take priority.</div><label class="mc-help-preference"><input type="checkbox" id="mc-help-dont-show"><span>Don't show this guide automatically again</span></label><div class="mc-modal-actions"><button type="button" class="btn btn-primary" data-close-help data-scroll-upload>Go to upload</button></div>`;
 }
@@ -14259,12 +14269,12 @@ fteAnalyze=function(blocks){
 
   function ensureToolbar(group){
     const report=$u(GROUP_REPORT[group]); if(!report||report.querySelector(".mc-review-toolbar"))return; const issues=allIssues(group); if(!issues.length)return;
-    const bar=document.createElement("div");bar.className="mc-review-toolbar";bar.innerHTML='<span class="mc-toolbar-label">Show only</span><button class="mc-review-filter active" data-filter="all">All</button><button class="mc-review-filter" data-filter="critical">High-priority</button><button class="mc-review-filter" data-filter="review">Review findings</button><button class="mc-review-filter" data-filter="style">Editorial notes</button><button class="mc-review-filter" data-filter="reviewed">Reviewed</button><button class="mc-review-filter" data-filter="not_issue">Accept as written</button>';
+    const bar=document.createElement("div");bar.className="mc-review-toolbar";bar.innerHTML='<span class="mc-toolbar-label">Show only</span><button class="mc-review-filter active" data-filter="all">All</button><button class="mc-review-filter" data-filter="critical">Critical errors</button><button class="mc-review-filter" data-filter="review">Review items</button><button class="mc-review-filter" data-filter="style">Editorial notes</button><button class="mc-review-filter" data-filter="reviewed">Reviewed</button><button class="mc-review-filter" data-filter="not_issue">Accept as written</button>';
     const labs=scopeLabels(); if(labs.length>1){const sel=document.createElement("select");sel.className="mc-chapter-filter";sel.setAttribute("aria-label","Filter findings by chapter");sel.innerHTML='<option value="">All chapters</option>'+labs.map((x,i)=>`<option value="${i}">${escapeHtml(x)}</option>`).join("");sel.addEventListener("change",()=>{UX_FILTERS[group]=UX_FILTERS[group]||{};UX_FILTERS[group].chapter=sel.value;applyFilters(group)});bar.appendChild(sel)}
     const sub=report.querySelector(".report-subnav"),header=report.querySelector(".sub"); if(sub)sub.insertAdjacentElement("afterend",bar); else if(header)header.insertAdjacentElement("afterend",bar); else report.prepend(bar);
     bar.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{bar.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));UX_FILTERS[group]=UX_FILTERS[group]||{};UX_FILTERS[group].priority=b.dataset.filter;applyFilters(group)})); ensureIssueNav(group,bar);updateToolbarCounts(group);
   }
-  function updateToolbarCounts(group){const bar=$u(GROUP_REPORT[group])?.querySelector(".mc-review-toolbar");if(!bar)return;const arr=allIssues(group),counts={all:arr.length,critical:0,review:0,style:0,reviewed:0,not_issue:0};arr.forEach(i=>{const p=priorityOf(i);if(counts[p]!==undefined)counts[p]++;if(i.classList.contains("mc-reviewed"))counts.reviewed++;if(i.classList.contains("mc-not-issue"))counts.not_issue++});const names={all:"All",critical:"High-priority",review:"Review findings",style:"Editorial notes",reviewed:"Reviewed",not_issue:"Accept as written"};bar.querySelectorAll("[data-filter]").forEach(b=>b.textContent=`${names[b.dataset.filter]} ${counts[b.dataset.filter]||0}`)}
+  function updateToolbarCounts(group){const bar=$u(GROUP_REPORT[group])?.querySelector(".mc-review-toolbar");if(!bar)return;const arr=allIssues(group),counts={all:arr.length,critical:0,review:0,style:0,reviewed:0,not_issue:0};arr.forEach(i=>{const p=priorityOf(i);if(counts[p]!==undefined)counts[p]++;if(i.classList.contains("mc-reviewed"))counts.reviewed++;if(i.classList.contains("mc-not-issue"))counts.not_issue++});const names={all:"All",critical:"Critical errors",review:"Review items",style:"Editorial notes",reviewed:"Reviewed",not_issue:"Accept as written"};bar.querySelectorAll("[data-filter]").forEach(b=>b.textContent=`${names[b.dataset.filter]} ${counts[b.dataset.filter]||0}`)}
   function cardMatchesChapter(issue,label){if(!label)return true;const t=issueChapterText(issue).toLowerCase(),l=label.toLowerCase(); const ch=(label.match(/chapter\s+[a-z0-9]+/i)||[])[0]; if(ch&&t.includes(ch.toLowerCase()))return true; const stripped=l.replace(/^chapter\s+[a-z0-9]+\s*[:.\-]?\s*/i,"").trim(); return stripped.length>5&&t.includes(stripped)}
   function applyFilters(group){
     const f=UX_FILTERS[group]||{},filter=f.priority||"all",labs=scopeLabels(),label=f.chapter!==undefined&&f.chapter!==""?labs[Number(f.chapter)]:""; allIssues(group).forEach(issue=>{let show=true; if(filter==="critical"||filter==="review"||filter==="style")show=priorityOf(issue)===filter;else if(filter==="reviewed")show=issue.classList.contains("mc-reviewed");else if(filter==="not_issue")show=issue.classList.contains("mc-not-issue"); if(show&&label)show=cardMatchesChapter(issue,label);issue.classList.toggle("mc-filter-hidden",!show)}); updateIssueNav(group);
