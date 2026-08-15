@@ -1835,6 +1835,518 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 }
 </style>
 
+
+<style id="mc-wide-desktop-layout-v1">
+/*
+  Wider desktop workspace
+  -----------------------
+  The application shell now uses most of the available browser width so wide
+  ledgers and report columns have more room. Long prose remains internally
+  constrained where continuous reading would otherwise become uncomfortable.
+  Print/PDF layout is not affected.
+*/
+@media screen {
+  .wrap{
+    width:min(95vw,1600px);
+    max-width:1600px;
+    margin:0 auto;
+    padding:40px clamp(18px,1.8vw,30px) 96px;
+  }
+
+  /* Main application surfaces should take advantage of the wider shell. */
+  .masthead,
+  #input-card,
+  .card,
+  .report,
+  .overview,
+  .mc-entry-columns,
+  table.ledger{
+    width:100%;
+  }
+
+  /* Give analysis tables the full workspace rather than imposing a reading
+     measure intended for prose. */
+  .ledger-wrap,
+  .reference-ledger-wrap,
+  .abbr-ledger-wrap,
+  .unit-ledger-wrap,
+  .num-ledger-wrap,
+  .eng-ledger-wrap,
+  .fte-ledger-wrap{
+    width:100%;
+    max-width:none;
+  }
+
+  /* Keep continuous explanatory prose comfortable even though its surrounding
+     card is now much wider. */
+  .masthead .lede{
+    max-width:78ch;
+  }
+  #input-card > .sub{
+    max-width:96ch;
+  }
+  .mc-settings-group > .mc-group-help,
+  .section-help,
+  .ledger-help,
+  .disclaimer,
+  .dev-note,
+  .legal-note{
+    max-width:100ch;
+  }
+
+  /* On large screens let the upload/options columns breathe instead of merely
+     stretching the whitespace between them. */
+  .mc-entry-columns{
+    gap:clamp(20px,2vw,34px);
+  }
+}
+
+@media screen and (min-width:1500px){
+  .wrap{
+    width:min(96vw,1600px);
+  }
+}
+
+@media screen and (max-width:900px){
+  .wrap{
+    width:calc(100% - 24px);
+    max-width:none;
+    padding:24px 0 72px;
+  }
+}
+
+@media screen and (max-width:600px){
+  .wrap{
+    width:calc(100% - 16px);
+    padding-top:16px;
+  }
+}
+</style>
+
+
+<style id="mc-wide-screen-font-scale-v1">
+/*
+  Wide-screen typography refinement
+  ---------------------------------
+  Larger displays have additional horizontal space, so increase reading sizes
+  selectively without altering laptop/tablet/mobile or print/PDF layouts.
+*/
+@media screen and (min-width:1400px){
+  /* Main page and upload screen */
+  .masthead h1{font-size:3rem}
+  .tagline{font-size:18px}
+  .lede{font-size:18px}
+  .card h2{font-size:25px}
+  .card .sub{font-size:16.5px}
+
+  .drop .big{font-size:20px}
+  .drop .small{font-size:16px}
+  .drop .formats{font-size:14.5px}
+
+  .mc-document-type-copy b{font-size:15.5px}
+  .mc-document-type-copy span{font-size:14.25px}
+  .mc-type-options span{font-size:15px}
+  .mc-checks-explainer summary{font-size:15.5px}
+  .mc-checks-explainer p{font-size:15px}
+  .mc-checks-grid span{font-size:14.25px}
+  #input-card .mc-entry-scope span{font-size:14.25px}
+
+  /* Buttons and controls */
+  .btn{font-size:17px}
+  input.text{font-size:17px}
+  textarea{font-size:16px}
+  .opt{font-size:16px}
+  label.fld{font-size:14.75px}
+
+  /* Advanced settings */
+  details.adv summary,
+  details.advanced-settings>summary{font-size:16.5px}
+  details.adv .hint{font-size:15.25px}
+  details.advanced-settings>summary small{font-size:13.75px}
+  details.advanced-settings>summary .advanced-settings-cue{font-size:14.25px}
+  .mc-settings-group>h3{font-size:16px}
+  .mc-settings-group>.mc-group-help,
+  .mc-settings-passive,
+  .mc-settings-toolbar p{font-size:14.75px}
+
+  .readability-title{font-size:16.5px}
+  .readability-sub{font-size:15.25px}
+  .readability-defaults{font-size:14px}
+  .limit-label{font-size:14px}
+  .limit-unit{font-size:14.75px}
+  .readability-foot{font-size:14.5px}
+
+  /* Overview */
+  .overview-lede{font-size:16.5px}
+  .overview-module-title{font-size:15.5px}
+  .overview-module-meta{font-size:14.5px}
+  .overview-recommendation{font-size:15px}
+  .overview-priority-card p{font-size:14.5px}
+  .mc-manuscript-card h3{font-size:16px}
+  .mc-manuscript-card p{font-size:14.75px}
+  .mc-manuscript-stats span{font-size:13.75px}
+  .mc-structure summary,
+  .mc-structure-list{font-size:14.25px}
+
+  /* Section titles and supporting notes */
+  .sec-label{font-size:14px}
+  .ledger-help,
+  .section-help{font-size:15.75px}
+  .std-note{font-size:16px}
+  .disclaimer{font-size:15.5px}
+  .legal-note{font-size:14.75px}
+  .dev-note,
+  .abbr-scope-note{font-size:15.5px}
+
+  /* Main analysis ledgers */
+  table.ledger{font-size:16.5px}
+  table.ledger th{font-size:13.5px}
+  table.ledger td{line-height:1.5}
+
+  /* The reference table is the densest report, so increase it cautiously. */
+  .reference-ledger-table{font-size:15px!important}
+  .reference-ledger-table th{font-size:12.75px!important}
+  .reference-ledger-floating .ledger th{font-size:12.75px!important}
+  .reference-ledger-key{font-size:14.75px}
+  .rtype{font-size:13.5px}
+  .rtab-label{font-size:15.25px}
+  .rtab-count{font-size:13px}
+
+  /* Status and recommendation text */
+  .abbr-ledger-status,
+  .unit-ledger-status,
+  .num-ledger-status,
+  .eng-ledger-status,
+  .fte-ledger-status{font-size:15px}
+
+  .unit-action,
+  .num-recommendation{font-size:15.25px}
+
+  .abbr-view-instances,
+  .unit-view-instances,
+  .num-view-instances,
+  .eng-view-instances,
+  .fte-view-instances{font-size:15px}
+
+  /* Expanded instance panels */
+  .abbr-instance-panel-note,
+  .unit-instance-panel-note,
+  .num-instance-panel-note,
+  .eng-instance-panel-note,
+  .fte-instance-panel-note{font-size:15.25px}
+
+  .abbr-instance-group-title,
+  .unit-instance-section-title,
+  .eng-instance-group-title,
+  .fte-instance-group-title{font-size:14.75px}
+
+  .abbr-instance-example,
+  .unit-instance-example,
+  .num-instance-example,
+  .eng-instance-example,
+  .fte-instance-example{font-size:15.75px}
+
+  .abbr-instance-label,
+  .eng-instance-label,
+  .fte-instance-label{font-size:13.75px}
+
+  .abbr-instance-more>summary,
+  .unit-instance-more>summary,
+  .num-instance-more>summary,
+  .eng-instance-more>summary,
+  .fte-instance-more>summary{font-size:14.75px}
+
+  /* Help and pop-ups */
+  .mc-modal h2{font-size:29px}
+  .mc-modal .mc-help-lede{font-size:17px}
+  .mc-help-step b{font-size:16.5px}
+  .mc-help-step p{font-size:15.75px}
+  .mc-help-note{font-size:15.75px}
+  .mc-help-preference{font-size:15.5px}
+  .section-help.auto-section-help{font-size:16px}
+  .results-coachmark b{font-size:15.75px}
+  .results-coachmark p{font-size:15.25px}
+
+  /* Workflow and progress */
+  .analysis-progress-head b{font-size:15.25px}
+  .analysis-progress-head small{font-size:14.25px}
+  .analysis-progress-steps span{font-size:13.25px}
+  .workflow-step b{font-size:14.75px}
+  .workflow-step small{font-size:13.25px}
+}
+
+@media screen and (min-width:1800px){
+  /*
+    Very large monitors get one final modest increase. Avoid scaling by zoom so
+    borders, spacing and table geometry remain stable.
+  */
+  table.ledger{font-size:17px}
+  table.ledger th{font-size:14px}
+  .reference-ledger-table{font-size:15.5px!important}
+  .reference-ledger-table th{font-size:13px!important}
+  .reference-ledger-floating .ledger th{font-size:13px!important}
+
+  .lede{font-size:18.5px}
+  .card .sub{font-size:17px}
+  .btn{font-size:17.5px}
+
+  .abbr-instance-example,
+  .unit-instance-example,
+  .num-instance-example,
+  .eng-instance-example,
+  .fte-instance-example{font-size:16px}
+}
+</style>
+
+
+<style id="mc-adaptive-typography-audit-v4">
+/*
+  Final adaptive typography audit
+  -------------------------------
+  This layer targets text that remained comparatively small after the previous
+  readability updates. It scales secondary metadata more intelligently with
+  screen width, while keeping dense tables stable and leaving print/PDF rules
+  untouched.
+*/
+
+/* Phones: keep compact geometry, but prevent genuinely tiny helper text. */
+@media screen and (max-width:599px){
+  .limit-info.info-help{font-size:12.5px}
+  .analysis-progress-steps span{font-size:12.5px}
+  .workflow-step small{font-size:12.5px}
+  .priority-tag{font-size:12.5px}
+  .mc-issue-label,
+  .snip.mc-evidence::before{font-size:12.5px}
+  .credit-lead,
+  .overview-kicker,
+  .overview-module-attn{font-size:12.5px}
+  table.ledger th{font-size:12.5px}
+  .reference-ledger-table th,
+  .reference-ledger-floating .ledger th{font-size:12px!important}
+}
+
+/* Tablets and ordinary laptops: secondary information should remain readable
+   without consuming excessive horizontal space. */
+@media screen and (min-width:600px) and (max-width:1399px){
+  .eyebrow,
+  .score .k,
+  .credit-lead,
+  .overview-kicker{font-size:13px}
+
+  .credit-tag,
+  .priority-tag,
+  .mc-issue-label,
+  .snip.mc-evidence::before,
+  .std-note.mc-suggested b:first-child{font-size:13px}
+
+  .visitor-stat .info-help,
+  .info-help,
+  .limit-info.info-help{font-size:13px}
+
+  .workflow-step>span{font-size:13.75px}
+  .workflow-step small{font-size:13px}
+  .analysis-progress-steps span{font-size:13px}
+
+  .overview-priority-card .k{font-size:13px}
+  .overview-module-attn{font-size:13px}
+  .how-read-grid p,
+  .ledger-key,
+  .overview-caution{font-size:14px}
+
+  .check-scope span{font-size:14px}
+  .reference-ledger-floating-title{font-size:13px}
+  .rtype{font-size:13.25px}
+  .rtab-count{font-size:12.75px}
+
+  table.ledger th{font-size:13.25px}
+  .reference-ledger-table th,
+  .reference-ledger-floating .ledger th{font-size:12.5px!important}
+
+  .unit-view-instances::after,
+  .num-view-instances::after{font-size:12.5px}
+
+  .header-help-btn{font-size:15px}
+  .drop-ready-text{font-size:15px}
+}
+
+/* Wide desktops: use the extra physical space for genuinely comfortable text,
+   especially metadata that previously stayed at laptop sizes. */
+@media screen and (min-width:1400px) and (max-width:1799px){
+  .masthead-tagline{font-size:19px}
+  .header-help-btn{font-size:15.75px}
+
+  .eyebrow,
+  .score .k,
+  .credit-lead,
+  .overview-kicker{font-size:14px}
+
+  .badge{font-size:14.5px}
+  .credit-tag{font-size:14px}
+  .visitor-stat{font-size:14.5px}
+  .visitor-stat .info-help,
+  .info-help{font-size:14px}
+  .local-note{font-size:15px}
+  .check-scope span{font-size:14.75px}
+
+  .limit-info.info-help{font-size:13.5px}
+  .readability-defaults,
+  .limit-label{font-size:14.5px}
+
+  .workflow-step>span{font-size:14.25px}
+  .workflow-step b{font-size:15px}
+  .workflow-step small{font-size:14px}
+  .analysis-progress-steps span{font-size:14px}
+
+  .overview-priority-card .k{font-size:14px}
+  .overview-module-attn{font-size:13.75px}
+  .how-read-grid p{font-size:14.75px}
+  .ledger-key,
+  .overview-caution{font-size:14.75px}
+  .overview-kicker{font-size:14px}
+
+  .priority-tag{font-size:13.5px}
+  .mc-issue-label,
+  .snip.mc-evidence::before,
+  .std-note.mc-suggested b:first-child{font-size:13.5px}
+
+  table.ledger th{font-size:14px}
+  .reference-ledger-table th,
+  .reference-ledger-floating .ledger th{font-size:13.25px!important}
+  .reference-ledger-floating-title{font-size:13.75px}
+  .rtype{font-size:13.75px}
+  .rtab-count{font-size:13.5px}
+
+  .unit-view-instances::after,
+  .num-view-instances::after{font-size:13px}
+
+  .drop-ready-text{font-size:15.75px}
+}
+
+/* Very large desktop monitors: modest further scaling. The increase is focused
+   on reading text, not on padding or control geometry. */
+@media screen and (min-width:1800px) and (max-width:2199px){
+  .masthead h1{font-size:3.1rem}
+  .masthead-tagline{font-size:20px}
+  .header-help-btn{font-size:16.25px}
+
+  .eyebrow,
+  .score .k,
+  .credit-lead,
+  .overview-kicker{font-size:14.5px}
+
+  .badge{font-size:15px}
+  .credit-tag{font-size:14.5px}
+  .visitor-stat{font-size:15px}
+  .visitor-stat .info-help,
+  .info-help{font-size:14.5px}
+  .local-note{font-size:15.5px}
+  .check-scope span{font-size:15px}
+
+  .limit-info.info-help{font-size:14px}
+  .readability-defaults,
+  .limit-label{font-size:14.75px}
+
+  .workflow-step>span{font-size:14.75px}
+  .workflow-step b{font-size:15.5px}
+  .workflow-step small{font-size:14.5px}
+  .analysis-progress-steps span{font-size:14.5px}
+
+  .overview-priority-card .k{font-size:14.5px}
+  .overview-module-attn{font-size:14.25px}
+  .how-read-grid p{font-size:15.25px}
+  .ledger-key,
+  .overview-caution{font-size:15.25px}
+
+  .priority-tag{font-size:14px}
+  .mc-issue-label,
+  .snip.mc-evidence::before,
+  .std-note.mc-suggested b:first-child{font-size:14px}
+
+  table.ledger{font-size:17.25px}
+  table.ledger th{font-size:14.5px}
+  .reference-ledger-table{font-size:15.75px!important}
+  .reference-ledger-table th,
+  .reference-ledger-floating .ledger th{font-size:13.5px!important}
+  .reference-ledger-floating-title{font-size:14px}
+  .rtype{font-size:14px}
+  .rtab-count{font-size:14px}
+
+  .abbr-ledger-status,
+  .unit-ledger-status,
+  .num-ledger-status,
+  .eng-ledger-status,
+  .fte-ledger-status,
+  .abbr-view-instances,
+  .unit-view-instances,
+  .num-view-instances,
+  .eng-view-instances,
+  .fte-view-instances{font-size:15.5px}
+
+  .drop-ready-text{font-size:16px}
+}
+
+/* 4K-class browser widths: one final restrained step. The workspace remains
+   capped, so this primarily improves physical legibility at high resolution. */
+@media screen and (min-width:2200px){
+  .masthead h1{font-size:3.2rem}
+  .masthead-tagline{font-size:20.5px}
+  .lede{font-size:19px}
+  .header-help-btn{font-size:16.5px}
+  .card h2{font-size:26px}
+  .card .sub{font-size:17.5px}
+  .btn{font-size:18px}
+
+  .eyebrow,
+  .score .k,
+  .credit-lead,
+  .overview-kicker{font-size:15px}
+
+  .badge,
+  .credit-tag,
+  .visitor-stat{font-size:15px}
+  .visitor-stat .info-help,
+  .info-help{font-size:14.75px}
+  .local-note{font-size:16px}
+  .check-scope span{font-size:15.25px}
+
+  .workflow-step>span{font-size:15px}
+  .workflow-step b{font-size:16px}
+  .workflow-step small{font-size:14.75px}
+  .analysis-progress-steps span{font-size:14.75px}
+
+  .overview-module-title{font-size:16px}
+  .overview-module-meta{font-size:15px}
+  .overview-module-attn{font-size:14.5px}
+  .how-read-grid p,
+  .ledger-key,
+  .overview-caution{font-size:15.5px}
+
+  .priority-tag,
+  .mc-issue-label,
+  .snip.mc-evidence::before,
+  .std-note.mc-suggested b:first-child{font-size:14.25px}
+
+  table.ledger{font-size:17.75px}
+  table.ledger th{font-size:14.75px}
+  .reference-ledger-table{font-size:16px!important}
+  .reference-ledger-table th,
+  .reference-ledger-floating .ledger th{font-size:13.75px!important}
+  .reference-ledger-floating-title{font-size:14.25px}
+  .rtype{font-size:14.25px}
+  .rtab-count{font-size:14.25px}
+
+  .abbr-instance-example,
+  .unit-instance-example,
+  .num-instance-example,
+  .eng-instance-example,
+  .fte-instance-example{font-size:16.5px}
+
+  .mc-modal .mc-help-lede{font-size:17.5px}
+  .mc-help-step p,
+  .mc-help-note{font-size:16.25px}
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -1885,7 +2397,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <div class="mc-document-type" id="mc-document-type" role="group" aria-labelledby="mc-document-type-label">
       <div class="mc-document-type-copy">
         <b id="mc-document-type-label">Manuscript type</b>
-        <span>Automatic is recommended. Choose a type only when you want to guide long-document rules.</span>
+        <span>Automatic is recommended. Thesis / dissertation uses chapter-level abbreviation rules; other manuscript types use continuous-document abbreviation consistency.</span>
       </div>
       <div class="mc-type-options">
         <label><input type="radio" name="mc-document-type" value="auto" checked><span>Automatic</span></label>
@@ -2035,7 +2547,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Abbreviation report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For confidently detected theses and other long documents, first-use checks are chapter-aware: reintroducing an abbreviation in a new major chapter is not treated as a duplicate definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Abbreviation report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For a thesis/dissertation, the List of Abbreviations is global but every abbreviation used in the Abstract or a chapter must also be defined at first use in that scope; definitions repeated across different chapters are valid. For journal articles, book chapters, reports, and other continuous manuscripts, the tool accepts one consistent document-level approach: list-only use, first-use definition without a list, or list plus first-use definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
@@ -2044,7 +2556,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <div id="infos-wrap"></div>
     <div id="ledger-wrap"></div>
     <div id="std-wrap"></div>
-    <p class="disclaimer">This is a heuristic aid, not a substitute for a careful read. Detection of abbreviations and definitions is pattern-based and can still miss unusual cases. All-caps paper titles and other excluded front matter are not treated as abbreviation sources. Definitions are recognised from both conventional acronym expansions and scientific notation introduced semantically, such as "BET surface area (SBET)" or "micropore volume (Vp)", including reverse/list-style forms. Requirements vary by journal, so always confirm against your target journal's author guidelines.</p>
+    <p class="disclaimer">This is a heuristic aid, not a substitute for a careful read. Detection of abbreviations and definitions is pattern-based and can still miss unusual cases. All-caps paper titles and other excluded front matter are not treated as abbreviation sources. Definitions are recognised from both conventional acronym expansions and scientific notation introduced semantically, such as "BET surface area (SBET)" or "micropore volume (Vp)", including reverse/list-style forms. Requirements can vary by journal or institution, so confirm the final abbreviation convention against the applicable author or thesis guidelines.</p>
     <div class="report-actions">
       <button class="btn btn-ghost" id="download" hidden aria-hidden="true" tabindex="-1">Download report (.txt)</button>
       <button class="btn btn-primary" id="print" title="Opens the browser print dialog so you can save this section report as a PDF">Download report (PDF)</button>
@@ -2055,16 +2567,16 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <details class="rules">
     <summary>What this checks</summary>
     <ol>
-      <li><b>Define or introduce at first use.</b> Conventional abbreviations should be expanded at first use, while scientific parameters and symbols may be introduced by a clear descriptor such as <code>BET surface area (SBET)</code> or <code>micropore volume (Vp)</code>.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument, product and grade names.</b> Complete manufacturer/brand/family/model/grade phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, technical product lists, model codes, nearby category nouns, and manufacturer/location metadata. Commercial identifiers such as <code>Selemion AMV</code>, <code>CMI-7000</code>, or an instrument model are classified by occurrence rather than treated automatically as abbreviations. Recognition does not depend on a vendor whitelist, so unseen product grades can be handled while genuine scientific abbreviations remain subject to the normal definition rules.</li><li><b>Nested abbreviations.</b> A shorter acronym such as <code>SEM</code> may be inferred from an earlier explicit definition such as <code>field emission scanning electron microscopy (FESEM)</code> when the letter-to-word mapping is exact. Because journal first-use policies vary, this is reported as a Review item rather than as a Critical error.</li><li><b>Scholarly metadata terms.</b> Publishing metadata labels are interpreted in context. For example, <code>CREDIT</code> followed by recognised author-contribution roles is treated as the CRediT Contributor Role Taxonomy rather than as an undefined scientific abbreviation.</li>
+      <li><b>Document-type-aware definition policy.</b> In a thesis/dissertation, use a List of Abbreviations and define each abbreviation again at first use in the Abstract and in every chapter where it appears. In journal articles, book chapters, reports, and other continuous manuscripts, follow one approach consistently: list-only use, first-use definition without a list, or list plus first-use definition.</li><li><b>Scientific parameter notation.</b> Method-qualified variables, derived abbreviations, and parameter symbols are accepted when the surrounding syntax clearly defines what the notation means; exact initial-letter matching is not required. Single-letter symbols are matched occurrence by occurrence so ordinary prose such as <code>A similar procedure...</code> is not confused with a defined variable <code>A</code>.</li><li><b>Experimental identifiers.</b> Sample, material, reactor, device, treatment, and configuration labels introduced by wording such as <i>designated</i>, <i>labelled</i>, <i>denoted</i>, or <i>coded</i> are protected as complete identifiers. Equivalent Word typography such as hyphen/en-dash variants is normalised for matching, and internal fragments such as <code>MFC-AL</code> within <code>MFC-AL/AN</code> are never treated as standalone undefined abbreviations.</li><li><b>Instrument, product and grade names.</b> Complete manufacturer/brand/family/model/grade phrases are detected and protected before abbreviation extraction using equipment-use context, proper-name structure, technical product lists, model codes, nearby category nouns, and manufacturer/location metadata. Commercial identifiers such as <code>Selemion AMV</code>, <code>CMI-7000</code>, or an instrument model are classified by occurrence rather than treated automatically as abbreviations. Recognition does not depend on a vendor whitelist, so unseen product grades can be handled while genuine scientific abbreviations remain subject to the normal definition rules.</li><li><b>Nested abbreviations.</b> A shorter acronym such as <code>SEM</code> may be inferred from an earlier explicit definition such as <code>field emission scanning electron microscopy (FESEM)</code> when the letter-to-word mapping is exact. Because journal first-use policies vary, this is reported as a Review item rather than as a Critical error.</li><li><b>Scholarly metadata terms.</b> Publishing metadata labels are interpreted in context. For example, <code>CREDIT</code> followed by recognised author-contribution roles is treated as the CRediT Contributor Role Taxonomy rather than as an undefined scientific abbreviation.</li>
       <li><b>Do not use before defining.</b> The full form must appear at or before the first use, not later.</li>
       <li><b>Earn the abbreviation.</b> Defined terms that are then used only once or twice are flagged.</li>
       <li><b>Titles and headings excluded.</b> The paper title and section/subsection headings, including numbered, ALL-CAPS, and Title Case headings, are not used for abbreviation-definition checks.</li><li><b>Front matter excluded.</b> Author/affiliation blocks, correspondence details, and Keywords/Index terms are not used for abbreviation-definition checks.</li>
       <li><b>Plural and possessive forms are normalised.</b> <code>MFCs</code> is treated as the plural of <code>MFC</code>, while <code>MFC’s performance</code> is treated as a valid possessive use. A final uppercase letter remains part of the abbreviation, so <code>TSS</code>, <code>VSS</code>, <code>TDS</code>, and <code>GIS</code> are not shortened.</li>
       <li><b>Do not begin a sentence with an abbreviation.</b></li>
       <li><b>Define once within each prose scope.</b> Repeated definition of the same abbreviation within the main text (or twice within the Abstract) is treated as a Critical error. One definition in the Abstract and a separate first-use definition in the main text are accepted. Table notes, captions, abbreviation/nomenclature lists, and other structural material do not count toward main-text duplicate definitions.</li>
-      <li><b>List of abbreviations.</b> When many abbreviations are present and no dedicated list is found, the tool provides an editorial note reminding the author to check whether the target journal requires a List of Abbreviations or Nomenclature section.</li>
+      <li><b>List of abbreviations.</b> A dedicated List of Abbreviations is required by the tool's thesis/dissertation policy. For other manuscript types, a list is optional unless required by the target journal or institution. When a list is used in a continuous manuscript, list-only use and list-plus-first-use definition are both acceptable, but they must not be mixed.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are recognised globally.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are retained as manuscript-level declarations. In chapter-aware thesis mode, a chapter-level reintroduction is still allowed and is never treated as a duplicate. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-local definitions are handled independently.</b> Table notes such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style forms are recognised even when Word/publisher formatting places a footnote marker before the abbreviation. Table captions, cells, and notes do not determine main-text first use or create duplicate-definition findings; running prose is checked independently.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are recognised globally.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are retained as manuscript-level declarations. In thesis/dissertation mode, the list does not replace the required first-use definition in the Abstract or each chapter. Reintroducing the same abbreviation in a different chapter is valid and is not a duplicate. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-local definitions are handled independently.</b> Table notes such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style forms are recognised even when Word/publisher formatting places a footnote marker before the abbreviation. Table captions, cells, and notes do not determine main-text first use or create duplicate-definition findings; running prose is checked independently.</li>
     </ol>
   </details>
 
@@ -6264,13 +6776,31 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         label:`Use ${idx+1}`,
         sentenceIndex:o.sent,
         occurrenceIndex:o.index,
+        proseScope:sentenceDefinitionScope[o.sent]||"main",
         html:buildSnippet(sentences[o.sent]||"",o.raw||disp)
       })).filter(x=>x.html);
       const rowDefinitionInstances=orderedDefs.map((d,idx)=>({
         label:`Definition ${idx+1}`,
         sentenceIndex:d.sent,
+        proseScope:sentenceDefinitionScope[d.sent]||"main",
         html:buildSnippet(sentences[d.sent]||"",d.form||disp)
       })).filter(x=>x.html);
+
+      // Abstract and main text are independent prose scopes. These fields are
+      // retained so the document-level abbreviation convention is determined
+      // only from main-text behaviour.
+      const mainOccurrences=g.occ.filter(o=>(sentenceDefinitionScope[o.sent]||"main")==="main");
+      const abstractOccurrences=g.occ.filter(o=>(sentenceDefinitionScope[o.sent]||"main")==="abstract");
+      const mainDefinitions=orderedDefs.filter(d=>(sentenceDefinitionScope[d.sent]||"main")==="main");
+      const abstractDefinitions=orderedDefs.filter(d=>(sentenceDefinitionScope[d.sent]||"main")==="abstract");
+      const firstMainUse=mainOccurrences.length?Math.min(...mainOccurrences.map(o=>o.sent)):Infinity;
+      const firstMainDef=mainDefinitions.length?Math.min(...mainDefinitions.map(d=>d.sent)):Infinity;
+      const mainProseFirstUseOK=mainDefinitions.length ? firstMainDef<=firstMainUse : null;
+      const mainProseInstances=rowOccurrenceInstances.filter(x=>x.proseScope==="main");
+      const mainProseDefinitionInstances=rowDefinitionInstances.filter(x=>x.proseScope==="main");
+      const abstractInstances=rowOccurrenceInstances.filter(x=>x.proseScope==="abstract");
+      const abstractDefinitionInstances=rowDefinitionInstances.filter(x=>x.proseScope==="abstract");
+
       const reverseDefined=!!firstDef && /^reverse/.test(firstDef.kind||"");
       const scientificDefinition=!!firstDef && firstDef.definitionType && firstDef.definitionType!=="conventional_acronym";
       const earlierLong=(!listDef && reverseDefined) ? findEarlierLongForm(sentences,longForm,defSent) : null;
@@ -6367,6 +6897,36 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         }
       }
 
+      // Abstract definitions do not satisfy main-text first-use requirements
+      // when the manuscript is using a prose first-use convention.
+      if(!std && mainOccurrences.length){
+        const mainLate=mainDefinitions.length && firstMainUse<firstMainDef;
+        const mainLateAlready=errors.some(e=>
+          norm(e?.abbr||"")===norm(disp) &&
+          /Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(String(e?.msg||""))
+        );
+        if(mainLate && !mainLateAlready){
+          status="err";
+          errors.push({
+            abbr:disp,
+            msg:`Used before it is defined in the main text. ${disp} is introduced later in the main text; define it at its first main-text use. An Abstract definition is treated independently.`,
+            snip:mainProseInstances[0]?.html||snippet
+          });
+        }
+
+        // Approach 2 (no abbreviation list) requires a main-text first-use
+        // definition even if the same abbreviation was defined in the Abstract.
+        if(!listDef && !declared && !mainDefinitions.length && abstractDefinitions.length){
+          status="err";
+          errors.push({
+            abbr:disp,
+            msg:`Not defined at first use in the main text. ${disp} is defined in the Abstract, but no main-text first-use definition was detected.`,
+            snip:mainProseInstances[0]?.html||snippet,
+            independentMainScope:true
+          });
+        }
+      }
+
       // Do not issue low-use warnings for an abbreviation intentionally included
       // in an explicit abbreviation list.
       if(!std && !declared && defined && count<=2 && !reverseDefined && !scientificDefinition){
@@ -6450,7 +7010,26 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       }
 
       if(!std){
-        rows.push({base:disp, longForm, count, firstUseOK, status, definitionSource, definitionType:firstDef?.definitionType||null,instances:rowOccurrenceInstances,definitionInstances:rowDefinitionInstances});
+        rows.push({
+          base:disp,
+          longForm,
+          count,
+          firstUseOK,
+          status,
+          definitionSource,
+          definitionType:firstDef?.definitionType||null,
+          instances:rowOccurrenceInstances,
+          definitionInstances:rowDefinitionInstances,
+          mainProseUseCount:mainOccurrences.length,
+          mainProseDefinitionCount:mainDefinitions.length,
+          mainProseFirstUseOK,
+          mainProseInstances,
+          mainProseDefinitionInstances,
+          abstractUseCount:abstractOccurrences.length,
+          abstractDefinitionCount:abstractDefinitions.length,
+          abstractInstances,
+          abstractDefinitionInstances
+        });
       }
     });
 
@@ -6468,7 +7047,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
   if(hasList && DECLARED_ABBR_MAP.size){
     infos.unshift({
       abbr:null,
-      msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. Two consistent approaches are accepted: listed abbreviations may be used directly in prose, or they may all be defined again at first use. A Review item is created only when these two approaches are mixed within the same prose scope.`,
+      msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. For journal articles, book chapters, reports and other continuous manuscripts, either use listed abbreviations directly throughout the main text or define the listed abbreviations again at first use throughout the main text. Do not mix these approaches. The Abstract is treated independently.`,
       snip:null
     });
   }else if(nonStd>=8 && !hasList){
@@ -6759,6 +7338,8 @@ function abbrPlainHtml(x){
 function abbrIssueStatusLabel(msg,priority){
   msg=String(msg||"");
   let m;
+  if(/List of Abbreviations not detected/i.test(msg)) return "List of Abbreviations not detected";
+  if((m=msg.match(/Not defined at first use in ([^.]+)\./i))) return `Not defined at first use in ${m[1]}`;
   if(/Mixed abbreviation-definition approach/i.test(msg)) return "Mixed definition approach";
   if(/Conflicting definitions|different full forms|different meanings|unambiguous throughout/i.test(msg)){
     m=msg.match(/Defined\s+(\d+)\s+times/i);
@@ -6784,8 +7365,12 @@ function abbrRecommendationForIssue(it,priority){
   const a=String(it?.abbr||"abbreviation").trim();
   const msg=String(it?.msg||"");
   let m;
+  if(/List of Abbreviations not detected/i.test(msg))
+    return "Add a List of Abbreviations for the abbreviations used in the thesis.";
+  if((m=msg.match(/Not defined at first use in ([^.]+)\./i)))
+    return `Define ${a} at its first use in ${m[1]}.`;
   if(/Mixed abbreviation-definition approach/i.test(msg))
-    return "Use one method consistently: either use abbreviations directly because they are already defined in the abbreviation list, or define all of them again at their first use in the text.";
+    return "Use one abbreviation-definition approach consistently throughout the manuscript.";
   if(/Conflicting definitions|different full forms|different meanings|unambiguous throughout/i.test(msg))
     return `Use one correct full form consistently for ${a}.`;
   if(/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msg))
@@ -6807,7 +7392,7 @@ function abbrRecommendationForIssue(it,priority){
   if(/inferred from the earlier definition|requires .* defined separately/i.test(msg))
     return `Check whether ${a} requires a separate first-use definition under the target journal's policy.`;
   if(/institution requires abbreviations|chapter-local introduction|introduced in .*chapter/i.test(msg))
-    return `Check whether ${a} should be reintroduced at first use in this chapter.`;
+    return `Define ${a} at its first use in this chapter.`;
   if(/distinct technical concept|combined term should also be defined/i.test(msg))
     return `Verify whether ${a} represents a distinct concept that requires its own definition.`;
   if(priority==="style") return "Review this editorial abbreviation note against the target journal's requirements.";
@@ -6820,8 +7405,8 @@ function abbrDefinitionStatusText(x){
   if(src==="scientific") return x.firstUseOK===false?"Defined after first use":"Defined correctly";
   if(src==="prose") return x.firstUseOK===false?"Defined after first use":"Defined correctly";
   if(src==="multi_scope") return "Defined correctly within chapter";
-  if(src==="scope_review") return "Chapter first use";
-  if(src==="scope_elsewhere") return "Defined elsewhere";
+  if(src==="scope_review") return "Chapter first-use definition needed";
+  if(src==="scope_elsewhere") return "Chapter first-use definition needed";
   if(src==="conflict") return "Conflicting definitions";
   if(src==="nested") return "Definition review";
   if(src==="declared") return "Defined correctly";
@@ -7171,10 +7756,23 @@ function abbrListDeclarationContext(def,abbr){
   };
 }
 
+function abbrSelectedDocumentType(){
+  const checked=document.querySelector('input[name="mc-document-type"]:checked');
+  return String(checked?.value||"auto").toLowerCase();
+}
+
 function abbrListConventionEligibleRow(row){
-  if(!row || !row.base || !(Number(row.count)>0)) return false;
+  if(!row || !row.base) return false;
   const key=norm(row.base);
   if(!DECLARED_ABBR_MAP.has(key)) return false;
+
+  // The continuous-manuscript consistency rule is based on MAIN prose only.
+  // An Abstract is an independent abbreviation-definition scope and therefore
+  // must not make the main manuscript appear mixed.
+  const mainUses=Number.isFinite(Number(row.mainProseUseCount))
+    ? Number(row.mainProseUseCount)
+    : Number(row.count||0);
+  if(mainUses<=0) return false;
 
   // Measurement units and unit-like notation are outside the abbreviation
   // definition-convention rule even if they happen to appear in a nomenclature
@@ -7190,27 +7788,41 @@ function abbrListConventionEligibleRow(row){
 function abbrMixedListApproachIssue(rows){
   if(!(DECLARED_ABBR_LIST_FOUND || DECLARED_ABBR_MAP.size)) return null;
 
+  // Thesis/dissertation policy is chapter-specific and is handled by the
+  // chapter-aware analyser. Never create a whole-manuscript mixed-approach
+  // finding merely because different thesis chapters behave differently.
+  if(abbrSelectedDocumentType()==="thesis") return null;
+
   const eligible=(rows||[]).filter(abbrListConventionEligibleRow);
   if(eligible.length<2) return null;
 
-  const redefined=[], direct=[];
+  const redefined=[],direct=[];
   eligible.forEach(row=>{
-    const defs=(row.definitionInstances||[]).filter(x=>x?.html);
-    const uses=(row.instances||[]).filter(x=>x?.html);
+    const mainDefCount=Number.isFinite(Number(row.mainProseDefinitionCount))
+      ? Number(row.mainProseDefinitionCount)
+      : (row.definitionInstances||[]).length;
+    const mainFirstUseOK=row.mainProseFirstUseOK;
 
-    if(defs.length){
+    // A late prose definition is already a first-use error and is not used to
+    // infer one of the three VALID document conventions.
+    if(mainDefCount>0 && mainFirstUseOK===false) return;
+
+    const defs=((row.mainProseDefinitionInstances||row.definitionInstances)||[]).filter(x=>x?.html);
+    const uses=((row.mainProseInstances||row.instances)||[]).filter(x=>x?.html);
+
+    if(mainDefCount>0){
       redefined.push({
         abbr:row.base,
         context:{
-          label:`${row.base} · prose definition`,
-          html:defs[0].html
+          label:`${row.base} · defined again at first use`,
+          html:defs[0]?.html || uses[0]?.html || ""
         }
       });
-    }else if(String(row.definitionSource||"")==="list" || DECLARED_ABBR_MAP.has(norm(row.base))){
+    }else{
       direct.push({
         abbr:row.base,
         context:{
-          label:`${row.base} · first use from abbreviation list`,
+          label:`${row.base} · used directly from abbreviation list`,
           html:uses[0]?.html || abbrListDeclarationContext(DECLARED_ABBR_MAP.get(norm(row.base)),row.base)?.html || ""
         }
       });
@@ -7220,12 +7832,12 @@ function abbrMixedListApproachIssue(rows){
   if(!redefined.length || !direct.length) return null;
 
   return {
-    abbr:"Abbreviation list usage",
-    msg:"Mixed abbreviation-definition approach. Some abbreviations defined in the abbreviation list are defined again in the text, while others are used directly from the list.",
+    abbr:"Abbreviation definition approach",
+    msg:"Mixed abbreviation-definition approach. Some abbreviations defined in the List of Abbreviations are defined again at first use in the main text, while others are used directly from the list.",
     mixedApproach:true,
     summaryRow:true,
-    rowLongForm:"Definition approach",
-    rowCount:eligible.length,
+    rowLongForm:"Document-level definition approach",
+    rowCount:redefined.length+direct.length,
     mixedApproachGroups:{
       redefined:redefined.map(x=>x.context).filter(x=>x.html),
       direct:direct.map(x=>x.context).filter(x=>x.html)
@@ -15592,6 +16204,12 @@ fteAnalyze=function(blocks){
 </script>
 
 
+<!-- Build update 2026-08-15:
+     Abbreviation policy is now document-type aware.
+     Thesis/dissertation: List of Abbreviations + independent first-use definition
+     in Abstract and each chapter.
+     Continuous non-thesis manuscripts: exactly one consistent approach among
+     list-only, first-use-only, or list + first-use. -->
 <script id="abbr-long-document-scope-v1">
 (()=>{
   "use strict";
@@ -15814,20 +16432,43 @@ fteAnalyze=function(blocks){
     return result;
   }
 
+  function selectedDocumentType(){
+    try{
+      if(typeof abbrSelectedDocumentType==="function") return abbrSelectedDocumentType();
+    }catch(_e){}
+    return String(document.querySelector('input[name="mc-document-type"]:checked')?.value||"auto").toLowerCase();
+  }
   function policy(){
-    // Long-document abbreviation scope is inferred automatically from the
-    // manuscript's Word structure. No manual scope selection is exposed.
+    // Manuscript type now controls abbreviation scope directly.
+    // Thesis/dissertation = independent Abstract + chapter first-use checking.
+    // Any explicitly selected non-thesis type = one continuous manuscript.
+    const type=selectedDocumentType();
+    if(type==="thesis") return "chapter";
+    if(type!=="auto") return "whole";
     return "auto";
   }
   function decision(det,pol=policy()){
     const chapterScopes=(det?.scopes||[]).filter(s=>s.kind!=="appendix");
-    if(pol==="whole") return {active:false,forced:false,reason:"Whole-document checking selected."};
+    if(pol==="whole") return {active:false,forced:true,reason:"A continuous non-thesis manuscript type is selected, so abbreviation consistency is checked at document level."};
     if(pol==="chapter"){
-      if(chapterScopes.length>=2) return {active:true,forced:true,reason:"Chapter-level checking selected by the user."};
-      return {active:false,forced:true,reason:"Major section boundaries could not be identified reliably, so whole-document abbreviation checking was used."};
+      if(chapterScopes.length>=1) return {active:true,forced:true,reason:"Thesis/dissertation mode requires independent first-use checking in the Abstract and each detected chapter."};
+      return {active:false,forced:true,reason:"Thesis/dissertation mode is selected, but major chapter boundaries could not be identified reliably."};
     }
-    if(chapterScopes.length>=2 && det.confidence>=.58) return {active:true,forced:false,reason:"Long-document structure detected automatically."};
-    return {active:false,forced:false,reason:det.confidence>=.35?"Major section boundaries were not reliable enough for chapter-level checking.":""};
+
+    // Automatic mode activates chapter-aware rules only when the structure also
+    // carries thesis/dissertation evidence. A long report or book chapter should
+    // not become thesis mode merely because it contains several major headings.
+    const thesisEvidence=!!det?.thesisText || (det?.frontSignals||[]).length>=2;
+    if(chapterScopes.length>=2 && det.confidence>=.58 && thesisEvidence)
+      return {active:true,forced:false,reason:"Thesis/dissertation structure detected automatically."};
+
+    return {
+      active:false,
+      forced:false,
+      reason:det.confidence>=.35
+        ?"The document is treated as a continuous manuscript unless thesis/dissertation structure is detected confidently."
+        :"Abbreviation checking was performed at document level."
+    };
   }
 
   function scopeContentEnd(det,scope){
@@ -15893,9 +16534,25 @@ fteAnalyze=function(blocks){
   function analyzeScoped(rawText,title,standardSet,skipRefs,skipTables,det,priorAnalyze){
     const cs=chunks(det);
     const bodyScopes=cs.filter(s=>s.kind==="chapter"||s.kind==="part");
-    if(bodyScopes.length<2){
+    if(bodyScopes.length<1){
       const r=priorAnalyze(rawText,title,standardSet,skipRefs,skipTables);
-      r.scopeInfo={mode:"whole",confidence:det.confidence,reason:"Major section boundaries could not be identified reliably; abbreviation checking was performed at document level."};
+      if(!(DECLARED_ABBR_LIST_FOUND||DECLARED_ABBR_MAP.size) && (r.rows||[]).some(x=>(x.count||0)>0)){
+        r.warnings=r.warnings||[];
+        r.warnings.unshift({
+          abbr:"Abbreviation list",
+          msg:"List of Abbreviations not detected. Thesis/dissertation mode requires a dedicated List of Abbreviations in addition to first-use definitions within the Abstract and each chapter.",
+          rowLongForm:"Required for thesis / dissertation",
+          summaryRow:true,
+          snip:null
+        });
+      }
+      r.infos=r.infos||[];
+      r.infos.unshift({
+        abbr:null,
+        msg:"Thesis/dissertation mode is selected, but chapter boundaries could not be identified reliably. Review chapter-level abbreviation first use manually.",
+        snip:null
+      });
+      r.scopeInfo={mode:"whole",confidence:det.confidence,reason:"Thesis/dissertation mode selected, but reliable chapter boundaries were unavailable."};
       return r;
     }
 
@@ -15912,20 +16569,18 @@ fteAnalyze=function(blocks){
       defs.forEach(d=>definitionsByKey.get(key).push({...d,scope:a.scope}));
     }));
 
-    // Learn whether the document itself predominantly reintroduces abbreviations
-    // chapter by chapter. This only tunes Review suppression; it never suppresses
-    // a genuinely undefined abbreviation.
+    // Diagnostic only. Thesis policy is no longer inferred from how the author
+    // happened to define terms. The policy is fixed: list + local first-use
+    // definition in the Abstract and each chapter where the abbreviation occurs.
     let eligiblePairs=0,localPairs=0;
-    analyses.filter(a=>a.scope.kind==="chapter"||a.scope.kind==="part").forEach(a=>{
+    analyses.filter(a=>a.scope.kind==="chapter"||a.scope.kind==="part"||a.scope.kind==="abstract").forEach(a=>{
       a.r.rows.forEach(row=>{
-        const key=norm(row.base); if(!key||row.definitionSource==="nested") return;
+        const key=norm(row.base); if(!key||row.definitionSource==="nested"||!(row.count>0)) return;
         eligiblePairs++;
         if(a.defs.has(key)) localPairs++;
       });
     });
     const localRate=eligiblePairs?localPairs/eligiblePairs:null;
-    const globalPattern=eligiblePairs>=8 && localRate<.35;
-    const localPattern=eligiblePairs>=8 && localRate>=.65;
 
     const errors=[],warnings=[],infos=[];
     const seenErr=new Set(),seenWarn=new Set(),seenInfo=new Set();
@@ -15949,6 +16604,37 @@ fteAnalyze=function(blocks){
         local.forEach(d=>b.defs.push({...d,scope:a.scope}));
       });
 
+      // Thesis/dissertation rule:
+      // A List of Abbreviations is global, but it does NOT satisfy first use in
+      // the Abstract or in an individual chapter. Every listed abbreviation
+      // actually used in that scope must be introduced locally.
+      if((DECLARED_ABBR_LIST_FOUND||DECLARED_ABBR_MAP.size) &&
+         ["abstract","chapter","part"].includes(a.scope.kind)){
+        a.r.rows.forEach(row=>{
+          const key=norm(row.base);
+          if(!key || !(row.count>0) || row.definitionSource==="nested") return;
+          const listDef=DECLARED_ABBR_MAP.get(key);
+          if(!listDef) return;
+          const local=a.defs.get(key)||[];
+          if(local.length) return;
+
+          const scopeLabel=humanScope(a.scope);
+          const firstContext=(row.instances||[])[0]?.html||null;
+          const listCtx=abbrListDeclarationContext(listDef,row.base);
+          addUnique(warnings,{
+            abbr:row.base,
+            msg:`Not defined at first use in ${scopeLabel}. ${row.base} is declared in the List of Abbreviations, but thesis/dissertation mode requires it to be defined at its first use in this scope.`,
+            snip:firstContext,
+            contexts:[
+              ...(listCtx?[listCtx]:[]),
+              ...(firstContext?[{label:`${scopeLabel} · first use`,html:firstContext}]:[])
+            ],
+            _scope:a.scope,
+            thesisFirstUse:true
+          },seenWarn);
+        });
+      }
+
       // Critical errors are reconciled after every chapter has been analysed so
       // "not defined anywhere" can be corrected when a definition exists in a
       // different chapter or in the Abstract.
@@ -15959,12 +16645,8 @@ fteAnalyze=function(blocks){
         const m=String(it.msg||"");
         if(/^Used only \d+ time/i.test(m)) return; // recalc manuscript-wide below
         if(it?.mixedApproach){
-          const scopeLabel=humanScope(a.scope);
-          addUnique(warnings,{
-            ...it,
-            msg:`Mixed abbreviation-definition approach in ${scopeLabel}. Some abbreviations defined in the abbreviation list are defined again in the text, while others are used directly from the list.`,
-            _scope:a.scope
-          },seenWarn);
+          // Mixed list-vs-prose conventions are irrelevant in thesis mode.
+          // Every used listed abbreviation must be introduced locally anyway.
           return;
         }
         addUnique(warnings,{...it,_scope:a.scope},seenWarn);
@@ -15987,18 +16669,15 @@ fteAnalyze=function(blocks){
       const elsewhere=key?(definitionsByKey.get(key)||[]).filter(d=>d.scope.id!==current?.id):[];
       const isUndefined=/Not defined anywhere|Not defined before or elsewhere in the manuscript/i.test(msg);
       if(isUndefined && elsewhere.length){
-        const earlier=elsewhere.filter(d=>(scopeOrder.get(d.scope.id)??999)<(scopeOrder.get(current?.id)??999));
-        const onlyAbstract=elsewhere.every(d=>d.scope.kind==="abstract");
-        // If the thesis overwhelmingly uses a whole-document convention, do not
-        // manufacture repeated chapter warnings. Otherwise this remains Review,
-        // never a Critical Error.
-        if(!globalPattern){
-          let wording;
-          if(onlyAbstract) wording=`${it.abbr} is defined in the Abstract but not introduced in ${humanScope(current)}. Check whether your institution requires abbreviations to be defined at first use in each chapter.`;
-          else if(earlier.length) wording=`${it.abbr} is defined earlier in the thesis but not introduced in ${humanScope(current)}. Check whether your institution requires abbreviations to be defined at first use in each chapter.`;
-          else wording=`${it.abbr} is defined in another major section of the thesis but not introduced in ${humanScope(current)}. Check whether your institution requires abbreviations to be defined at first use in each chapter.`;
-          addUnique(warnings,{abbr:it.abbr,msg:wording,snip:it.snip,_scope:current,scopeReview:true},seenWarn);
-        }
+        const scopeLabel=humanScope(current);
+        addUnique(warnings,{
+          abbr:it.abbr,
+          msg:`Not defined at first use in ${scopeLabel}. ${it.abbr} is defined elsewhere in the thesis, but each thesis chapter and the Abstract are independent abbreviation-definition scopes.`,
+          snip:it.snip,
+          _scope:current,
+          scopeReview:true,
+          thesisFirstUse:true
+        },seenWarn);
         return;
       }
       if(/^Defined \d+ times in (?:the main text|the Abstract)/i.test(msg) && current){
@@ -16029,7 +16708,7 @@ fteAnalyze=function(blocks){
       const base=[...bucket.forms.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||bucket.key;
       const count=all.reduce((n,r)=>n+(r.count||0),0);
       const localScopeRows=all.filter(r=>r.localDefs&&r.localDefs.length);
-      const missingScopeRows=all.filter(r=>!(r.localDefs&&r.localDefs.length) && !["list","declared","nested"].includes(r.definitionSource));
+      const missingScopeRows=all.filter(r=>!(r.localDefs&&r.localDefs.length) && !["nested"].includes(r.definitionSource));
       const meanings=[];
       bucket.defs.forEach(d=>{if(d.long) meanings.push({long:d.long,key:meaningKey(d.long),scope:d.scope});});
       const listDef=DECLARED_ABBR_MAP.get(bucket.key)||null;
@@ -16038,24 +16717,25 @@ fteAnalyze=function(blocks){
       const uniqueMeanings=[...uniqueMeaningMap.values()];
       const conflict=uniqueMeanings.length>1;
       const localScopes=[...new Map(localScopeRows.map(r=>[r.scope.id,r.scope])).values()];
-      const allFirstOk=all.every(r=>r.firstUseOK!==false || ["list","declared"].includes(r.definitionSource));
+      const allFirstOk=missingScopeRows.length===0 && all.every(r=>r.firstUseOK!==false);
 
       const anyErr=reconciledErrors.some(e=>norm(e.abbr||"")===bucket.key);
       const anyReview=warnings.some(e=>norm(e.abbr||"")===bucket.key);
       let status=anyErr?"err":(anyReview||conflict?"warn":"ok");
       let definitionSource="none";
       if(conflict) definitionSource="conflict";
-      else if(localScopes.length>=2) definitionSource=missingScopeRows.length?(globalPattern?"scope_elsewhere":"scope_review"):"multi_scope";
+      else if(localScopes.length>=2) definitionSource=missingScopeRows.length?"scope_review":"multi_scope";
       else if(localScopes.length===1){
-        if(missingScopeRows.length) definitionSource=globalPattern?"scope_elsewhere":"scope_review";
+        if(missingScopeRows.length) definitionSource="scope_review";
         else definitionSource=localSource(localScopeRows[0].localDefs)||localScopeRows[0].definitionSource||"prose";
-      }else if(all.some(r=>r.definitionSource==="list")) definitionSource="list";
-      else if(all.some(r=>r.definitionSource==="nested")) definitionSource="nested";
-      else if(all.some(r=>r.definitionSource==="declared")) definitionSource="declared";
+      }else if(all.some(r=>r.definitionSource==="nested")) definitionSource="nested";
+      else if(all.some(r=>r.definitionSource==="list"||r.definitionSource==="declared")) definitionSource="scope_review";
 
       const scopeSummary=localScopes.length
-        ?`Defined in ${localScopes.map(s=>s.label).join(", ")}${missingScopeRows.length?`; not locally introduced in ${missingScopeRows.map(r=>r.scope.label).join(", ")}`:""}`
-        :(definitionSource==="list"?"Defined in the List of Abbreviations":"No local chapter definition detected");
+        ?`Defined locally in ${localScopes.map(s=>s.label).join(", ")}${missingScopeRows.length?`; first-use definition missing in ${missingScopeRows.map(r=>r.scope.label).join(", ")}`:""}`
+        :(DECLARED_ABBR_MAP.has(bucket.key)
+          ?"Declared in the List of Abbreviations, but no chapter/Abstract first-use definition was detected"
+          :"No local thesis-scope definition detected");
       const longForm=conflict?uniqueMeanings.map(m=>m.long).slice(0,3).join(" / "):(uniqueMeanings[0]?.long || all.find(r=>r.longForm)?.longForm || null);
       const scopedInstances=all.flatMap(r=>(r.instances||[]).map((it,idx)=>({
         ...it,
@@ -16091,6 +16771,18 @@ fteAnalyze=function(blocks){
       }
     });
 
+    // A thesis/dissertation should contain a dedicated List of Abbreviations.
+    if(!(DECLARED_ABBR_LIST_FOUND||DECLARED_ABBR_MAP.size) && rows.some(r=>(r.count||0)>0)){
+      addUnique(warnings,{
+        abbr:"Abbreviation list",
+        msg:"List of Abbreviations not detected. Thesis/dissertation mode requires a dedicated List of Abbreviations in addition to defining each used abbreviation at first use in the Abstract and each chapter.",
+        rowLongForm:"Required for thesis / dissertation",
+        rowCount:0,
+        summaryRow:true,
+        snip:null
+      },seenWarn);
+    }
+
     // Restore the existing low-use principle at manuscript level rather than
     // incorrectly applying it once per chapter.
     rows.forEach(row=>{
@@ -16102,16 +16794,18 @@ fteAnalyze=function(blocks){
     });
 
     if(DECLARED_ABBR_LIST_FOUND || DECLARED_ABBR_MAP.size){
-      infos.unshift({abbr:null,msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. Within each independent prose scope, two consistent approaches are accepted: use listed abbreviations directly, or define the listed abbreviations again in text. Mixing the two approaches creates one Review item for that scope.`,snip:null});
-    }else if(rows.length>=8){
-      infos.push({abbr:null,msg:`You use ${rows.length} non-standard abbreviations. Check whether the target journal requires a List of Abbreviations or Nomenclature section.`,snip:null});
+      infos.unshift({
+        abbr:null,
+        msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. Thesis/dissertation mode requires each listed abbreviation that is used in the Abstract or a chapter to be defined again at its first use in that scope. Definitions repeated across different chapters are valid; repeated definitions within the same chapter are not.`,
+        snip:null
+      });
     }
 
-    const convention=localRate==null?"insufficient evidence":localPattern?"chapter-level reintroduction is common":globalPattern?"whole-document reuse is common":"mixed chapter/global practice";
+    const convention="List of Abbreviations + first-use definition in the Abstract and each chapter";
     const scopeInfo={
-      mode:"chapter",confidence:det.confidence,reason:"Long-document structure detected. Abbreviation first-use checks are chapter-aware.",
+      mode:"chapter",confidence:det.confidence,reason:"Thesis/dissertation abbreviation policy is active: the Abstract and each detected chapter are independent first-use scopes.",
       scopeCount:bodyScopes.length,allScopeCount:cs.length,labels:bodyScopes.map(s=>s.label),abstract:!!det.abstract,
-      convention,localDefinitionRate:localRate,evidence:det.evidence||[],policy:policy()
+      convention,localDefinitionRate:localRate,evidence:det.evidence||[],policy:policy(),documentType:"thesis"
     };
     CACHE.lastResult=scopeInfo;
     return {errors:reconciledErrors,warnings,infos,rows:rows.sort((a,b)=>a.base.localeCompare(b.base)),
@@ -16128,8 +16822,22 @@ fteAnalyze=function(blocks){
       const det=detect(DOCX_FTE_BLOCKS||[]),dec=decision(det,policy());
       if(dec.active) return analyzeScoped(rawText,title,standardSet,skipRefs,skipTables,det,priorAnalyze);
       const r=priorAnalyze(rawText,title,standardSet,skipRefs,skipTables);
+      if(policy()==="chapter" && !dec.active){
+        r.warnings=r.warnings||[];
+        if(!(DECLARED_ABBR_LIST_FOUND||DECLARED_ABBR_MAP.size) && (r.rows||[]).some(x=>(x.count||0)>0)){
+          r.warnings.unshift({
+            abbr:"Abbreviation list",
+            msg:"List of Abbreviations not detected. Thesis/dissertation mode requires a dedicated List of Abbreviations.",
+            rowLongForm:"Required for thesis / dissertation",
+            summaryRow:true,
+            snip:null
+          });
+        }
+        r.infos=r.infos||[];
+        r.infos.unshift({abbr:null,msg:"Thesis/dissertation mode is selected, but reliable chapter boundaries were not detected. Chapter-level first-use compliance should be reviewed manually.",snip:null});
+      }
       if(dec.forced || (policy()==="auto" && det.confidence>=.35 && (det.scopes||[]).length)){
-        r.scopeInfo={mode:"whole",confidence:det.confidence,reason:dec.reason||"Abbreviation checking was performed at document level.",scopeCount:(det.scopes||[]).length,policy:policy()};
+        r.scopeInfo={mode:"whole",confidence:det.confidence,reason:dec.reason||"Abbreviation checking was performed at document level.",scopeCount:(det.scopes||[]).length,policy:policy(),documentType:selectedDocumentType()};
       }
       return r;
     };
@@ -16148,8 +16856,8 @@ fteAnalyze=function(blocks){
         const tip=escapeHtml(x.scopeSummary||"");
         let def;
         if(x.definitionSource==="multi_scope") def=`<span class="yn y" title="${tip}">Defined in multiple chapters</span>`;
-        else if(x.definitionSource==="scope_review") def=`<span class="yn rev" title="${tip}">Check chapter first use</span>`;
-        else if(x.definitionSource==="scope_elsewhere") def=`<span class="yn y" title="${tip}">Defined elsewhere in thesis</span>`;
+        else if(x.definitionSource==="scope_review") def=`<span class="yn rev" title="${tip}">Define at chapter first use</span>`;
+        else if(x.definitionSource==="scope_elsewhere") def=`<span class="yn rev" title="${tip}">Define at chapter first use</span>`;
         else if(x.definitionSource==="conflict") def=`<span class="yn rev" title="${tip}">Different meanings</span>`;
         else if(x.definitionSource==="list") def=`<span class="yn y" title="Defined in a recognised Abbreviations, Acronyms, Nomenclature, or Glossary list.">Defined in list</span>`;
         else if(x.definitionSource==="nested") def=`<span class="yn rev" title="The standalone abbreviation was inferred from a longer abbreviation within the relevant scope. Check the required first-use convention.">Inferred from ${escapeHtml(x.nestedFrom||"earlier term")}</span>`;
@@ -16159,14 +16867,13 @@ fteAnalyze=function(blocks){
         else def=x.longForm?(x.firstUseOK?`<span class="yn y" title="${tip}">Defined</span>`:`<span class="yn n" title="${tip}">Definition found later</span>`):`<span class="yn na" title="No definition source was assigned.">—</span>`;
         return `<tr><td class="t-abbr">${dot}${escapeHtml(x.base)}</td><td>${long}</td><td class="t-num">${x.count}</td><td>${def}</td></tr>`;
       }).join("");
-      return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("For theses and other long documents, this ledger consolidates abbreviation use across detected major chapters. Definitions may legitimately recur in different chapters; duplicate-definition findings are limited to the same scope. Hover over a definition status to see the detected chapter coverage.","Explain Abbreviation Ledger")}</p>
-        <div class="abbr-definition-key"><b>Chapter-aware definition status:</b>
-          <b>Defined in multiple chapters</b> = the abbreviation is explicitly introduced in more than one independent chapter and this is accepted;
-          <b>Defined in chapter</b> = a local definition was found in the relevant chapter;
-          <b>Check chapter first use</b> = the term is defined elsewhere but a chapter-local introduction may be required;
-          <b>Defined elsewhere in thesis</b> = the document predominantly follows a whole-document reuse pattern, so no chapter-local error was asserted;
-          <b>Different meanings</b> = materially different full forms were detected in different scopes and should be reviewed;
-          <b>Defined in list</b> = declared in the recognised abbreviation/nomenclature list.
+      return `<p class="sec-label">Abbreviation ledger ${inlineHelpButton("In thesis/dissertation mode, the List of Abbreviations is a global declaration source, while the Abstract and every detected chapter are independent first-use scopes. A definition may therefore recur correctly across chapters, but a listed abbreviation used directly without a chapter-local first-use definition is flagged for review.","Explain Abbreviation Ledger")}</p>
+        <div class="abbr-definition-key"><b>Thesis definition status:</b>
+          <b>Defined in multiple chapters</b> = the abbreviation is correctly introduced in more than one independent chapter;
+          <b>Defined in chapter</b> = a local first-use definition was found;
+          <b>Define at chapter first use</b> = the abbreviation is used in a thesis scope without a local first-use definition;
+          <b>Different meanings</b> = materially different full forms were detected and should be corrected;
+          <b>Defined in list</b> = declared in the recognised abbreviation/nomenclature list, which does not replace chapter first-use definition in thesis mode.
         </div>
         <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Abbrev./notation</th><th>Full form / descriptor</th><th>Uses</th><th>Definition status</th></tr></thead><tbody>${body}</tbody></table></div>`;
     };
@@ -16180,7 +16887,7 @@ fteAnalyze=function(blocks){
       if(!info||!wrap) return;
       let text="";
       if(info.mode==="chapter"){
-        text=`Long-document structure detected. Abbreviation first-use checks are chapter-aware across ${info.scopeCount} major chapter${info.scopeCount===1?"":"s"}. Reintroducing an abbreviation in a new chapter is not treated as a duplicate definition.`;
+        text=`Thesis/dissertation policy is active across ${info.scopeCount} detected chapter${info.scopeCount===1?"":"s"}. The Abstract and each chapter require their own first-use definition, while repeating a definition across different chapters is accepted.`;
       }else if(info.reason){ text=info.reason; }
       if(text) wrap.insertAdjacentHTML("beforeend",`<p class="abbr-scope-note"><b>Abbreviation scope:</b> ${escapeHtml(text)}</p>`);
       const sub=document.getElementById("report-sub");
