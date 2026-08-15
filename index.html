@@ -1260,6 +1260,10 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 }
 </style>
 
+
+<style id="mc-report-subnav-retired-v1">
+.report-subnav{display:none!important}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -1466,7 +1470,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="report" hidden aria-live="polite">
     <h2 class="help-row">Abbreviation report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For confidently detected theses and other long documents, first-use checks are chapter-aware: reintroducing an abbreviation in a new major chapter is not treated as a duplicate definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
-    <nav class="report-subnav" id="abbr-subnav" aria-label="Abbreviation report sections" hidden></nav>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
     <div id="errors-wrap"></div>
@@ -1503,7 +1506,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="ref-report" hidden aria-live="polite">
       <h2 class="help-row">Reference report <button type="button" class="info-help inline-auto-help" data-help="Checks journal articles with the established journal parser. Books, chapters, reports, webpages, theses, standards, datasets and other non-journal sources are identified separately and checked using fields appropriate to their source type." aria-label="Explain reference checking" title="What does the reference checker scan?">i</button></h2>
       <p class="sub" id="ref-report-sub"></p>
-      <nav class="report-subnav" id="ref-subnav" aria-label="Reference report sections" hidden></nav>
       <div id="ref-ledger-wrap"></div>
       <p class="disclaimer">The reference ledger checks journal articles with the established journal parser and evaluates non-journal sources with type-specific rules. Fields marked no are expected for that source type; n/a means the field does not apply. Ambiguous non-journal items are marked for review rather than forced into journal rules.</p>
       <div class="report-actions">
@@ -1527,7 +1529,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="num-report" hidden aria-live="polite">
     <h2 class="help-row">Number, pH &amp; precision report <button type="button" class="info-help" id="num-report-info" aria-label="Explain the number, pH and precision report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="num-report-help" hidden><b>How to read this report:</b> the Numerical reporting ledger consolidates number style, pH reporting, uncertainty/range checks, p-values, and comparable precision findings in one table. Use <b>View instances</b> to inspect the exact manuscript context before making a change. Precision findings are limited to values inferred to be genuinely comparable.</div>
     <p class="sub" id="num-report-sub"></p>
-    <nav class="report-subnav" id="num-subnav" aria-label="Number report sections" hidden></nav>
     <div id="num-findings"></div>
     <p class="disclaimer">This combines numeral usage, pH reporting, and scientific numeric-precision checks. References and headings are excluded. Word tables are checked for precision patterns only within genuinely comparable measurement columns. Precision is assessed only within comparable numeric groups, including numerical series, ranges, uncertainties, percentages, p-values, and scientific notation. The checker never invents measurement resolution or silently adds or removes significant digits; uncertain cases are flagged for author review.</p>
     <div class="report-actions">
@@ -1555,7 +1556,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="unit-report" hidden aria-live="polite">
     <h2 class="help-row">Units &amp; notation report <button type="button" class="info-help" id="unit-report-info" aria-label="Explain the units report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="unit-report-help" hidden><b>Purpose:</b> this module checks internal consistency of repeated units and their associated numerical precision. It does <b>not</b> force SI notation and does not compare unrelated units. Affiliations and references are excluded.</div>
     <p class="sub" id="unit-report-sub"></p>
-    <nav class="report-subnav" id="unit-subnav" aria-label="Units report sections" hidden></nav>
     <div id="unit-summary"></div>
     <div id="unit-findings" hidden></div>
     <div id="unit-ledger-wrap"></div>
@@ -1585,7 +1585,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="eng-report" hidden aria-live="polite">
     <h2 class="help-row">Readability &amp; terminology report <button type="button" class="info-help" id="eng-report-info" aria-label="Explain the readability and terminology report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="eng-report-help" hidden><b>How to read this report:</b> this focused module checks three manuscript-specific items: sentence length, section-aware paragraph length, and terminology consistency. It does not perform grammar, spelling, punctuation, tense, pronoun/person, passive-voice, or general clarity editing. References and affiliations are excluded from the checked prose, and the Abstract is additionally excluded from paragraph-length checking.</div>
     <p class="sub" id="eng-report-sub"></p>
-    <nav class="report-subnav" id="eng-subnav" aria-label="Readability and terminology report sections" hidden></nav>
     <div id="eng-summary"></div>
     <div id="eng-findings"></div>
     <p class="disclaimer">This module intentionally avoids general grammar and language editing. It reports sentence/paragraph length indicators and manuscript-internal terminology consistency for author review.</p>
@@ -1611,7 +1610,6 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   <section class="card" id="fte-report" hidden aria-live="polite">
     <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Equation detection distinguishes genuine displayed equations from prose citations, supports Office Math, Equation styles, equation-layout tables, figure/equation objects stored in Word layout containers, and grouped sub-equations, and common equation-label variants such as Eq., Eqn., Equation, and Eq. No. A parent citation such as Eq. 2 is accepted when the manuscript contains Eq. 2a and Eq. 2b. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
     <p class="sub" id="fte-report-sub"></p>
-    <nav class="report-subnav" id="fte-subnav" aria-label="Figures tables and equations report sections" hidden></nav>
     <div id="fte-summary"></div>
     <div id="fte-findings"></div>
     <p class="disclaimer">This check uses the structure of the uploaded Word document to distinguish captions/items from ordinary cross-references. Figures, tables, equations, and supplementary items are validated as independent sequences. Placement is flagged only when the Word structure provides sufficient evidence; otherwise the report states that placement could not be verified reliably.</p>
@@ -5950,54 +5948,14 @@ function enhanceReportSeverity(reportId,navId){
 }
 
 function buildReportSubnav(reportId,navId){
-  const report=$(reportId), nav=$(navId);
-  if(!report||!nav) return;
+  // Report-level "Jump to" navigation was retired after the reports were
+  // converted to concise ledger layouts. Remove any legacy node defensively.
+  const nav=$(navId);
+  if(nav) nav.remove();
   if(REPORT_SUBNAV_OBSERVERS.has(navId)){
     try{REPORT_SUBNAV_OBSERVERS.get(navId).disconnect();}catch(_e){}
     REPORT_SUBNAV_OBSERVERS.delete(navId);
   }
-  const headings=[...report.querySelectorAll(".sec-label")].filter(el=>!!reportSubnavLabel(el));
-  const seen=new Set();
-  const items=[];
-  const topHeading=report.querySelector("h2");
-  if(topHeading){
-    const topId=`${navId}-overview`;
-    topHeading.id=topId;
-    items.push({el:topHeading,id:topId,label:"Overview"});
-    seen.add("overview");
-  }
-  headings.forEach((el,i)=>{
-    const label=reportSubnavLabel(el);
-    if(!label) return;
-    const key=label.toLowerCase();
-    if(seen.has(key)) return;
-    seen.add(key);
-    const id=`${navId}-section-${items.length+1}`;
-    el.id=id;
-    items.push({el,id,label});
-  });
-  if(!items.length){nav.innerHTML="";nav.hidden=true;enhanceReportSeverity(reportId,navId);return;}
-  items.forEach((it,i)=>{ it.tone=String(i%6); if(it.el.classList&&it.el.classList.contains("sec-label")) it.el.dataset.tone=it.tone; });
-  nav.classList.toggle("is-two-row",items.length>7);
-  nav.innerHTML=`<span class="report-subnav-label">Jump to</span>`+items.map((it,i)=>`<button type="button" class="report-subnav-btn${i===0?" active":""}" data-tone="${it.tone}" data-target="${it.id}">${escapeHtml(it.label)}</button>`).join("");
-  nav.hidden=false;
-  const buttons=[...nav.querySelectorAll(".report-subnav-btn")];
-  const activate=id=>{buttons.forEach(b=>b.classList.toggle("active",b.dataset.target===id));};
-  buttons.forEach(btn=>{btn.addEventListener("click",()=>{
-    const target=document.getElementById(btn.dataset.target);
-    if(!target)return;
-    activate(btn.dataset.target);
-    target.scrollIntoView({behavior:"smooth",block:"start"});
-  });});
-  if("IntersectionObserver" in window){
-    const obs=new IntersectionObserver(entries=>{
-      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
-      if(visible.length) activate(visible[0].target.id);
-    },{root:null,rootMargin:"-86px 0px -72% 0px",threshold:0});
-    items.forEach(it=>obs.observe(it.el));
-    REPORT_SUBNAV_OBSERVERS.set(navId,obs);
-  }
-  enhanceReportSeverity(reportId,navId);
 }
 
 /* ---------- Floating Reference Ledger guide ---------- */
@@ -6005,11 +5963,9 @@ let REF_LEDGER_FLOAT_RAF=0;
 let REF_LEDGER_FLOAT_GLOBAL_BOUND=false;
 
 function referenceLedgerStickyTop(){
-  const nav=$("ref-subnav");
-  if(!nav||nav.hidden||!nav.offsetHeight) return 8;
-  const cs=getComputedStyle(nav);
-  const navTop=Number.parseFloat(cs.top)||8;
-  return Math.max(8,navTop+nav.offsetHeight+6);
+  // The report Jump-to navigation has been removed; the floating ledger header
+  // can use the normal compact top offset directly.
+  return 8;
 }
 
 function updateReferenceLedgerFloatingHeader(){
@@ -8515,20 +8471,38 @@ function refSplitList(text){
     entries:merged.map(e=>({num:null,raw:e}))
   };
 }
+/* Build note: reference author parsing hardened 2026-08-15. Compact dotted
+   initials containing lowercase name-particle initials (for example I.C.d.S.
+   and A.V.d.O.) are retained in the author region so the following publication
+   year, article title and journal/source are parsed in their correct fields. */
+/* Build note: author-separator parsing hardened 2026-08-15. The conjunction
+   "and" now requires a word boundary so surnames beginning with And- such as
+   Anderson, Andrade, and Andrews remain intact in the author list. */
+/* Build note: reference parsing hardened 2026-08-15 for typographic hyphens
+   in surnames and period-heavy abbreviated journal names. Hyphenated surnames
+   remain valid authors, and source boundaries are located from the publication
+   tail rather than from abbreviation periods inside the journal name. */
 /* ---- Robust author-region detection, independent from entry segmentation ---- */
 const REF_CORP_AUTHOR_RE=/^\s*(WHO|US\s?EPA|USEPA|EPA|APHA|AWWA|WEF|MHA|NGT|MOEFCC|NEIWPCC|BIS|CPCB|CPHEEO|OECD|IPCC|UNEP|FAO|IEA|NIST|EFSA|American Public Health Association|World Health Organization|European Commission|International Organization for Standardization|Bureau of Indian Standards|United Nations|Ministry of|Department of|National\s+[\p{L}]|Central\s+[\p{L}])\b/iu;
 const REF_ORG_WORD_RE=/\b(association|organisation|organization|agency|administration|authority|commission|committee|council|department|foundation|government|institute|institution|ministry|office|society|university|board|bureau|laboratory|laboratories|centre|center)\b/i;
 const REF_SURNAME_PARTICLE=String.raw`(?:[Vv]an\s+[Dd]er|[Vv]an|[Vv]on|[Dd]e\s+[Ll]a|[Dd]e|[Dd]el|[Dd]ella|[Dd]i|[Dd]a|[Dd]os|[Dd]as|[Ll]a|[Ll]e|[Ee]l)`;
-const REF_SURNAME_WORD=String.raw`[\p{Lu}][\p{L}'’\-]{1,}`;
-const REF_SURNAME_SHORT=String.raw`[\p{Lu}][\p{L}'’\-]*`;
+// Scientific reference exports may preserve surnames with ASCII hyphens or
+// typographic hyphens/dashes inserted by Word or publishers. Treat these as
+// name-internal punctuation rather than as an author-boundary failure.
+const REF_NAME_HYPHEN=String.raw`\-\u2010\u2011\u2012\u2013`;
+const REF_SURNAME_WORD=String.raw`[\p{Lu}][\p{L}'’${REF_NAME_HYPHEN}]{1,}`;
+const REF_SURNAME_SHORT=String.raw`[\p{Lu}][\p{L}'’${REF_NAME_HYPHEN}]*`;
 // A continuation token may begin in lowercase in real bibliographies, e.g.
 // "Gnana kumar G". Restrict it to alphabetic name-like tokens and only use
 // it inside the leading author parser, never as a general title rule.
-const REF_SURNAME_CONT=String.raw`[\p{L}][\p{L}'’\-]{1,}`;
+const REF_SURNAME_CONT=String.raw`[\p{L}][\p{L}'’${REF_NAME_HYPHEN}]{1,}`;
 const REF_SURNAME_PHRASE=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?${REF_SURNAME_WORD}(?:\s+(?:(?:${REF_SURNAME_PARTICLE})|${REF_SURNAME_CONT})){0,5}`;
-const REF_SURNAME_PHRASE_LOWER=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?(?:[\p{Ll}][\p{L}'’\-]{1,}\s+)?${REF_SURNAME_WORD}(?:\s+${REF_SURNAME_CONT})?`;
+const REF_SURNAME_PHRASE_LOWER=String.raw`(?:(?:${REF_SURNAME_PARTICLE})\s+)?(?:[\p{Ll}][\p{L}'’${REF_NAME_HYPHEN}]{1,}\s+)?${REF_SURNAME_WORD}(?:\s+${REF_SURNAME_CONT})?`;
 // Initials may be compact, dotted, spaced or hyphenated: BE, J.A., J. A., W.-J., S.M.S.G.D.
-const REF_INITIALS=String.raw`(?:(?:[\p{Lu}]\.)(?:(?:-?|\s+)[\p{Lu}]\.){0,7}|[\p{Lu}]{1,8}\.?)`;
+// Dotted initials may also contain lowercase one-letter name particles after the
+// first uppercase initial, e.g. I.C.d.S. or A.V.d.O. This is common in exported
+// references and must remain part of the author field rather than terminating it.
+const REF_INITIALS=String.raw`(?:(?:[\p{Lu}]\.)(?:(?:-?|\s+)[\p{L}]\.){0,7}|[\p{Lu}]{1,8}\.?(?![\p{L}]|\.[\p{L}]\.))`;
 
 function refParsePersonalAuthorAt(text){
   let t=(text||"").trimStart();
@@ -8644,7 +8618,11 @@ function detectAuthorRegion(reference){
   const firstSurname=first.surname;
   while(pos<raw.length){
     const rest=raw.slice(pos);
-    const sep=rest.match(/^\s*(?:[,;]\s*(?:(?:and|&)\s*)?|&\s*|\band\b\s*)/i);
+    // "and" is an author separator only when it is a complete word. Without
+    // the boundary, surnames beginning with And- (Anderson, Andrade, Andrews,
+    // etc.) can be truncated because the parser consumes their first three
+    // letters as the conjunction "and".
+    const sep=rest.match(/^\s*(?:[,;]\s*(?:(?:and\b|&)\s*)?|&\s*|\band\b\s*)/i);
     if(!sep) break;
     const candidate=raw.slice(pos+sep[0].length);
 
@@ -8852,9 +8830,7 @@ function refRestAfterAuthors(raw, authorInfo){
 
 /* ---- Book-specific structure: Authors YEAR. Book title, Publisher. ---- */
 function detectBookFields(raw, authorInfo){
-  const rest=refRestAfterAuthors(raw,authorInfo)
-    .replace(/(?:\s+(?:https?:\/\/(?:dx\.)?doi\.org\/)?10\.\d{4,9}\/\S+|\s+https?:\/\/\S+)\s*$/i,"")
-    .trim();
+  const rest=refStripDoiUrl(refRestAfterAuthors(raw,authorInfo)).trim();
   if(!rest) return null;
 
   const m=rest.match(/^\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\s*[,;]?\s*(.+)$/iu);
@@ -8883,8 +8859,7 @@ function detectBookFields(raw, authorInfo){
 }
 
 function detectSourceRegion(raw, authorInfo){
-  let rest=refRestAfterAuthors(raw,authorInfo);
-  rest=rest.replace(/(?:\s+(?:https?:\/\/(?:dx\.)?doi\.org\/)?10\.\d{4,9}\/\S+|\s+https?:\/\/\S+)\s*$/i,"").trim();
+  let rest=refStripDoiUrl(refRestAfterAuthors(raw,authorInfo)).trim();
 
   // IEEE/numbered style: quoted Title, Journal/source, vol. N, ...
   let qsrc=rest.match(/^\s*[,.;:]?\s*[“"][^”"]+[”"]\s*,?\s*(.+)$/u);
@@ -8910,7 +8885,7 @@ function detectSourceRegion(raw, authorInfo){
   let m=rest.match(/^\(?((?:19|20)\d{2}[a-z]?)\)?[.)]?\s*[,;]?\s*(.+?)\.\s+(.+)$/u);
   if(m){
     const after=m[3].trim();
-    const sm=after.match(/^(.+?)(?=\s*[,;]\s*\d{1,5}\b|\s+\d{1,5}\s*\(|\s*\.|$)/u);
+    const sm=after.match(/^(.+?)(?=\s*[,;]\s*\d{1,6}\b|\.\s+\d{1,6}\b|\s+\d{1,6}\s*\(|$)/u);
     const cand=(sm?sm[1]:after).trim().replace(/[.,;]+$/g,"");
     if(refLooksLikeSourceName(cand,true)) return cand;
   }
@@ -9170,10 +9145,9 @@ function inferDoiConvention(parsed){
 
 /* ---- Publication-year detection anchored to bibliographic structure ---- */
 function detectPublicationYear(raw, authorInfo, sourceRegion){
-  let rest=refRestAfterAuthors(raw,authorInfo);
-  // DOI/URL strings can contain year-like digit groups that are not publication years.
-  rest=rest.replace(/(?:doi\s*:\s*)?(?:https?:\/\/(?:dx\.)?doi\.org\/)?10\.\d{4,9}\/\S+/ig," ")
-           .replace(/https?:\/\/\S+/ig," ").trim();
+  let rest=refStripDoiUrl(refRestAfterAuthors(raw,authorInfo));
+  // DOI/URL strings are protected before publication-year detection, so
+  // year-like groups inside DOI suffixes can never become publication years.
 
   // Strongest signal: the first year immediately after the detected journal/container.
   // This correctly handles both "Journal 2020, 396" and "Journal. 396 (2020)" while
@@ -9639,7 +9613,7 @@ function refParseNonJournalEntry(raw, detection, baseAuthorInfo){
   let issuingOrganisation=null, university=null, repository=null, standardNumber=null, reportNumber=null, patentNumber=null, edition=null, version=null;
   let pages=refNJPages(rawTrim), hasPages=!!pages, hasVolume=false, hasIssue=false;
 
-  const stripTail=s=>refNJClean(s||'').replace(/\s*(?:https?:\/\/\S+|www\.\S+)\s*$/iu,'').replace(/\s*(?:doi\s*:\s*)?10\.\d{4,9}\/\S+\s*$/iu,'').trim();
+  const stripTail=s=>refNJClean(refStripDoiUrl(s||'')).trim();
   const publisherGuess=refNJPublisher(rawTrim);
 
   if(type==='book chapter'||type==='handbook chapter'||type==='encyclopedia entry'){
@@ -9810,44 +9784,131 @@ function refApplyNonJournalStates(p,doiConvention,issues,i,label){
   }
 }
 
-function refExtractDoi(raw){
-  let t=(raw||"")
+function refNormalizeDoiCandidate(raw){
+  let d=String(raw||"")
     .replace(/\u00a0/g," ")
-    .replace(/[\u200B-\u200D\uFEFF]/g,"");
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .trim();
 
-  // Word layout may split a DOI at several visually harmless positions, including
-  // between "10." and the registrant code, around the slash, or after punctuation
-  // inside the suffix. Normalize the DOI prefix conservatively before matching.
-  t=t.replace(/\b10\.\s+(\d{4,9})\s*\/\s*/ig,"10.$1/");
-  t=t.replace(/\b(10\.\d{4,9})\s*\/\s*/ig,"$1/");
+  d=d
+    .replace(/^(?:https?:\/\/)?(?:dx\.)?doi\.org\/\s*/i,"")
+    .replace(/^doi\s*:\s*/i,"")
+    .replace(/\s+/g,"");
 
-  // Normal inline DOI.
-  let m=t.match(/\b(10\.\d{4,9}\/[^\s,;<>"']+)/i);
-  let cand=m?m[1]:null;
+  if(!/^10\.\d{4,9}\//i.test(d)) return null;
 
-  // If a DOI URL/label is the final field, tolerate line wrapping within the suffix by
-  // collapsing whitespace in that final DOI field only.
-  if(!cand){
-    m=t.match(/(?:https?:\/\/(?:dx\.)?doi\.org\/|doi\s*:\s*)\s*(10\.\d{4,9}\/[\s\S]{1,180})\s*$/i);
-    if(m) cand=m[1].replace(/\s+/g,"");
+  // Ordinary bibliography punctuation is not part of the DOI.
+  d=d.replace(/[.,;:]+$/g,"");
+
+  // Preserve balanced terminal parentheses that legitimately belong to the
+  // suffix, while trimming an unmatched closing bracket introduced by prose.
+  while(d.endsWith("]")){
+    const opens=(d.match(/\[/g)||[]).length, closes=(d.match(/\]/g)||[]).length;
+    if(closes>opens) d=d.slice(0,-1); else break;
   }
-  if(!cand){
-    m=t.match(/\b(10\.\d{4,9}\/[\s\S]{1,180})\s*$/i);
-    if(m && /[A-Za-z0-9]/.test(m[1].slice(m[1].indexOf("/")+1))) cand=m[1].replace(/\s+/g,"");
+  while(d.endsWith(")")){
+    const opens=(d.match(/\(/g)||[]).length, closes=(d.match(/\)/g)||[]).length;
+    if(closes>opens) d=d.slice(0,-1); else break;
   }
-  if(!cand) return null;
 
-  // Remove ordinary trailing bibliography punctuation. Preserve a terminal ')' when it is
-  // balanced because parentheses can legitimately occur inside DOI suffixes.
-  cand=cand.replace(/[.,;:]+$/g,"");
-  while(cand.endsWith("]")) cand=cand.slice(0,-1);
-  while(cand.endsWith(")")){
-    const opens=(cand.match(/\(/g)||[]).length, closes=(cand.match(/\)/g)||[]).length;
-    if(closes>opens) cand=cand.slice(0,-1); else break;
-  }
-  return cand||null;
+  return /^10\.\d{4,9}\/[^\s]+$/i.test(d) ? d : null;
 }
 
+function refDoiSpans(raw){
+  const s=String(raw||"");
+  const spans=[];
+
+  const overlapping=(start,end)=>spans.filter(x=>start<x.end && end>x.start);
+  const add=(m,candidate,preferLonger=false)=>{
+    const doi=refNormalizeDoiCandidate(candidate);
+    if(!doi) return;
+    const start=m.index, end=m.index+m[0].length;
+    const hits=overlapping(start,end);
+    if(hits.length){
+      if(!preferLonger || hits.some(x=>(x.end-x.start)>=(end-start))) return;
+      for(const hit of hits){
+        const i=spans.indexOf(hit);
+        if(i>=0) spans.splice(i,1);
+      }
+    }
+    spans.push({start,end,doi,raw:m[0]});
+  };
+
+  // Prefix-aware patterns are processed first so the whole DOI representation
+  // is protected, not merely the bare 10.x/... substring.
+  const patterns=[
+    {
+      re:/(?:https?:\/\/)?(?:dx\.)?doi\.org\/\s*(10\.\s*\d{4,9}\s*\/\s*[^\s<>"']+)/ig,
+      cap:1
+    },
+    {
+      re:/\bdoi\s*:\s*(10\.\s*\d{4,9}\s*\/\s*[^\s<>"']+)/ig,
+      cap:1
+    },
+    {
+      re:/\b(10\.\s*\d{4,9}\s*\/\s*[^\s<>"']+)/ig,
+      cap:1
+    }
+  ];
+
+  for(const {re,cap} of patterns){
+    let m;
+    while((m=re.exec(s))) add(m,m[cap]);
+  }
+
+  // A DOI may be line-wrapped in Word at visually harmless points. When the
+  // final DOI field contains an actual line break, prefer the complete wrapped
+  // span over a shorter first-line match so the continuation cannot later be
+  // mistaken for an article number, year, page, or volume.
+  if(/[\r\n]/.test(s)){
+    const m=s.match(/(?:https?:\/\/)?(?:dx\.)?doi\.org\/\s*(10\.\s*\d{4,9}\s*\/\s*[A-Za-z0-9][\s\S]{1,180})\s*$|\bdoi\s*:\s*(10\.\s*\d{4,9}\s*\/\s*[A-Za-z0-9][\s\S]{1,180})\s*$|\b(10\.\s*\d{4,9}\s*\/\s*[A-Za-z0-9][\s\S]{1,180})\s*$/i);
+    if(m){
+      const candidate=m[1]||m[2]||m[3];
+      if(/[\r\n]/.test(candidate)) add(m,candidate,true);
+    }
+  }
+
+  return spans.sort((a,b)=>a.start-b.start || b.end-a.end);
+}
+
+function refExtractDoi(raw){
+  const spans=refDoiSpans(raw);
+  return spans.length ? spans[0].doi : null;
+}
+
+function refBlankReferenceSpans(raw,spans){
+  const s=String(raw||"");
+  if(!spans?.length) return s;
+  const chars=s.split("");
+  for(const span of spans){
+    const a=Math.max(0,span.start|0), b=Math.min(chars.length,span.end|0);
+    for(let i=a;i<b;i++) chars[i]=" ";
+  }
+  return chars.join("");
+}
+
+function refProtectDoiUrl(raw){
+  let t=String(raw||"");
+  t=refBlankReferenceSpans(t,refDoiSpans(t));
+
+  // Protect ordinary URLs too. Numeric content inside a URL is never valid
+  // evidence for year, volume, issue, pages or article number.
+  t=t.replace(/\bhttps?:\/\/\S+/ig,m=>" ".repeat(m.length));
+  t=t.replace(/\bwww\.\S+/ig,m=>" ".repeat(m.length));
+
+  return t;
+}
+
+/* Build note: DOI-first bibliographic parsing hardened 2026-08-15. DOI forms
+   with or without doi:, doi.org, http(s)://doi.org, or dx.doi.org prefixes are
+   detected before numeric metadata parsing. DOI and URL spans are protected so
+   their digits cannot become year, volume, issue, page, or article-number
+   evidence, while legitimate metadata immediately before a DOI remains intact. */
+
+/* Build note: journal volume detection hardened 2026-08-15. All volume
+   fallbacks now operate on DOI/URL-stripped text, preventing DOI prefixes such
+   as 10.1007, 10.1016, and similar registrant codes from being interpreted as
+   journal volume numbers when volume metadata is actually absent. */
 /* General journal volume/issue recognition.
    Volume and issue are intentionally parsed as separate concepts. Issue text may
    be a range or journal designator, e.g. 47(7-8), 47(7–8), 47(7/8), 47(7,8),
@@ -9902,7 +9963,10 @@ function refHasIssue(raw, year, sourceRegion){
 }
 
 function refHasVolume(raw, year, sourceRegion){
-  const t=(raw||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+  // Volume detection must never inspect DOI/URL numeric content. A DOI such as
+  // 10.1007/... immediately following a journal name can otherwise be misread
+  // as "volume 10" by source-adjacent fallback logic.
+  const t=refStripDoiUrl(raw||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
 
   // General structural recognition first, including combined issue ranges.
   if(refVolumeIssueCandidates(raw,sourceRegion).length) return true;
@@ -10113,16 +10177,13 @@ function refCleanStructuralPrefix(s){
 }
 
 function refStripDoiUrl(s){
-  let t=String(s||"");
-  const doi=refExtractDoi(t);
-  if(doi){
-    const esc=doi.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-    t=t.replace(new RegExp("(?:doi\\s*:\\s*|https?:\\/\\/(?:dx\\.)?doi\\.org\\/)?\\s*"+esc,"i")," ");
-  }
-  // Remaining terminal DOI/URL labels should not participate in field parsing.
-  t=t.replace(/\bdoi\s*:\s*$/i," ")
-     .replace(/https?:\/\/(?:dx\.)?doi\.org\/\S+/ig," ")
-     .replace(/\bhttps?:\/\/\S+/ig," ");
+  let t=refProtectDoiUrl(s);
+
+  // Clean up labels that may remain after a malformed/empty DOI field.
+  t=t.replace(/\bdoi\s*:\s*/ig," ");
+
+  // Collapse whitespace only after spans have been blanked. This leaves adjacent
+  // legitimate metadata, e.g. ", 344. 10.1016/..." -> ", 344.", untouched.
   return t.replace(/\s+/g," ").trim();
 }
 
@@ -10376,6 +10437,7 @@ function refFindYearLandmark(rest){
 }
 
 function refParseLocatorFields(rest, yearInfo){
+  // All DOI/URL spans have already been blanked before numeric parsing.
   const s=refStripDoiUrl(rest);
   let volume=null, issue=null, locator=null, locatorKind=null;
 
@@ -10508,10 +10570,12 @@ function refParseLocatorFields(rest, yearInfo){
     }
   }
 
-  // Period-delimited terminal volume with no explicit locator, e.g.
-  // "Molecules. 27.". Do not infer an article number from a DOI suffix.
+  // Terminal standalone volume with no explicit locator, e.g.
+  // "Bioresour. Technol., 344. 10.1016/..." or "Molecules. 27.".
+  // DOI stripping leaves the legitimate 344/27 field intact. The candidate
+  // must be a complete final bibliographic field and cannot equal the year.
   if(!volume){
-    m=s.match(/(?:^|\.)\s*(\d{1,6})\s*\.?\s*$/);
+    m=s.match(/(?:^|[,;.])\s*(\d{1,6})\s*\.?\s*$/);
     if(m){
       const py=yearInfo?yearInfo.year.replace(/[a-z]$/i,""):null;
       if(!(py && m[1]===py)) volume=m[1];
@@ -10760,6 +10824,14 @@ function refRecoverSourceFromTail(raw,authorInfo,title,year){
   // SOURCE, YEAR, VOLUME(ISSUE/PART), LOCATOR
   m=afterTitle.match(
     /^(.+?)\s*[,;]\s*((?:19|20)\d{2}[a-z]?)\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,24}\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?/i
+  );
+  if(m) candidates.push(m[1]);
+
+  // SOURCE, VOLUME(ISSUE/PART), LOCATOR. This is one of the most common
+  // author-year journal tails, e.g. "J. Sci. Food Agric., 86(13), 2010-2037".
+  // Abbreviation periods inside the source are valid and must not terminate it.
+  m=afterTitle.match(
+    /^(.+?)\s*[,;]\s*\d{1,6}(?:\s*\([^)]{1,24}\))?\s*[,;:]\s*[A-Za-z]?\d{1,10}(?:\s*[-–—]\s*[A-Za-z]?\d{1,10})?(?:\s*[.,;:]|$)/i
   );
   if(m) candidates.push(m[1]);
 
@@ -11107,6 +11179,9 @@ function refParseEntry(raw){
     const pageRange=/\b(?:pp?\.?\s*)?\d{1,8}\s*[-–—]\s*\d{1,8}\b/i.test(clean);
     const explicitArticle=/\b(?:article|art\.?|e-location|elocation)\s*(?:no\.?|number|id)?\s*:?\s*[eE]?\d{1,10}\b/i.test(clean);
     const eLocator=/\b[eE]\d{4,10}\b/.test(clean);
+    // Never infer an article number from a DOI suffix. Bare numeric article
+    // numbers qualify only when the structural locator parser found them
+    // independently outside the protected DOI/URL span.
     hasPages=pageRange||explicitArticle||eLocator;
     hasArticleNo=explicitArticle||eLocator;
   }
