@@ -3613,6 +3613,19 @@ function engFindPhraseAll(text,phrase){
 /* character right after an uppercase run that marks a chemical formula (subscript/superscript/charge) */
 const FORMULA_FOLLOW=/^[\u2080-\u2089\u2070-\u2079\u00B2\u00B3\u00B9\u207A\u207B]/;
 
+/* Build note: abbreviation-list convention rule updated 2026-08-15.
+   Two consistent approaches are accepted within a prose scope: listed
+   abbreviations may be used directly, or listed abbreviations may be defined
+   again in text. A single Review item is created only when both approaches are
+   mixed. Existing late-definition, duplicate-definition and conflicting-full-
+   form checks remain independent. */
+
+/* Build note: abbreviation-list handling hardened 2026-08-15.
+   Word-detected list declarations are persistent manuscript structure and are
+   restored after every analysis reset. List declarations are kept separate from
+   prose definitions: they prevent false "not defined anywhere" findings, but do
+   not suppress late first-use, duplicate prose definitions, or conflicting full
+   forms. */
 /* Abbreviations the author declares in a "List of Abbreviations" table or section */
 let DECLARED_ABBRS=new Set();
 let DECLARED_ABBR_MAP=new Map();
@@ -3671,13 +3684,15 @@ function abbrRegisterListDefinition(map,shortForm,longForm,meta={}){
 */
 function extractDeclaredAbbrs(text){
   const lines=String(text||"").split(/\n/);
-  const map=new Map();
+  const map=new Map(), sections=[];
   let inSec=false, found=false, section="";
 
   for(let i=0;i<lines.length;i++){
     const bare=abbrListClean(lines[i].replace(/[*_`#>]/g,""));
     if(ABBR_LIST_HEAD_RE.test(bare)){
-      inSec=true; found=true; section=bare||"Abbreviations"; continue;
+      inSec=true; found=true; section=bare||"Abbreviations";
+      if(section && !sections.some(x=>x.toLowerCase()===section.toLowerCase())) sections.push(section);
+      continue;
     }
     if(!inSec) continue;
     if(!bare) continue;
@@ -3694,7 +3709,7 @@ function extractDeclaredAbbrs(text){
     }
     if(m) abbrRegisterListDefinition(map,m[1],m[2],{section,location:`text line ${i+1}`});
   }
-  return {found,map};
+  return {found,map,sections};
 }
 /* ---------- Helpers ---------- */
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -5732,39 +5747,46 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       }
 
       let status="ok";
-      // A dedicated Abbreviations/Acronyms/Nomenclature list is treated as an
-      // authoritative declaration. It therefore satisfies the definition check
-      // even if the same short form appears in body prose before a parenthetical definition.
-      const usedBefore=!listDef && defined && firstSent<defSent;
-      const firstUseOK=std || !!listDef || (defined && !usedBefore && !earlierLong);
-      const definitionSource=std?"standard":(listDef?"list":(defined?(scientificDefinition?"scientific":"prose"):(declared?"declared":"none")));
+      // The dedicated abbreviation list is a manuscript-level declaration source,
+      // not a prose definition. It prevents the factually incorrect "not defined
+      // anywhere" result, but prose first-use and repeated-definition checks remain
+      // independent.
+      const usedBefore=defined && firstSent<defSent;
+      const firstUseOK=std || (defined && !usedBefore && !earlierLong);
+      const definitionSource=std?"standard":(defined?(scientificDefinition?"scientific":"prose"):(listDef?"list":(declared?"declared":"none")));
 
       if(std){
         standardSeen.push(disp);
-      }else if(listDef){
-        declaredSeen.push(disp);
-      }else if(declared && !defined){
-        declaredSeen.push(disp);
-      }else if(!defined){
-        if(!abbrShouldReportUndefinedCandidate(g,disp,{std,listDef,declared})){
-          return;
-        }
-        status="err";
-        errors.push({abbr:disp, msg:`Not defined anywhere. Spell it out in full at first use, for example "full term (${disp})".`, snip:snippet});
-      }else if(usedBefore){
+      }else{
+        if(listDef) declaredSeen.push(disp);
+
+        if(!defined && listDef){
+          // Valid list-based approach. A manuscript may rely on the dedicated
+          // abbreviation list without redefining every listed term in prose.
+          // Consistency is assessed collectively after all listed terms have
+          // been analysed.
+          status="ok";
+        }else if(!defined){
+          if(!abbrShouldReportUndefinedCandidate(g,disp,{std,listDef,declared})){
+            return;
+          }
+          status="err";
+          errors.push({abbr:disp, msg:`Not defined anywhere. Spell it out in full at first use, for example "full term (${disp})".`, snip:snippet});
+        }else if(usedBefore){
         status="err";
         if(scientificDefinition){
           errors.push({abbr:disp, msg:`Used before it is introduced. The notation is defined later as "${longForm} (${disp})"; introduce that scientific parameter or symbol at its first use.`, snip:snippet});
         }else{
           errors.push({abbr:disp, msg:`Used before it is defined. It appears in the text before its full form is given. Spell it out in full at the first use.`, snip:snippet});
         }
-      }else if(earlierLong){
-        status="err";
-        errors.push({
-          abbr:disp,
-          msg:`The full term "${longForm}" appears earlier in manuscript prose before ${disp} is introduced. If ${disp} will be used later, define it at that first prose mention as "${longForm} (${disp})". A later table note may repeat the definition for table readability.`,
-          snip:buildSnippet(earlierLong.text,longForm)
-        });
+        }else if(earlierLong){
+          status="err";
+          errors.push({
+            abbr:disp,
+            msg:`The full term "${longForm}" appears earlier in manuscript prose before ${disp} is introduced. If ${disp} will be used later, define it at that first prose mention as "${longForm} (${disp})". A later table note may repeat the definition for table readability.`,
+            snip:buildSnippet(earlierLong.text,longForm)
+          });
+        }
       }
 
       // Do not issue low-use warnings for an abbreviation intentionally included
@@ -5786,7 +5808,33 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         warnings.push({abbr:disp, msg:`Begins a sentence. Rephrase so a sentence does not open with an abbreviation.`, snip:buildSnippet(sentences[initOcc[0].sent]||"", disp)});
       }
 
-      if(g.defs.length>=2 && !std && !listDef){
+      if(!std && listDef && defined){
+        const listKey=abbrDefinitionMeaningKey(listDef.long);
+        const conflictingDefs=orderedDefs.filter(d=>{
+          const k=abbrDefinitionMeaningKey(d.long);
+          return k && listKey && k!==listKey;
+        });
+        if(conflictingDefs.length){
+          status="err";
+          const proseForms=[...new Set(conflictingDefs.map(d=>String(d.long||"").trim()).filter(Boolean))];
+          const contexts=[];
+          const listCtx=abbrListDeclarationContext(listDef,disp);
+          if(listCtx) contexts.push(listCtx);
+          conflictingDefs.forEach((d,idx)=>{
+            const h=buildSnippet(sentences[d.sent]||"",d.form||disp);
+            if(h) contexts.push({label:`Prose definition ${idx+1}`,sentenceIndex:d.sent,html:h});
+          });
+          errors.push({
+            abbr:disp,
+            msg:`Conflicting definitions. The abbreviation list defines ${disp} as "${listDef.long}", while eligible prose defines it as ${proseForms.slice(0,3).map(x=>`"${x}"`).join("; ")}. Use one correct full form consistently.`,
+            snip:contexts[0]?.html||snippet,
+            contexts,
+            semanticConflict:true
+          });
+        }
+      }
+
+      if(g.defs.length>=2 && !std){
         // Duplicate definitions are judged within editorial scope, not across the
         // whole manuscript. One definition in the Abstract and one in the main
         // body is valid. Structural table-note definitions have already been
@@ -5828,6 +5876,9 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       }
     });
 
+  const mixedListApproach=abbrMixedListApproachIssue(rows);
+  if(mixedListApproach) warnings.push(mixedListApproach);
+
   const nonStd=rows.length;
   if(creditMetadataDetected){
     infos.unshift({
@@ -5839,7 +5890,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
   if(hasList && DECLARED_ABBR_MAP.size){
     infos.unshift({
       abbr:null,
-      msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. Listed abbreviations are treated as defined and are not reported as undefined or used-before-definition errors.`,
+      msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. Two consistent approaches are accepted: listed abbreviations may be used directly in prose, or they may all be defined again at first use. A Review item is created only when these two approaches are mixed within the same prose scope.`,
       snip:null
     });
   }else if(nonStd>=8 && !hasList){
@@ -6130,7 +6181,8 @@ function abbrPlainHtml(x){
 function abbrIssueStatusLabel(msg,priority){
   msg=String(msg||"");
   let m;
-  if(/different full forms|different meanings|unambiguous throughout/i.test(msg)){
+  if(/Mixed abbreviation-definition approach/i.test(msg)) return "Mixed definition approach";
+  if(/Conflicting definitions|different full forms|different meanings|unambiguous throughout/i.test(msg)){
     m=msg.match(/Defined\s+(\d+)\s+times/i);
     return m?`${m[1]} conflicting definitions`:"Conflicting definitions";
   }
@@ -6138,6 +6190,7 @@ function abbrIssueStatusLabel(msg,priority){
     m=msg.match(/Defined\s+(\d+)\s+times/i);
     return m?`Defined ${m[1]} times`:"Defined multiple times";
   }
+  if(/Defined in abbreviation list only/i.test(msg)) return "Defined in abbreviation list only";
   if(/Not defined anywhere|not defined before or elsewhere/i.test(msg)) return "Not defined anywhere";
   if(/Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(msg)) return "Defined after first use";
   if(/full term .* appears earlier|first prose mention/i.test(msg)) return "Definition introduced late";
@@ -6153,10 +6206,14 @@ function abbrRecommendationForIssue(it,priority){
   const a=String(it?.abbr||"abbreviation").trim();
   const msg=String(it?.msg||"");
   let m;
-  if(/different full forms|different meanings|unambiguous throughout/i.test(msg))
+  if(/Mixed abbreviation-definition approach/i.test(msg))
+    return "Use one method consistently: either use abbreviations directly because they are already defined in the abbreviation list, or define all of them again at their first use in the text.";
+  if(/Conflicting definitions|different full forms|different meanings|unambiguous throughout/i.test(msg))
     return `Use one correct full form consistently for ${a}.`;
   if(/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msg))
     return "Keep the first definition and use only the abbreviation thereafter.";
+  if(/Defined in abbreviation list only/i.test(msg))
+    return `Check whether the target journal or institution permits list-only definitions; otherwise define ${a} at its first use.`;
   if(/Not defined anywhere|not defined before or elsewhere/i.test(msg))
     return `Define ${a} in full at its first use.`;
   if(/Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(msg))
@@ -6180,7 +6237,7 @@ function abbrRecommendationForIssue(it,priority){
 }
 function abbrDefinitionStatusText(x){
   const src=String(x?.definitionSource||"");
-  if(src==="list") return "Defined in abbreviation list only";
+  if(src==="list") return "Defined in abbreviation list";
   if(src==="table_note"||src==="table") return "Defined in table note";
   if(src==="scientific") return x.firstUseOK===false?"Defined after first use":"Defined correctly";
   if(src==="prose") return x.firstUseOK===false?"Defined after first use":"Defined correctly";
@@ -6215,9 +6272,25 @@ function abbrBuildReportingRows(r){
         generalNotes.push({it,priority});
         return;
       }
-      row={base:it.abbr,longForm:null,count:0,firstUseOK:false,status:priority==="critical"?"err":"warn",definitionSource:"none",key,issues:[],instances:[],definitionInstances:[],extraContexts:[]};
+      row={
+        base:it.abbr,
+        longForm:it?.rowLongForm||null,
+        count:Number(it?.rowCount)||0,
+        firstUseOK:false,
+        status:priority==="critical"?"err":"warn",
+        definitionSource:"none",
+        key,
+        issues:[],
+        instances:[],
+        definitionInstances:[],
+        extraContexts:[],
+        mixedApproachGroups:it?.mixedApproachGroups||null
+      };
       map.set(key,row);
     }
+    if(it?.mixedApproachGroups) row.mixedApproachGroups=it.mixedApproachGroups;
+    if(it?.rowLongForm && !row.longForm) row.longForm=it.rowLongForm;
+    if(Number(it?.rowCount)>0 && !(Number(row.count)>0)) row.count=Number(it.rowCount);
     row.issues.push({it,priority});
     if(Array.isArray(it.contexts)){
       it.contexts.forEach((c,idx)=>row.extraContexts.push({label:c.label||`Finding context ${idx+1}`,html:c.html||""}));
@@ -6278,7 +6351,7 @@ function abbrInstanceListHtml(items,limit=3){
   if(!items.length)return "";
   const render=x=>{
     const lab=String(x.label||"");
-    const showLabel=/chapter|abstract|part|definition|finding/i.test(lab);
+    const showLabel=/chapter|abstract|part|definition|finding|first use|abbreviation list/i.test(lab);
     return `<div class="abbr-instance-example">${showLabel?`<div class="abbr-instance-label">${escapeHtml(lab)}</div>`:""}${x.html}</div>`;
   };
   const first=items.slice(0,limit).map(render).join("");
@@ -6294,7 +6367,7 @@ function abbrFindingDefinitionContexts(row,kind){
   const seen=new Set(),out=[];
   (row?.issues||[]).forEach(issue=>{
     const it=issue?.it||{},msg=String(it.msg||"");
-    const isConflict=/different full forms|different meanings|unambiguous throughout/i.test(msg);
+    const isConflict=/Conflicting definitions|different full forms|different meanings|unambiguous throughout/i.test(msg);
     const isDuplicate=!!it.duplicateDefinition||/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msg);
     if((kind==="conflict"&&!isConflict)||(kind==="duplicate"&&(!isDuplicate||isConflict)))return;
     const contexts=Array.isArray(it.contexts)&&it.contexts.length
@@ -6325,7 +6398,8 @@ function abbrRelevantDefinitionContexts(row){
 }
 function abbrInstanceMode(row){
   const msgs=(row?.issues||[]).map(x=>String(x?.it?.msg||"")).join(" ");
-  if(/different full forms|different meanings|unambiguous throughout/i.test(msgs)) return "conflicting-definitions";
+  if((row?.issues||[]).some(x=>x?.it?.mixedApproach)||/Mixed abbreviation-definition approach/i.test(msgs)) return "mixed-list-approach";
+  if(/Conflicting definitions|different full forms|different meanings|unambiguous throughout/i.test(msgs)) return "conflicting-definitions";
   if((row?.issues||[]).some(x=>x?.it?.duplicateDefinition)||/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msgs)) return "duplicate-definitions";
   return "general";
 }
@@ -6333,7 +6407,15 @@ function abbrInstancePanelHtml(row,rowIndex){
   const mode=abbrInstanceMode(row);
   let groups="",title="Manuscript instances",note="The abbreviation or relevant definition is highlighted where possible so you can inspect the original manuscript context before editing.";
 
-  if(mode==="duplicate-definitions"){
+  if(mode==="mixed-list-approach"){
+    const mix=row?.mixedApproachGroups||{};
+    title="Abbreviation-definition approaches";
+    note="The examples below show which listed abbreviations are defined again in the text and which are used directly from the abbreviation list.";
+    groups=[
+      abbrInstanceGroupHtml("Defined again in text",mix.redefined||[]),
+      abbrInstanceGroupHtml("Used directly from abbreviation list",mix.direct||[])
+    ].filter(Boolean).join("");
+  }else if(mode==="duplicate-definitions"){
     const defs=abbrRelevantDefinitionContexts(row);
     title="Duplicate definition locations";
     note="Only the repeated definition locations are shown. Ordinary uses of the abbreviation are omitted.";
@@ -6370,9 +6452,11 @@ function abbrReportingLedger(r){
   const built=abbrBuildReportingRows(r),rows=built.rows;
   const body=rows.map((x,i)=>{
     const instanceMode=abbrInstanceMode(x);
-    const hasContexts=instanceMode==="duplicate-definitions"||instanceMode==="conflicting-definitions"
-      ? abbrRelevantDefinitionContexts(x).length>0
-      : (x.instances?.length||0)+(x.definitionInstances?.length||0)+(x.extraContexts?.length||0)>0;
+    const hasContexts=instanceMode==="mixed-list-approach"
+      ? ((x.mixedApproachGroups?.redefined?.length||0)+(x.mixedApproachGroups?.direct?.length||0)>0)
+      : (instanceMode==="duplicate-definitions"||instanceMode==="conflicting-definitions"
+        ? abbrRelevantDefinitionContexts(x).length>0
+        : (x.instances?.length||0)+(x.definitionInstances?.length||0)+(x.extraContexts?.length||0)>0);
     const statusHtml=x.statuses.map(s=>`<span class="abbr-ledger-status ${s.priority}">${escapeHtml(s.label)}</span>`).join("");
     const recHtml=x.recommendations.map(rec=>`<div class="abbr-recommendation-line">${escapeHtml(rec)}</div>`).join("");
     const view=hasContexts?`<button type="button" class="abbr-view-instances" data-target="abbr-instance-row-${i}" aria-expanded="false" aria-controls="abbr-instance-row-${i}">View instances</button>`:"";
@@ -6387,7 +6471,7 @@ function abbrReportingLedger(r){
       <b>Abbreviation / notation</b><span>The detected non-standard abbreviation or explicitly introduced scientific notation.</span>
       <b>Full form / descriptor</b><span>The detected full form, scientific descriptor, or declaration associated with the abbreviation.</span>
       <b>Uses</b><span>The number of eligible prose occurrences assessed by the abbreviation checker.</span>
-      <b>Status</b><span>States exactly what was detected, using direct wording and counts where available, for example <b>Not defined anywhere</b> or <b>Defined 2 times</b>.</span>
+      <b>Status</b><span>States exactly what was detected, using direct wording and counts where available. When a List of Abbreviations is present, either consistent list-based use or consistent redefinition in text is accepted; only a mixed approach is flagged.</span>
       <b>Recommendation</b><span>A concise next step. Select <b>View instances</b> to inspect only the manuscript context relevant to that finding. For duplicate or conflicting definitions, only the definition locations are shown.</span>
     </div></div>
     <div class="ledger-scroll"><table class="ledger abbr-reporting-table" id="abbr-reporting-table"><thead><tr><th>Abbreviation / notation</th><th>Full form / descriptor</th><th>Uses</th><th>Status</th><th>Recommendation</th></tr></thead><tbody>${body||'<tr><td colspan="5">No non-standard abbreviations or notation items were detected.</td></tr>'}</tbody></table></div>`;
@@ -6441,6 +6525,141 @@ let DOCX_ENGLISH_TEXT="";
 let DOCX_ABBR_LIST=new Map();
 let DOCX_ABBR_LIST_FOUND=false;
 let DOCX_ABBR_LIST_SECTIONS=[];
+
+function abbrMergeDeclarationMap(sourceMap,options={}){
+  const map=sourceMap instanceof Map ? sourceMap : new Map();
+  const found=!!options.found || map.size>0;
+  const sections=Array.isArray(options.sections)?options.sections:[];
+  const preferExisting=options.preferExisting!==false;
+
+  if(found) DECLARED_ABBR_LIST_FOUND=true;
+
+  map.forEach((rec,key)=>{
+    const canonical=abbrListKey(rec?.form||key);
+    if(!canonical) return;
+    DECLARED_ABBRS.add(canonical);
+
+    // Structured Word extraction is authoritative. Text fallback fills gaps but
+    // never overwrites a stronger structured declaration already retained.
+    if(!preferExisting || !DECLARED_ABBR_MAP.has(canonical)){
+      DECLARED_ABBR_MAP.set(canonical,{...rec,key:canonical,source:"abbreviation-list"});
+    }
+  });
+
+  DECLARED_ABBR_SECTIONS=[
+    ...new Set([
+      ...(DECLARED_ABBR_SECTIONS||[]),
+      ...sections.filter(Boolean)
+    ])
+  ];
+}
+
+function abbrRestoreStructuredDeclarations(){
+  // Rehydrate the list after any analysis-state reset. The Word-derived map is
+  // manuscript structure, not transient report state.
+  abbrMergeDeclarationMap(DOCX_ABBR_LIST,{
+    found:DOCX_ABBR_LIST_FOUND,
+    sections:DOCX_ABBR_LIST_SECTIONS,
+    preferExisting:true
+  });
+}
+
+function abbrDefinitionMeaningKey(value){
+  let s=abbrListClean(value).toLowerCase()
+    .replace(/[‐‑‒–—-]+/g," ")
+    .replace(/[^a-z0-9\s]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+  if(!s) return "";
+
+  // Treat a simple grammatical plural on the final descriptor word as
+  // equivalent: "microbial fuel cell" and "microbial fuel cells".
+  const parts=s.split(" ");
+  const last=parts[parts.length-1]||"";
+  if(last.length>4 && /s$/.test(last) && !/(?:ss|us|is)$/.test(last)){
+    parts[parts.length-1]=last.slice(0,-1);
+  }
+  return parts.join(" ");
+}
+
+function abbrListDeclarationContext(def,abbr){
+  if(!def) return null;
+  const form=String(def.form||abbr||"").trim();
+  const long=String(def.long||"").trim();
+  if(!form || !long) return null;
+  return {
+    label:"Abbreviation list",
+    html:`<mark>${escapeHtml(form)}</mark>: ${escapeHtml(long)}`
+  };
+}
+
+function abbrListConventionEligibleRow(row){
+  if(!row || !row.base || !(Number(row.count)>0)) return false;
+  const key=norm(row.base);
+  if(!DECLARED_ABBR_MAP.has(key)) return false;
+
+  // Measurement units and unit-like notation are outside the abbreviation
+  // definition-convention rule even if they happen to appear in a nomenclature
+  // list.
+  try{
+    const parsed=unitParseExpression(String(row.base||""));
+    if(parsed?.valid) return false;
+  }catch(_e){}
+
+  return true;
+}
+
+function abbrMixedListApproachIssue(rows){
+  if(!(DECLARED_ABBR_LIST_FOUND || DECLARED_ABBR_MAP.size)) return null;
+
+  const eligible=(rows||[]).filter(abbrListConventionEligibleRow);
+  if(eligible.length<2) return null;
+
+  const redefined=[], direct=[];
+  eligible.forEach(row=>{
+    const defs=(row.definitionInstances||[]).filter(x=>x?.html);
+    const uses=(row.instances||[]).filter(x=>x?.html);
+
+    if(defs.length){
+      redefined.push({
+        abbr:row.base,
+        context:{
+          label:`${row.base} · prose definition`,
+          html:defs[0].html
+        }
+      });
+    }else if(String(row.definitionSource||"")==="list" || DECLARED_ABBR_MAP.has(norm(row.base))){
+      direct.push({
+        abbr:row.base,
+        context:{
+          label:`${row.base} · first use from abbreviation list`,
+          html:uses[0]?.html || abbrListDeclarationContext(DECLARED_ABBR_MAP.get(norm(row.base)),row.base)?.html || ""
+        }
+      });
+    }
+  });
+
+  if(!redefined.length || !direct.length) return null;
+
+  return {
+    abbr:"Abbreviation list usage",
+    msg:"Mixed abbreviation-definition approach. Some abbreviations defined in the abbreviation list are defined again in the text, while others are used directly from the list.",
+    mixedApproach:true,
+    summaryRow:true,
+    rowLongForm:"Definition approach",
+    rowCount:eligible.length,
+    mixedApproachGroups:{
+      redefined:redefined.map(x=>x.context).filter(x=>x.html),
+      direct:direct.map(x=>x.context).filter(x=>x.html)
+    },
+    mixedApproachAbbreviations:{
+      redefined:redefined.map(x=>x.abbr),
+      direct:direct.map(x=>x.abbr)
+    },
+    snip:null
+  };
+}
+
 // References recovered directly from Word paragraph/list structure. This preserves
 // automatic numbering that can disappear when DOCX HTML is flattened to text.
 let DOCX_STRUCTURED_REFERENCES=null;
@@ -8062,9 +8281,10 @@ async function readFile(file){
       DOCX_ABBR_LIST=abList.map||new Map();
       DOCX_ABBR_LIST_FOUND=!!abList.found;
       DOCX_ABBR_LIST_SECTIONS=abList.sections||[];
-      DOCX_ABBR_LIST.forEach((rec,key)=>{
-        DECLARED_ABBRS.add(key);
-        DECLARED_ABBR_MAP.set(key,rec);
+      abbrMergeDeclarationMap(DOCX_ABBR_LIST,{
+        found:DOCX_ABBR_LIST_FOUND,
+        sections:DOCX_ABBR_LIST_SECTIONS,
+        preferExisting:false
       });
     }catch(e){
       console.warn("Structured abbreviation-list extraction unavailable; using text fallback.",e);
@@ -8159,12 +8379,12 @@ async function readFile(file){
     const KEEPHEAD=/^\s*(\d+\.?\s*)?(references?|reference list|bibliography|works cited|literature cited|cited literature|references cited|notes\s+and\s+references|references\s+and\s+notes|appendix|appendices|supplementary|supporting information|acknowledge?ments?|data availability|funding|conflicts?\s+of\s+interest|competing\s+interests?|author\s+contributions?|declarations?)\b/i;
     box.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>{  // drop styled headings, keep section markers
       const t=(h.textContent||"").trim();
-      if(KEEPHEAD.test(t)||isReferenceHeading(t)) h.replaceWith(document.createTextNode("\n"+t+"\n"));
+      if(KEEPHEAD.test(t)||isReferenceHeading(t)||ABBR_LIST_HEAD_RE.test(t)) h.replaceWith(document.createTextNode("\n"+t+"\n"));
       else h.remove();
     });
     box.querySelectorAll("p").forEach(p=>{                   // drop bold-only short headings, keep section markers
       const txt=(p.textContent||"").trim(); if(!txt) return;
-      if(KEEPHEAD.test(txt)||isReferenceHeading(txt)) return;
+      if(KEEPHEAD.test(txt)||isReferenceHeading(txt)||ABBR_LIST_HEAD_RE.test(txt)) return;
       const bold=[...p.querySelectorAll("strong,b")].map(s=>s.textContent||"").join(" ").replace(/\s+/g,"").length;
       const total=txt.replace(/\s+/g,"").length;
       const noEnd=!/[.!?]["'\u2019)\]]?$/.test(txt);
@@ -12159,6 +12379,7 @@ $("run").onclick=async()=>{
     DECLARED_ABBR_MAP=new Map();
     DECLARED_ABBR_LIST_FOUND=false;
     DECLARED_ABBR_SECTIONS=[];
+    abbrRestoreStructuredDeclarations();
     if(!currentFile){ status("Upload a Microsoft Word .docx manuscript first.",true); btn.disabled=false; return; }
     status("Reading Word file…");
     text=await readFile(currentFile);
@@ -12166,10 +12387,10 @@ $("run").onclick=async()=>{
 
     // Fallback for paragraph-based lists that survive Word-to-text conversion.
     const textList=extractDeclaredAbbrs(text);
-    if(textList.found) DECLARED_ABBR_LIST_FOUND=true;
-    textList.map.forEach((rec,key)=>{
-      DECLARED_ABBRS.add(key);
-      if(!DECLARED_ABBR_MAP.has(key)) DECLARED_ABBR_MAP.set(key,rec);
+    abbrMergeDeclarationMap(textList.map,{
+      found:textList.found,
+      sections:textList.sections||[],
+      preferExisting:true
     });
     DECLARED_ABBR_SECTIONS=[
       ...new Set([...(DOCX_ABBR_LIST_SECTIONS||[]), ...(DECLARED_ABBR_SECTIONS||[])])
@@ -14948,7 +15169,17 @@ fteAnalyze=function(blocks){
         errors.push({...it,_scope:a.scope});
       });
       (a.r.warnings||[]).forEach(it=>{
-        if(/^Used only \d+ time/i.test(String(it.msg||""))) return; // recalc manuscript-wide below
+        const m=String(it.msg||"");
+        if(/^Used only \d+ time/i.test(m)) return; // recalc manuscript-wide below
+        if(it?.mixedApproach){
+          const scopeLabel=humanScope(a.scope);
+          addUnique(warnings,{
+            ...it,
+            msg:`Mixed abbreviation-definition approach in ${scopeLabel}. Some abbreviations defined in the abbreviation list are defined again in the text, while others are used directly from the list.`,
+            _scope:a.scope
+          },seenWarn);
+          return;
+        }
         addUnique(warnings,{...it,_scope:a.scope},seenWarn);
       });
       (a.r.infos||[]).forEach(it=>{
@@ -15021,6 +15252,7 @@ fteAnalyze=function(blocks){
       const conflict=uniqueMeanings.length>1;
       const localScopes=[...new Map(localScopeRows.map(r=>[r.scope.id,r.scope])).values()];
       const allFirstOk=all.every(r=>r.firstUseOK!==false || ["list","declared"].includes(r.definitionSource));
+
       const anyErr=reconciledErrors.some(e=>norm(e.abbr||"")===bucket.key);
       const anyReview=warnings.some(e=>norm(e.abbr||"")===bucket.key);
       let status=anyErr?"err":(anyReview||conflict?"warn":"ok");
@@ -15052,7 +15284,23 @@ fteAnalyze=function(blocks){
 
       if(conflict){
         const detail=uniqueMeanings.map(m=>`"${m.long}" (${m.scope.label})`).join("; ");
-        addUnique(warnings,{abbr:base,msg:`${base} is associated with different full forms in different thesis sections: ${detail}. Verify that the abbreviation is unambiguous throughout the thesis.`,snip:null,semanticConflict:true},seenWarn);
+        const listConflict=!!listDef && uniqueMeanings.some(m=>m.scope.kind!=="list" && m.key!==meaningKey(listDef.long));
+        if(listConflict){
+          const contexts=[];
+          const listCtx=abbrListDeclarationContext(listDef,base);
+          if(listCtx) contexts.push(listCtx);
+          scopedDefinitionInstances.forEach((c,idx)=>contexts.push({...c,label:c.label||`Prose definition ${idx+1}`}));
+          addUnique(reconciledErrors,{
+            abbr:base,
+            msg:`Conflicting definitions. The abbreviation list and eligible thesis prose use different full forms for ${base}: ${detail}. Use one correct full form consistently.`,
+            snip:null,
+            contexts,
+            semanticConflict:true
+          },seenErr);
+          status="err";
+        }else{
+          addUnique(warnings,{abbr:base,msg:`${base} is associated with different full forms in different thesis sections: ${detail}. Verify that the abbreviation is unambiguous throughout the thesis.`,snip:null,semanticConflict:true},seenWarn);
+        }
       }
     });
 
@@ -15067,7 +15315,7 @@ fteAnalyze=function(blocks){
     });
 
     if(DECLARED_ABBR_LIST_FOUND || DECLARED_ABBR_MAP.size){
-      infos.unshift({abbr:null,msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. The list is retained as a manuscript-level declaration source, and chapter-level reintroduction is allowed without a duplicate-definition warning.`,snip:null});
+      infos.unshift({abbr:null,msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. Within each independent prose scope, two consistent approaches are accepted: use listed abbreviations directly, or define the listed abbreviations again in text. Mixing the two approaches creates one Review item for that scope.`,snip:null});
     }else if(rows.length>=8){
       infos.push({abbr:null,msg:`You use ${rows.length} non-standard abbreviations. Check whether the target journal requires a List of Abbreviations or Nomenclature section.`,snip:null});
     }
