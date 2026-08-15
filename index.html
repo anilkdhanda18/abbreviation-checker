@@ -242,7 +242,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
      The full ledger may scroll horizontally when the viewport is narrow; the floating
      header remains synchronized with the body table. */
   .reference-ledger-block{position:relative}
-  .reference-ledger-table{table-layout:fixed;min-width:900px!important}
+  .reference-ledger-table{table-layout:fixed;min-width:0!important;width:100%}
   .reference-ledger-floating{
     display:none;
     position:fixed;
@@ -269,9 +269,9 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     line-height:1.4;
   }
   .reference-ledger-floating-scroll{width:100%;overflow:hidden;background:#fff}
-  .reference-ledger-floating .ledger{margin:0;table-layout:fixed;min-width:900px!important}
+  .reference-ledger-floating .ledger{margin:0;table-layout:fixed;min-width:0!important;width:100%}
   .reference-ledger-floating .ledger th{
-    padding:8px 10px 9px;
+    padding:8px 6px 9px;
     background:#fff;
     border-bottom:2px solid var(--ink);
     white-space:nowrap;
@@ -282,6 +282,16 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .reference-ledger-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .reference-ledger-table thead th{white-space:nowrap;word-break:normal;overflow-wrap:normal;hyphens:none}
   .reference-ledger-table tbody td{vertical-align:top}
+  .reference-ledger-table th,.reference-ledger-table td{padding-left:6px!important;padding-right:6px!important}
+  .reference-ledger-table th{font-size:10px!important;letter-spacing:.075em!important}
+  .reference-ledger-table .t-long{line-height:1.45}
+  .reference-ledger-key{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:6px 0 12px;padding:8px 10px;border:1px solid var(--hair);border-radius:8px;background:#fbfcfe;color:var(--muted);font-size:12.5px;line-height:1.35}
+  .reference-ledger-key .yn{font-weight:800}
+  .reference-ledger-key-sep{color:var(--hair-strong)}
+  @media(max-width:760px){
+    .reference-ledger-table,.reference-ledger-floating .ledger{min-width:720px!important}
+    .reference-ledger-table th,.reference-ledger-table td{padding-left:7px!important;padding-right:7px!important}
+  }
   @media(max-width:640px){
     .reference-ledger-floating-title{display:none}
     .reference-ledger-floating{border-radius:0}
@@ -863,6 +873,95 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 @media print{.mc-results-tools,.mc-review-toolbar,.mc-issue-actions,.mc-issue-nav,.mc-floating-nav,.mc-guided,.mc-overview-actions,.mc-document-type,.mc-checks-explainer{display:none!important}.issue.mc-filter-hidden{display:block!important}.issue{opacity:1!important}}
 </style>
 
+
+<style id="mc-entry-two-column-v1">
+/* Two-column manuscript-entry layout: upload left, compact guidance right; advanced settings span full width below. */
+#input-card .mc-entry-columns{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:18px;
+  align-items:stretch;
+  margin-top:18px;
+}
+#input-card .mc-entry-left,
+#input-card .mc-entry-right{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+#input-card .mc-entry-left{align-self:stretch}
+#input-card .mc-entry-left .panel{margin:0;display:flex;flex:1;min-height:0}
+#input-card .mc-entry-left .drop{
+  min-height:248px;
+  width:100%;
+  height:100%;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:30px 18px;
+}
+#input-card .mc-entry-right .mc-entry-privacy{
+  margin:0;
+  padding:10px 12px;
+}
+#input-card .mc-entry-scope{
+  width:100%;
+  margin:14px 0 0;
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+}
+#input-card .mc-entry-scope span{
+  flex:0 0 auto;
+  font-size:10.8px;
+  padding:5px 8px;
+  white-space:nowrap;
+}
+#input-card .mc-entry-right .mc-document-type{
+  margin:0;
+  display:block;
+  padding:15px 16px;
+}
+#input-card .mc-entry-right .mc-document-type-copy{min-width:0}
+#input-card .mc-entry-right .mc-type-options{
+  margin-top:12px;
+  justify-content:flex-start;
+}
+#input-card .mc-entry-right .mc-checks-explainer{margin:0}
+#input-card .mc-full-width-advanced{
+  width:100%;
+  margin:18px 0 0;
+}
+#input-card .mc-full-width-advanced .advanced-settings-body{
+  padding:0 20px 20px;
+}
+#input-card .mc-full-width-advanced .mc-settings-toolbar{
+  padding-top:14px;
+}
+#input-card .mc-full-width-advanced .mc-settings-group{
+  padding:16px 18px;
+  margin:14px 0;
+}
+#input-card .mc-full-width-advanced .mc-settings-group>.mc-group-help{
+  max-width:90ch;
+}
+#input-card .actions{margin-top:20px}
+@media(max-width:860px){
+  #input-card .mc-entry-columns{grid-template-columns:1fr;gap:14px;align-items:start}
+  #input-card .mc-entry-left{align-self:auto}
+  #input-card .mc-entry-left .panel{display:block;flex:none}
+  #input-card .mc-entry-left .drop{min-height:220px;height:auto;flex:none}
+  #input-card .mc-entry-scope{flex-wrap:wrap;justify-content:flex-start}
+}
+@media(max-width:560px){
+  #input-card .mc-entry-left .drop{min-height:190px;padding:26px 14px}
+}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -891,9 +990,11 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   </header>
 
   <section class="card" id="input-card">
-    <h2 class="help-row">Check your manuscript <button type="button" class="info-help inline-auto-help" data-help="The tool reads only Microsoft Word .docx manuscripts. Different modules use the Word structure differently: references are isolated from the bibliography section; affiliations are excluded from Units and English checks; Word tables are retained for table-specific precision/unit checks; figures, tables, and equations use Word document order where available." aria-label="Explain manuscript scanning" title="What is scanned?">i</button></h2>
+    <h2 class="help-row">Upload your manuscript <button type="button" class="info-help inline-auto-help" data-help="The tool reads only Microsoft Word .docx manuscripts. Different modules use the Word structure differently: references are isolated from the bibliography section; affiliations are excluded from Units and English checks; Word tables are retained for table-specific precision/unit checks; figures, tables, and equations use Word document order where available." aria-label="Explain manuscript scanning" title="What is scanned?">i</button></h2>
     <p class="sub">Start with the DOCX file. The default settings are suitable for a general scientific manuscript, so you can usually click <b>Check manuscript</b> without changing anything else.</p>
 
+    <div class="mc-entry-columns">
+      <div class="mc-entry-left">
     <div class="panel" id="panel-upload">
       <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a Word DOCX file or drop it here">
         <p class="big">Drop your Word manuscript here</p>
@@ -905,12 +1006,9 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" />
     </div>
 
-    <div class="local-note"><span class="local-note-icon" aria-hidden="true">✓</span><span><b>Private by default.</b> Manuscript checking runs in your browser; the uploaded manuscript text is not sent to the site analytics service.</span></div>
+      </div>
 
-    <div class="check-scope" aria-label="Checks included">
-      <span>References</span><span>Abbreviations</span><span>Figures, tables &amp; equations</span><span>Units &amp; numbers</span><span>Readability</span><span>Terminology</span>
-    </div>
-
+      <div class="mc-entry-right">
     <div class="mc-document-type" id="mc-document-type" role="group" aria-labelledby="mc-document-type-label">
       <div class="mc-document-type-copy">
         <b id="mc-document-type-label">Manuscript type</b>
@@ -925,102 +1023,111 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     </div>
 
     <details class="mc-checks-explainer">
-      <summary>What does Manuscript Check check?</summary>
+      <summary>What does Manuscript Check assess?</summary>
       <p>It screens abbreviations, references, numbers, units, writing structure, terminology, figures, tables, and equations. Each module applies its own structural exclusions so captions, references, front matter, equations, and other non-prose content are not treated like ordinary sentences.</p>
       <div class="mc-checks-grid"><span><b>Abbreviations</b> First use, definitions, chapter scope</span><span><b>References</b> Entry structure and expected fields</span><span><b>Numbers &amp; units</b> Notation, pH, precision, consistency</span><span><b>Writing</b> Sentence/paragraph length and terminology</span><span><b>Figures &amp; tables</b> Numbering, captions, citations, panels</span><span><b>Equations</b> Numbering, citations, structural matching</span></div>
       <small>Detailed rule explanations remain available inside each result section.</small>
     </details>
 
-    <details class="advanced-settings" id="advanced-settings">
-      <summary><span>Advanced check settings</span><small>Optional</small></summary>
-      <div class="advanced-settings-body">
-        <p class="advanced-intro">Defaults are designed for general scientific manuscripts. Change these only when your journal, institution, or workflow requires different rules.</p>
+    <div class="local-note mc-entry-privacy"><span class="local-note-icon" aria-hidden="true">✓</span><span><b>Private by default.</b> Manuscript checking runs in your browser; the uploaded manuscript text is not sent to the site analytics service.</span></div>
 
-    <label class="fld" for="title">Paper title <span style="text-transform:none;font-weight:400;color:var(--faint)">(optional, enables the title check)</span></label>
-    <input class="text" id="title" type="text" placeholder="e.g. Nutrient recovery from source-separated urine using a stacked bio-electroconcentration system" />
-
-    <div class="opts">
-      <label class="opt"><input type="checkbox" id="opt-refs" checked /> Skip the References or Bibliography section when checking abbreviations (recommended)</label>
-      <label class="opt"><input type="checkbox" id="opt-tables" checked /> Skip tables and numeric data blocks (recommended)</label>
+      </div>
     </div>
 
-    <div class="abbr-scope-setting">
-      <label for="abbr-scope-policy">Long-document abbreviation scope</label>
-      <select class="text" id="abbr-scope-policy" aria-describedby="abbr-scope-policy-help">
-        <option value="auto" selected>Automatic</option>
-        <option value="whole">Whole document</option>
-        <option value="chapter">Each major chapter</option>
-      </select>
-      <p class="hint" id="abbr-scope-policy-help">Automatic uses Word structure to detect theses, dissertations and other independently structured long documents. When reliable chapter boundaries are found, abbreviations are checked within each major chapter and may be reintroduced in a new chapter without a duplicate-definition warning.</p>
+    <div class="check-scope mc-entry-scope" aria-label="Checks included">
+      <span>References</span><span>Abbreviations</span><span>Figures, tables &amp; equations</span><span>Units &amp; numbers</span><span>Readability</span><span>Terminology</span>
     </div>
 
-    <section class="readability-settings" aria-labelledby="readability-settings-title">
-      <div class="readability-head">
-        <div>
-          <h3 class="readability-title" id="readability-settings-title">Readability limits</h3>
-          <p class="readability-sub">Set the word-length thresholds used by the readability checks.</p>
+    <details class="advanced-settings mc-full-width-advanced" id="advanced-settings">
+          <summary><span>Advanced check settings</span><small>Optional</small></summary>
+          <div class="advanced-settings-body">
+            <p class="advanced-intro">Defaults are designed for general scientific manuscripts. Change these only when your journal, institution, or workflow requires different rules.</p>
+    
+        <label class="fld" for="title">Paper title <span style="text-transform:none;font-weight:400;color:var(--faint)">(optional, enables the title check)</span></label>
+        <input class="text" id="title" type="text" placeholder="e.g. Nutrient recovery from source-separated urine using a stacked bio-electroconcentration system" />
+    
+        <div class="opts">
+          <label class="opt"><input type="checkbox" id="opt-refs" checked /> Skip the References or Bibliography section when checking abbreviations (recommended)</label>
+          <label class="opt"><input type="checkbox" id="opt-tables" checked /> Skip tables and numeric data blocks (recommended)</label>
         </div>
-        <span class="readability-defaults">Defaults: 35 · 100–300</span>
-      </div>
-
-      <div class="readability-grid">
-        <div class="limit-control">
-          <div class="limit-label-row">
-            <label class="limit-label" for="sentence-max">Sentence maximum</label>
-            <button type="button" class="info-help inline-auto-help limit-info"
-              data-help="Sentences containing more words than this limit will be flagged for readability review."
-              aria-label="Explain sentence maximum" title="What does sentence maximum mean?">i</button>
-          </div>
-          <div class="limit-input-row">
-            <input class="limit-input" id="sentence-max" type="number" inputmode="numeric" min="10" max="100" step="1" value="35" aria-describedby="sentence-max-hint" />
-            <span class="limit-unit">words</span>
-          </div>
+    
+        <div class="abbr-scope-setting">
+          <label for="abbr-scope-policy">Long-document abbreviation scope</label>
+          <select class="text" id="abbr-scope-policy" aria-describedby="abbr-scope-policy-help">
+            <option value="auto" selected>Automatic</option>
+            <option value="whole">Whole document</option>
+            <option value="chapter">Each major chapter</option>
+          </select>
+          <p class="hint" id="abbr-scope-policy-help">Automatic uses Word structure to detect theses, dissertations and other independently structured long documents. When reliable chapter boundaries are found, abbreviations are checked within each major chapter and may be reintroduced in a new chapter without a duplicate-definition warning.</p>
         </div>
-
-        <div class="limit-control">
-          <div class="limit-label-row">
-            <label class="limit-label" for="paragraph-min">Paragraph minimum</label>
-            <button type="button" class="info-help inline-auto-help limit-info"
-              data-help="Paragraphs containing fewer words than this limit will be flagged when the paragraph-length rule applies. Section-aware exclusions, including genuine equation-associated prose, remain active."
-              aria-label="Explain paragraph minimum" title="What does paragraph minimum mean?">i</button>
+    
+        <section class="readability-settings" aria-labelledby="readability-settings-title">
+          <div class="readability-head">
+            <div>
+              <h3 class="readability-title" id="readability-settings-title">Readability limits</h3>
+              <p class="readability-sub">Set the word-length thresholds used by the readability checks.</p>
+            </div>
+            <span class="readability-defaults">Defaults: 35 · 100–300</span>
           </div>
-          <div class="limit-input-row">
-            <input class="limit-input" id="paragraph-min" type="number" inputmode="numeric" min="20" max="1000" step="1" value="100" aria-describedby="paragraph-range-hint" />
-            <span class="limit-unit">words</span>
+    
+          <div class="readability-grid">
+            <div class="limit-control">
+              <div class="limit-label-row">
+                <label class="limit-label" for="sentence-max">Sentence maximum</label>
+                <button type="button" class="info-help inline-auto-help limit-info"
+                  data-help="Sentences containing more words than this limit will be flagged for readability review."
+                  aria-label="Explain sentence maximum" title="What does sentence maximum mean?">i</button>
+              </div>
+              <div class="limit-input-row">
+                <input class="limit-input" id="sentence-max" type="number" inputmode="numeric" min="10" max="100" step="1" value="35" aria-describedby="sentence-max-hint" />
+                <span class="limit-unit">words</span>
+              </div>
+            </div>
+    
+            <div class="limit-control">
+              <div class="limit-label-row">
+                <label class="limit-label" for="paragraph-min">Paragraph minimum</label>
+                <button type="button" class="info-help inline-auto-help limit-info"
+                  data-help="Paragraphs containing fewer words than this limit will be flagged when the paragraph-length rule applies. Section-aware exclusions, including genuine equation-associated prose, remain active."
+                  aria-label="Explain paragraph minimum" title="What does paragraph minimum mean?">i</button>
+              </div>
+              <div class="limit-input-row">
+                <input class="limit-input" id="paragraph-min" type="number" inputmode="numeric" min="20" max="1000" step="1" value="100" aria-describedby="paragraph-range-hint" />
+                <span class="limit-unit">words</span>
+              </div>
+            </div>
+    
+            <div class="limit-control">
+              <div class="limit-label-row">
+                <label class="limit-label" for="paragraph-max">Paragraph maximum</label>
+                <button type="button" class="info-help inline-auto-help limit-info"
+                  data-help="Paragraphs containing more words than this limit will be flagged for readability review."
+                  aria-label="Explain paragraph maximum" title="What does paragraph maximum mean?">i</button>
+              </div>
+              <div class="limit-input-row">
+                <input class="limit-input" id="paragraph-max" type="number" inputmode="numeric" min="20" max="1000" step="1" value="300" aria-describedby="paragraph-range-hint" />
+                <span class="limit-unit">words</span>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="limit-control">
-          <div class="limit-label-row">
-            <label class="limit-label" for="paragraph-max">Paragraph maximum</label>
-            <button type="button" class="info-help inline-auto-help limit-info"
-              data-help="Paragraphs containing more words than this limit will be flagged for readability review."
-              aria-label="Explain paragraph maximum" title="What does paragraph maximum mean?">i</button>
+    
+          <p class="readability-foot"><span id="sentence-max-hint">Sentence range: 10–100.</span> <span id="paragraph-range-hint">Paragraph range: 20–1000; maximum must be greater than minimum. Section-aware exclusions still apply.</span></p>
+        </section>
+    
+        <details class="adv">
+          <summary>Terms treated as standard (no definition required)</summary>
+          <p class="hint">One per line. Abbreviations listed here are assumed universally known and are not flagged as undefined. The default list is deliberately short. Add your own field terms (for example COD, BOD, TSS) only if your target journal accepts them without definition.</p>
+          <textarea id="whitelist" style="min-height:120px" aria-label="Standard abbreviations"></textarea>
+        </details>
+    
+        <details class="adv">
+          <summary>Reference style example (optional)</summary>
+          <p class="hint">Paste one reference written correctly in your target journal's style. Each reference in your list is then compared against its structure (year placement, DOI presence, page-dash style, volume grouping) and deviations are flagged. This is why the tool needs no database of thousands of styles.</p>
+          <textarea id="ref-style" style="min-height:70px" placeholder="e.g. Marcano, D. C., Kosynkin, D. V., & Tour, J. M. (2010). Improved synthesis of graphene oxide. ACS Nano, 4(8), 4806–4814. https://doi.org/10.1021/nn1006368" aria-label="Reference style example"></textarea>
+        </details>
+    
           </div>
-          <div class="limit-input-row">
-            <input class="limit-input" id="paragraph-max" type="number" inputmode="numeric" min="20" max="1000" step="1" value="300" aria-describedby="paragraph-range-hint" />
-            <span class="limit-unit">words</span>
-          </div>
-        </div>
-      </div>
-
-      <p class="readability-foot"><span id="sentence-max-hint">Sentence range: 10–100.</span> <span id="paragraph-range-hint">Paragraph range: 20–1000; maximum must be greater than minimum. Section-aware exclusions still apply.</span></p>
-    </section>
-
-    <details class="adv">
-      <summary>Terms treated as standard (no definition required)</summary>
-      <p class="hint">One per line. Abbreviations listed here are assumed universally known and are not flagged as undefined. The default list is deliberately short. Add your own field terms (for example COD, BOD, TSS) only if your target journal accepts them without definition.</p>
-      <textarea id="whitelist" style="min-height:120px" aria-label="Standard abbreviations"></textarea>
-    </details>
-
-    <details class="adv">
-      <summary>Reference style example (optional)</summary>
-      <p class="hint">Paste one reference written correctly in your target journal's style. Each reference in your list is then compared against its structure (year placement, DOI presence, page-dash style, volume grouping) and deviations are flagged. This is why the tool needs no database of thousands of styles.</p>
-      <textarea id="ref-style" style="min-height:70px" placeholder="e.g. Marcano, D. C., Kosynkin, D. V., & Tour, J. M. (2010). Improved synthesis of graphene oxide. ACS Nano, 4(8), 4806–4814. https://doi.org/10.1021/nn1006368" aria-label="Reference style example"></textarea>
-    </details>
-
-      </div>
-    </details>
+        </details>
 
     <div class="actions">
       <button class="btn btn-primary" id="run">Check manuscript</button>
@@ -10570,10 +10677,11 @@ function refLedger(parsed){
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p.nonJournal?(p._identifierState||p._doiState):p._doiState)}</td></tr>`;
   }).join("");
-  const cols=`<colgroup><col style="width:6%"><col style="width:28%"><col style="width:7%"><col style="width:6%"><col style="width:6%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:17%"></colgroup>`;
+  const cols=`<colgroup><col style="width:5%"><col style="width:34.1%"><col style="width:8.7%"><col style="width:8.7%"><col style="width:8.7%"><col style="width:8.7%"><col style="width:8.7%"><col style="width:8.7%"><col style="width:8.7%"></colgroup>`;
   const head=`<thead><tr><th>Ref</th><th>Entry / type</th><th>Author</th><th>Year</th><th>Title</th><th>Source</th><th>Pages</th><th>Vol.</th><th>DOI / Link</th></tr></thead>`;
   return `<div class="reference-ledger-block">
     <div class="reference-ledger-normal-head"><p class="sec-label">Reference ledger <button type="button" class="info-help inline-auto-help" data-help="Fields are checked according to the detected reference type. yes = field detected; no = expected field missing; n/a = field not required; optional = field is not mandatory; review = the reference structure is uncertain." aria-label="Explain Reference Ledger" title="Explain this table">i</button></p></div>
+    <div class="reference-ledger-key" aria-label="Reference ledger status key"><span><span class="yn y">Yes</span>: No action needed</span><span class="reference-ledger-key-sep" aria-hidden="true">•</span><span><span class="yn n">No</span>: Expected information not detected, review recommended</span></div>
     <div class="reference-ledger-floating" aria-hidden="true"><div class="reference-ledger-floating-title">Reference ledger</div><div class="reference-ledger-floating-scroll"><table class="ledger reference-ledger-table">${cols}${head}</table></div></div>
     <div class="ledger-scroll reference-ledger-scroll"><table class="ledger reference-ledger-table">${cols}${head}<tbody>${body}</tbody></table></div>
   </div>`;
