@@ -1215,10 +1215,10 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <li><b>Titles and headings excluded.</b> The paper title and section/subsection headings, including numbered, ALL-CAPS, and Title Case headings, are not used for abbreviation-definition checks.</li><li><b>Front matter excluded.</b> Author/affiliation blocks, correspondence details, and Keywords/Index terms are not used for abbreviation-definition checks.</li>
       <li><b>Plural and possessive forms are normalised.</b> <code>MFCs</code> is treated as the plural of <code>MFC</code>, while <code>MFC’s performance</code> is treated as a valid possessive use. A final uppercase letter remains part of the abbreviation, so <code>TSS</code>, <code>VSS</code>, <code>TDS</code>, and <code>GIS</code> are not shortened.</li>
       <li><b>Do not begin a sentence with an abbreviation.</b></li>
-      <li><b>Define once.</b> Repeated redefinition is flagged; a separate definition in the abstract versus the main text is acceptable.</li>
-      <li><b>List of abbreviations.</b> Suggested when many abbreviations are present and no such section is found.</li>
+      <li><b>Define once within each prose scope.</b> Repeated definition of the same abbreviation within the main text (or twice within the Abstract) is treated as a Critical error. One definition in the Abstract and a separate first-use definition in the main text are accepted. Table notes, captions, abbreviation/nomenclature lists, and other structural material do not count toward main-text duplicate definitions.</li>
+      <li><b>List of abbreviations.</b> When many abbreviations are present and no dedicated list is found, the tool provides an editorial note reminding the author to check whether the target journal requires a List of Abbreviations or Nomenclature section.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are recognised globally.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are retained as manuscript-level declarations. In chapter-aware thesis mode, a chapter-level reintroduction is still allowed and is never treated as a duplicate. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-note definitions are accepted.</b> Reverse forms such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style definitions are recognised. If the long form already occurred earlier in body prose, the earlier prose occurrence is reported so the abbreviation can be introduced there.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are recognised globally.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are retained as manuscript-level declarations. In chapter-aware thesis mode, a chapter-level reintroduction is still allowed and is never treated as a duplicate. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-local definitions are handled independently.</b> Table notes such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style forms are recognised even when Word/publisher formatting places a footnote marker before the abbreviation. Table captions, cells, and notes do not determine main-text first use or create duplicate-definition findings; running prose is checked independently.</li>
     </ol>
   </details>
 
@@ -2152,6 +2152,36 @@ const ENG_CAPTION_REPORTING_VERB_RE=/^(?:shows?|showed|illustrates?|illustrated|
 const ENG_CAPTION_NOTE_RE=/^(?:\(?[a-z]\)|[A-Z]\.|inset\s*:|the\s+inset\s+(?:shows?|illustrates?|depicts?)\b|inset\s+(?:shows?|illustrates?|depicts?)\b|error\s+bars?\s+(?:represent|show|indicate)\b|values?\s+(?:represent|show|indicate)\b|data\s+(?:represent|show|indicate)\b|symbols?\s+(?:represent|show|indicate)\b|(?:the\s+)?(?:dotted|dashed|solid)\s+lines?\s+(?:represent|show|indicate)\b|the\s+shaded\s+region\s+(?:represents?|indicates?)\b|colou?r(?:s)?\s+(?:represent|show|indicate)\b|arrows?\s+(?:represent|show|indicate)\b|scale\s+bars?\b|magnification\b|experimental\s+conditions?\s*:|operating\s+conditions?\s*:|reaction\s+conditions?\s*:|test\s+conditions?\s*:|conditions?\s*:|figure\s+note\s*:|legend\s*:|notes?\s*:|source(?:s)?\s*:|data\s+source\s*:|image\s+source\s*:|adapted\s+from\b|modified\s+from\b|reproduced\s+from\b|reprinted\s+from\b|abbreviations?\s*:)/i;
 const ENG_CAPTION_PROSE_PREFIX_RE=/^(?:as\s+(?:shown|presented|illustrated|depicted)\s+in|in|from|see)\s+(?:supplementary\s+)?(?:figure|fig\.?|table|scheme)\b/i;
 
+/* ---------- Generalized table-note abbreviation definitions ----------
+   Word and publisher conversions can place a footnote marker immediately before
+   a table-note abbreviation, e.g. *HRT:, †HRT:, €HRT:, ᵃHRT:, or a) HRT:.
+   Definition recognition must ignore that marker without weakening ordinary prose
+   abbreviation rules. These helpers are deliberately syntax-based rather than
+   tied to any particular abbreviation or footnote symbol. */
+const ABBR_NOTE_MARKER_SRC=String.raw`(?:[\p{P}\p{S}\u2070-\u209F\u1D2C-\u1DFF]{1,8}|(?:\(?[a-z0-9]{1,3}\)?[.)]?))`;
+const ABBR_TABLE_NOTE_SHORTFORM_SRC=String.raw`(?:[A-Z][A-Z0-9\/-]{1,13}|[A-Za-z][A-Za-z0-9_]{0,14})`;
+// Internal non-letter marker used only while abbreviation prose is being prepared.
+// It separates the Abstract from the main manuscript body so duplicate-definition
+// checks can treat them as independent editorial scopes without changing visible text.
+const ABBR_ABSTRACT_MAIN_BOUNDARY="⟦¤§¤⟧";
+function abbrDefinitionMarkerSource(){
+  return String.raw`(?:${ABBR_NOTE_MARKER_SRC}\s*)?`;
+}
+function abbrLooksTableNoteDefinitionLine(text){
+  const s=engNormStructuralText(text);
+  if(!s || s.length>600) return false;
+  const lead=abbrDefinitionMarkerSource();
+  const sf=ABBR_TABLE_NOTE_SHORTFORM_SRC;
+  try{
+    // A strong definition at the beginning of a note, optionally after "Note(s):".
+    const first=new RegExp(`^(?:notes?\s*:\s*)?${lead}\(?\s*${sf}\s*\)?\s*(?:[:=]|\s+[–—-]\s+)\s*[A-Za-z]`,'u');
+    if(first.test(s)) return true;
+    // Also recognise semicolon-delimited abbreviation-definition lists in notes.
+    const any=new RegExp(`(?:^|;\s*)${lead}\(?\s*${sf}\s*\)?\s*(?:[:=]|\s+[–—-]\s+)\s*[A-Za-z]`,'gu');
+    return any.test(s);
+  }catch(_e){ return false; }
+}
+
 function engNormStructuralText(s){
   return String(s||"")
     .normalize("NFKC")
@@ -2331,7 +2361,10 @@ function engClassifyStructuralBlocks(blocks){
   // with nearby structural objects without globally excluding ordinary "Note" prose.
   for(let i=0;i<out.length;i++){
     const r=out[i];
-    if(r.type!=="BODY_PROSE" || !ENG_CAPTION_NOTE_RE.test(r.text)) continue;
+    if(r.type!=="BODY_PROSE") continue;
+    const conventionalNote=ENG_CAPTION_NOTE_RE.test(r.text);
+    const abbreviationDefinitionNote=abbrLooksTableNoteDefinitionLine(r.text);
+    if(!conventionalNote && !abbreviationDefinitionNote) continue;
     let tableEvidence=false, figureEvidence=false;
     for(let d=1;d<=4;d++){
       const j=i-d; if(j<0) break;
@@ -2341,9 +2374,12 @@ function engClassifyStructuralBlocks(blocks){
       if(t==="HEADING" || (t==="BODY_PROSE" && engWordCount(out[j].text)>40)) break;
     }
     if(tableEvidence||figureEvidence){
-      r.type=tableEvidence&&!figureEvidence?"TABLE_NOTE":"FIGURE_NOTE";
-      r.confidence=.91;
-      r.reasons.push(tableEvidence?"note/source line associated with nearby table":"note/source line associated with nearby figure/caption");
+      // A definition-shaped note associated with a table is TABLE_NOTE even if a
+      // nearby figure is also present. Strong abbreviation-definition syntax is
+      // better evidence here than generic visual proximity.
+      r.type=abbreviationDefinitionNote&&tableEvidence?"TABLE_NOTE":(tableEvidence&&!figureEvidence?"TABLE_NOTE":"FIGURE_NOTE");
+      r.confidence=abbreviationDefinitionNote&&tableEvidence?.97:.91;
+      r.reasons.push(abbreviationDefinitionNote&&tableEvidence?"abbreviation-definition note associated with nearby table":(tableEvidence?"note/source line associated with nearby table":"note/source line associated with nearby figure/caption"));
     }
   }
   return out;
@@ -3627,14 +3663,17 @@ function abbrLooksFormulaLikeDefinitionRhs(raw){
 
 function collectScientificReverseDefs(sent,si,add){
   // Explicit separators are strong declaration syntax: SBET = BET surface area
-  // or SBET: BET surface area. Restrict the right side to a scientific descriptor.
-  // Keep the separator so mathematical equations can be rejected explicitly.
-  const sepRe=/(?:^|[;,.]\s*)([A-Za-z][A-Za-z0-9_]{0,14})\s*(=|:)\s*([^;,.]{2,140})/g; let m;
+  // or SBET: BET surface area. A local note marker may precede the short form
+  // after Word/publisher conversion; tolerate it without treating the marker as
+  // part of the scientific notation.
+  const lead=abbrDefinitionMarkerSource();
+  const sepRe=new RegExp(`(?:^|[;,.]\\s*)${lead}\\(?\\s*([A-Za-z][A-Za-z0-9_]{0,14})\\s*\\)?\\s*(=|:)\\s*([^;,.]{2,140})`,'gu'); let m;
   while((m=sepRe.exec(sent))!==null){
     const sf=m[1], separator=m[2], descriptor=m[3].trim();
     if(separator==='=' && abbrLooksFormulaLikeDefinitionRhs(descriptor)) continue;
     if(!abbrLooksScientificShort(sf) || !abbrDescriptorLooksScientific(descriptor)) continue;
-    const start=m.index+m[0].indexOf(sf);
+    const local=m[0].indexOf(sf);
+    const start=m.index+(local>=0?local:0);
     add(sf,descriptor,si,"scientific-reverse",{definitionType:abbrScientificDefinitionType(sf,descriptor),shortStart:start,shortEnd:start+sf.length,semanticDefinition:true});
   }
 
@@ -3663,7 +3702,12 @@ function abbrScientificFormRegex(form){
 }
 
 function collectReverseDefs(sent,si,add){
-  const pairRe=/(?:^|[,;]\s*)([A-Z][A-Z0-9\/-]{1,13})\s*(?:[:=]\s*|\s+[–—-]\s+)([^,;]{2,120}?)(?=(?:[,;]\s*[A-Z][A-Z0-9\/-]{1,13}\s*(?:[:=]|[–—-]))|$)/g;
+  // Table notes, abbreviation lists, and publisher-formatted notes may prefix a
+  // definition with symbols/superscripts such as *, †, ‡, €, ᵃ, or a). The
+  // prefix is formatting metadata, not part of the abbreviation. Parenthesized
+  // short forms such as (HRT): are accepted as well.
+  const lead=abbrDefinitionMarkerSource();
+  const pairRe=new RegExp(`(?:^|[,;]\\s*)${lead}\\(?\\s*([A-Z][A-Z0-9\\/-]{1,13})\\s*\\)?\\s*(?:[:=]\\s*|\\s+[–—-]\\s+)([^,;]{2,120}?)(?=(?:[,;]\\s*${lead}\\(?\\s*[A-Z][A-Z0-9\\/-]{1,13}\\s*\\)?\\s*(?:[:=]|[–—-]))|$)`,'gu');
   const hits=[]; let m;
   while((m=pairRe.exec(sent))!==null){
     const sf=m[1].trim();
@@ -3918,15 +3962,50 @@ function prepareAbbreviationBody(rawText){
     }
   }
 
+  // Abstract and main text are independent abbreviation-definition scopes.
+  // Insert a non-letter internal boundary immediately before the first genuine
+  // main-body heading. Prefer Word structural heading classification, with a
+  // publisher-independent heading grammar as fallback. The marker is consumed
+  // inside analyze() and is never rendered or exported.
+  if(bodyStart>=0){
+    let mainStart=-1;
+    const mainHeadingRe=/^(?:\d+(?:\.\d+){0,5}\.?\s*)?(?:introduction|background|literature\s+review|materials?\s+and\s+methods?|methodology|methods?|experimental(?:\s+(?:section|analysis))?|results?|discussion|results?\s+and\s+discussion|conclusions?|summary)\s*:?\s*$/i;
+    for(let i=bodyStart+1;i<Math.min(lines.length,bodyStart+260);i++){
+      const s=String(lines[i]||"").replace(/[*_`#>]/g,"").replace(/\s+/g," " ).trim();
+      if(!s) continue;
+      let structuralHeading=false;
+      try{
+        const ns=engNormStructuralText(s);
+        structuralHeading=(DOCX_STRUCTURAL_PARAGRAPHS||[]).some(r=>engNormStructuralText(r.text)===ns && r.type==="HEADING");
+      }catch(_e){}
+      const frontLike=/^(?:keywords?|key\s+words?|index\s+terms?|highlights?|graphical\s+abstract|acknowledg(?:e)?ments?)\b/i.test(s);
+      if(!frontLike && (mainHeadingRe.test(s) || (structuralHeading && !/^abstract\b/i.test(s)))){ mainStart=i; break; }
+    }
+    if(mainStart>bodyStart) lines.splice(mainStart,0,ABBR_ABSTRACT_MAIN_BOUNDARY);
+  }
+
   // Metadata/structural lines that may still occur later.
   lines=lines.map(line=>{
     const s=line.replace(/\s+/g," ").trim();
+    if(s===ABBR_ABSTRACT_MAIN_BOUNDARY) return line;
     if(!s) return line;
 
     if(/^(?:keywords?|key\s+words?|index\s+terms?)\s*(?:[:.\-–—]|$)/i.test(s))
       return "";
 
-    // Figure/table captions are handled by their dedicated structural module.
+    // Prefer the Word-aware structural classifier. Captions and table-local notes
+    // are excluded from BODY_PROSE first-use ordering, so a table's local
+    // abbreviation definition cannot become an earlier prose occurrence or a
+    // duplicate prose definition.
+    try{
+      const ns=engNormStructuralText(s);
+      const hit=(DOCX_STRUCTURAL_PARAGRAPHS||[]).find(r=>engNormStructuralText(r.text)===ns && /^(?:FIGURE_CAPTION|TABLE_CAPTION|SCHEME_CAPTION|GRAPHICAL_ABSTRACT|OTHER_CAPTION|CAPTION_CONTINUATION|FIGURE_NOTE|TABLE_NOTE|MEDIA|TABLE|EQUATION|STRUCTURED_INDEX)$/.test(String(r.type||"")));
+      if(hit) return "";
+    }catch(_e){}
+
+    // Plain-text fallback for captions, including common caption forms without a
+    // colon/period after the identifier, e.g. "Table 1 Key parameters ...".
+    try{ if(typeof engIsStandaloneCaptionParagraph==="function" && engIsStandaloneCaptionParagraph(s)) return ""; }catch(_e){}
     if(/^(?:figure|fig\.?|table)\s*[Ss]?\d+(?:\.\d+)?\s*[:.\-–—]/i.test(s))
       return "";
 
@@ -4994,7 +5073,22 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
   const tab = excludeTables(scoped, skipTables);
   const head = stripHeadings(tab.text);
   const text = head.text;
-  const sentences = splitIntoSentences(text);
+
+  // Keep sentence indices stable while tagging each sentence with its editorial
+  // definition scope. Abstract definitions do not count as duplicate main-text
+  // definitions, and vice versa. When no reliable boundary is available, retain
+  // the conservative historical whole-body behaviour by assigning "main".
+  const sentences=[];
+  const sentenceDefinitionScope=[];
+  const scopeParts=text.split(ABBR_ABSTRACT_MAIN_BOUNDARY);
+  if(scopeParts.length>=2){
+    const abstractText=scopeParts.shift()||"";
+    const mainText=scopeParts.join("\n");
+    splitIntoSentences(abstractText).forEach(s=>{sentences.push(s);sentenceDefinitionScope.push("abstract");});
+    splitIntoSentences(mainText).forEach(s=>{sentences.push(s);sentenceDefinitionScope.push("main");});
+  }else{
+    splitIntoSentences(text).forEach(s=>{sentences.push(s);sentenceDefinitionScope.push("main");});
+  }
   const acroRe = /\b([A-Z]{2,}(?:-[A-Z]{2,})*)(s)?\b/g;
 
   const groups = new Map();
@@ -5291,10 +5385,29 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         warnings.push({abbr:disp, msg:`Begins a sentence. Rephrase so a sentence does not open with an abbreviation.`, snip:buildSnippet(sentences[initOcc[0].sent]||"", disp)});
       }
 
-      if(g.defs.length>=2){
-        const ss=[...new Set(g.defs.map(d=>d.sent))];
-        if(ss.length>=2)
-          infos.push({abbr:disp, msg:`Defined ${ss.length} times. Define once at first use. A separate definition in the abstract and the main text is acceptable, but avoid repeating it otherwise.`, snip:null});
+      if(g.defs.length>=2 && !std && !listDef){
+        // Duplicate definitions are judged within editorial scope, not across the
+        // whole manuscript. One definition in the Abstract and one in the main
+        // body is valid. Structural table-note definitions have already been
+        // removed from BODY_PROSE and therefore cannot inflate these counts.
+        const byScope=new Map();
+        g.defs.forEach(d=>{
+          const scope=sentenceDefinitionScope[d.sent]||"main";
+          if(!byScope.has(scope)) byScope.set(scope,[]);
+          byScope.get(scope).push(d);
+        });
+        byScope.forEach((defs,scope)=>{
+          const ss=[...new Set(defs.map(d=>d.sent))];
+          if(ss.length<2) return;
+          status="err";
+          const label=scope==="abstract"?"the Abstract":"the main text";
+          const forms=[...new Set(defs.map(d=>String(d.long||"").trim()).filter(Boolean))];
+          const conflict=forms.length>1;
+          const msg=conflict
+            ?`Defined ${ss.length} times in ${label}, with different full forms (${forms.slice(0,3).map(x=>`\"${x}\"`).join("; ")}). Use one unambiguous definition at first use.`
+            :`Defined ${ss.length} times in ${label}. Define once at first use and use ${disp} thereafter.`;
+          errors.push({abbr:disp,msg,snip:buildSnippet(sentences[ss[1]]||sentences[ss[0]]||"",disp),duplicateDefinition:true,definitionScope:scope});
+        });
       }
 
       if(!std){
@@ -5317,7 +5430,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       snip:null
     });
   }else if(nonStd>=8 && !hasList){
-    infos.push({abbr:null, msg:`You use ${nonStd} non-standard abbreviations but no "List of Abbreviations" or "Nomenclature" section was detected. Consider adding one for the reader's reference.`, snip:null});
+    infos.push({abbr:null, msg:`You use ${nonStd} non-standard abbreviations. Check whether the target journal requires a List of Abbreviations or Nomenclature section.`, snip:null});
   }
 
   return {errors,warnings,infos,rows,
@@ -5580,7 +5693,7 @@ function section(label,items,kind){
   if(!items.length) return "";
   const sym=kind==="info"?"i":"!";
   const helpMap={
-    "Critical errors":"High-confidence abbreviation findings such as missing first-use definitions or use before definition. These should normally be addressed before submission. References and configured table/numeric blocks are excluded from this analysis.",
+    "Critical errors":"High-confidence abbreviation findings such as missing first-use definitions, use before definition, or repeated definition within the same eligible prose scope. The Abstract and main text are treated independently, and structural table-note definitions do not count as main-text duplicates. These should normally be addressed before submission.",
     "Review items":"Potential abbreviation consistency findings that need author judgement before editing.",
     "Editorial notes":"Lower-priority abbreviation/style observations. These are not automatically treated as errors."
   };
@@ -13774,9 +13887,11 @@ fteAnalyze=function(blocks){
       const b=det.blocks[i],r=det.classed[i]; if(!b||b.type!=="p") continue;
       const s=txt(b.text); if(!s) continue;
       const type=r?.type||"BODY_PROSE";
-      // Narrative prose participates normally. Table notes remain available as
-      // definition sources, preserving the established table-note policy.
-      if(type!=="BODY_PROSE" && type!=="TABLE_NOTE") continue;
+      // Only narrative BODY_PROSE participates in main-text abbreviation first-use
+      // ordering. Table notes are table-local structural content and are checked
+      // independently from running prose, so they cannot seed or delay a chapter
+      // definition and cannot create duplicate-definition findings.
+      if(type!=="BODY_PROSE") continue;
       try{ if(typeof engIsParagraphMetadata==="function" && engIsParagraphMetadata(s)) continue; }catch(_e){}
       try{ if(typeof abbrLooksDisplayedEquationLine==="function" && abbrLooksDisplayedEquationLine(s)) continue; }catch(_e){}
       lines.push(s);
@@ -13917,6 +14032,15 @@ fteAnalyze=function(blocks){
         }
         return;
       }
+      if(/^Defined \d+ times in (?:the main text|the Abstract)/i.test(msg) && current){
+        const n=(msg.match(/^Defined (\d+) times/i)||[])[1]||"multiple";
+        const conflict=/different full forms/i.test(msg);
+        const scopeLabel=humanScope(current);
+        const m2=conflict
+          ?`${it.abbr} is defined ${n} times with different full forms within ${scopeLabel}. Use one unambiguous definition at first use in this scope.`
+          :`${it.abbr} is defined ${n} times within ${scopeLabel}. Define it once at first use in this scope and use ${it.abbr} thereafter.`;
+        addUnique(reconciledErrors,{...it,msg:m2},seenErr); return;
+      }
       if(/Used before it is (?:defined|introduced)/i.test(msg) && current){
         const scientific=/notation|parameter|symbol/i.test(msg);
         const m2=scientific
@@ -13984,7 +14108,7 @@ fteAnalyze=function(blocks){
     if(DECLARED_ABBR_LIST_FOUND || DECLARED_ABBR_MAP.size){
       infos.unshift({abbr:null,msg:`Detected an abbreviation/nomenclature list with ${DECLARED_ABBR_MAP.size} definition${DECLARED_ABBR_MAP.size===1?"":"s"}. The list is retained as a manuscript-level declaration source, and chapter-level reintroduction is allowed without a duplicate-definition warning.`,snip:null});
     }else if(rows.length>=8){
-      infos.push({abbr:null,msg:`You use ${rows.length} non-standard abbreviations but no "List of Abbreviations" or "Nomenclature" section was detected. Consider adding one for the reader's reference.`,snip:null});
+      infos.push({abbr:null,msg:`You use ${rows.length} non-standard abbreviations. Check whether the target journal requires a List of Abbreviations or Nomenclature section.`,snip:null});
     }
 
     const convention=localRate==null?"insufficient evidence":localPattern?"chapter-level reintroduction is common":globalPattern?"whole-document reuse is common":"mixed chapter/global practice";
