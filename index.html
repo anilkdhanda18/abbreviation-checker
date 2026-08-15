@@ -965,6 +965,14 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   #input-card .mc-entry-left .drop{min-height:190px;padding:26px 14px}
 }
 </style>
+
+<style id="duplicate-definition-contexts-v1">
+.duplicate-definition-contexts{display:grid;gap:8px;margin-top:8px}
+.duplicate-definition-context{display:grid;gap:4px}
+.duplicate-definition-context-label{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#526985}
+.duplicate-definition-context .snip{margin:0}
+.mc-guided-context-item{display:grid;gap:3px;margin-top:8px}.mc-guided-context-item>b{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -2174,12 +2182,12 @@ function abbrLooksTableNoteDefinitionLine(text){
   const sf=ABBR_TABLE_NOTE_SHORTFORM_SRC;
   try{
     // A strong definition at the beginning of a note, optionally after "Note(s):".
-    const first=new RegExp(`^(?:notes?\s*:\s*)?${lead}\(?\s*${sf}\s*\)?\s*(?:[:=]|\s+[–—-]\s+)\s*[A-Za-z]`,'u');
+    const first=new RegExp(String.raw`^(?:notes?\s*:\s*)?${lead}\(?\s*${sf}\s*\)?\s*(?:[:=]|\s+-\s+)\s*[A-Za-z]`,'iu');
     if(first.test(s)) return true;
     // Also recognise semicolon-delimited abbreviation-definition lists in notes.
-    const any=new RegExp(`(?:^|;\s*)${lead}\(?\s*${sf}\s*\)?\s*(?:[:=]|\s+[–—-]\s+)\s*[A-Za-z]`,'gu');
+    const any=new RegExp(String.raw`(?:^|;\s*)${lead}\(?\s*${sf}\s*\)?\s*(?:[:=]|\s+-\s+)\s*[A-Za-z]`,'giu');
     return any.test(s);
-  }catch(_e){ return false; }
+  }catch(_e){ console.warn("Table-note abbreviation classifier failed to compile.",_e); return false; }
 }
 
 function engNormStructuralText(s){
@@ -5406,7 +5414,19 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           const msg=conflict
             ?`Defined ${ss.length} times in ${label}, with different full forms (${forms.slice(0,3).map(x=>`\"${x}\"`).join("; ")}). Use one unambiguous definition at first use.`
             :`Defined ${ss.length} times in ${label}. Define once at first use and use ${disp} thereafter.`;
-          errors.push({abbr:disp,msg,snip:buildSnippet(sentences[ss[1]]||sentences[ss[0]]||"",disp),duplicateDefinition:true,definitionScope:scope});
+          const definitionContexts=ss.map((sentIndex,idx)=>({
+            label:`Definition ${idx+1}`,
+            sentenceIndex:sentIndex,
+            html:buildSnippet(sentences[sentIndex]||"",disp)
+          })).filter(x=>x.html);
+          errors.push({
+            abbr:disp,
+            msg,
+            snip:definitionContexts[0]?.html||buildSnippet(sentences[ss[0]]||"",disp),
+            contexts:definitionContexts,
+            duplicateDefinition:true,
+            definitionScope:scope
+          });
         });
       }
 
@@ -5702,7 +5722,9 @@ function section(label,items,kind){
       <span class="badge ${kind}">${sym}</span>
       <div class="body">
         <p class="msg">${it.abbr && it.abbr!=="units"?`<span class="abbr">${escapeHtml(it.abbr)}</span> `:""}${escapeHtml(it.msg)}</p>
-        ${it.snip?`<div class="snip">${it.snip}</div>`:""}
+        ${Array.isArray(it.contexts)&&it.contexts.length
+          ?`<div class="duplicate-definition-contexts">${it.contexts.map((ctx,idx)=>`<div class="duplicate-definition-context"><div class="duplicate-definition-context-label">${escapeHtml(ctx.label||`Definition ${idx+1}`)}</div><div class="snip">${ctx.html||""}</div></div>`).join("")}</div>`
+          :(it.snip?`<div class="snip">${it.snip}</div>`:"")}
       </div>
     </div>`).join("");
   return `<p class="sec-label">${label} ${inlineHelpButton(helpMap[label]||"Explains this abbreviation finding group.",`Explain ${label}`)}</p>${rows}`;
@@ -5752,7 +5774,24 @@ function reportText(r){
   L.push(`Table lines removed: ${r.tableLinesRemoved||0}`);
   L.push(`Errors: ${r.errors.length} | Warnings: ${r.warnings.length} | Suggestions: ${r.infos.length}`);
   L.push("");
-  const blk=(t,arr)=>{ if(!arr.length) return; L.push(t.toUpperCase()); arr.forEach(i=>L.push(`  - ${i.abbr&&i.abbr!=="units"?"["+i.abbr+"] ":""}${i.msg}`)); L.push(""); };
+  const plainContext=x=>String(x||"").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/\s+/g," ").trim();
+  const blk=(t,arr)=>{
+    if(!arr.length) return;
+    L.push(t.toUpperCase());
+    arr.forEach(i=>{
+      L.push(`  - ${i.abbr&&i.abbr!=="units"?"["+i.abbr+"] ":""}${i.msg}`);
+      if(Array.isArray(i.contexts)&&i.contexts.length){
+        i.contexts.forEach((ctx,idx)=>{
+          const p=plainContext(ctx.html||"");
+          if(p) L.push(`      ${ctx.label||`Definition ${idx+1}`}: ${p}`);
+        });
+      }else if(i.snip){
+        const p=plainContext(i.snip);
+        if(p) L.push(`      Manuscript context: ${p}`);
+      }
+    });
+    L.push("");
+  };
   blk("Critical errors",r.errors); blk("Review items",r.warnings); blk("Editorial notes",r.infos);
   L.push("ABBREVIATION LEDGER");
   L.push("  Abbrev | Full form | Uses | Definition status");
@@ -14547,7 +14586,7 @@ fteAnalyze=function(blocks){
   function openGuided(){UX_GUIDED_ITEMS=allIssues().filter(i=>!i.classList.contains("mc-not-issue")&&!i.classList.contains("mc-reviewed")).sort((a,b)=>({critical:0,review:1,style:2}[priorityOf(a)]??3)-({critical:0,review:1,style:2}[priorityOf(b)]??3));UX_GUIDED_INDEX=0;ensureGuided();$u("mc-guided").hidden=false;document.body.style.overflow="hidden";renderGuided()}
   function closeGuided(){if($u("mc-guided"))$u("mc-guided").hidden=true;document.body.style.overflow=""}
   function guidedMove(d){if(!UX_GUIDED_ITEMS.length)return;UX_GUIDED_INDEX=Math.max(0,Math.min(UX_GUIDED_ITEMS.length-1,UX_GUIDED_INDEX+d));renderGuided()}
-  function renderGuided(){const host=$u("mc-guided-content");if(!host)return;if(!UX_GUIDED_ITEMS.length){host.innerHTML='<div class="mc-module-clean-banner">✓ No remaining findings in the guided review.</div>';return}const x=UX_GUIDED_ITEMS[UX_GUIDED_INDEX],msg=x.querySelector(".msg")?.textContent?.replace(/\s+/g," ").trim()||"Finding",sn=x.querySelector(".snip")?.textContent?.trim()||"No manuscript excerpt was attached to this finding.",sug=x.querySelector(".std-note")?.textContent?.replace(/^(?:Suggested|Recommendation):\s*/i,"").trim()||"Review the manuscript context and apply a change only when appropriate.";host.innerHTML=`<div class="mc-guided-meta">${UX_GUIDED_INDEX+1} of ${UX_GUIDED_ITEMS.length} · ${escapeHtml(GROUP_LABEL[groupFor(x)]||"")} · ${escapeHtml(priorityOf(x))}</div><div class="mc-guided-problem"><b>Finding</b>${escapeHtml(msg)}</div><div class="mc-guided-evidence"><b>Manuscript context</b>${escapeHtml(sn)}</div><div class="mc-guided-action"><b>Recommendation</b>${escapeHtml(sug)}</div>`;const panel=$u("mc-guided")?.querySelector(".mc-guided-panel");if(panel)panel.scrollTop=0}
+  function renderGuided(){const host=$u("mc-guided-content");if(!host)return;if(!UX_GUIDED_ITEMS.length){host.innerHTML='<div class="mc-module-clean-banner">✓ No remaining findings in the guided review.</div>';return}const x=UX_GUIDED_ITEMS[UX_GUIDED_INDEX],msg=x.querySelector(".msg")?.textContent?.replace(/\s+/g," ").trim()||"Finding",contextNodes=[...x.querySelectorAll(".duplicate-definition-context")],contextHtml=contextNodes.length?contextNodes.map((n,idx)=>{const lab=n.querySelector(".duplicate-definition-context-label")?.textContent?.trim()||`Definition ${idx+1}`;const txt=n.querySelector(".snip")?.textContent?.replace(/\s+/g," ").trim()||"";return txt?`<div class="mc-guided-context-item"><b>${escapeHtml(lab)}</b>${escapeHtml(txt)}</div>`:""}).join(""):`<div class="mc-guided-context-item">${escapeHtml(x.querySelector(".snip")?.textContent?.trim()||"No manuscript excerpt was attached to this finding.")}</div>`,sug=x.querySelector(".std-note")?.textContent?.replace(/^(?:Suggested|Recommendation):\s*/i,"").trim()||"Review the manuscript context and apply a change only when appropriate.";host.innerHTML=`<div class="mc-guided-meta">${UX_GUIDED_INDEX+1} of ${UX_GUIDED_ITEMS.length} · ${escapeHtml(GROUP_LABEL[groupFor(x)]||"")} · ${escapeHtml(priorityOf(x))}</div><div class="mc-guided-problem"><b>Finding</b>${escapeHtml(msg)}</div><div class="mc-guided-evidence"><b>Manuscript context</b>${contextHtml}</div><div class="mc-guided-action"><b>Recommendation</b>${escapeHtml(sug)}</div>`;const panel=$u("mc-guided")?.querySelector(".mc-guided-panel");if(panel)panel.scrollTop=0}
 
   function enhanceAll(){
     if(UX_ENHANCING)return;UX_ENHANCING=true;try{Object.keys(GROUP_REPORT).forEach(g=>{allIssues(g).forEach(enhanceIssue);ensureToolbar(g);applyFilters(g)});updateTabs();addCleanBanners();updateOverviewUX();ensureResultsTools();if($u("mc-results-tools"))$u("mc-results-tools").hidden=false;$u("analysis-progress")?.classList.add("mc-auto-collapsed");updateFloating()}finally{UX_ENHANCING=false}
