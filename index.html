@@ -1952,9 +1952,10 @@ function renderUnitReport(res){
   }
   $("unit-findings").innerHTML=ih;
 
+  const decimalPlacesLabel=(d,n)=>`${d} decimal ${Number(d)===1?"place":"places"} (${n} ${Number(n)===1?"instance":"instances"})`;
   const rows=res.ledger.map(r=>{
     const obs=[...r.raws.entries()].map(([u,n])=>n>1?`${u} (${n})`:u).join("; ");
-    const prec=[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} dp (${n})`).join("; ")||"n/a";
+    const prec=[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>decimalPlacesLabel(d,n)).join("; ")||"n/a";
     const cls=unitStatusClass(r.status);
     const action=unitStatusAction(r.status);
     return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td>${escapeHtml(prec)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td><td class="unit-action">${escapeHtml(action)}</td></tr>`;
@@ -1966,13 +1967,13 @@ function renderUnitReport(res){
       <b>Location</b><span>Where the unit was found, such as the manuscript body or a specific Word table.</span>
       <b>Observed format</b><span>The unit exactly as written in the manuscript. The number in brackets is how many times that form occurs. Example: <code>% (45)</code>.</span>
       <b>Normalized unit</b><span>The tool's internal comparison form. It is used only to recognise equivalent representations and does not mean the manuscript must be converted to that form.</span>
-      <b>Precision</b><span>How many decimal places are used with this same unit/context. Example: <code>1 dp (7)</code> means seven values were reported to one decimal place.</span>
+      <b>Decimal places</b><span>How many digits are reported after the decimal point for values in this same unit/context. The number in brackets shows how many values use that format. Example: <code>1 decimal place (7 instances)</code>.</span>
       <b>Uses</b><span>Total number of detected occurrences in that group.</span>
       <b>Status</b><span><b>consistent</b> means one pattern is followed. <b>mixed precision</b> means comparable values use different decimal-place patterns; check whether they have the same measurement/reporting basis and, if so, standardise to a scientifically justified common precision. <b>mixed format</b> means equivalent units are written in different notation styles; choose one acceptable form and use it consistently.</span>
       <b>Action</b><span>Gives the practical next step. Precision should never be changed merely for appearance: first confirm that the values are directly comparable and that the chosen decimal places are supported by the measurement resolution or reporting method.</span>
     </div>
   </div>
-  <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Precision</th><th>Uses</th><th>Status</th><th>Action to consider</th></tr></thead><tbody>${rows||'<tr><td colspan="8">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
+  <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Decimal places</th><th>Uses</th><th>Status</th><th>Action to consider</th></tr></thead><tbody>${rows||'<tr><td colspan="8">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
   bindInfoHelp("unit-report-info","unit-report-help");
   bindInfoHelp("unit-ledger-info","unit-ledger-help");
   $("unit-report").hidden=false;
@@ -1995,8 +1996,8 @@ function unitReportText(res){
     });
     L.push("");
   }
-  L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Normalized unit | Precision | Uses | Status | Action to consider");
-  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${[...r.precisions.keys()].sort((a,b)=>a-b).map(d=>d+" dp").join("; ")||"n/a"} | ${r.uses} | ${r.status} | ${unitStatusAction(r.status)}`));
+  L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Normalized unit | Decimal places | Uses | Status | Action to consider");
+  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} decimal ${Number(d)===1?"place":"places"} (${n} ${Number(n)===1?"instance":"instances"})`).join("; ")||"n/a"} | ${r.uses} | ${r.status} | ${unitStatusAction(r.status)}`));
   return L.join("\n");
 }
 
