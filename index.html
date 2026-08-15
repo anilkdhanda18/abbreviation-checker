@@ -726,7 +726,58 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     line-height:1.55;
   }
   .abbr-definition-key b{color:#26364f}
-  .unit-action{min-width:220px;color:#4e5c72;font-size:12px;line-height:1.45}
+  .unit-action{min-width:170px;color:#4e5c72;font-size:12px;line-height:1.4}
+  .unit-decimal-places{min-width:185px}
+  .unit-precision-entry{display:block;white-space:nowrap}
+  .unit-view-instances{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:5px 9px;border:1px solid #cdd8e7;border-radius:7px;background:#fff;color:#36547b;font:700 11.5px var(--sans);cursor:pointer;white-space:nowrap}
+  .unit-view-instances:hover{background:#f6f9fd;border-color:#9fb1c9}
+  .unit-view-instances:focus-visible{outline:2px solid #55779f;outline-offset:2px}
+  .unit-view-instances::after{content:'▾';font-size:10px;transition:transform .15s ease}
+  .unit-view-instances[aria-expanded="true"]::after{transform:rotate(180deg)}
+  .unit-instance-row>td{padding:0!important;border-top:0!important;background:#fbfcfe}
+  .unit-instance-panel{margin:0 8px 12px;padding:13px 14px 14px;border:1px solid #dbe4ef;border-radius:9px;background:#fbfcfe}
+  .unit-instance-panel-title{margin:0 0 3px;font-size:12px;font-weight:800;color:#2e435f}
+  .unit-instance-panel-note{margin:0 0 11px;color:#68778c;font-size:11.5px;line-height:1.45}
+  .unit-instance-section{margin-top:11px}
+  .unit-instance-section:first-of-type{margin-top:0}
+  .unit-instance-section-title{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:0 0 6px;font-size:11.5px;font-weight:800;color:#405572}
+  .unit-instance-section-title .count{font-weight:600;color:#738197}
+  .unit-instance-example{margin:5px 0;padding:7px 9px;border-left:3px solid #b8c8da;border-radius:0 6px 6px 0;background:#fff;color:#405066;font-size:11.75px;line-height:1.5}
+  .unit-instance-example mark{padding:1px 2px;border-radius:3px;background:#fff0b8;color:#2d3541;font-weight:800}
+  .unit-instance-more{margin-top:5px}
+  .unit-instance-more>summary{cursor:pointer;color:#4c6790;font-size:11.5px;font-weight:750}
+  .unit-instance-more[open]>summary{margin-bottom:6px}
+  @media(max-width:760px){.unit-instance-panel{margin-left:3px;margin-right:3px}.unit-view-instances{white-space:normal}}
+
+  .num-ledger-table{min-width:820px}
+  .num-ledger-table th:nth-child(1){width:16%}
+  .num-ledger-table th:nth-child(2){width:9%}
+  .num-ledger-table th:nth-child(3){width:25%}
+  .num-ledger-table th:nth-child(4){width:13%}
+  .num-ledger-table th:nth-child(5){width:37%}
+  .num-ledger-table td{vertical-align:top}
+  .num-observed{color:#334761;line-height:1.45}
+  .num-recommendation{color:#4e5c72;font-size:12px;line-height:1.45}
+  .num-status{display:inline-block;font-weight:800;line-height:1.3}
+  .num-status.review{color:#8a5a00}
+  .num-status.style{color:#526985}
+  .num-status.precision{color:#8a5a00}
+  .num-view-instances{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:5px 9px;border:1px solid #cdd8e7;border-radius:7px;background:#fff;color:#36547b;font:700 11.5px var(--sans);cursor:pointer;white-space:nowrap}
+  .num-view-instances:hover{background:#f6f9fd;border-color:#9fb1c9}
+  .num-view-instances:focus-visible{outline:2px solid #55779f;outline-offset:2px}
+  .num-view-instances::after{content:'▾';font-size:10px;transition:transform .15s ease}
+  .num-view-instances[aria-expanded="true"]::after{transform:rotate(180deg)}
+  .num-instance-row>td{padding:0!important;border-top:0!important;background:#fbfcfe}
+  .num-instance-panel{margin:0 8px 12px;padding:13px 14px 14px;border:1px solid #dbe4ef;border-radius:9px;background:#fbfcfe}
+  .num-instance-panel-title{margin:0 0 3px;font-size:12px;font-weight:800;color:#2e435f}
+  .num-instance-panel-note{margin:0 0 10px;color:#68778c;font-size:11.5px;line-height:1.45}
+  .num-instance-example{margin:5px 0;padding:7px 9px;border-left:3px solid #b8c8da;border-radius:0 6px 6px 0;background:#fff;color:#405066;font-size:11.75px;line-height:1.5}
+  .num-instance-example mark{padding:1px 2px;border-radius:3px;background:#fff0b8;color:#2d3541;font-weight:800}
+  .num-instance-more{margin-top:5px}
+  .num-instance-more>summary{cursor:pointer;color:#4c6790;font-size:11.5px;font-weight:750}
+  .num-instance-more[open]>summary{margin-bottom:6px}
+  .num-ledger-help{margin-bottom:10px}
+  @media(max-width:760px){.num-instance-panel{margin-left:3px;margin-right:3px}.num-view-instances{white-space:normal}}
 
 
 
@@ -973,6 +1024,110 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 .duplicate-definition-context .snip{margin:0}
 .mc-guided-context-item{display:grid;gap:3px;margin-top:8px}.mc-guided-context-item>b{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
 </style>
+
+<style id="mc-pdf-report-print-rules">
+@media print{
+  /* Interactive controls should never appear in a saved PDF. */
+  .unit-view-instances,
+  .num-view-instances,
+  .unit-instance-more > summary,
+  .num-instance-more > summary,
+  .mc-combined-export{
+    display:none!important;
+  }
+
+  /* Fallback: include manuscript-instance rows even if beforeprint is not
+     dispatched by a particular browser. JavaScript also opens these panels. */
+  .unit-instance-row,
+  .num-instance-row{
+    display:table-row!important;
+  }
+  .unit-instance-more,
+  .num-instance-more{
+    display:block!important;
+  }
+  .unit-instance-more > *:not(summary),
+  .num-instance-more > *:not(summary){
+    display:block!important;
+  }
+
+  /* Keep an individual manuscript example together where practical. */
+  .unit-instance-example,
+  .num-instance-example{
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+
+  /* The Overview is normally suppressed for single-module printing, but it
+     becomes the first page of a combined PDF. */
+  body.mc-print-combined .overview-report{
+    display:block!important;
+  }
+  body.mc-print-combined .result-group{
+    display:block!important;
+  }
+  body.mc-print-combined .result-group[data-group]:not([data-group="overview"]){
+    break-before:page;
+    page-break-before:always;
+  }
+}
+</style>
+
+
+<style id="abbr-reporting-ledger-v1">
+/* The old card findings remain in the DOM only for existing review-state,
+   guided-review, and result-search compatibility. The visible report is the ledger. */
+.result-group[data-group="abbr"] #errors-wrap,
+.result-group[data-group="abbr"] #warnings-wrap,
+.result-group[data-group="abbr"] #infos-wrap,
+.result-group[data-group="abbr"] .mc-review-toolbar{
+  display:none!important;
+}
+.abbr-reporting-table{min-width:900px}
+.abbr-reporting-table th:nth-child(1){width:14%}
+.abbr-reporting-table th:nth-child(2){width:25%}
+.abbr-reporting-table th:nth-child(3){width:8%}
+.abbr-reporting-table th:nth-child(4){width:18%}
+.abbr-reporting-table th:nth-child(5){width:35%}
+.abbr-reporting-table td{vertical-align:top}
+.abbr-status-cell{line-height:1.7}
+.abbr-ledger-status{display:inline-block;margin:0 4px 4px 0;border-radius:999px;padding:3px 7px;font-size:.72rem;font-weight:800;line-height:1.25;background:#f1f4f8;color:#526176;border:1px solid #d8e0ea}
+.abbr-ledger-status.critical{background:#fff0f0;color:#9a3030;border-color:#efc3c3}
+.abbr-ledger-status.review{background:#fff7e7;color:#8a6200;border-color:#ecd292}
+.abbr-ledger-status.style{background:#f5f0fb;color:#68458d;border-color:#d9c7e9}
+.abbr-ledger-status.clean{background:#eef8f1;color:#28733b;border-color:#bfddc7}
+.abbr-recommendation-line{margin:0 0 5px}
+.abbr-recommendation-line:last-of-type{margin-bottom:0}
+.abbr-view-instances{display:block;margin-top:8px;border:1px solid #c9d7ea;background:#fff;color:#335582;border-radius:8px;padding:6px 9px;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
+.abbr-view-instances:hover{background:#f5f8fc}
+.abbr-instance-row>td{padding:0 8px 12px!important;border-top:0!important}
+.abbr-instance-panel{border:1px solid #d7e1ef;border-radius:10px;background:#fbfcfe;padding:12px 14px}
+.abbr-instance-panel-title{margin:0;font-weight:800;color:#314764}
+.abbr-instance-panel-note{margin:3px 0 10px;color:#66758a;font-size:.8rem}
+.abbr-instance-group{margin-top:10px}
+.abbr-instance-group:first-of-type{margin-top:0}
+.abbr-instance-group-title{font-size:.78rem;font-weight:800;color:#415875;margin-bottom:6px}
+.abbr-instance-example{border-left:3px solid #bfd0e5;background:#fff;padding:7px 9px;margin:6px 0;font-size:.82rem;line-height:1.5}
+.abbr-instance-label{font-size:.7rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#6b7b91;margin-bottom:3px}
+.abbr-instance-more{margin-top:5px}
+.abbr-instance-more>summary{cursor:pointer;color:#335582;font-size:.78rem;font-weight:800}
+.abbr-scope-mini{margin-top:4px;color:#6d7a8c;font-size:.72rem;line-height:1.4}
+.abbr-report-notes{margin:10px 0 12px;padding:10px 12px;border:1px solid #dfe6ef;border-radius:9px;background:#fafbfd;color:#536176;font-size:.82rem}
+.abbr-report-notes>b{color:#334861}
+.abbr-report-notes p{margin:5px 0 0}
+@media(max-width:760px){
+  .abbr-reporting-table{min-width:820px}
+}
+@media print{
+  .abbr-view-instances,
+  .abbr-instance-more>summary{display:none!important}
+  .abbr-instance-row{display:table-row!important}
+  .abbr-instance-more{display:block!important}
+  .abbr-instance-more>*:not(summary){display:block!important}
+  .abbr-instance-example{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -1177,8 +1332,8 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <div class="overview-priorities" id="overview-priorities"></div>
       <div class="overview-recommendation"><b>Recommended workflow:</b> review high-confidence findings first, inspect the manuscript context shown with each finding, then apply a recommendation only when it is scientifically and editorially appropriate.</div>
       <div class="mc-combined-export" aria-label="Combined report export">
-        <div class="mc-combined-export-copy"><b>Complete manuscript report</b><span>Download all checking results, ledgers, manuscript context, and recommendations in one file.</span></div>
-        <button type="button" class="btn btn-primary mc-combined-download" id="mc-download-combined">↓ Download combined report (.txt)</button>
+        <div class="mc-combined-export-copy"><b>Complete manuscript report</b><span>Download all checking results, ledgers, manuscript context, and recommendations as one PDF. Your browser print dialog will open so you can save the PDF.</span></div>
+        <button type="button" class="btn btn-primary mc-combined-download" id="mc-download-combined" title="Opens the browser print dialog so you can save the complete report as a PDF">↓ Download combined report (PDF)</button>
       </div>
       <p class="sec-label overview-section-label">Check by section</p>
       <div class="overview-modules" id="overview-modules"></div>
@@ -1197,7 +1352,7 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Proofing report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For confidently detected theses and other long documents, first-use checks are chapter-aware: reintroducing an abbreviation in a new major chapter is not treated as a duplicate definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Abbreviation report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For confidently detected theses and other long documents, first-use checks are chapter-aware: reintroducing an abbreviation in a new major chapter is not treated as a duplicate definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <nav class="report-subnav" id="abbr-subnav" aria-label="Abbreviation report sections" hidden></nav>
     <div class="scorecard" id="scorecard"></div>
@@ -1209,8 +1364,8 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <div id="std-wrap"></div>
     <p class="disclaimer">This is a heuristic aid, not a substitute for a careful read. Detection of abbreviations and definitions is pattern-based and can still miss unusual cases. All-caps paper titles and other excluded front matter are not treated as abbreviation sources. Definitions are recognised from both conventional acronym expansions and scientific notation introduced semantically, such as "BET surface area (SBET)" or "micropore volume (Vp)", including reverse/list-style forms. Requirements vary by journal, so always confirm against your target journal's author guidelines.</p>
     <div class="report-actions">
-      <button class="btn btn-ghost" id="download">Download report (.txt)</button>
-      <button class="btn btn-ghost" id="print">Print or save as PDF</button>
+      <button class="btn btn-ghost" id="download" hidden aria-hidden="true" tabindex="-1">Download report (.txt)</button>
+      <button class="btn btn-ghost" id="print" title="Opens the browser print dialog so you can save this report as a PDF">Download report (PDF)</button>
     </div>
   </section>
 
@@ -1240,8 +1395,8 @@ https://github.com/anilkdhanda18/manuscriptchecker/
       <div id="ref-ledger-wrap"></div>
       <p class="disclaimer">The reference ledger checks journal articles with the established journal parser and evaluates non-journal sources with type-specific rules. Fields marked no are expected for that source type; n/a means the field does not apply. Ambiguous non-journal items are marked for review rather than forced into journal rules.</p>
       <div class="report-actions">
-        <button class="btn btn-ghost" id="ref-download">Download report (.txt)</button>
-        <button class="btn btn-ghost" id="ref-print">Print or save as PDF</button>
+        <button class="btn btn-ghost" id="ref-download" hidden aria-hidden="true" tabindex="-1">Download report (.txt)</button>
+        <button class="btn btn-ghost" id="ref-print" title="Opens the browser print dialog so you can save this report as a PDF">Download report (PDF)</button>
       </div>
     </section>
 
@@ -1258,13 +1413,13 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 
   <div class="result-group" data-group="num" hidden>
   <section class="card" id="num-report" hidden aria-live="polite">
-    <h2 class="help-row">Number, pH &amp; precision report <button type="button" class="info-help" id="num-report-info" aria-label="Explain the number, pH and precision report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="num-report-help" hidden><b>How to read this report:</b> findings are grouped by rule. The checker distinguishes ordinary number style, pH reporting, value ± variation consistency, ranges, p-values, and comparable precision patterns. Precision findings are intended for genuinely comparable data, not unrelated quantities or predefined thresholds.</div>
+    <h2 class="help-row">Number, pH &amp; precision report <button type="button" class="info-help" id="num-report-info" aria-label="Explain the number, pH and precision report" aria-expanded="false" title="Explain this report">i</button></h2><div class="section-help" id="num-report-help" hidden><b>How to read this report:</b> the Numerical reporting ledger consolidates number style, pH reporting, uncertainty/range checks, p-values, and comparable precision findings in one table. Use <b>View instances</b> to inspect the exact manuscript context before making a change. Precision findings are limited to values inferred to be genuinely comparable.</div>
     <p class="sub" id="num-report-sub"></p>
     <nav class="report-subnav" id="num-subnav" aria-label="Number report sections" hidden></nav>
     <div id="num-findings"></div>
     <p class="disclaimer">This combines numeral usage, pH reporting, and scientific numeric-precision checks. References and headings are excluded. Word tables are checked for precision patterns only within genuinely comparable measurement columns. Precision is assessed only within comparable numeric groups, including numerical series, ranges, uncertainties, percentages, p-values, and scientific notation. The checker never invents measurement resolution or silently adds or removes significant digits; uncertain cases are flagged for author review.</p>
     <div class="report-actions">
-      <button class="btn btn-ghost" id="num-print">Print or save as PDF</button>
+      <button class="btn btn-ghost" id="num-print" title="Opens the browser print dialog so you can save this report as a PDF">Download report (PDF)</button>
     </div>
   </section>
 
@@ -1290,12 +1445,12 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <p class="sub" id="unit-report-sub"></p>
     <nav class="report-subnav" id="unit-subnav" aria-label="Units report sections" hidden></nav>
     <div id="unit-summary"></div>
-    <div id="unit-findings"></div>
+    <div id="unit-findings" hidden></div>
     <div id="unit-ledger-wrap"></div>
     <p class="disclaimer">This check focuses on internal unit consistency. References and affiliations are excluded. The checker looks for meaningful inconsistencies in repeated unit notation or numerical precision; harmless exponent typography such as m2, m^2, and m² is treated as equivalent. It does not require SI notation and does not compare unrelated units.</p>
     <div class="report-actions">
-      <button class="btn btn-ghost" id="unit-download">Download report (.txt)</button>
-      <button class="btn btn-ghost" id="unit-print">Print or save as PDF</button>
+      <button class="btn btn-ghost" id="unit-download" hidden aria-hidden="true" tabindex="-1">Download report (.txt)</button>
+      <button class="btn btn-ghost" id="unit-print" title="Opens the browser print dialog so you can save this report as a PDF">Download report (PDF)</button>
     </div>
   </section>
 
@@ -1323,8 +1478,8 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <div id="eng-findings"></div>
     <p class="disclaimer">This module intentionally avoids general grammar and language editing. It reports objective length/readability indicators and manuscript-internal terminology consistency for author review.</p>
     <div class="report-actions">
-      <button class="btn btn-ghost" id="eng-download">Download report (.txt)</button>
-      <button class="btn btn-ghost" id="eng-print">Print or save as PDF</button>
+      <button class="btn btn-ghost" id="eng-download" hidden aria-hidden="true" tabindex="-1">Download report (.txt)</button>
+      <button class="btn btn-ghost" id="eng-print" title="Opens the browser print dialog so you can save this report as a PDF">Download report (PDF)</button>
     </div>
   </section>
 
@@ -1350,8 +1505,8 @@ https://github.com/anilkdhanda18/manuscriptchecker/
     <div id="fte-findings"></div>
     <p class="disclaimer">This check uses the structure of the uploaded Word document to distinguish captions/items from ordinary cross-references. Figures, tables, equations, and supplementary items are validated as independent sequences. Placement is flagged only when the Word structure provides sufficient evidence; otherwise the report states that placement could not be verified reliably.</p>
     <div class="report-actions">
-      <button class="btn btn-ghost" id="fte-download">Download report (.txt)</button>
-      <button class="btn btn-ghost" id="fte-print">Print or save as PDF</button>
+      <button class="btn btn-ghost" id="fte-download" hidden aria-hidden="true" tabindex="-1">Download report (.txt)</button>
+      <button class="btn btn-ghost" id="fte-print" title="Opens the browser print dialog so you can save this report as a PDF">Download report (PDF)</button>
     </div>
   </section>
 
@@ -1521,6 +1676,12 @@ function unitParseComponent(tok){
 function unitParseExpression(raw,opts={}){
   if(!raw)return null;
   let original=raw.trim().replace(/^[,;:]+|[,;:.]+$/g,"").trim(); if(!original)return null;
+  // A binary product sign at the end of a candidate is not part of a unit.
+  // In dimension expressions such as "8 cm × 8 cm", the × separates the
+  // two reported dimensions. Rejecting incomplete candidates such as "cm ×"
+  // lets the extractor correctly select "cm" for each value. The same rule
+  // protects other incomplete product fragments ending in · or ⋅.
+  if(/[×·⋅]\s*$/.test(original)) return null;
   const flags={microAscii:/\bu(?=(?:g|L|m|S|mol)\b)/.test(original),microGreek:/μ/.test(original),asciiExponent:/\^[-+]?\d+/.test(original),plainPower:/\b(?:m|cm|mm|km|L)(?:2|3)\b/.test(original),multipleSolidus:(original.match(/\//g)||[]).length>1,badKelvin:/°\s*K\b/.test(original),lowerLitre:/\b(?:[fpnumcdhkMGTPEZYRQ]?l)\b/.test(original)};
   if(UNIT_DIRECT_EXPRESSIONS[original]){
     const d=UNIT_DIRECT_EXPRESSIONS[original];return {raw:original,valid:true,recognized:true,normalized:d.normalized,dim:unitCloneDim(d.dim),dimKey:unitDimKey(d.dim),scale:d.scale,scaleKey:unitScaleKey(d.scale),offset:0,notationFamily:"domain_shorthand",analyte:null,flags,components:[],domain:true};
@@ -1643,6 +1804,11 @@ function unitRawFormatKey(q){
   // Normalize optional whitespace around a solidus without changing the
   // underlying solidus-versus-negative-exponent notation family.
   s=s.replace(/\s*\/\s*/g,"/");
+
+  // Defensive guard for dimension separators accidentally retained by older
+  // extraction paths. A trailing ×/·/⋅ is an incomplete product separator,
+  // not a meaningful part of the written unit.
+  s=s.replace(/\s*[×·⋅]\s*$/g,"").trim();
 
   return s;
 }
@@ -1862,6 +2028,7 @@ function unitLedger(qs,issues){
       normalized:q.parsed.normalized,
       uses:0,
       precisions:new Map(),
+      instances:[],
       status:"consistent"
     });
     const x=map.get(k);
@@ -1869,6 +2036,7 @@ function unitLedger(qs,issues){
     x.raws.set(q.rawUnit,(x.raws.get(q.rawUnit)||0)+1);
     const dp=unitScalarDecimals(q.value);
     if(dp!==null)x.precisions.set(dp,(x.precisions.get(dp)||0)+1);
+    x.instances.push({...q,dp});
   });
   const rows=[...map.values()];
   rows.forEach(r=>{
@@ -1912,92 +2080,151 @@ function unitStatusAction(status){
   status=String(status||"").toLowerCase();
   if(status==="consistent") return "No action needed.";
   if(status.includes("format") && status.includes("precision"))
-    return "Review both notation and decimal places. Use one unit format consistently for this parameter/context, then standardise decimal places only for values that are directly comparable and reported at the same measurement resolution.";
+    return "Use one unit notation consistently and check whether comparable values should use consistent decimal places.";
   if(status.includes("mixed format"))
-    return "Choose one scientifically acceptable unit notation for this parameter/context and use it consistently throughout the manuscript, unless a journal-specific convention requires otherwise.";
+    return "Use one unit notation consistently.";
   if(status.includes("mixed precision"))
-    return "Check whether these values are directly comparable and come from the same measurement/reporting context. If so, use a scientifically justified common number of decimal places; if different precision is intentional, retain it and verify the reason.";
-  return "Review this group in context before editing.";
+    return "Check whether comparable values should use consistent decimal places.";
+  return "Review this group in context.";
+}
+function unitLiteralMark(text,needle){
+  text=String(text||"");
+  needle=String(needle||"").trim();
+  if(!needle)return escapeHtml(text);
+  const i=text.indexOf(needle);
+  if(i<0)return escapeHtml(text);
+  return escapeHtml(text.slice(0,i))+"<mark>"+escapeHtml(needle)+"</mark>"+escapeHtml(text.slice(i+needle.length));
+}
+function unitInstanceContextHtml(q){
+  const raw=unitShortContext(q)||`${q.value||""} ${q.rawUnit||""}`.trim();
+  const value=String(q?.value||"").trim();
+  const unit=String(q?.rawUnit||"").trim();
+  // Prefer highlighting value + unit together. Fall back to the value alone
+  // when whitespace or Word formatting has separated the two in the snippet.
+  const candidates=[`${value}${q?.space??" "}${unit}`.trim(),`${value} ${unit}`.trim(),value].filter(Boolean);
+  for(const c of candidates){if(raw.includes(c))return unitLiteralMark(raw,c);}
+  return escapeHtml(raw);
+}
+function unitInstanceListHtml(items,limit=3){
+  items=(items||[]).filter(Boolean);
+  if(!items.length)return '<div class="unit-instance-example">No manuscript context available for this group.</div>';
+  const first=items.slice(0,limit).map(q=>`<div class="unit-instance-example">${unitInstanceContextHtml(q)}</div>`).join("");
+  if(items.length<=limit)return first;
+  const rest=items.slice(limit).map(q=>`<div class="unit-instance-example">${unitInstanceContextHtml(q)}</div>`).join("");
+  return `${first}<details class="unit-instance-more"><summary>Show remaining ${items.length-limit} instance${items.length-limit===1?"":"s"}</summary>${rest}</details>`;
+}
+function unitInstancePanelHtml(r,rowIndex){
+  const instances=(r.instances||[]).filter(q=>q&&q.parsed?.valid);
+  const sections=[];
+  const status=String(r.status||"").toLowerCase();
+
+  if(status.includes("precision")){
+    const byDp=new Map();
+    instances.forEach(q=>{if(q.dp===null||q.dp===undefined)return;if(!byDp.has(q.dp))byDp.set(q.dp,[]);byDp.get(q.dp).push(q);});
+    [...byDp.entries()].sort((a,b)=>a[0]-b[0]).forEach(([dp,a])=>{
+      const label=`${dp} decimal ${Number(dp)===1?"place":"places"}`;
+      sections.push(`<div class="unit-instance-section"><div class="unit-instance-section-title"><span>${escapeHtml(label)}</span><span class="count">${a.length} instance${a.length===1?"":"s"}</span></div>${unitInstanceListHtml(a)}</div>`);
+    });
+  }
+
+  if(status.includes("format")){
+    const byFormat=new Map();
+    instances.forEach(q=>{const f=unitRawFormatKey(q)||q.rawUnit||"Unit format";if(!byFormat.has(f))byFormat.set(f,[]);byFormat.get(f).push(q);});
+    [...byFormat.entries()].sort((a,b)=>b[1].length-a[1].length).forEach(([fmt,a])=>{
+      sections.push(`<div class="unit-instance-section"><div class="unit-instance-section-title"><span>${escapeHtml(fmt)}</span><span class="count">${a.length} instance${a.length===1?"":"s"}</span></div>${unitInstanceListHtml(a)}</div>`);
+    });
+  }
+
+  return `<tr class="unit-instance-row" id="unit-instance-row-${rowIndex}" hidden><td colspan="6"><div class="unit-instance-panel"><p class="unit-instance-panel-title">Manuscript instances</p><p class="unit-instance-panel-note">The reported value and unit are highlighted so you can compare the inconsistent forms in their original manuscript context.</p>${sections.join("")||'<div class="unit-instance-example">No manuscript context available for this group.</div>'}</div></td></tr>`;
+}
+function bindUnitInstanceToggles(){
+  document.querySelectorAll("#unit-ledger-wrap .unit-view-instances").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const target=$(btn.dataset.target);
+      if(!target)return;
+      const opening=target.hidden;
+      target.hidden=!opening;
+      btn.setAttribute("aria-expanded",opening?"true":"false");
+      btn.textContent=opening?"Hide instances":"View instances";
+    });
+  });
 }
 function renderUnitReport(res){
   LAST_UNIT=res;
-  $("unit-report-sub").textContent=res.issues.length
-    ?`${res.recognized} unit-bearing quantities detected · ${res.issues.length} consistency item${res.issues.length===1?"":"s"} to review`
-    :`${res.recognized} unit-bearing quantities detected · unit formats and precision are internally consistent`;
 
+  // The Unit ledger is the single detailed review surface. Summary counts are
+  // derived from ledger groups rather than repeating the same findings in
+  // separate format and precision sections.
   const counts={
-    format:res.issues.filter(x=>x.code==="UNIT_FORMAT_INCONSISTENT"||x.code==="UNIT_SPACING_INCONSISTENT"||x.code==="UNIT_PERCENT_SPACING_INCONSISTENT").length,
-    precision:res.issues.filter(x=>x.code==="UNIT_PRECISION_INCONSISTENT").length
+    format:res.ledger.filter(r=>/format/i.test(String(r.status||""))).length,
+    precision:res.ledger.filter(r=>/precision/i.test(String(r.status||""))).length,
+    review:res.ledger.filter(r=>/mixed/i.test(String(r.status||""))).length
   };
-  $("unit-summary").innerHTML=`<div class="scorecard"><div class="score ${counts.format?"warn":"ok"}"><div class="n">${counts.format}</div><div class="k">Format</div></div><div class="score ${counts.precision?"warn":"ok"}"><div class="n">${counts.precision}</div><div class="k">Precision</div></div><div class="score ok"><div class="n">${res.ledger.length}</div><div class="k">Unit groups</div></div></div>`;
 
-  let ih="";
-  if(!res.issues.length){
-    ih=`<p class="verdict clean">No same-unit formatting or precision inconsistencies detected.</p>`;
-  }else{
-    const fmt=res.issues.filter(x=>x.code!=="UNIT_PRECISION_INCONSISTENT");
-    const pre=res.issues.filter(x=>x.code==="UNIT_PRECISION_INCONSISTENT");
-    const draw=(title,a)=>{
-      if(!a.length)return;
-      const sectionHelp=title==="Unit-format consistency"
-        ?"Checks whether the same repeated unit is written consistently. It does not compare unrelated units and does not force SI notation. Equivalent exponent typography such as m2, m^2, and m² is normalized."
-        :"Checks whether directly comparable values using the same unit/context follow a consistent decimal-place pattern.";
-      ih+=`<p class="sec-label">${title} ${inlineHelpButton(sectionHelp,`Explain ${title}`)} · ${a.length}</p>`;
-      a.slice(0,250).forEach(it=>{
-        ih+=`<div class="issue"><span class="badge warn">!</span><div class="body"><p class="msg"><span class="abbr">${escapeHtml(humanIssueCode(it.code))}</span> ${issueHelpButton(it.code,it.msg)} ${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${escapeHtml(it.snippet.slice(0,420))}</div>`:""}${it.suggestion?`<p class="std-note"><b>Recommendation:</b> ${escapeHtml(it.suggestion)}</p>`:""}</div></div>`;
-      });
-    };
-    draw("Unit-format consistency",fmt);
-    draw("Same-unit numerical precision",pre);
-  }
-  $("unit-findings").innerHTML=ih;
+  $("unit-report-sub").textContent=counts.review
+    ?`${res.recognized} unit-bearing quantities detected · ${counts.review} unit group${counts.review===1?"":"s"} to review`
+    :`${res.recognized} unit-bearing quantities detected · unit formats and decimal places are internally consistent`;
+
+  $("unit-summary").innerHTML=`<div class="scorecard"><div class="score ${counts.format?"warn":"ok"}"><div class="n">${counts.format}</div><div class="k">Mixed format</div></div><div class="score ${counts.precision?"warn":"ok"}"><div class="n">${counts.precision}</div><div class="k">Mixed decimal places</div></div><div class="score ok"><div class="n">${res.ledger.length}</div><div class="k">Unit groups</div></div></div>`;
+
+  // Detailed Unit-format consistency and Same-unit numerical precision sections
+  // were intentionally removed because the same cases are already consolidated
+  // in the ledger below.
+  $("unit-findings").innerHTML="";
+  $("unit-findings").hidden=true;
 
   const decimalPlacesLabel=(d,n)=>`${d} decimal ${Number(d)===1?"place":"places"} (${n} ${Number(n)===1?"instance":"instances"})`;
-  const rows=res.ledger.map(r=>{
-    const obs=[...r.raws.entries()].map(([u,n])=>n>1?`${u} (${n})`:u).join("; ");
-    const prec=[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>decimalPlacesLabel(d,n)).join("; ")||"n/a";
+  const rows=res.ledger.map((r,rowIndex)=>{
+    // Show notation only in Observed format. Occurrence counts are intentionally
+    // kept in Decimal places, where they refer to the scalar values included
+    // in the precision comparison. This avoids conflicting denominators when
+    // ranges, uncertainty expressions, or scientific notation are present.
+    const obs=[...r.raws.keys()].join("; ");
+    const precisionEntries=[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]);
+    const prec=precisionEntries.length
+      ?precisionEntries.map(([d,n])=>`<span class="unit-precision-entry">${escapeHtml(decimalPlacesLabel(d,n))}</span>`).join("")
+      :"n/a";
     const cls=unitStatusClass(r.status);
     const action=unitStatusAction(r.status);
-    return `<tr><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td>${escapeHtml(r.normalized)}</td><td>${escapeHtml(prec)}</td><td class="t-num">${r.uses}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td><td class="unit-action">${escapeHtml(action)}</td></tr>`;
+    const review=/mixed/i.test(String(r.status||""));
+    const viewBtn=review?`<button type="button" class="unit-view-instances" data-target="unit-instance-row-${rowIndex}" aria-expanded="false" aria-controls="unit-instance-row-${rowIndex}">View instances</button>`:"";
+    const main=`<tr${review?` class="unit-ledger-review-row" data-unit-review="1" data-unit-review-index="${rowIndex}"`:""}><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td class="unit-decimal-places">${prec}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td><td class="unit-action">${escapeHtml(action)}${viewBtn}</td></tr>`;
+    return main+(review?unitInstancePanelHtml(r,rowIndex):"");
   }).join("");
   $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger <button type="button" class="info-help" id="unit-ledger-info" aria-label="Explain the Unit Ledger" aria-expanded="false" title="What do these columns mean?">i</button></p>
   <div class="ledger-help" id="unit-ledger-help" hidden>
     <div class="ledger-help-grid">
       <b>Parameter / context</b><span>What the number represents, when the tool can infer it. Example: <i>Degradation efficiency</i>. A generic label such as <i>percentage</i> means the exact parameter could not be identified confidently.</span>
       <b>Location</b><span>Where the unit was found, such as the manuscript body or a specific Word table.</span>
-      <b>Observed format</b><span>The unit exactly as written in the manuscript. The number in brackets is how many times that form occurs. Example: <code>% (45)</code>.</span>
-      <b>Normalized unit</b><span>The tool's internal comparison form. It is used only to recognise equivalent representations and does not mean the manuscript must be converted to that form.</span>
-      <b>Decimal places</b><span>How many digits are reported after the decimal point for values in this same unit/context. The number in brackets shows how many values use that format. Example: <code>1 decimal place (7 instances)</code>.</span>
-      <b>Uses</b><span>Total number of detected occurrences in that group.</span>
+      <b>Observed format</b><span>The unit notation exactly as written in the manuscript. If more than one notation is used for the same unit, the different forms are listed here. Occurrence counts are shown under <b>Decimal places</b> to avoid conflicting totals.</span>
+      <b>Decimal places</b><span>How many digits are reported after the decimal point for comparable scalar values in this same unit/context. The number in brackets shows how many values use that precision. Example: <code>1 decimal place (7 instances)</code>.</span>
       <b>Status</b><span><b>consistent</b> means one pattern is followed. <b>mixed precision</b> means comparable values use different decimal-place patterns; check whether they have the same measurement/reporting basis and, if so, standardise to a scientifically justified common precision. <b>mixed format</b> means equivalent units are written in different notation styles; choose one acceptable form and use it consistently.</span>
-      <b>Action</b><span>Gives the practical next step. Precision should never be changed merely for appearance: first confirm that the values are directly comparable and that the chosen decimal places are supported by the measurement resolution or reporting method.</span>
+      <b>Action</b><span>Provides a concise next step. For rows requiring review, select <b>View instances</b> to inspect the actual manuscript occurrences before making any change.</span>
     </div>
   </div>
-  <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Normalized unit</th><th>Decimal places</th><th>Uses</th><th>Status</th><th>Action to consider</th></tr></thead><tbody>${rows||'<tr><td colspan="8">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
+  <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed format</th><th>Decimal places</th><th>Status</th><th>Action to consider</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No unit-bearing quantities detected.</td></tr>'}</tbody></table></div>`;
   bindInfoHelp("unit-report-info","unit-report-help");
   bindInfoHelp("unit-ledger-info","unit-ledger-help");
+  bindUnitInstanceToggles();
   $("unit-report").hidden=false;
   buildReportSubnav("unit-report","unit-subnav");
 }
 function unitReportText(res){
+  const counts={
+    format:res.ledger.filter(r=>/format/i.test(String(r.status||""))).length,
+    precision:res.ledger.filter(r=>/precision/i.test(String(r.status||""))).length,
+    review:res.ledger.filter(r=>/mixed/i.test(String(r.status||""))).length
+  };
   const L=[
     "UNITS AND NOTATION CONSISTENCY REPORT","",
     `Unit-bearing quantities detected: ${res.recognized}`,
-    `Consistency items to review: ${res.issues.length}`,"",
-    "Scope: same-unit format and same-parameter/same-unit numerical precision. Affiliations and references excluded. No SI-conformance or dimensional-mismatch enforcement.",""
+    `Unit groups requiring review: ${counts.review}`,
+    `Groups with mixed unit format: ${counts.format}`,
+    `Groups with mixed decimal places: ${counts.precision}` ,"",
+    "Scope: internal consistency of repeated unit notation and same-parameter/same-unit decimal places. Affiliations and references excluded. No SI-conformance or dimensional-mismatch enforcement.",""
   ];
-  if(res.issues.length){
-    L.push("ISSUES");
-    res.issues.forEach(i=>{
-      L.push(`${humanIssueCode(i.code)} | ${i.parameter||"Unit"} | ${i.msg}`);
-      if(i.context)L.push(`  Location: ${i.context}`);
-      if(i.snippet)L.push(`  Examples: ${i.snippet}`);
-      if(i.suggestion)L.push(`  Recommendation: ${i.suggestion}`);
-    });
-    L.push("");
-  }
-  L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Normalized unit | Decimal places | Uses | Status | Action to consider");
-  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${r.normalized} | ${[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} decimal ${Number(d)===1?"place":"places"} (${n} ${Number(n)===1?"instance":"instances"})`).join("; ")||"n/a"} | ${r.uses} | ${r.status} | ${unitStatusAction(r.status)}`));
+  L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Decimal places | Status | Action to consider");
+  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} decimal ${Number(d)===1?"place":"places"} (${n} ${Number(n)===1?"instance":"instances"})`).join("; ")||"n/a"} | ${r.status} | ${unitStatusAction(r.status)}`));
   return L.join("\n");
 }
 
@@ -5166,7 +5393,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     const before=sent.slice(0,index);
     const initial=/^[\s"'\u2018\u2019\(\[]*$/.test(before);
     const inParen=spans.some(sp=>index>=sp[0] && index<sp[1]);
-    const g=G(key); g.occ.push({sent:si,index,initial,inParen,role:meta.role||"technical_abbreviation",protectedIdentifier:!!meta.protectedIdentifier}); bump(g,raw);
+    const g=G(key); g.occ.push({sent:si,index,raw,initial,inParen,role:meta.role||"technical_abbreviation",protectedIdentifier:!!meta.protectedIdentifier}); bump(g,raw);
   }
 
   sentences.forEach((sent,si)=>{
@@ -5286,6 +5513,17 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       const defSent=firstDef?firstDef.sent:Infinity;
       const longForm=firstDef?.long || listDef?.long || null;
       const snippet=buildSnippet(sentences[firstSent]||"", disp);
+      const rowOccurrenceInstances=g.occ.map((o,idx)=>({
+        label:`Use ${idx+1}`,
+        sentenceIndex:o.sent,
+        occurrenceIndex:o.index,
+        html:buildSnippet(sentences[o.sent]||"",o.raw||disp)
+      })).filter(x=>x.html);
+      const rowDefinitionInstances=orderedDefs.map((d,idx)=>({
+        label:`Definition ${idx+1}`,
+        sentenceIndex:d.sent,
+        html:buildSnippet(sentences[d.sent]||"",d.form||disp)
+      })).filter(x=>x.html);
       const reverseDefined=!!firstDef && /^reverse/.test(firstDef.kind||"");
       const scientificDefinition=!!firstDef && firstDef.definitionType && firstDef.definitionType!=="conventional_acronym";
       const earlierLong=(!listDef && reverseDefined) ? findEarlierLongForm(sentences,longForm,defSent) : null;
@@ -5306,7 +5544,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           msg:`Not explicitly defined as a standalone abbreviation, but ${disp} can be inferred from the earlier definition of ${nestedResolution.parent} as "${nestedResolution.parentLong}". The mapped term is "${nestedResolution.inferredLong}". Check whether the target journal requires ${disp} to be defined separately at its first standalone use.`,
           snip:snippet
         });
-        rows.push({base:disp,longForm:nestedResolution.inferredLong,count,firstUseOK:false,status:"warn",definitionSource:"nested",definitionType:"nested_abbreviation",nestedFrom:nestedResolution.parent});
+        rows.push({base:disp,longForm:nestedResolution.inferredLong,count,firstUseOK:false,status:"warn",definitionSource:"nested",definitionType:"nested_abbreviation",nestedFrom:nestedResolution.parent,instances:rowOccurrenceInstances,definitionInstances:rowDefinitionInstances});
         return;
       }
 
@@ -5432,7 +5670,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       }
 
       if(!std){
-        rows.push({base:disp, longForm, count, firstUseOK, status, definitionSource, definitionType:firstDef?.definitionType||null});
+        rows.push({base:disp, longForm, count, firstUseOK, status, definitionSource, definitionType:firstDef?.definitionType||null,instances:rowOccurrenceInstances,definitionInstances:rowDefinitionInstances});
       }
     });
 
@@ -5494,6 +5732,7 @@ function issuePriorityInfo(issue){
 }
 function enhanceReportSeverity(reportId,navId){
   const report=$(reportId), nav=$(navId);
+  if(reportId==="unit-report") return;
   if(!report) return;
   const old=report.querySelector(".priority-toolbar");
   if(old) old.remove();
@@ -5700,13 +5939,18 @@ function renderReport(r){
   else if(r.errors.length===0){ v.className="verdict"; v.textContent="No high-priority findings were detected. A few findings are worth reviewing below."; }
   else { v.className="verdict"; v.textContent=`${r.errors.length} high-priority finding${r.errors.length===1?"":"s"} should be addressed before submission.`; }
 
+  // Preserve the original finding nodes invisibly so existing guided-review,
+  // review-state, and search logic can still use them. The visible abbreviation
+  // report is now the unified table below.
   document.getElementById("errors-wrap").innerHTML=section("Critical errors",r.errors,"err");
   document.getElementById("warnings-wrap").innerHTML=section("Review items",r.warnings,"warn");
   document.getElementById("infos-wrap").innerHTML=section("Editorial notes",r.infos,"info");
-  document.getElementById("ledger-wrap").innerHTML=ledger(r.rows);
+  document.getElementById("ledger-wrap").innerHTML=abbrReportingLedger(r);
   document.getElementById("std-wrap").innerHTML=
     r.standardSeen.length?`<p class="std-note"><b>Treated as standard (definition not required):</b> ${inlineHelpButton("These tokens were recognized as standard/allowed terms and were intentionally excluded from undefined-abbreviation findings. The list comes from the built-in standard registry plus any user-supplied whitelist.","Explain standard terms")} ${r.standardSeen.map(s=>`<code>${escapeHtml(s)}</code>`).join("")}</p>`:"";
 
+  bindInfoHelp("abbr-ledger-info","abbr-ledger-help");
+  bindAbbrInstanceToggles();
   const rep=document.getElementById("report"); rep.hidden=false;
   buildReportSubnav("report","abbr-subnav");
 }
@@ -5728,7 +5972,7 @@ function section(label,items,kind){
           :(it.snip?`<div class="snip">${it.snip}</div>`:"")}
       </div>
     </div>`).join("");
-  return `<p class="sec-label">${label} ${inlineHelpButton(helpMap[label]||"Explains this abbreviation finding group.",`Explain ${label}`)}</p>${rows}`;
+  return `<p class="legacy-abbr-section-label">${label} ${inlineHelpButton(helpMap[label]||"Explains this abbreviation finding group.",`Explain ${label}`)}</p>${rows}`;
 }
 function ledger(rows){
   if(!rows.length) return "";
@@ -5762,6 +6006,279 @@ function ledger(rows){
     </div>
     <div class="ledger-scroll"><table class="ledger"><thead><tr><th>Abbrev./notation</th><th>Full form / descriptor</th><th>Uses</th><th>Definition status</th></tr></thead>
     <tbody>${body}</tbody></table></div>`;
+}
+
+
+/* ---------- Unified abbreviation reporting ledger ---------- */
+function abbrPlainHtml(x){
+  const d=document.createElement("div");
+  d.innerHTML=String(x||"");
+  return (d.textContent||"").replace(/\s+/g," ").trim();
+}
+function abbrIssueStatusLabel(msg,priority){
+  msg=String(msg||"");
+  let m;
+  if(/different full forms|different meanings|unambiguous throughout/i.test(msg)){
+    m=msg.match(/Defined\s+(\d+)\s+times/i);
+    return m?`${m[1]} conflicting definitions`:"Conflicting definitions";
+  }
+  if(/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msg)){
+    m=msg.match(/Defined\s+(\d+)\s+times/i);
+    return m?`Defined ${m[1]} times`:"Defined multiple times";
+  }
+  if(/Not defined anywhere|not defined before or elsewhere/i.test(msg)) return "Not defined anywhere";
+  if(/Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(msg)) return "Defined after first use";
+  if(/full term .* appears earlier|first prose mention/i.test(msg)) return "Definition introduced late";
+  if((m=msg.match(/Used only\s+(\d+)\s+time/i))) return `Used only ${m[1]} time${m[1]==="1"?"":"s"}`;
+  if(/Begins a sentence|sentence does not open with an abbreviation/i.test(msg)) return "Used at sentence start";
+  if(/apostrophe.*plural|plural.*apostrophe/i.test(msg)) return "Plural form review";
+  if(/inferred from the earlier definition|requires .* defined separately/i.test(msg)) return "Definition review";
+  if(/institution requires abbreviations|chapter-local introduction|introduced in .*chapter/i.test(msg)) return "Chapter first use";
+  if(/distinct technical concept|combined term should also be defined/i.test(msg)) return "Definition review";
+  return priority==="critical"?"Critical error":priority==="style"?"Editorial note":"Review item";
+}
+function abbrRecommendationForIssue(it,priority){
+  const a=String(it?.abbr||"abbreviation").trim();
+  const msg=String(it?.msg||"");
+  let m;
+  if(/different full forms|different meanings|unambiguous throughout/i.test(msg))
+    return `Use one correct full form consistently for ${a}.`;
+  if(/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msg))
+    return "Keep the first definition and use only the abbreviation thereafter.";
+  if(/Not defined anywhere|not defined before or elsewhere/i.test(msg))
+    return `Define ${a} in full at its first use.`;
+  if(/Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(msg))
+    return `Define ${a} in full at its first use.`;
+  if(/full term .* appears earlier|first prose mention/i.test(msg))
+    return `Introduce ${a} when its full term first appears in eligible prose.`;
+  if((m=msg.match(/Used only\s+(\d+)\s+time/i)))
+    return "Consider spelling out the term instead of introducing an abbreviation.";
+  if(/Begins a sentence|sentence does not open with an abbreviation/i.test(msg))
+    return "Consider rewriting the sentence to avoid starting with the abbreviation.";
+  if(/apostrophe.*plural|plural.*apostrophe/i.test(msg))
+    return `Use ${a}s for the plural and reserve the apostrophe for possessive forms.`;
+  if(/inferred from the earlier definition|requires .* defined separately/i.test(msg))
+    return `Check whether ${a} requires a separate first-use definition under the target journal's policy.`;
+  if(/institution requires abbreviations|chapter-local introduction|introduced in .*chapter/i.test(msg))
+    return `Check whether ${a} should be reintroduced at first use in this chapter.`;
+  if(/distinct technical concept|combined term should also be defined/i.test(msg))
+    return `Verify whether ${a} represents a distinct concept that requires its own definition.`;
+  if(priority==="style") return "Review this editorial abbreviation note against the target journal's requirements.";
+  return "Review the abbreviation in context and revise only if required by the journal or manuscript convention.";
+}
+function abbrDefinitionStatusText(x){
+  const src=String(x?.definitionSource||"");
+  if(src==="list") return "Defined in abbreviation list only";
+  if(src==="table_note"||src==="table") return "Defined in table note";
+  if(src==="scientific") return x.firstUseOK===false?"Defined after first use":"Defined correctly";
+  if(src==="prose") return x.firstUseOK===false?"Defined after first use":"Defined correctly";
+  if(src==="multi_scope") return "Defined correctly within chapter";
+  if(src==="scope_review") return "Chapter first use";
+  if(src==="scope_elsewhere") return "Defined elsewhere";
+  if(src==="conflict") return "Conflicting definitions";
+  if(src==="nested") return "Definition review";
+  if(src==="declared") return "Defined correctly";
+  if(x?.longForm) return x.firstUseOK===false?"Defined after first use":"Defined correctly";
+  return "Not defined anywhere";
+}
+function abbrContextKey(ctx){
+  return abbrPlainHtml(ctx?.html||ctx?.snip||"").toLowerCase();
+}
+function abbrBuildReportingRows(r){
+  const map=new Map(), generalNotes=[];
+  (r?.rows||[]).forEach(x=>{
+    const key=norm(x.base||"");
+    if(!key)return;
+    map.set(key,{...x,key,issues:[],instances:[...(x.instances||[])],definitionInstances:[...(x.definitionInstances||[])],extraContexts:[]});
+  });
+  const addIssue=(it,priority)=>{
+    const key=norm(it?.abbr||"");
+    if(!key || it?.abbr==="units"){
+      generalNotes.push({it,priority});
+      return;
+    }
+    let row=map.get(key);
+    if(!row){
+      if(priority==="style"){
+        generalNotes.push({it,priority});
+        return;
+      }
+      row={base:it.abbr,longForm:null,count:0,firstUseOK:false,status:priority==="critical"?"err":"warn",definitionSource:"none",key,issues:[],instances:[],definitionInstances:[],extraContexts:[]};
+      map.set(key,row);
+    }
+    row.issues.push({it,priority});
+    if(Array.isArray(it.contexts)){
+      it.contexts.forEach((c,idx)=>row.extraContexts.push({label:c.label||`Finding context ${idx+1}`,html:c.html||""}));
+    }else if(it.snip){
+      row.extraContexts.push({label:"Finding context",html:it.snip});
+    }
+  };
+  (r?.errors||[]).forEach(it=>addIssue(it,"critical"));
+  (r?.warnings||[]).forEach(it=>addIssue(it,"review"));
+  (r?.infos||[]).forEach(it=>addIssue(it,"style"));
+
+  const rank={critical:0,review:1,style:2};
+  const rows=[...map.values()].sort((a,b)=>{
+    const ap=a.issues.length?Math.min(...a.issues.map(x=>rank[x.priority]??3)):3;
+    const bp=b.issues.length?Math.min(...b.issues.map(x=>rank[x.priority]??3)):3;
+    return ap-bp || String(a.base||"").localeCompare(String(b.base||""));
+  });
+  rows.forEach(row=>{
+    const priorities=row.issues.map(x=>x.priority);
+    row.priority=priorities.includes("critical")?"critical":priorities.includes("review")?"review":priorities.includes("style")?"style":"clean";
+    row.priorityCounts={
+      critical:row.issues.filter(x=>x.priority==="critical").length,
+      review:row.issues.filter(x=>x.priority==="review").length,
+      style:row.issues.filter(x=>x.priority==="style").length
+    };
+    const statuses=[];
+    row.issues.forEach(x=>{
+      const label=abbrIssueStatusLabel(x.it?.msg,x.priority);
+      if(label&&!statuses.some(s=>s.label===label))statuses.push({label,priority:x.priority});
+    });
+    if(!statuses.length)statuses.push({label:abbrDefinitionStatusText(row),priority:"clean"});
+    row.statuses=statuses;
+    const recs=[];
+    row.issues.forEach(x=>{
+      const rec=abbrRecommendationForIssue(x.it,x.priority);
+      if(rec&&!recs.includes(rec))recs.push(rec);
+    });
+    row.recommendations=recs.length?recs:["No action needed."];
+
+    // Remove duplicates within each context group. Uses and definitions remain
+    // separate even when the definition sentence is also an abbreviation use.
+    const clean=(arr)=>{
+      const seen=new Set(),out=[];
+      (arr||[]).forEach(c=>{
+        const k=abbrContextKey(c); if(!k||seen.has(k))return;
+        seen.add(k); out.push(c);
+      });
+      return out;
+    };
+    row.instances=clean(row.instances);
+    row.definitionInstances=clean(row.definitionInstances);
+    row.extraContexts=clean(row.extraContexts);
+  });
+  return {rows,generalNotes};
+}
+function abbrInstanceListHtml(items,limit=3){
+  items=(items||[]).filter(x=>x&&x.html);
+  if(!items.length)return "";
+  const render=x=>{
+    const lab=String(x.label||"");
+    const showLabel=/chapter|abstract|part|definition|finding/i.test(lab);
+    return `<div class="abbr-instance-example">${showLabel?`<div class="abbr-instance-label">${escapeHtml(lab)}</div>`:""}${x.html}</div>`;
+  };
+  const first=items.slice(0,limit).map(render).join("");
+  if(items.length<=limit)return first;
+  const rest=items.slice(limit).map(render).join("");
+  return `${first}<details class="abbr-instance-more"><summary>Show remaining ${items.length-limit} instance${items.length-limit===1?"":"s"}</summary>${rest}</details>`;
+}
+function abbrInstanceGroupHtml(title,items){
+  if(!items?.length)return "";
+  return `<div class="abbr-instance-group"><div class="abbr-instance-group-title">${escapeHtml(title)} · ${items.length} instance${items.length===1?"":"s"}</div>${abbrInstanceListHtml(items)}</div>`;
+}
+function abbrFindingDefinitionContexts(row,kind){
+  const seen=new Set(),out=[];
+  (row?.issues||[]).forEach(issue=>{
+    const it=issue?.it||{},msg=String(it.msg||"");
+    const isConflict=/different full forms|different meanings|unambiguous throughout/i.test(msg);
+    const isDuplicate=!!it.duplicateDefinition||/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msg);
+    if((kind==="conflict"&&!isConflict)||(kind==="duplicate"&&(!isDuplicate||isConflict)))return;
+    const contexts=Array.isArray(it.contexts)&&it.contexts.length
+      ? it.contexts
+      : (it.snip?[{label:"Definition",html:it.snip}]:[]);
+    contexts.forEach(c=>{
+      if(!c?.html)return;
+      const k=abbrContextKey(c); if(!k||seen.has(k))return;
+      seen.add(k); out.push(c);
+    });
+  });
+  // Older reports may not carry finding-specific context arrays. Fall back to
+  // detected definition locations only when no issue-specific context exists.
+  if(!out.length){
+    (row?.definitionInstances||[]).forEach(c=>{
+      if(!c?.html)return;
+      const k=abbrContextKey(c); if(!k||seen.has(k))return;
+      seen.add(k); out.push(c);
+    });
+  }
+  return out;
+}
+function abbrRelevantDefinitionContexts(row){
+  const mode=abbrInstanceMode(row);
+  if(mode==="conflicting-definitions")return abbrFindingDefinitionContexts(row,"conflict");
+  if(mode==="duplicate-definitions")return abbrFindingDefinitionContexts(row,"duplicate");
+  return row?.definitionInstances||[];
+}
+function abbrInstanceMode(row){
+  const msgs=(row?.issues||[]).map(x=>String(x?.it?.msg||"")).join(" ");
+  if(/different full forms|different meanings|unambiguous throughout/i.test(msgs)) return "conflicting-definitions";
+  if((row?.issues||[]).some(x=>x?.it?.duplicateDefinition)||/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msgs)) return "duplicate-definitions";
+  return "general";
+}
+function abbrInstancePanelHtml(row,rowIndex){
+  const mode=abbrInstanceMode(row);
+  let groups="",title="Manuscript instances",note="The abbreviation or relevant definition is highlighted where possible so you can inspect the original manuscript context before editing.";
+
+  if(mode==="duplicate-definitions"){
+    const defs=abbrRelevantDefinitionContexts(row);
+    title="Duplicate definition locations";
+    note="Only the repeated definition locations are shown. Ordinary uses of the abbreviation are omitted.";
+    groups=abbrInstanceGroupHtml("Definitions",defs);
+  }else if(mode==="conflicting-definitions"){
+    const defs=abbrRelevantDefinitionContexts(row);
+    title="Conflicting definition locations";
+    note="Only the locations with conflicting definitions are shown. Ordinary uses of the abbreviation are omitted.";
+    groups=abbrInstanceGroupHtml("Definitions",defs);
+  }else{
+    groups=[
+      abbrInstanceGroupHtml("Uses",row.instances),
+      abbrInstanceGroupHtml("Definitions",row.definitionInstances),
+      abbrInstanceGroupHtml("Finding context",row.extraContexts)
+    ].filter(Boolean).join("");
+  }
+  return `<tr class="abbr-instance-row" id="abbr-instance-row-${rowIndex}" hidden><td colspan="5"><div class="abbr-instance-panel"><p class="abbr-instance-panel-title">${escapeHtml(title)}</p><p class="abbr-instance-panel-note">${escapeHtml(note)}</p>${groups||'<div class="abbr-instance-example">No manuscript context is available for this item.</div>'}</div></td></tr>`;
+}
+function bindAbbrInstanceToggles(){
+  document.querySelectorAll("#ledger-wrap .abbr-view-instances").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const target=$(btn.dataset.target); if(!target)return;
+      const opening=target.hidden; target.hidden=!opening;
+      btn.setAttribute("aria-expanded",opening?"true":"false");
+      btn.textContent=opening?"Hide instances":"View instances";
+    });
+  });
+}
+function abbrGeneralNotesHtml(notes){
+  if(!notes?.length)return "";
+  return `<div class="abbr-report-notes"><b>Report notes</b>${notes.map(x=>`<p>${escapeHtml(x.it?.msg||"")}</p>`).join("")}</div>`;
+}
+function abbrReportingLedger(r){
+  const built=abbrBuildReportingRows(r),rows=built.rows;
+  const body=rows.map((x,i)=>{
+    const instanceMode=abbrInstanceMode(x);
+    const hasContexts=instanceMode==="duplicate-definitions"||instanceMode==="conflicting-definitions"
+      ? abbrRelevantDefinitionContexts(x).length>0
+      : (x.instances?.length||0)+(x.definitionInstances?.length||0)+(x.extraContexts?.length||0)>0;
+    const statusHtml=x.statuses.map(s=>`<span class="abbr-ledger-status ${s.priority}">${escapeHtml(s.label)}</span>`).join("");
+    const recHtml=x.recommendations.map(rec=>`<div class="abbr-recommendation-line">${escapeHtml(rec)}</div>`).join("");
+    const view=hasContexts?`<button type="button" class="abbr-view-instances" data-target="abbr-instance-row-${i}" aria-expanded="false" aria-controls="abbr-instance-row-${i}">View instances</button>`:"";
+    const priorities=["critical","review","style"].filter(p=>(x.priorityCounts?.[p]||0)>0).join(" ");
+    const review=(x.priorityCounts?.critical||0)+(x.priorityCounts?.review||0)+(x.priorityCounts?.style||0)>0;
+    const main=`<tr class="abbr-ledger-row${review?" abbr-ledger-review-row":""}" data-abbr-review="${review?"1":"0"}" data-abbr-priority="${escapeHtml(x.priority)}" data-abbr-priorities="${escapeHtml(priorities)}" data-abbr-critical-count="${x.priorityCounts?.critical||0}" data-abbr-review-count="${x.priorityCounts?.review||0}" data-abbr-style-count="${x.priorityCounts?.style||0}"><td class="t-abbr">${escapeHtml(x.base||"")}</td><td>${x.longForm?escapeHtml(x.longForm):'<span class="t-long none">not defined</span>'}${x.scopeAware&&x.scopeSummary?`<div class="abbr-scope-mini">${escapeHtml(x.scopeSummary)}</div>`:""}</td><td class="t-num">${Number.isFinite(Number(x.count))&&Number(x.count)>0?Number(x.count):"—"}</td><td class="abbr-status-cell">${statusHtml}</td><td class="abbr-recommendation">${recHtml}${view}</td></tr>`;
+    return main+(hasContexts?abbrInstancePanelHtml(x,i):"");
+  }).join("");
+  return `${abbrGeneralNotesHtml(built.generalNotes)}
+    <p class="sec-label">Abbreviation reporting ledger <button type="button" class="info-help" id="abbr-ledger-info" aria-label="Explain the abbreviation reporting ledger" aria-expanded="false" title="What do these columns mean?">i</button></p>
+    <div class="ledger-help abbr-ledger-help" id="abbr-ledger-help" hidden><div class="ledger-help-grid">
+      <b>Abbreviation / notation</b><span>The detected non-standard abbreviation or explicitly introduced scientific notation.</span>
+      <b>Full form / descriptor</b><span>The detected full form, scientific descriptor, or declaration associated with the abbreviation.</span>
+      <b>Uses</b><span>The number of eligible prose occurrences assessed by the abbreviation checker.</span>
+      <b>Status</b><span>States exactly what was detected, using direct wording and counts where available, for example <b>Not defined anywhere</b> or <b>Defined 2 times</b>.</span>
+      <b>Recommendation</b><span>A concise next step. Select <b>View instances</b> to inspect only the manuscript context relevant to that finding. For duplicate or conflicting definitions, only the definition locations are shown.</span>
+    </div></div>
+    <div class="ledger-scroll"><table class="ledger abbr-reporting-table" id="abbr-reporting-table"><thead><tr><th>Abbreviation / notation</th><th>Full form / descriptor</th><th>Uses</th><th>Status</th><th>Recommendation</th></tr></thead><tbody>${body||'<tr><td colspan="5">No non-standard abbreviations or notation items were detected.</td></tr>'}</tbody></table></div>`;
 }
 
 /* ---------- Export ---------- */
@@ -11211,62 +11728,175 @@ function numberCheck(text,tables=[]){
   const seen=new Set();
   return out.filter(f=>{ const k=f.cat+"|"+f.msg+"|"+f.snippet; if(seen.has(k)) return false; seen.add(k); return true; });
 }
+function numFindingLocation(f){
+  const msg=String(f?.msg||"");
+  const mt=msg.match(/Word table\s+(\d+)\s*,\s*column\s+\d+/i);
+  return mt?`Table ${mt[1]}`:"Body";
+}
+function numFindingParameter(f){
+  const msg=String(f?.msg||"");
+  if(f?.cat==="table"){
+    const m=msg.match(/Word table\s+\d+\s*,\s*column\s+\d+\s*\((.*?)\)\s*:/i);
+    if(m&&m[1])return m[1];
+    return "Table measurement";
+  }
+  return ({
+    pH:"pH",zero:"Decimal below one",count:"Ordinary count",start:"Sentence opening",
+    precision:"Comparable numerical series",uncertainty:"Value ± uncertainty",
+    range:"Numerical range",percent:"Percentage",pvalue:"p-value",
+    scientific:"Scientific notation"
+  })[f?.cat]||"Numerical reporting";
+}
+function numRecommendationFor(cat,items=[]){
+  const msg=String(items?.[0]?.msg||"");
+  if(cat==="pH") return "Report pH to at least one decimal place.";
+  if(cat==="zero") return "Add a leading zero before decimal values below 1.";
+  if(cat==="count") return "Spell out numbers below 10 when used as ordinary prose numbers.";
+  if(cat==="start") return "Rephrase the sentence so it does not begin with a numeral.";
+  if(cat==="uncertainty") return "Match the decimal places of the value and its uncertainty.";
+  if(cat==="range") return "Use consistent decimal places for directly comparable range endpoints.";
+  if(cat==="percent") return "Use consistent decimal places for directly comparable percentages, unless different precision is scientifically justified.";
+  if(cat==="table") return "Use consistent decimal places for comparable values within this table column.";
+  if(cat==="pvalue") return "Use a consistent p-value reporting format throughout the manuscript.";
+  if(cat==="scientific") return "Use consistent significant figures for directly comparable values.";
+  if(cat==="precision"){
+    if(/contains many reported decimal digits/i.test(msg))
+      return "Review whether the reported decimal precision is scientifically justified.";
+    return "Use consistent decimal places for directly comparable values, unless different precision is justified.";
+  }
+  return "Review this numerical reporting pattern.";
+}
+function numStatusFor(cat){
+  if(cat==="count"||cat==="start")return {label:"editorial note",priority:"style",cls:"style"};
+  if(["precision","table","uncertainty","range","percent","scientific"].includes(cat))return {label:"mixed precision",priority:"review",cls:"precision"};
+  return {label:"review",priority:"review",cls:"review"};
+}
+function numHtmlText(html){
+  const d=document.createElement("div"); d.innerHTML=String(html||"");
+  return (d.textContent||"").replace(/\s+/g," ").trim();
+}
+function numSnippetParts(snippet){
+  snippet=String(snippet||"").trim(); if(!snippet)return [];
+  // Mixed-pH findings deliberately join independent contexts with two line breaks;
+  // table precision findings use single line breaks for separate cells.
+  return snippet.split(/(?:<br\s*\/?>\s*){1,2}/i).map(x=>x.trim()).filter(Boolean);
+}
+function numMarkedText(snippet){
+  const m=String(snippet||"").match(/<mark>([\s\S]*?)<\/mark>/i);
+  return m?numHtmlText(m[1]):"";
+}
+function numObservedForGroup(cat,items){
+  items=items||[];
+  const marks=[];
+  items.forEach(f=>numSnippetParts(f.snippet).forEach(p=>{const x=numMarkedText(p);if(x&&!marks.includes(x))marks.push(x);}));
+  if(cat==="pH"){
+    if(items.some(f=>/inconsistent across directly comparable/i.test(String(f.msg||""))))return "Mixed pH decimal places";
+    if(items.every(f=>/without a decimal place/i.test(String(f.msg||""))))return `${items.length} pH value${items.length===1?"":"s"} without a decimal place`;
+    if(items.length>1)return `${items.length} pH reporting instances to review`;
+  }
+  if(cat==="zero")return `${items.length} decimal value${items.length===1?"":"s"} without a leading zero`;
+  if(cat==="count")return `${items.length} small count${items.length===1?"":"s"} written as numerals`;
+  if(cat==="start")return `${items.length} sentence${items.length===1?"":"s"} beginning with a numeral`;
+  if(cat==="table")return "Mixed decimal places in a comparable table column";
+  if(cat==="uncertainty")return marks[0]||"Value and uncertainty use different decimal places";
+  if(cat==="range")return marks[0]||"Range endpoints use different decimal places";
+  if(cat==="percent")return "Mixed decimal places in comparable percentages";
+  if(cat==="pvalue")return marks[0]||"p-value reporting requires review";
+  if(cat==="scientific")return "Mixed significant figures in comparable scientific notation";
+  if(cat==="precision"){
+    const msg=String(items[0]?.msg||"");
+    if(/contains many reported decimal digits/i.test(msg))return marks[0]||"Potentially excessive decimal precision";
+    return "Mixed decimal places in a comparable numerical series";
+  }
+  return marks.slice(0,3).join("; ")||"Numerical reporting requires review";
+}
+function buildNumericalLedgerRows(findings){
+  const arr=Array.isArray(findings)?findings:[];
+  const rows=[];
+  // These prose-style rules are most useful as one consolidated ledger row per
+  // rule, with every original context available through View instances.
+  ["pH","zero","count","start"].forEach(cat=>{
+    const items=arr.filter(f=>f.cat===cat); if(!items.length)return;
+    rows.push({cat,items,parameter:numFindingParameter(items[0]),location:"Body"});
+  });
+  // Precision/statistical findings are kept as separate rows because each one
+  // represents a distinct comparison group, table column, range, or statistic.
+  arr.filter(f=>!["pH","zero","count","start"].includes(f.cat)).forEach(f=>{
+    rows.push({cat:f.cat,items:[f],parameter:numFindingParameter(f),location:numFindingLocation(f)});
+  });
+  rows.forEach(r=>{
+    r.observed=numObservedForGroup(r.cat,r.items);
+    r.recommendation=numRecommendationFor(r.cat,r.items);
+    Object.assign(r,numStatusFor(r.cat));
+    r.instances=r.items.flatMap(f=>numSnippetParts(f.snippet));
+  });
+  return rows;
+}
+function numInstanceListHtml(parts,limit=3){
+  parts=(parts||[]).filter(Boolean);
+  if(!parts.length)return '<div class="num-instance-example">No manuscript context is available for this item.</div>';
+  const first=parts.slice(0,limit).map(x=>`<div class="num-instance-example">${x}</div>`).join("");
+  if(parts.length<=limit)return first;
+  const rest=parts.slice(limit).map(x=>`<div class="num-instance-example">${x}</div>`).join("");
+  return `${first}<details class="num-instance-more"><summary>Show remaining ${parts.length-limit} instance${parts.length-limit===1?"":"s"}</summary>${rest}</details>`;
+}
+function numInstancePanelHtml(r,rowIndex){
+  return `<tr class="num-instance-row" id="num-instance-row-${rowIndex}" hidden><td colspan="5"><div class="num-instance-panel"><p class="num-instance-panel-title">Manuscript instances</p><p class="num-instance-panel-note">The relevant numerical expression is highlighted so you can review the reporting pattern in its original manuscript context.</p>${numInstanceListHtml(r.instances)}</div></td></tr>`;
+}
+function bindNumInstanceToggles(){
+  document.querySelectorAll("#num-findings .num-view-instances").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const target=$(btn.dataset.target); if(!target)return;
+      const opening=target.hidden; target.hidden=!opening;
+      btn.setAttribute("aria-expanded",opening?"true":"false");
+      btn.textContent=opening?"Hide instances":"View instances";
+    });
+  });
+}
 function renderNumReport(findings){
   LAST_NUM=Array.isArray(findings)?findings:[];
-  const cats=[
-    {k:"pH",label:"pH reporting",kind:"warn",help:"Checks measured/adjusted/target pH formatting and manuscript-wide pH precision. Comparable forms such as pH 7 and pH 7.0 are reported together when inconsistent."},
-    {k:"zero",label:"Missing leading zero",kind:"warn",help:"Flags genuine decimal values written without a leading zero, such as .25 instead of 0.25. In-text numbered citations are protected from this rule."},
-    {k:"count",label:"Small counts in prose (spell out 0 to 9)",kind:"info",help:"Checks ordinary whole-number counts in prose. Measurements, units, statistics, ratios, dates, identifiers, pH, and labels remain numerals."},
-    {k:"start",label:"Sentence begins with a numeral",kind:"info",help:"Flags genuine narrative-prose sentences beginning directly with a numeral so the wording can be reviewed. Table of Contents, List of Figures, List of Tables, abbreviation/nomenclature lists, equations, captions, labels, headings, and other structured material are excluded."},
-    {k:"precision",label:"Numeric precision and comparable series",kind:"warn",help:"Looks for inconsistent decimal-place/significant-figure patterns only among values inferred to be genuinely comparable. Unrelated quantities are not forced to match."},
-    {k:"table",label:"Word-table column precision",kind:"warn",help:"Checks precision patterns vertically within genuinely comparable Word-table measurement columns. Predefined threshold/category LB/UB tables and externally defined limits are excluded."},
-    {k:"uncertainty",label:"Value ± uncertainty precision",kind:"warn",help:"Checks only whether the reported value and its ± variation/uncertainty end at the same decimal place, for example 12.40 ± 0.35. No separate 1–2 significant-digit rule is imposed on uncertainty."},
-    {k:"range",label:"Range endpoint precision",kind:"warn",help:"Checks whether the two endpoints of the same numerical range use compatible decimal precision when they represent the same quantity."},
-    {k:"percent",label:"Percentage precision",kind:"warn",help:"Checks decimal precision among directly comparable percentage values. Percentage spacing itself is handled as a consistency rule in the Units module."},
-    {k:"pvalue",label:"p-value precision",kind:"warn",help:"Checks selected p-value reporting patterns, including impossible forms such as p = 0.000 and excessive decimal precision."},
-    {k:"scientific",label:"Scientific-notation significant figures",kind:"warn",help:"Checks significant-figure consistency for directly comparable values written in scientific notation."}
-  ];
-  $("num-report-sub").textContent = findings.length ? `${findings.length} item${findings.length===1?"":"s"} to review` : "No number, pH, or numeric-precision issues detected.";
-  let html="";
-  cats.forEach(c=>{
-    const items=findings.filter(f=>f.cat===c.k); if(!items.length) return;
-    const kind=c.kind||"info", sym=kind==="warn"?"!":"i";
-    html+=`<section class="report-subsection"><p class="sec-label">${c.label} ${inlineHelpButton(c.help,`Explain ${c.label}`)} · ${items.length}</p>`;
-    items.slice(0,300).forEach(it=>{ html+=`<div class="issue"><span class="badge ${kind}">${sym}</span><div class="body"><p class="msg">${escapeHtml(it.msg)}</p>${it.snippet?`<div class="snip">${it.snippet}</div>`:""}</div></div>`; });
-    html+=`</section>`;
-  });
-  $("num-findings").innerHTML=html;
+  const rows=buildNumericalLedgerRows(LAST_NUM);
+  const ph=rows.filter(r=>r.cat==="pH").length;
+  const prose=rows.filter(r=>["zero","count","start"].includes(r.cat)).length;
+  const precision=rows.filter(r=>!["pH","zero","count","start"].includes(r.cat)).length;
+  $("num-report-sub").textContent=rows.length
+    ?`${rows.length} numerical reporting item${rows.length===1?"":"s"} to review`
+    :"No number, pH, or numeric-precision issues detected.";
+
+  const body=rows.map((r,i)=>{
+    const view=r.instances.length?`<button type="button" class="num-view-instances" data-target="num-instance-row-${i}" aria-expanded="false" aria-controls="num-instance-row-${i}">View instances</button>`:"";
+    const main=`<tr class="num-ledger-review-row" data-num-review="1" data-num-priority="${r.priority}" data-num-row-index="${i}"><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.location)}</td><td class="num-observed">${escapeHtml(r.observed)}</td><td><span class="num-status ${r.cls}">${escapeHtml(r.label)}</span></td><td class="num-recommendation">${escapeHtml(r.recommendation)}${view}</td></tr>`;
+    return main+(r.instances.length?numInstancePanelHtml(r,i):"");
+  }).join("");
+
+  $("num-findings").innerHTML=`
+    <div class="scorecard"><div class="score ${ph?"warn":"ok"}"><div class="n">${ph}</div><div class="k">pH reporting</div></div><div class="score ${prose?"warn":"ok"}"><div class="n">${prose}</div><div class="k">Number style</div></div><div class="score ${precision?"warn":"ok"}"><div class="n">${precision}</div><div class="k">Precision / statistics</div></div></div>
+    <p class="sec-label">Numerical reporting ledger <button type="button" class="info-help" id="num-ledger-info" aria-label="Explain the Numerical reporting ledger" aria-expanded="false" title="What do these columns mean?">i</button></p>
+    <div class="ledger-help num-ledger-help" id="num-ledger-help" hidden><div class="ledger-help-grid">
+      <b>Parameter / context</b><span>The numerical reporting rule or parameter being reviewed, such as pH, ordinary counts, a numerical range, or a comparable table measurement.</span>
+      <b>Location</b><span>Where the item occurs, such as the manuscript body or a specific Word table.</span>
+      <b>Observed reporting</b><span>A concise description of the form detected in the manuscript.</span>
+      <b>Status</b><span><b>review</b> indicates a reporting form that needs author judgement; <b>mixed precision</b> indicates inconsistent precision among values inferred to be comparable; <b>editorial note</b> indicates a lower-priority prose-number convention.</span>
+      <b>Recommendation</b><span>A concise reporting recommendation. Scientific meaning, source precision, measurement resolution, and journal instructions take priority. Select <b>View instances</b> to inspect the original manuscript context before editing.</span>
+    </div></div>
+    <div class="ledger-scroll"><table class="ledger num-ledger-table"><thead><tr><th>Parameter / context</th><th>Location</th><th>Observed reporting</th><th>Status</th><th>Recommendation</th></tr></thead><tbody>${body||'<tr><td colspan="5">No numerical reporting issues detected.</td></tr>'}</tbody></table></div>`;
   bindInfoHelp("num-report-info","num-report-help");
+  bindInfoHelp("num-ledger-info","num-ledger-help");
+  bindNumInstanceToggles();
   $("num-report").hidden=false;
   buildReportSubnav("num-report","num-subnav");
 }
 function numberReportText(findings){
-  const arr=Array.isArray(findings)?findings:[];
-  const labels={
-    pH:"pH reporting",zero:"Missing leading zero",count:"Small counts in prose (spell out 0 to 9)",
-    start:"Sentence begins with a numeral",precision:"Numeric precision and comparable series",
-    table:"Word-table column precision",uncertainty:"Value ± uncertainty precision",
-    range:"Range endpoint precision",percent:"Percentage precision",pvalue:"p-value precision",
-    scientific:"Scientific-notation significant figures"
-  };
-  const L=["NUMBERS, pH, AND NUMERIC PRECISION REPORT","",`Findings to review: ${arr.length}`,""];
-  if(!arr.length){
-    L.push("No number, pH, or numeric-precision findings were detected.");
-    return L.join("\n");
-  }
-  const order=["pH","zero","count","start","precision","table","uncertainty","range","percent","pvalue","scientific"];
-  order.forEach(cat=>{
-    const items=arr.filter(x=>x.cat===cat);
-    if(!items.length) return;
-    L.push((labels[cat]||cat).toUpperCase());
-    items.forEach(it=>{
-      L.push(`Finding: ${String(it.msg||"").replace(/\s+/g," ").trim()}`);
-      if(it.snippet){
-        const plain=String(it.snippet).replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/\s+/g," ").trim();
-        if(plain) L.push(`  Manuscript context: ${plain}`);
-      }
-    });
-    L.push("");
+  const rows=buildNumericalLedgerRows(Array.isArray(findings)?findings:[]);
+  const L=["NUMERICAL REPORTING LEDGER","",`Items to review: ${rows.length}`,"",
+    "Parameter / context | Location | Observed reporting | Status | Recommendation"];
+  if(!rows.length){L.push("No numerical reporting issues detected.");return L.join("\n");}
+  rows.forEach(r=>{
+    L.push(`${r.parameter} | ${r.location} | ${r.observed} | ${r.label} | ${r.recommendation}`);
+    if(r.instances.length){
+      L.push("  Manuscript instances:");
+      r.instances.forEach(x=>{const t=numHtmlText(x);if(t)L.push(`  - ${t}`);});
+    }
   });
   return L.join("\n");
 }
@@ -11492,10 +12122,19 @@ function downloadCombinedReport(){
   a.click();
   URL.revokeObjectURL(a.href);
 }
-$("mc-download-combined")?.addEventListener("click",downloadCombinedReport);
+$("mc-download-combined")?.addEventListener("click",()=>window.mcPrintReport?window.mcPrintReport("combined"):window.print());
 
 function mcReportPriorityCounts(reportId){
   const report=$(reportId); const out={critical:0,review:0,style:0,total:0};
+  if(reportId==="unit-report" && LAST_UNIT){
+    const n=(LAST_UNIT.ledger||[]).filter(r=>/mixed/i.test(String(r.status||""))).length;
+    return {critical:0,review:n,style:0,total:n};
+  }
+  if(reportId==="num-report"){
+    const rows=[...document.querySelectorAll('#num-findings tr[data-num-review="1"]')];
+    rows.forEach(r=>{const p=r.dataset.numPriority||"review";if(Object.prototype.hasOwnProperty.call(out,p))out[p]++;out.total++;});
+    return out;
+  }
   if(!report) return out;
   report.querySelectorAll(".issue").forEach(issue=>{
     const p=issue.dataset.priority || issuePriorityInfo(issue)?.key;
@@ -14127,7 +14766,17 @@ fteAnalyze=function(blocks){
         ?`Defined in ${localScopes.map(s=>s.label).join(", ")}${missingScopeRows.length?`; not locally introduced in ${missingScopeRows.map(r=>r.scope.label).join(", ")}`:""}`
         :(definitionSource==="list"?"Defined in the List of Abbreviations":"No local chapter definition detected");
       const longForm=conflict?uniqueMeanings.map(m=>m.long).slice(0,3).join(" / "):(uniqueMeanings[0]?.long || all.find(r=>r.longForm)?.longForm || null);
-      rows.push({base,longForm,count,firstUseOK:allFirstOk&&!anyErr,status,definitionSource,definitionType:localScopeRows[0]?.localDefs?.[0]?.definitionType||all[0]?.definitionType||null,nestedFrom:all.find(r=>r.nestedFrom)?.nestedFrom||null,scopeAware:true,scopeSummary,conflictForms:conflict?uniqueMeanings.map(m=>m.long):null,localScopeCount:localScopes.length,scopeCount:all.length});
+      const scopedInstances=all.flatMap(r=>(r.instances||[]).map((it,idx)=>({
+        ...it,
+        scopeLabel:r.scope?.label||"",
+        label:`${r.scope?.label?`${r.scope.label} · `:""}${it.label||`Use ${idx+1}`}`
+      })));
+      const scopedDefinitionInstances=all.flatMap(r=>(r.definitionInstances||[]).map((it,idx)=>({
+        ...it,
+        scopeLabel:r.scope?.label||"",
+        label:`${r.scope?.label?`${r.scope.label} · `:""}${it.label||`Definition ${idx+1}`}`
+      })));
+      rows.push({base,longForm,count,firstUseOK:allFirstOk&&!anyErr,status,definitionSource,definitionType:localScopeRows[0]?.localDefs?.[0]?.definitionType||all[0]?.definitionType||null,nestedFrom:all.find(r=>r.nestedFrom)?.nestedFrom||null,scopeAware:true,scopeSummary,conflictForms:conflict?uniqueMeanings.map(m=>m.long):null,localScopeCount:localScopes.length,scopeCount:all.length,instances:scopedInstances,definitionInstances:scopedDefinitionInstances});
 
       if(conflict){
         const detail=uniqueMeanings.map(m=>`"${m.long}" (${m.scope.label})`).join("; ");
@@ -14512,7 +15161,10 @@ fteAnalyze=function(blocks){
   }
   function searchableEntries(){
     const out=[]; document.querySelectorAll('.result-group:not([data-group="overview"]) .issue').forEach(issue=>out.push({group:groupFor(issue),el:issue,text:(issue.textContent||"").replace(/\s+/g," ").trim()}));
-    document.querySelectorAll('#ref-ledger-wrap tbody tr').forEach(tr=>out.push({group:"ref",el:tr,text:(tr.textContent||"").replace(/\s+/g," ").trim(),reference:true})); return out;
+    document.querySelectorAll('#ref-ledger-wrap tbody tr').forEach(tr=>out.push({group:"ref",el:tr,text:(tr.textContent||"").replace(/\s+/g," ").trim(),reference:true}));
+    document.querySelectorAll('#unit-ledger-wrap tbody tr[data-unit-review="1"]').forEach(tr=>out.push({group:"unit",el:tr,text:(tr.textContent||"").replace(/\s+/g," ").trim()}));
+    document.querySelectorAll('#num-findings tbody tr[data-num-review="1"]').forEach(tr=>out.push({group:"num",el:tr,text:(tr.textContent||"").replace(/\s+/g," ").trim()}));
+    return out;
   }
   function runSearch(){
     const q=($u("mc-findings-search")?.value||"").trim().toLowerCase(),box=$u("mc-search-results"); if(!box)return; if(q.length<2){box.hidden=true;box.innerHTML="";return}
@@ -14543,6 +15195,7 @@ fteAnalyze=function(blocks){
   }
 
   function ensureToolbar(group){
+    if(group==="unit"||group==="num") return;
     const report=$u(GROUP_REPORT[group]); if(!report||report.querySelector(".mc-review-toolbar"))return; const issues=allIssues(group); if(!issues.length)return;
     const bar=document.createElement("div");bar.className="mc-review-toolbar";bar.innerHTML='<span class="mc-toolbar-label">Show only</span><button class="mc-review-filter active" data-filter="all">All</button><button class="mc-review-filter" data-filter="critical">Critical errors</button><button class="mc-review-filter" data-filter="review">Review items</button><button class="mc-review-filter" data-filter="style">Editorial notes</button><button class="mc-review-filter" data-filter="reviewed">Reviewed</button><button class="mc-review-filter" data-filter="not_issue">Accept as written</button>';
     const labs=scopeLabels(); if(labs.length>1){const sel=document.createElement("select");sel.className="mc-chapter-filter";sel.setAttribute("aria-label","Filter findings by chapter");sel.innerHTML='<option value="">All chapters</option>'+labs.map((x,i)=>`<option value="${i}">${escapeHtml(x)}</option>`).join("");sel.addEventListener("change",()=>{UX_FILTERS[group]=UX_FILTERS[group]||{};UX_FILTERS[group].chapter=sel.value;applyFilters(group)});bar.appendChild(sel)}
@@ -14558,8 +15211,8 @@ fteAnalyze=function(blocks){
   function updateIssueNav(group){const report=$u(GROUP_REPORT[group]),nav=report?.querySelector(".mc-issue-nav");if(!nav)return;const arr=visibleIssues(group);let idx=Math.min(UX_NAV_INDEX[group]||0,Math.max(0,arr.length-1));UX_NAV_INDEX[group]=idx;nav.querySelector(".mc-issue-position").textContent=arr.length?`${idx+1} of ${arr.length}`:"0 issues";nav.querySelector('[data-nav="prev"]').disabled=!arr.length||idx<=0;nav.querySelector('[data-nav="next"]').disabled=!arr.length||idx>=arr.length-1}
   function moveIssue(group,delta){const arr=visibleIssues(group);if(!arr.length)return;let idx=Math.max(0,Math.min(arr.length-1,(UX_NAV_INDEX[group]||0)+delta));UX_NAV_INDEX[group]=idx;updateIssueNav(group);arr[idx].scrollIntoView({behavior:"smooth",block:"center"})}
 
-  function countGroup(group){if(group==="ref")return typeof mcReferenceMissingFieldCount==="function"?mcReferenceMissingFieldCount():0;return allIssues(group).filter(i=>!i.classList.contains("mc-not-issue")&&!i.classList.contains("mc-reviewed")).length}
-  function totalGroupFindings(group){if(group==="ref")return typeof mcReferenceMissingFieldCount==="function"?mcReferenceMissingFieldCount():0;return allIssues(group).length}
+  function countGroup(group){if(group==="ref")return typeof mcReferenceMissingFieldCount==="function"?mcReferenceMissingFieldCount():0;if(group==="unit")return (LAST_UNIT?.ledger||[]).filter(r=>/mixed/i.test(String(r.status||""))).length;if(group==="num")return document.querySelectorAll('#num-findings tbody tr[data-num-review="1"]').length;return allIssues(group).filter(i=>!i.classList.contains("mc-not-issue")&&!i.classList.contains("mc-reviewed")).length}
+  function totalGroupFindings(group){if(group==="ref")return typeof mcReferenceMissingFieldCount==="function"?mcReferenceMissingFieldCount():0;if(group==="unit")return (LAST_UNIT?.ledger||[]).filter(r=>/mixed/i.test(String(r.status||""))).length;if(group==="num")return document.querySelectorAll('#num-findings tbody tr[data-num-review="1"]').length;return allIssues(group).length}
   function updateTabs(){
     let total=0; document.querySelectorAll('#results-tabs .rtab').forEach(tab=>{const g=tab.dataset.tab;if(g==="overview")return;const n=countGroup(g);total+=n;let c=tab.querySelector(".rtab-count");if(!c){c=document.createElement("span");c.className="rtab-count";tab.appendChild(c)}c.textContent=n?String(n):"✓";tab.classList.toggle("has-attention",n>0);tab.classList.toggle("is-clean",n===0)}); const over=document.querySelector('#results-tabs .rtab[data-tab="overview"]');if(over){let c=over.querySelector(".rtab-count");if(!c){c=document.createElement("span");c.className="rtab-count";over.appendChild(c)}c.textContent=total?String(total):"✓";over.classList.toggle("has-attention",total>0);over.classList.toggle("is-clean",total===0)}
   }
@@ -14571,14 +15224,14 @@ fteAnalyze=function(blocks){
     let diag=null;try{diag=window.mcGetAbbreviationScopeDiagnostics?.()}catch(_e){} const labels=diag?.scopes?.map(x=>x.label)||scopeLabels(); const structure=labels.length?`<ol class="mc-structure-list">${labels.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ol>`:'<p class="mc-structure-list">No independent chapter structure was used for abbreviation checking. The manuscript was assessed at document level.</p>';
     host.innerHTML=`<div class="mc-manuscript-card"><div class="mc-manuscript-card-head"><div><h3>Document analysed</h3><p>${escapeHtml(summaryType())}${chapters?` · ${chapters} major chapter${chapters===1?"":"s"}`:""}</p></div><span class="priority-tag style">Structure detected</span></div><div class="mc-manuscript-stats"><span>${refs??0} references</span><span>${figs??0} figures</span><span>${tabs??0} tables</span><span>${eqs??0} equations</span><span>${abbr??0} abbreviations/notations</span></div><details class="mc-structure"><summary>Detected document structure</summary>${structure}</details><details class="mc-processing-summary"><summary>Processing completed</summary>Read document → abbreviations → references → numbers &amp; units → writing → figures/tables/equations → report prepared.</details></div>`;
     const active=Object.keys(GROUP_REPORT).reduce((n,g)=>n+countGroup(g),0),critical=allIssues().filter(i=>priorityOf(i)==="critical"&&!i.classList.contains("mc-not-issue")&&!i.classList.contains("mc-reviewed")).length; const lede=$u("overview-lede"); if(lede)lede.textContent=active?`${active} item${active===1?"":"s"} may need your attention. Start with the ${critical} high-priority finding${critical===1?"":"s"}, then review the remaining findings.`:"No issues requiring attention were detected. You can still inspect each module and its ledger for completeness.";
-    const remCounts={critical:0,review:0,style:0}; allIssues().forEach(i=>{if(i.classList.contains("mc-not-issue")||i.classList.contains("mc-reviewed"))return;const p=priorityOf(i);if(remCounts[p]!==undefined)remCounts[p]++});
+    const remCounts={critical:0,review:0,style:0}; allIssues().forEach(i=>{if(i.classList.contains("mc-not-issue")||i.classList.contains("mc-reviewed"))return;const p=priorityOf(i);if(remCounts[p]!==undefined)remCounts[p]++}); remCounts.review+=countGroup("unit"); document.querySelectorAll('#num-findings tbody tr[data-num-review="1"]').forEach(r=>{const p=r.dataset.numPriority||"review";if(remCounts[p]!==undefined)remCounts[p]++});
     document.querySelectorAll(".overview-priority-card").forEach((card,i)=>{const key=["critical","review","style"][i];const n=card.querySelector(".n");if(n)n.textContent=String(remCounts[key]||0);if(!card.querySelector(".mc-card-action"))card.insertAdjacentHTML("beforeend",'<span class="mc-card-action">Review these →</span>');card.tabIndex=0;card.setAttribute("role","button")});
     document.querySelectorAll(".overview-module[data-overview-tab]").forEach(card=>{const g=card.dataset.overviewTab,att=card.querySelector(".overview-module-attn"),n=countGroup(g);if(att){att.textContent=n?`${n} item${n===1?"":"s"} remaining`:totalGroupFindings(g)>0?"All findings reviewed":"No findings requiring attention";att.classList.toggle("overview-module-clean",n===0)}});
     document.querySelectorAll(".overview-module").forEach(card=>{if(!card.querySelector(".mc-card-action"))card.insertAdjacentHTML("beforeend",'<span class="mc-card-action">Open details →</span>')});
     const cards=[...document.querySelectorAll(".overview-priority-card")];cards.forEach((c,i)=>{const p=["critical","review","style"][i];const go=()=>jumpToPriority(p);c.onclick=go;c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
   }
-  function jumpToPriority(p){for(const g of Object.keys(GROUP_REPORT)){if(allIssues(g).some(i=>priorityOf(i)===p&&!i.classList.contains("mc-not-issue"))){showTab(g);setTimeout(()=>{const bar=$u(GROUP_REPORT[g])?.querySelector(".mc-review-toolbar"),b=bar?.querySelector(`[data-filter="${p}"]`);b?.click();visibleIssues(g)[0]?.scrollIntoView({behavior:"smooth",block:"center"})},60);return}}}
-  function startReviewing(){const crit=allIssues().find(i=>priorityOf(i)==="critical"&&!i.classList.contains("mc-not-issue"));const first=crit||allIssues().find(i=>!i.classList.contains("mc-not-issue"));if(!first)return;const g=groupFor(first);showTab(g);setTimeout(()=>first.scrollIntoView({behavior:"smooth",block:"center"}),50)}
+  function jumpToPriority(p){const ar=document.querySelector(`#abbr-reporting-table tbody tr[data-abbr-review="1"][data-abbr-priorities~="${p}"]`);if(ar){showTab("abbr");setTimeout(()=>ar.scrollIntoView({behavior:"smooth",block:"center"}),60);return}for(const g of Object.keys(GROUP_REPORT)){if(g==="abbr")continue;if(allIssues(g).some(i=>priorityOf(i)===p&&!i.classList.contains("mc-not-issue"))){showTab(g);setTimeout(()=>{const bar=$u(GROUP_REPORT[g])?.querySelector(".mc-review-toolbar"),b=bar?.querySelector(`[data-filter="${p}"]`);b?.click();visibleIssues(g)[0]?.scrollIntoView({behavior:"smooth",block:"center"})},60);return}}const nr=document.querySelector(`#num-findings tbody tr[data-num-review="1"][data-num-priority="${p}"]`);if(nr){showTab("num");setTimeout(()=>nr.scrollIntoView({behavior:"smooth",block:"center"}),60);return}if(p==="review"&&countGroup("unit")>0){showTab("unit");setTimeout(()=>document.querySelector('#unit-ledger-wrap tbody tr[data-unit-review="1"]')?.scrollIntoView({behavior:"smooth",block:"center"}),60)}}
+  function startReviewing(){const arCrit=document.querySelector('#abbr-reporting-table tbody tr[data-abbr-review="1"][data-abbr-priorities~="critical"]');if(arCrit){showTab("abbr");setTimeout(()=>arCrit.scrollIntoView({behavior:"smooth",block:"center"}),50);return}const crit=allIssues().find(i=>groupFor(i)!=="abbr"&&priorityOf(i)==="critical"&&!i.classList.contains("mc-not-issue"));const first=crit||allIssues().find(i=>groupFor(i)!=="abbr"&&!i.classList.contains("mc-not-issue"));if(first){const g=groupFor(first);showTab(g);setTimeout(()=>first.scrollIntoView({behavior:"smooth",block:"center"}),50);return}const ar=document.querySelector('#abbr-reporting-table tbody tr[data-abbr-review="1"]');if(ar){showTab("abbr");setTimeout(()=>ar.scrollIntoView({behavior:"smooth",block:"center"}),50);return}const nr=document.querySelector('#num-findings tbody tr[data-num-review="1"]');if(nr){showTab("num");setTimeout(()=>nr.scrollIntoView({behavior:"smooth",block:"center"}),50);return}if(countGroup("unit")>0){showTab("unit");setTimeout(()=>document.querySelector('#unit-ledger-wrap tbody tr[data-unit-review="1"]')?.scrollIntoView({behavior:"smooth",block:"center"}),50)}}
 
   function ensureFloatingNav(){if($u("mc-floating-nav"))return;const d=document.createElement("div");d.className="mc-floating-nav";d.id="mc-floating-nav";d.innerHTML='<button type="button" id="mc-back-overview" hidden>← Overview</button><button type="button" id="mc-back-top" hidden>↑ Back to top</button>';document.body.appendChild(d);$u("mc-back-overview")?.addEventListener("click",()=>{showTab("overview");$u("results-tabs")?.scrollIntoView({behavior:"smooth",block:"start"})});$u("mc-back-top")?.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));window.addEventListener("scroll",updateFloating,{passive:true})}
   function updateFloating(){if(!$u("mc-floating-nav"))return;const active=document.querySelector('#results-tabs .rtab.active')?.dataset?.tab||"overview";$u("mc-back-overview").hidden=$u("results-tabs")?.hidden||active==="overview";$u("mc-back-top").hidden=window.scrollY<700}
@@ -14602,6 +15255,140 @@ fteAnalyze=function(blocks){
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
   window.mcUX24={enhanceAll,openGuided,resetDefaults,loadStates};
+})();
+</script>
+
+
+<script id="mc-pdf-report-controller">
+(function(){
+  "use strict";
+
+  let mcPrintMode = null;
+  let mcPrintState = null;
+
+  function mcSafeBaseName(){
+    const cf=(typeof currentFile!=="undefined")?currentFile:null;
+    const raw=(cf && cf.name) ? cf.name : "manuscript.docx";
+    return String(raw)
+      .replace(/\.docx$/i,"")
+      .replace(/[^A-Za-z0-9._-]+/g,"-")
+      .replace(/^-+|-+$/g,"") || "manuscript";
+  }
+
+  function mcSectionPdfSuffix(){
+    const labels={
+      abbr:"abbreviation-report",
+      ref:"reference-report",
+      num:"numbers-ph-precision-report",
+      unit:"units-notation-report",
+      eng:"readability-terminology-report",
+      fte:"figures-tables-equations-report",
+      overview:"combined-manuscript-report"
+    };
+    const tab=(typeof currentTab!=="undefined")?currentTab:"overview";
+    return labels[tab] || "manuscript-report";
+  }
+
+  function mcCapturePrintState(){
+    if(mcPrintState) return;
+
+    const groups=[...document.querySelectorAll(".result-group")];
+    const instanceRows=[...document.querySelectorAll(".unit-instance-row,.num-instance-row,.abbr-instance-row")];
+    const moreDetails=[...document.querySelectorAll("details.unit-instance-more,details.num-instance-more,details.abbr-instance-more")];
+    const viewButtons=[...document.querySelectorAll(".unit-view-instances,.num-view-instances,.abbr-view-instances")];
+
+    mcPrintState={
+      title:document.title,
+      groups:groups.map(el=>({el,hidden:el.hidden})),
+      rows:instanceRows.map(el=>({el,hidden:el.hidden})),
+      details:moreDetails.map(el=>({el,open:el.open})),
+      buttons:viewButtons.map(el=>({
+        el,
+        expanded:el.getAttribute("aria-expanded"),
+        text:el.textContent
+      }))
+    };
+  }
+
+  function mcExpandPrintInstances(){
+    document.querySelectorAll(".unit-instance-row,.num-instance-row,.abbr-instance-row").forEach(row=>{
+      row.hidden=false;
+    });
+    document.querySelectorAll("details.unit-instance-more,details.num-instance-more,details.abbr-instance-more").forEach(d=>{
+      d.open=true;
+    });
+    document.querySelectorAll(".unit-view-instances,.num-view-instances,.abbr-view-instances").forEach(btn=>{
+      btn.setAttribute("aria-expanded","true");
+      btn.textContent="Hide instances";
+    });
+  }
+
+  function mcPreparePrint(){
+    /*
+      Ctrl+P from Overview is treated as a combined report. Ctrl+P from a
+      module prints that module. Explicit PDF buttons set the mode first.
+    */
+    if(!mcPrintMode){
+      const tab=(typeof currentTab!=="undefined")?currentTab:"overview";
+      mcPrintMode=(tab==="overview") ? "combined" : "section";
+    }
+
+    mcCapturePrintState();
+    mcExpandPrintInstances();
+
+    document.body.classList.toggle("mc-print-combined",mcPrintMode==="combined");
+    document.body.classList.toggle("mc-print-section",mcPrintMode!=="combined");
+
+    if(mcPrintMode==="combined"){
+      document.querySelectorAll(".result-group").forEach(group=>{ group.hidden=false; });
+      document.title=`${mcSafeBaseName()}-combined-manuscript-report`;
+    }else{
+      document.title=`${mcSafeBaseName()}-${mcSectionPdfSuffix()}`;
+    }
+  }
+
+  function mcRestoreAfterPrint(){
+    if(!mcPrintState){
+      document.body.classList.remove("mc-print-combined","mc-print-section");
+      mcPrintMode=null;
+      return;
+    }
+
+    mcPrintState.groups.forEach(x=>{ x.el.hidden=x.hidden; });
+    mcPrintState.rows.forEach(x=>{ x.el.hidden=x.hidden; });
+    mcPrintState.details.forEach(x=>{ x.el.open=x.open; });
+    mcPrintState.buttons.forEach(x=>{
+      if(x.expanded===null) x.el.removeAttribute("aria-expanded");
+      else x.el.setAttribute("aria-expanded",x.expanded);
+      x.el.textContent=x.text;
+    });
+
+    document.title=mcPrintState.title;
+    document.body.classList.remove("mc-print-combined","mc-print-section");
+    mcPrintState=null;
+    mcPrintMode=null;
+  }
+
+  function mcPrintReport(mode){
+    mcPrintMode=(mode==="combined") ? "combined" : "section";
+    mcPreparePrint();
+
+    /*
+      A short delay allows layout to update after all manuscript-instance rows
+      and combined-report groups have been revealed.
+    */
+    setTimeout(()=>window.print(),40);
+  }
+
+  window.mcPrintReport=mcPrintReport;
+  window.addEventListener("beforeprint",mcPreparePrint);
+  window.addEventListener("afterprint",mcRestoreAfterPrint);
+
+  const sectionPdfButtons=["print","ref-print","num-print","unit-print","eng-print","fte-print"];
+  sectionPdfButtons.forEach(id=>{
+    const btn=document.getElementById(id);
+    if(btn) btn.onclick=()=>mcPrintReport("section");
+  });
 })();
 </script>
 
