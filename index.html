@@ -2759,6 +2759,141 @@ if(document.readyState==="loading"){
 }
 </style>
 
+
+<style id="mc-full-width-context-panels-v1">
+/*
+  Context/help panels should follow the width of their containing section.
+  Earlier readability rules capped several of these at ~100 characters, which
+  created large unused blank areas on wider screens.
+*/
+@media screen {
+  .section-help,
+  .section-help.auto-section-help,
+  .ledger-help,
+  .abbr-scope-note,
+  .dev-note,
+  .mc-settings-group > .mc-group-help,
+  .mc-settings-passive,
+  .mc-settings-toolbar p{
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box;
+  }
+
+  /*
+    Keep genuinely long continuous reading text constrained where appropriate.
+    These are prose elements rather than contextual information panels.
+  */
+  .masthead .lede{
+    max-width:78ch;
+  }
+
+  #input-card > .sub{
+    max-width:96ch;
+  }
+
+  .disclaimer,
+  .legal-note{
+    max-width:100ch;
+  }
+}
+</style>
+
+
+<style id="mc-overview-open-details-prominent-v1">
+/*
+  Make the Overview "Open details" action visually obvious.
+  The entire overview-module remains clickable, while the action is presented
+  as a clear button-like affordance on the right side.
+*/
+@media screen {
+  .overview-module{
+    position:relative;
+  }
+
+  .overview-module .mc-card-action{
+    display:inline-flex !important;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    color:#214d91 !important;
+    background:#f4f8ff;
+    border:1px solid #b9cbea;
+    border-radius:9px;
+    font-weight:800 !important;
+    line-height:1.1;
+    white-space:nowrap;
+    pointer-events:none;
+    box-shadow:0 3px 10px -8px rgba(33,77,145,.65);
+  }
+}
+
+/* Desktop and larger tablet widths: keep the action on the right side. */
+@media screen and (min-width:700px){
+  .overview-module{
+    min-height:108px;
+    padding-right:150px !important;
+  }
+
+  .overview-module .mc-card-action{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    min-width:118px;
+    padding:10px 12px;
+    margin:0 !important;
+    font-size:14px !important;
+  }
+
+  /* The separate arrow beside the module title is redundant now. */
+  .overview-module-title > span:last-child{
+    display:none;
+  }
+}
+
+/* Wide desktops can afford an even more comfortable action size. */
+@media screen and (min-width:1400px){
+  .overview-module{
+    padding-right:166px !important;
+  }
+
+  .overview-module .mc-card-action{
+    right:16px;
+    min-width:130px;
+    padding:11px 14px;
+    font-size:15px !important;
+  }
+}
+
+@media screen and (min-width:1800px){
+  .overview-module{
+    padding-right:178px !important;
+  }
+
+  .overview-module .mc-card-action{
+    min-width:138px;
+    padding:12px 15px;
+    font-size:15.5px !important;
+  }
+}
+
+/* Narrow screens: keep the card readable and place the action below the text. */
+@media screen and (max-width:699px){
+  .overview-module{
+    padding-right:14px !important;
+  }
+
+  .overview-module .mc-card-action{
+    position:static;
+    transform:none;
+    margin-top:10px !important;
+    padding:9px 12px;
+    font-size:13.5px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -2959,7 +3094,7 @@ if(document.readyState==="loading"){
 
   <div class="result-group" data-group="abbr" hidden>
   <section class="card" id="report" hidden aria-live="polite">
-    <h2 class="help-row">Abbreviation report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For a thesis/dissertation, the List of Abbreviations is global but every abbreviation used in the Abstract or a chapter must also be defined at first use in that scope; definitions repeated across different chapters are valid. For journal articles, book chapters, reports, and other continuous manuscripts, the tool accepts one consistent document-level approach: list-only use, first-use definition without a list, or list plus first-use definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
+    <h2 class="help-row">Abbreviation report <button type="button" class="info-help inline-auto-help" data-help="Scans abbreviation definition and use in manuscript body prose. For a thesis/dissertation, the List of Abbreviations is global but every abbreviation used in the Abstract or a chapter must also be defined at first use in that scope; definitions repeated across different chapters are valid. For journal articles, book chapters, reports, and other continuous manuscripts, the tool accepts one consistent document-level approach: list-only use, first-use definition without a list, or list plus first-use definition. Acronym-like text is first classified from local context so ordinary lowercase words, recognised measurement units, named event/project/title phrases, commercial instrument/model/product names, and supplier/manufacturer entities are resolved from procurement context, parallel vendor lists, legal forms, and location metadata so their name fragments are not treated as scientific abbreviations merely because of typography or parentheses. If the Word document contains a recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary section, abbreviation–full-form pairs from that section are treated as valid definitions. Two-column and multi-pair Word tables are supported, including four-column layouts containing two abbreviation/full-form pairs per row. The paper title, headings, author/affiliation block, correspondence, Keywords/Index terms, headers/footers, footnotes/endnotes, figure/table captions, equations, and References are excluded from prose checking. Mathematical subscript/superscript occurrences are protected separately, including explicit Word scripts and conservatively inferred pseudo-scripts created by locally shrinking or shifting formula-attached text. Valid chemical formulae are also classified as chemical notation rather than undefined abbreviations, with conservative safeguards for ambiguous plain-letter tokens." aria-label="Explain abbreviation proofing" title="What does abbreviation proofing scan?">i</button></h2>
     <p class="sub" id="report-sub"></p>
     <div class="scorecard" id="scorecard"></div>
     <p class="verdict" id="verdict"></p>
@@ -2988,7 +3123,7 @@ if(document.readyState==="loading"){
       <li><b>Define once within each prose scope.</b> Repeated definition of the same abbreviation within the main text (or twice within the Abstract) is treated as a Critical error. One definition in the Abstract and a separate first-use definition in the main text are accepted. Table notes, captions, abbreviation/nomenclature lists, and other structural material do not count toward main-text duplicate definitions.</li>
       <li><b>List of abbreviations.</b> A dedicated List of Abbreviations is required by the tool's thesis/dissertation policy. For other manuscript types, a list is optional unless required by the target journal or institution. When a list is used in a continuous manuscript, list-only use and list-plus-first-use definition are both acceptable, but they must not be mixed.</li>
       <li><b>References are skipped</b> by default so citations and journal acronyms do not cause false flags.</li>
-      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Dedicated abbreviation lists are recognised globally.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are retained as manuscript-level declarations. In thesis/dissertation mode, the list does not replace the required first-use definition in the Abstract or each chapter. Reintroducing the same abbreviation in a different chapter is valid and is not a duplicate. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-local definitions are handled independently.</b> Table notes such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style forms are recognised even when Word/publisher formatting places a footnote marker before the abbreviation. Table captions, cells, and notes do not determine main-text first use or create duplicate-definition findings; running prose is checked independently.</li>
+      <li><b>Structural content is skipped.</b> Word tables, figure/table captions, displayed equations, headers/footers, footnotes/endnotes, and References are excluded from abbreviation-definition checks. Mathematical subscripts and superscripts are also excluded occurrence by occurrence; the checker uses Office Math structure, Word script formatting, baseline position, and conservative local reduced-font/formula evidence so manually formatted pseudo-scripts are not mistaken for abbreviations.</li><li><b>Chemical formulae are protected automatically.</b> Valid formula notation such as <code>KOH</code>, <code>NaOH</code>, <code>H₂SO₄</code>, <code>Ca(OH)₂</code>, <code>Fe₂(SO₄)₃</code>, <code>NH₄⁺</code>, and hydrates is classified as chemical notation rather than an abbreviation. Formula fragments inside larger expressions are protected as well. Ambiguous plain capital-letter strings are excluded only when formula grammar or local chemistry evidence is strong, so genuine abbreviations such as <code>PBS</code>, <code>COD</code>, <code>BOD</code>, and <code>MFC</code> remain eligible for abbreviation checking.</li><li><b>Definitions must establish lexical equivalence.</b> A phrase such as <code>humic acid (HA)</code> is a definition, whereas measurement and condition uses such as <code>5.0 mg/L HA</code>, <code>containing 5.0 mg/L HA</code>, <code>with HA</code>, or <code>HA concentration</code> are ordinary uses and cannot create duplicate or conflicting definitions.</li><li><b>Duplicate and conflicting definitions are distinguished semantically.</b> Repeating the same full form in one prose scope is reported as <i>Defined N times</i>, not as a conflict. Harmless variants such as <code>electrical double-layer</code> versus <code>electrical double layer</code>, capitalization, simple singular/plural variation, and selected nonessential contextual modifiers are normalized for comparison. <i>Conflicting definitions</i> is reserved for materially different meanings.</li><li><b>Full-form extraction uses the nearest scientific noun phrase.</b> Context such as <code>reduction in charge transfer resistance (Rct)</code> is interpreted as <code>charge transfer resistance</code>, rather than storing the surrounding clause as the formal descriptor.</li><li><b>Definition tokens are reconciled before first-use checking.</b> In <code>artificial reef (AR)</code>, the <code>AR</code> token belongs to the definition event and is not simultaneously counted as an earlier ordinary use. Exact within-sentence order is still respected, so <code>AR modules ... artificial reef (AR)</code> remains a genuine late-definition case.</li><li><b>Dedicated abbreviation lists are recognised globally.</b> Definitions in recognised Abbreviations, List of Abbreviations, Acronyms, Nomenclature, or Glossary sections are retained as manuscript-level declarations. In thesis/dissertation mode, the list does not replace the required first-use definition in the Abstract or each chapter. Reintroducing the same abbreviation in a different chapter is valid and is not a duplicate. The parser supports 2-column tables and repeated column pairs such as <i>ABBR | Full form | ABBR | Full form</i>.</li><li><b>Table-local definitions are handled independently.</b> Table notes such as <i>CE: Coulombic efficiency</i>, <i>CE = Coulombic efficiency</i>, and equivalent list-style forms are recognised even when Word/publisher formatting places a footnote marker before the abbreviation. Table captions, cells, and notes do not determine main-text first use or create duplicate-definition findings; running prose is checked independently.</li>
     </ol>
   </details>
 
@@ -3105,7 +3240,7 @@ if(document.readyState==="loading"){
 
   <div class="result-group" data-group="fte" hidden>
   <section class="card" id="fte-report" hidden aria-live="polite">
-    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Equation detection distinguishes genuine displayed equations from prose citations, supports Office Math, Equation styles, equation-layout tables, figure/equation objects stored in Word layout containers, and grouped sub-equations, and common equation-label variants such as Eq., Eqn., Equation, and Eq. No. A parent citation such as Eq. 2 is accepted when the manuscript contains Eq. 2a and Eq. 2b. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
+    <h2 class="help-row">Figures, tables &amp; equations report <button type="button" class="info-help inline-auto-help" data-help="Uses Word document structure to detect numbered Figures, Tables, and Equations as separate sequences. Figure/table caption matching preserves Word tabs, split runs, caption fields, and whitespace-only separators, and prefers real embedded images over decorative shapes when associating a figure with its caption. Equation detection distinguishes genuine displayed equations from prose citations, supports Office Math, Equation styles, equation-layout tables, figure/equation objects stored in Word layout containers, grouped sub-equations, and common equation-label variants such as Eq., Eqn., Equation, and Eq. No. A parent citation such as Eq. 2 is accepted when the manuscript contains Eq. 2a and Eq. 2b. It checks numbering, duplicates/gaps, cross-reference resolution, citation presence, first-citation order, citation-before-appearance where reliable, and multipanel figure lettering." aria-label="Explain figure table equation checking" title="What does this module scan?">i</button></h2>
     <p class="sub" id="fte-report-sub"></p>
     <div id="fte-summary" hidden aria-hidden="true"></div>
     <div id="fte-findings"></div>
@@ -3122,10 +3257,11 @@ if(document.readyState==="loading"){
     <ol>
       <li><b>Independent sequences.</b> Figures, tables, and numbered equations are checked separately, including supplementary S-numbered items.</li>
       <li><b>Numbering.</b> Missing, duplicate, skipped, mixed, and out-of-order identifiers are flagged where the numbering scheme is clear.</li>
-      <li><b>Cross-references.</b> Grouped citations such as Figs. 2–5, Tables 1 and 2, and Eqs. (3)–(5) are expanded and checked against existing items.</li>
+      <li><b>Cross-references.</b> Grouped citations such as Figs. 2–5, Tables 1 and 2, and Eqs. (3)–(5) are expanded and checked against existing items. Figure panel citations such as Figure 2a, Figure 2c,d, and Figure 3a and S5 are resolved to their base and supplementary figures.</li>
+      <li><b>Word caption structure.</b> Word tabs, line breaks, split text runs, caption-number fields, and ordinary whitespace after the item number are preserved semantically. Captions such as <code>FIGURE 2&lt;TAB&gt;XPS spectra...</code>, <code>Figure 2. XPS spectra...</code>, and <code>Figure 2 XPS spectra...</code> are treated as equivalent when structural evidence supports a caption. Real embedded image objects are preferred over decorative Word shapes during figure association.</li>
       <li><b>Citation before appearance.</b> Figures and tables should be cited in manuscript text before their first physical appearance. Caption text does not count as the prior citation.</li>
       <li><b>Equations.</b> Equation numbers are matched locally to displayed Word math structure. In-text equation citations are then matched by identifier and document order, not by line distance, so a citation may occur many lines or a page before the displayed equation.</li>
-      <li><b>Multipanel figures.</b> Panel-like mentions in captions are classified as panel-label assignments or explanatory references. Only labels that assign content to panels participate in duplicate, gap, and sequence checks; references such as <code>the inset in (d)</code>, <code>shown in (b)</code>, or <code>panel (c)</code> do not create duplicate panels. Introductory structures such as <code>SEM images of (a) sample A, (b) sample B</code> are treated as panel assignments rather than references.</li>
+      <li><b>Multipanel figures.</b> Panel-like mentions in captions are classified as panel-label assignments or explanatory references. Only labels that assign content to panels participate in duplicate, gap, and sequence checks; references such as <code>the inset in (d)</code>, <code>shown in (b)</code>, or <code>panel (c)</code> do not create duplicate panels. Introductory structures such as <code>SEM images of (a) sample A, (b) sample B</code> and coordinated assignments such as <code>(a) and (b) MSD results</code>, <code>EPR spectra for (d) and (e)</code>, or <code>(f), (g), and (h) Raman spectra</code> are treated as declared panel groups.</li>
     </ol>
   </details>
   </div><!-- /group fte -->
@@ -3814,12 +3950,15 @@ function renderUnitReport(res){
   const counts={
     format:res.ledger.filter(r=>/format/i.test(String(r.status||""))).length,
     precision:res.ledger.filter(r=>/precision/i.test(String(r.status||""))).length,
-    review:res.ledger.filter(r=>/mixed/i.test(String(r.status||""))).length
+    review:res.ledger.filter(r=>/mixed/i.test(String(r.status||""))).length,
+    uncompared:res.ledger.filter(r=>/not compared/i.test(String(r.status||""))).length
   };
 
   $("unit-report-sub").textContent=counts.review
-    ?`${res.recognized} unit-bearing quantities detected · ${counts.review} unit group${counts.review===1?"":"s"} to review`
-    :`${res.recognized} unit-bearing quantities detected · unit formats and decimal places are internally consistent`;
+    ?`${res.recognized} unit-bearing quantities detected · ${counts.review} context-aware group${counts.review===1?"":"s"} to review`
+    :counts.uncompared
+      ?`${res.recognized} unit-bearing quantities detected · precision compared only where parameter/context could be resolved confidently`
+      :`${res.recognized} unit-bearing quantities detected · context-aware unit formats and decimal places are internally consistent`;
 
   $("unit-summary").innerHTML=`<div class="scorecard"><div class="score ${counts.format?"warn":"ok"}"><div class="n">${counts.format}</div><div class="k">Mixed format</div></div><div class="score ${counts.precision?"warn":"ok"}"><div class="n">${counts.precision}</div><div class="k">Mixed decimal places</div></div><div class="score ok"><div class="n">${res.ledger.length}</div><div class="k">Unit groups</div></div></div>`;
 
@@ -3841,7 +3980,7 @@ function renderUnitReport(res){
       ?precisionEntries.map(([d,n])=>`<span class="unit-precision-entry">${escapeHtml(decimalPlacesLabel(d,n))}</span>`).join("")
       :"n/a";
     const cls=unitStatusClass(r.status);
-    const action=unitStatusAction(r.status);
+    const action=unitStatusAction(r.status,r);
     const review=/mixed/i.test(String(r.status||""));
     const viewBtn=review?`<button type="button" class="unit-view-instances" data-target="unit-instance-row-${rowIndex}" aria-expanded="false" aria-controls="unit-instance-row-${rowIndex}">View instances</button>`:"";
     const main=`<tr${review?` class="unit-ledger-review-row" data-unit-review="1" data-unit-review-index="${rowIndex}"`:""}><td>${escapeHtml(r.parameter)}</td><td>${escapeHtml(r.context)}</td><td>${escapeHtml(obs)}</td><td class="unit-decimal-places">${prec}</td><td><span class="yn ${cls}">${escapeHtml(r.status)}</span></td><td class="unit-action">${escapeHtml(action)}${viewBtn}</td></tr>`;
@@ -3850,11 +3989,11 @@ function renderUnitReport(res){
   $("unit-ledger-wrap").innerHTML=`<p class="sec-label">Unit ledger <button type="button" class="info-help" id="unit-ledger-info" aria-label="Explain the Unit Ledger" aria-expanded="false" title="What do these columns mean?">i</button></p>
   <div class="ledger-help" id="unit-ledger-help" hidden>
     <div class="ledger-help-grid">
-      <b>Parameter / context</b><span>What the number represents, when the tool can infer it. Example: <i>Degradation efficiency</i>. A generic label such as <i>percentage</i> means the exact parameter could not be identified confidently.</span>
+      <b>Parameter / context</b><span>The scientific quantity and, where needed, its experimental role. Values are grouped by parameter and compatible context rather than by unit alone. Examples include <i>Operational duration</i>, <i>Reaction time · PAA response</i>, <i>Membrane thickness</i>, and <i>PAA concentration</i>.</span>
       <b>Location</b><span>Where the unit was found, such as the manuscript body or a specific Word table.</span>
       <b>Observed format</b><span>The unit notation exactly as written in the manuscript. If more than one notation is used for the same unit, the different forms are listed here. Occurrence counts are shown under <b>Decimal places</b> to avoid conflicting totals.</span>
-      <b>Decimal places</b><span>How many digits are reported after the decimal point for comparable scalar values in this same unit/context. The number in brackets shows how many values use that precision. Example: <code>1 decimal place (7 instances)</code>.</span>
-      <b>Status</b><span><b>consistent</b> means one pattern is followed. <b>mixed precision</b> means comparable values use different decimal-place patterns; check whether they have the same measurement/reporting basis and, if so, standardise to a scientifically justified common precision. <b>mixed format</b> means equivalent units are written in different notation styles; choose one acceptable form and use it consistently.</span>
+      <b>Decimal places</b><span>How many digits are reported after the decimal point for scalar values representing the same parameter in a compatible scientific context and the same unit scale. Values sharing a unit but describing different roles, such as operational duration and reaction time, are not compared.</span>
+      <b>Status</b><span><b>consistent</b> means one pattern is followed within the inferred parameter/context. <b>mixed precision</b> means contextually comparable values use different decimal-place patterns. <b>mixed format</b> means equivalent units are written in different notation styles. <b>not compared</b> means the local scientific context was not identified confidently enough for a precision judgement.</span>
       <b>Action</b><span>Provides a concise next step. For rows requiring review, select <b>View instances</b> to inspect the actual manuscript occurrences before making any change.</span>
     </div>
   </div>
@@ -3880,7 +4019,7 @@ function unitReportText(res){
     "Scope: internal consistency of repeated unit notation and same-parameter/same-unit decimal places. Affiliations and references excluded. No SI-conformance or dimensional-mismatch enforcement.",""
   ];
   L.push("UNIT LEDGER","Parameter / context | Location | Observed format | Decimal places | Status | Action to consider");
-  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} decimal ${Number(d)===1?"place":"places"} (${n} ${Number(n)===1?"instance":"instances"})`).join("; ")||"n/a"} | ${r.status} | ${unitStatusAction(r.status)}`));
+  res.ledger.forEach(r=>L.push(`${r.parameter} | ${r.context} | ${[...r.raws.keys()].join("; ")} | ${[...r.precisions.entries()].sort((a,b)=>a[0]-b[0]).map(([d,n])=>`${d} decimal ${Number(d)===1?"place":"places"} (${n} ${Number(n)===1?"instance":"instances"})`).join("; ")||"n/a"} | ${r.status} | ${unitStatusAction(r.status,r)}`));
   return L.join("\n");
 }
 
@@ -5115,6 +5254,204 @@ function engFindPhraseAll(text,phrase){
 /* character right after an uppercase run that marks a chemical formula (subscript/superscript/charge) */
 const FORMULA_FOLLOW=/^[\u2080-\u2089\u2070-\u2079\u00B2\u00B3\u00B9\u207A\u207B]/;
 
+/* ---------------------------------------------------------------------
+   Chemical-formula protection for abbreviation analysis
+   ---------------------------------------------------------------------
+   Chemical formulae are symbolic chemical notation, not abbreviation
+   definitions.  This parser is intentionally conservative.  It accepts proper
+   element-symbol grammar and strong formula syntax, while ambiguous plain
+   capital-letter strings remain abbreviations unless chemistry evidence is
+   strong.  This prevents KOH/Ca(OH)2/Fe2(SO4)3/etc. from entering the
+   abbreviation ledger without hiding genuine terms such as PBS, COD or MFC.
+*/
+const MC_CHEM_ELEMENT_SYMBOLS=new Set((
+  "H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn "+
+  "Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La "+
+  "Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po "+
+  "At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds Rg "+
+  "Cn Nh Fl Mc Lv Ts Og"
+).split(/\s+/));
+
+const MC_CHEM_SUBSCRIPT_MAP={
+  "₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9"
+};
+const MC_CHEM_SUP_DIGITS="⁰¹²³⁴⁵⁶⁷⁸⁹";
+const MC_CHEM_PLAIN_HIGH_CONFIDENCE=new Set([
+  // Ambiguous digit-free formulae that otherwise look exactly like acronyms.
+  // The general parser handles the rest. Keep this list intentionally small.
+  "KOH","KCN","HCN"
+]);
+
+function mcChemAsciiSubscripts(s){
+  return String(s||"").replace(/[₀-₉]/g,ch=>MC_CHEM_SUBSCRIPT_MAP[ch]||ch);
+}
+function mcChemStripCharge(raw){
+  let s=String(raw||"").trim();
+  // Unicode charge: Fe²⁺, SO₄²⁻, NH₄⁺
+  s=s.replace(new RegExp(`[${MC_CHEM_SUP_DIGITS}]*[⁺⁻]$`),"");
+  // Simple trailing ASCII charge. Keep stoichiometric digits when ambiguous.
+  s=s.replace(/[+\-−]$/,"");
+  return s;
+}
+function mcChemParseFormulaComponent(raw){
+  let s=mcChemAsciiSubscripts(mcChemStripCharge(raw))
+    .replace(/[{}]/g,m=>m==="{"?"[":"]")
+    .trim();
+  if(!s) return {valid:false};
+
+  // Hydrate/equation coefficients such as 5H2O.
+  const lead=s.match(/^(\d+)(?=[A-Z(\[])/);
+  if(lead) s=s.slice(lead[1].length);
+
+  let i=0,elementTokens=0,groups=0,atomCount=0;
+  const elements=[];
+
+  function readDigits(){
+    const m=s.slice(i).match(/^\d+/);
+    if(!m) return 1;
+    i+=m[0].length;
+    const n=Number(m[0]);
+    return Number.isFinite(n)&&n>0?n:1;
+  }
+  function parseSeq(stopChar=null){
+    let saw=false;
+    while(i<s.length){
+      const ch=s[i];
+      if(stopChar && ch===stopChar){ i++; return saw; }
+
+      if(ch==="(" || ch==="["){
+        const close=ch==="("?")":"]";
+        i++; groups++;
+        if(!parseSeq(close)) return false;
+        readDigits();
+        saw=true;
+        continue;
+      }
+
+      if(/[A-Z]/.test(ch)){
+        let symbol=ch;
+        if(i+1<s.length && /[a-z]/.test(s[i+1])){
+          symbol+=s[i+1];
+          i+=2;
+        }else{
+          i+=1;
+        }
+        if(!MC_CHEM_ELEMENT_SYMBOLS.has(symbol)) return false;
+        const mult=readDigits();
+        elementTokens++;
+        atomCount+=mult;
+        elements.push(symbol);
+        saw=true;
+        continue;
+      }
+
+      return false;
+    }
+    return stopChar?false:saw;
+  }
+
+  const valid=parseSeq(null) && i===s.length && elementTokens>0;
+  return {valid,elementTokens,groups,atomCount,elements,normalized:s};
+}
+function mcChemFormulaInfo(raw){
+  const original=String(raw||"").trim();
+  if(!original || original.length>64) return {valid:false,raw:original};
+
+  const parts=original.split(/[·⋅]/);
+  let elementTokens=0,groups=0,atomCount=0;
+  const elements=[];
+  for(const part of parts){
+    const p=mcChemParseFormulaComponent(part);
+    if(!p.valid) return {valid:false,raw:original};
+    elementTokens+=p.elementTokens;
+    groups+=p.groups;
+    atomCount+=p.atomCount;
+    elements.push(...p.elements);
+  }
+
+  const hasDigits=/[0-9₀-₉]/.test(original);
+  const hasGroups=/[()[\]{}]/.test(original);
+  const hasHydrate=/[·⋅]/.test(original);
+  const hasCharge=/[⁺⁻+−-]$/.test(original) || new RegExp(`[${MC_CHEM_SUP_DIGITS}]+[⁺⁻]$`).test(original);
+  const hasProperTwoLetterElement=/[A-Z][a-z]/.test(original);
+  const allUpperLetters=/^[A-Z]{2,10}$/.test(original);
+  const strongSyntax=hasDigits||hasGroups||hasHydrate||hasCharge||hasProperTwoLetterElement;
+
+  return {
+    valid:true,raw:original,elementTokens,groups,atomCount,elements,
+    hasDigits,hasGroups,hasHydrate,hasCharge,hasProperTwoLetterElement,
+    allUpperLetters,strongSyntax
+  };
+}
+function mcChemContextSupportsPlainFormula(sent,index,raw){
+  const s=String(sent||"");
+  const start=Math.max(0,index-100),end=Math.min(s.length,index+String(raw||"").length+100);
+  const near=s.slice(start,end);
+
+  // Direct chemical names are strong evidence for otherwise ambiguous CO/NO.
+  if(String(raw)==="CO" && /\b(?:carbon\s+monoxide|CO\s+gas|CO\s+(?:adsorption|oxidation|concentration|emission))\b/i.test(near)) return true;
+  if(String(raw)==="NO" && /\b(?:nitric\s+oxide|nitrogen\s+monoxide|NO\s+gas|NOx|NO\s+(?:concentration|removal|oxidation))\b/i.test(near)) return true;
+  if(String(raw)==="OH" && /\b(?:hydroxyl|hydroxide|OH\s+radical)\b/i.test(near)) return true;
+  if(String(raw)==="CN" && /\b(?:cyanide|cyano|CN\s+group)\b/i.test(near)) return true;
+
+  // A stoichiometric/concentration expression adjacent to the token supports
+  // chemical-formula interpretation, but this alone is not enough for arbitrary
+  // three-letter strings.
+  const before=s.slice(Math.max(0,index-45),index);
+  const after=s.slice(index+String(raw||"").length,index+String(raw||"").length+45);
+  const concentrationNear=/(?:\d+(?:\.\d+)?\s*(?:M|mM|µM|μM|mol(?:\/L|\s+L[⁻-]?1)?|mg\/L|g\/L|wt%|vol%|ppm|ppb)\s*)$/i.test(before) ||
+    /^\s*(?:solution|electrolyte|reagent|aqueous\s+solution)\b/i.test(after);
+  return !!concentrationNear && /^(?:CO|NO|OH|CN)$/.test(String(raw||""));
+}
+function mcChemStrongAcronymDefinition(raw,key,group){
+  const longs=[];
+  (group?.defs||[]).forEach(d=>{ if(d?.long) longs.push(d.long); });
+  const listDef=DECLARED_ABBR_MAP?.get?.(key);
+  if(listDef?.long) longs.push(listDef.long);
+
+  for(const lf of longs){
+    try{
+      const canonical=abbrCanonicalAbbreviationForm(raw);
+      const core=validLongForm(canonical,lf);
+      if(core && abbrDefLooksLexicalFullForm(raw,core)) return true;
+    }catch(_e){}
+  }
+  return false;
+}
+function abbrIsProtectedChemicalFormulaToken(raw,sent="",index=0,group=null,key=""){
+  const info=mcChemFormulaInfo(raw);
+  if(!info.valid || info.elementTokens<2) return false;
+
+  // If the manuscript itself gives a strong acronym-style lexical expansion
+  // (e.g. phosphate-buffered saline (PBS)), abbreviation evidence wins for an
+  // otherwise ambiguous letter-only token.
+  if(!info.strongSyntax && mcChemStrongAcronymDefinition(raw,key||norm(raw),group)) return false;
+
+  if(info.strongSyntax) return true;
+  if(MC_CHEM_PLAIN_HIGH_CONFIDENCE.has(String(raw))) return true;
+  if(mcChemContextSupportsPlainFormula(sent,index,raw)) return true;
+
+  // Pure all-capital element sequences such as PBS are intentionally not
+  // protected without additional chemistry evidence.
+  return false;
+}
+function abbrFindProtectedChemicalFormulaSpans(sent){
+  const s=String(sent||"");
+  const spans=[];
+  // Broad tokenization followed by strict element-grammar validation.
+  const re=/(?<![A-Za-z0-9_])([A-Za-z0-9()[\]{}·⋅⁺⁻+−₀-₉⁰-⁹]{2,64})(?![A-Za-z0-9_])/gu;
+  let m;
+  while((m=re.exec(s))!==null){
+    const raw=m[1];
+    const info=mcChemFormulaInfo(raw);
+    if(!info.valid || info.elementTokens<2) continue;
+    if(info.strongSyntax || MC_CHEM_PLAIN_HIGH_CONFIDENCE.has(raw) || mcChemContextSupportsPlainFormula(s,m.index,raw)){
+      spans.push({start:m.index,end:m.index+raw.length,raw,role:"chemical_formula"});
+    }
+  }
+  return spans;
+}
+
 /* Build note: abbreviation-list convention rule updated 2026-08-15.
    Two consistent approaches are accepted within a prose scope: listed
    abbreviations may be used directly, or listed abbreviations may be defined
@@ -5287,53 +5624,140 @@ function parenSpans(sent){
 }
 
 /* Find conventional acronym definitions in a sentence.
-   This remains the strict acronym layer. Scientific parameter/symbol definitions
-   that do not obey initial-letter matching are handled separately below. */
+   Definition validation is intentionally conservative. A conventional acronym
+   definition must establish lexical equivalence between a plausible full term
+   and the short form. Ordinary scientific measurements, treatment conditions,
+   and parenthetical metadata are classified as uses, not definitions. */
+const ABBR_DEF_CONDITION_LEAD_RE=/^(?:containing|contains?|with|without|including|excluding|using|used\s+with|spiked\s+with|spiked|supplemented\s+with|amended\s+with|treated\s+with|treated|exposed\s+to|incubated\s+with|mixed\s+with|added\s+to|in\s+the\s+(?:presence|absence)\s+of)\b/i;
+const ABBR_DEF_METADATA_RE=/\b(?:fig\.?|figure|table|eq\.?|equation|ref\.?|reference|doi|n\s*=|p\s*[<=>]|replicates?|sample\s+size)\b/i;
+const ABBR_DEF_STOP_WORDS=new Set(['a','an','the','of','in','on','at','to','for','from','by','via','with','without','and','or','as','using','used']);
+
+function abbrDefUnitLikeToken(raw){
+  const s=String(raw||'').trim().replace(/[.,;:]+$/g,'');
+  if(!s)return false;
+  try{
+    const p=unitParseExpression(s);
+    if(p&&p.valid&&p.recognized)return true;
+  }catch(_e){}
+  try{if(typeof isUnitExpr==='function'&&isUnitExpr(s))return true;}catch(_e){}
+  return /^(?:ms|s|sec|min|h|hr|d|day|°C|K|Pa|kPa|MPa|bar|atm|mM|µM|μM|nM|M|mg\/L|µg\/L|μg\/L|g\/L|kg\/m3|kg\/m³|wt%|vol%)$/i.test(s);
+}
+
+function abbrDefContainsMeasurement(raw){
+  const s=String(raw||'').replace(/\u00A0|\u202F/g,' ').replace(/\s+/g,' ').trim();
+  if(!s||!/[0-9]/.test(s))return false;
+  try{
+    if(typeof unitExtractQuantities==='function'){
+      const q=unitExtractQuantities(s,'abbr-definition-validation');
+      if(Array.isArray(q)&&q.some(x=>x?.parsed?.valid))return true;
+    }
+  }catch(_e){}
+  return /(?:^|\s)[<>~≈≤≥]?\s*[-+]?\d+(?:\.\d+)?(?:\s*[–-]\s*\d+(?:\.\d+)?)?\s*(?:mg|µg|μg|ng|g|kg|mM|µM|μM|nM|mol|mmol|µmol|nmol|mL|L|nm|µm|μm|mm|cm|m|km|ms|s|min|h|hr|d|day|°C|K|Pa|kPa|MPa|bar|atm|%|wt\s*%)(?:\s*(?:\/|·)\s*[A-Za-zµμ0-9⁻−^]+)*/i.test(s);
+}
+
+function abbrDefLexicalWords(raw){
+  return String(raw||'').match(/[A-Za-z][A-Za-z'’\-]*/g)||[];
+}
+
+function abbrDefLooksLexicalFullForm(sf,raw){
+  const s=String(raw||'').replace(/\u00A0|\u202F/g,' ').replace(/\s+/g,' ').trim().replace(/^[,;:\s]+|[,;:\s]+$/g,'');
+  if(!s)return false;
+  if(ABBR_DEF_CONDITION_LEAD_RE.test(s)||ABBR_DEF_METADATA_RE.test(s))return false;
+  if(abbrDefContainsMeasurement(s))return false;
+  if(typeof abbrParentheticalNotDefinition==='function'&&abbrParentheticalNotDefinition(s))return false;
+
+  const words=abbrDefLexicalWords(s);
+  if(!words.length)return false;
+  if(words.length>Math.max(4,letters(sf)+2))return false;
+
+  // Reject accidental Schwartz-Hearst matches that begin with a measurement
+  // unit, e.g. HA matching "h of operation in secondary ...".
+  const first=words[0]||'';
+  if(first.length<=3&&abbrDefUnitLikeToken(first))return false;
+  if(first.length===1&&ABBR_DEF_STOP_WORDS.has(first.toLowerCase()))return false;
+
+  // The short form must still map to the candidate lexical phrase.
+  const mapped=validLongForm(abbrCanonicalAbbreviationForm(sf),s);
+  if(!mapped)return false;
+  const mappedWords=abbrDefLexicalWords(mapped);
+  if(!mappedWords.length||mappedWords.length>Math.max(4,letters(sf)+2))return false;
+  if((mappedWords[0]||'').length<=3&&abbrDefUnitLikeToken(mappedWords[0]))return false;
+  return true;
+}
+
+function abbrDefForwardShortOnly(inner){
+  const s=String(inner||'').trim().replace(/[‘’]/g,"'");
+  return /^(?:[A-Z]{2,}(?:-[A-Z]{2,})*)(?:s|s'|'s)?$/.test(s);
+}
+
+function abbrDefOrdinaryUseRole(sent,index,raw){
+  const s=String(sent||''),start=Math.max(0,Number(index)||0),end=start+String(raw||'').length;
+  const before=s.slice(Math.max(0,start-90),start).replace(/\s+/g,' ');
+  const after=s.slice(end,Math.min(s.length,end+80)).replace(/\s+/g,' ');
+
+  // Strong measurement association immediately before the abbreviation.
+  const m=before.match(/([<>~≈≤≥]?\s*[-+]?\d+(?:\.\d+)?(?:\s*[–-]\s*\d+(?:\.\d+)?)?\s+([^,;()]{1,32}))\s*$/);
+  if(m){
+    const unitCand=String(m[2]||'').trim().split(/\s+/).slice(-3).join(' ');
+    if(abbrDefContainsMeasurement(`${m[1]} ${raw}`)||abbrDefUnitLikeToken(unitCand)||/[\/%·⁻−^]/.test(unitCand))return 'measurement_use';
+  }
+  if(/\b(?:containing|contains?|with|without|spiked\s+with|spiked|supplemented\s+with|amended\s+with|treated\s+with|exposed\s+to|incubated\s+with|mixed\s+with|in\s+the\s+(?:presence|absence)\s+of)\s*$/i.test(before))return 'condition_use';
+  if(/^\s*(?:concentration|content|dose|dosage|solution|removal|degradation|adsorption|oxidation|activation|level|amount|loading)\b/i.test(after))return 'scientific_noun_modifier_use';
+  return 'technical_abbreviation';
+}
+
 function collectDefs(sent,si,add){
   const paren=/\(([^()]{1,120})\)/g;let p;
   while((p=paren.exec(sent))!==null){
     const inner=p[1].trim(), pre=sent.slice(0,p.index);
-    let matchedA=false;
 
-    // Capture the whole observed acronym family, not merely the uppercase stem.
-    // Thus "microbial fuel cells (MFCs)" defines canonical MFC at this exact
-    // position, while TSS remains canonical TSS because its final S is uppercase.
-    const candRe=/\b([A-Z]{2,}(?:-[A-Z]{2,})*)(s)?\b/g; let cm;
-    while((cm=candRe.exec(inner))!==null){
-      const base=cm[1], observed=cm[0];
-      // Never promote an internal fragment of a larger hyphenated/alphanumeric
-      // short form into a standalone definition. For example, in
-      // "Fenton-assisted MFCs (F-MFCs)", the internal MFCs segment is not a
-      // second definition of MFC. This also protects forms such as PEM-MFC and
-      // MFC-based from seeding false standalone definitions.
-      const left=cm.index>0?inner[cm.index-1]:"";
-      const right=inner[cm.index+observed.length]||"";
-      if(/[A-Za-z0-9-]/.test(left) || /[A-Za-z0-9-]/.test(right)) continue;
-      if(STOPWORDS.has(norm(base))) continue;
-      const lf=validLongForm(base, tailWords(pre, letters(base)+7));
-      const balancedLf=lf && (lf.match(/\(/g)||[]).length===(lf.match(/\)/g)||[]).length;
-      if(balancedLf){
-        add(base,lf,si,"parenthetical",{
-          definitionType:"conventional_acronym",
-          observedForm:observed,
-          grammaticalPlural:!!cm[2],
-          shortStart:p.index+1+cm.index,
-          shortEnd:p.index+1+cm.index+observed.length
-        });
-        matchedA=true;
+    // High-confidence forward definition: full form (ABBR). The parenthetical
+    // must itself be the short form. This deliberately rejects constructions
+    // such as "(containing 5.0 mg/L HA)" and "(Figure S9)".
+    if(abbrDefForwardShortOnly(inner)){
+      const observed=inner.replace(/[‘’]/g,"'");
+      const fam=abbrAcronymFamily(observed);
+      const base=fam?fam.base:observed.replace(/(?:s|s'|'s)$/,'');
+      if(/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(base)&&!STOPWORDS.has(norm(base))){
+        const lf=validLongForm(base,tailWords(pre,letters(base)+7));
+        const balancedLf=lf&&(lf.match(/\(/g)||[]).length===(lf.match(/\)/g)||[]).length;
+        if(balancedLf&&abbrDefLooksLexicalFullForm(base,lf)){
+          add(base,lf,si,'parenthetical',{
+            definitionType:'conventional_acronym',
+            definitionConfidence:'high',
+            definitionRole:'forward_definition',
+            validatedDefinition:true,
+            observedForm:observed,
+            grammaticalPlural:!!fam?.plural,
+            shortStart:p.index+1,
+            shortEnd:p.index+1+inner.length,
+            parentheticalInner:inner
+          });
+          continue;
+        }
       }
-      if(cm[0].length===0) candRe.lastIndex++;
     }
-    if(matchedA) continue;
 
-    const preObserved=(pre.trim().split(/\s+/).pop()||"").replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9'’\-]+$/g,"");
+    // High-confidence reverse definition: ABBR (full lexical form). Reject
+    // measurements, conditions, figure/table metadata, and explanatory prose.
+    const preObserved=(pre.trim().split(/\s+/).pop()||'').replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9'’\-]+$/g,'');
     const fam=abbrAcronymFamily(preObserved);
     const preTok=fam?fam.base:preObserved;
-    if(/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(preTok) && !STOPWORDS.has(norm(preTok)) && /\s/.test(inner) && /[A-Za-z]/.test(inner[0])){
+    if(/^[A-Z]{2,}(?:-[A-Z]{2,})*$/.test(preTok)&&!STOPWORDS.has(norm(preTok))&&/\s/.test(inner)&&/[A-Za-z]/.test(inner[0])){
+      if(abbrParentheticalNotDefinition(inner)||ABBR_DEF_CONDITION_LEAD_RE.test(inner)||abbrDefContainsMeasurement(inner))continue;
       const lf=validLongForm(preTok,inner);
-      if(lf){
+      if(lf&&abbrDefLooksLexicalFullForm(preTok,lf)){
         const rawStart=Math.max(0,pre.lastIndexOf(preObserved));
-        add(preTok,lf,si,"parenthetical-reverse",{definitionType:"conventional_acronym",observedForm:preObserved,shortStart:rawStart,shortEnd:rawStart+preObserved.length});
+        add(preTok,lf,si,'parenthetical-reverse',{
+          definitionType:'conventional_acronym',
+          definitionConfidence:'high',
+          definitionRole:'reverse_definition',
+          validatedDefinition:true,
+          observedForm:preObserved,
+          shortStart:rawStart,
+          shortEnd:rawStart+preObserved.length,
+          parentheticalInner:inner
+        });
       }
     }
   }
@@ -5454,6 +5878,46 @@ function abbrParentheticalNotDefinition(inner){
   if(ABBR_COUNTRY_HINT_RE && ABBR_COUNTRY_HINT_RE.test(s) && /,/.test(s)) return true;
   return false;
 }
+function abbrTrimScientificDescriptorContext(raw){
+  let s=String(raw||"").replace(/\s+/g," ").trim();
+  if(!s) return "";
+
+  /*
+    Remove experimental/clausal lead-ins while preserving the terminal
+    scientific noun phrase.  This is intentionally phrase-based rather than a
+    fixed character window.
+
+    Example:
+      "electronic and optical properties due to reduction in charge transfer resistance"
+      -> "charge transfer resistance"
+
+    The suffix is accepted only when it still ends in a recognised scientific
+    parameter head, so an unrelated preposition does not arbitrarily truncate
+    the phrase.
+  */
+  const boundaryPatterns=[
+    /\b(?:due\s+to|because\s+of|resulting\s+in|leading\s+to|associated\s+with|related\s+to)\s+/gi,
+    /\b(?:reduction|increase|decrease|change|variation|difference|improvement|decline)\s+in\s+/gi,
+    /\b(?:measurement|determination|calculation|estimation|evaluation|analysis|assessment|quantification)\s+of\s+/gi,
+    /\b(?:effect|effects|influence|impact)\s+of\s+/gi
+  ];
+
+  for(const re of boundaryPatterns){
+    const hits=[...s.matchAll(re)];
+    if(!hits.length) continue;
+    const h=hits[hits.length-1];
+    const cand=s.slice(h.index+h[0].length).trim();
+    if(cand && ABBR_SCI_PARAMETER_HEAD_RE.test(cand)) s=cand;
+  }
+
+  // Remove evaluative words that describe the observed magnitude rather than
+  // the parameter name itself. Domain-specific modifiers such as "interfacial"
+  // are deliberately retained.
+  s=s.replace(/^(?:(?:significantly|remarkably|considerably|substantially|relatively|slightly|much)\s+)?(?:lower|higher|reduced|increased|decreased|low|high)\s+/i,"").trim();
+  s=s.replace(/^(?:the|a|an)\s+/i,"").trim();
+  return s.replace(/^[,;\s]+|[,;\s]+$/g,"");
+}
+
 function abbrScientificDescriptorBefore(sent,parenIndex){
   let pre=String(sent||"").slice(0,parenIndex).replace(/\s+/g," ").trim();
   if(!pre) return "";
@@ -5476,10 +5940,12 @@ function abbrScientificDescriptorBefore(sent,parenIndex){
   // qualifier while removing its explanatory parentheses. This supports forms
   // such as "chemical oxygen demand (COD) removal efficiency (CODRE)".
   pre=pre.replace(/\(([A-Z][A-Z0-9\/-]{1,14})\)/g," $1 ").replace(/\s+/g," ").trim();
-  pre=tailWords(pre,10).replace(/^(?:(?:and|or)\s+)?(?:the|a|an)\s+/i,"").trim();
+  pre=tailWords(pre,12).replace(/^(?:(?:and|or)\s+)?(?:the|a|an)\s+/i,"").trim();
+
   // Remove common finite/action lead-ins while preserving the terminal noun phrase.
   pre=pre.replace(/^(?:was|were|is|are|be|been|being|measured|determined|calculated|estimated|obtained|reported|defined|denoted|termed)\s+(?:as\s+)?/i,"").trim();
-  return pre.replace(/^[,;\s]+|[,;\s]+$/g,"");
+
+  return abbrTrimScientificDescriptorContext(pre);
 }
 function abbrScientificDefinitionType(sf,descriptor){
   const sk=abbrScientificSymbolKey(sf);
@@ -5625,7 +6091,32 @@ function collectReverseDefs(sent,si,add){
   }
   if(!hits.length) return;
   const kind=hits.length>=2?"reverse-list":"reverse";
-  hits.forEach(x=>add(x.sf,x.lf,si,kind));
+  hits.forEach(x=>{
+    if(!abbrDefLooksLexicalFullForm(x.sf,x.lf)) return;
+
+    // Recover the exact short-form position from the original sentence. This
+    // prevents the same token from later being treated as an ordinary use.
+    let shortStart=null,shortEnd=null;
+    const sfRe=new RegExp(`\\b${escapeRegExp(x.sf)}\\b`,"g");
+    let sm;
+    while((sm=sfRe.exec(sent))!==null){
+      const tail=sent.slice(sm.index+sm[0].length,sm.index+sm[0].length+8);
+      if(/^\s*\)?\s*(?::|=|[–—-])/.test(tail)){
+        shortStart=sm.index;
+        shortEnd=sm.index+sm[0].length;
+        break;
+      }
+    }
+
+    add(x.sf,x.lf,si,kind,{
+      definitionType:"conventional_acronym",
+      definitionConfidence:"high",
+      definitionRole:kind==="reverse-list"?"list_style_definition":"explicit_reverse_definition",
+      validatedDefinition:true,
+      shortStart,
+      shortEnd
+    });
+  });
 }
 
 function findEarlierLongForm(sentences,longForm,beforeSent){
@@ -7027,12 +7518,30 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
   });
   const addDefinition=(sf,lf,s2,kind="parenthetical",meta={})=>{
     const dtype=meta.definitionType||"conventional_acronym";
+    if(dtype==="conventional_acronym"){
+      if(meta.validatedDefinition!==true || !abbrDefLooksLexicalFullForm(sf,lf)) return;
+    }
     const canonicalForm=dtype==="conventional_acronym"?abbrCanonicalAbbreviationForm(sf):String(sf||"").trim();
     const key=dtype==="conventional_acronym"?abbrCanonicalAbbreviationKey(sf):(abbrScientificSymbolKey(sf)||norm(sf));
     if(!key || STOPWORDS.has(key)) return;
     const g=G(key);
     if(!g.defs.some(d=>d.sent===s2 && d.long.toLowerCase()===String(lf).toLowerCase() && d.definitionType===dtype)){
-      g.defs.push({form:canonicalForm,long:lf,sent:s2,kind,definitionType:dtype,semanticDefinition:!!meta.semanticDefinition,observedForm:meta.observedForm||String(sf||"").trim(),grammaticalPlural:!!meta.grammaticalPlural});
+      const shortStart=Number.isFinite(meta.shortStart)?Number(meta.shortStart):null;
+      const shortEnd=Number.isFinite(meta.shortEnd)?Number(meta.shortEnd):null;
+      g.defs.push({
+        form:canonicalForm,long:lf,sent:s2,kind,definitionType:dtype,
+        semanticDefinition:!!meta.semanticDefinition,
+        observedForm:meta.observedForm||String(sf||"").trim(),
+        grammaticalPlural:!!meta.grammaticalPlural,
+        validatedDefinition:dtype!=="conventional_acronym"?true:meta.validatedDefinition===true,
+        definitionConfidence:meta.definitionConfidence||"high",
+        definitionRole:meta.definitionRole||(dtype==="conventional_acronym"?"definition":"scientific_definition"),
+        shortStart,
+        shortEnd,
+        eventStart:Number.isFinite(meta.eventStart)?Number(meta.eventStart):shortStart,
+        eventEnd:Number.isFinite(meta.eventEnd)?Number(meta.eventEnd):shortEnd,
+        definitionEventId:`${key}:${s2}:${shortStart==null?"na":shortStart}:${g.defs.length+1}`
+      });
       bump(g,canonicalForm);
     }
     if(dtype!=="conventional_acronym"){
@@ -7044,6 +7553,108 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       scientificDefSpansBySentence.get(s2).push({start:meta.shortStart,end:meta.shortEnd,key,definitionType:dtype});
     }
   };
+
+
+  function abbrEventPosition(sent,index){
+    return {sent:Number(sent),index:Number.isFinite(Number(index))?Number(index):0};
+  }
+  function abbrCompareEventPosition(a,b){
+    const as=Number(a?.sent),bs=Number(b?.sent);
+    if(as!==bs) return as-bs;
+    return Number(a?.index||0)-Number(b?.index||0);
+  }
+  function abbrDefinitionPosition(d){
+    // Exact short-form offset is authoritative. Legacy definitions without an
+    // offset fall back conservatively to the beginning of their sentence.
+    return abbrEventPosition(d?.sent,Number.isFinite(d?.shortStart)?d.shortStart:0);
+  }
+  function abbrDefinitionConsumesOccurrence(d,o){
+    if(!d||!o||Number(d.sent)!==Number(o.sent)) return false;
+    if(!Number.isFinite(d.shortStart)||!Number.isFinite(d.shortEnd)) return false;
+    const os=Number(o.index),oe=os+String(o.raw||"").length;
+    return os<Number(d.shortEnd) && oe>Number(d.shortStart);
+  }
+  function abbrReconcileDefinitionOccurrences(g,defs){
+    const consumed=new Map();
+
+    (defs||[]).forEach(d=>{
+      let bestIndex=-1;
+
+      // First prefer exact range overlap.
+      for(let i=0;i<(g?.occ||[]).length;i++){
+        const o=g.occ[i];
+        if(consumed.has(i)) continue;
+        if(abbrDefinitionConsumesOccurrence(d,o)){
+          bestIndex=i;
+          break;
+        }
+      }
+
+      // Defensive fallback for older definition paths that cannot expose exact
+      // offsets: use the nearest same-sentence occurrence only when it is
+      // strongly compatible with the definition grammar.
+      if(bestIndex<0 && !Number.isFinite(d?.shortStart)){
+        const candidates=(g?.occ||[])
+          .map((o,i)=>({o,i}))
+          .filter(x=>!consumed.has(x.i) && Number(x.o.sent)===Number(d?.sent));
+        if(candidates.length===1){
+          const only=candidates[0];
+          if(only.o.inParen || /reverse|definition|scientific/i.test(String(d?.definitionRole||d?.kind||""))){
+            bestIndex=only.i;
+          }
+        }
+      }
+
+      if(bestIndex>=0){
+        const o=g.occ[bestIndex];
+        o.definitionOccurrence=true;
+        o.role="definition_occurrence";
+        o.definitionEventId=d.definitionEventId||null;
+        consumed.set(bestIndex,d);
+        d.abbrOccurrenceIndex=bestIndex;
+      }
+    });
+
+    const ordinary=(g?.occ||[]).filter((o,i)=>!consumed.has(i));
+    const definitionOccurrences=(g?.occ||[]).filter((o,i)=>consumed.has(i));
+    return {consumed,ordinary,definitionOccurrences};
+  }
+  function abbrFirstEventInScope(items,scope){
+    return (items||[])
+      .filter(x=>(sentenceDefinitionScope[x.sent]||"main")===scope)
+      .slice()
+      .sort((a,b)=>abbrCompareEventPosition(
+        abbrEventPosition(a.sent,a.index),
+        abbrEventPosition(b.sent,b.index)
+      ))[0]||null;
+  }
+  function abbrFirstDefinitionInScope(defs,scope){
+    return (defs||[])
+      .filter(d=>(sentenceDefinitionScope[d.sent]||"main")===scope)
+      .slice()
+      .sort((a,b)=>abbrCompareEventPosition(abbrDefinitionPosition(a),abbrDefinitionPosition(b)))[0]||null;
+  }
+  function abbrUseBeforeDefinition(ordinary,defs,scope=null){
+    const uses=scope==null?(ordinary||[]):(ordinary||[]).filter(o=>(sentenceDefinitionScope[o.sent]||"main")===scope);
+    const ds=scope==null?(defs||[]):(defs||[]).filter(d=>(sentenceDefinitionScope[d.sent]||"main")===scope);
+    if(!uses.length||!ds.length) return false;
+    const u=uses.slice().sort((a,b)=>abbrCompareEventPosition(abbrEventPosition(a.sent,a.index),abbrEventPosition(b.sent,b.index)))[0];
+    const d=ds.slice().sort((a,b)=>abbrCompareEventPosition(abbrDefinitionPosition(a),abbrDefinitionPosition(b)))[0];
+    return abbrCompareEventPosition(abbrEventPosition(u.sent,u.index),abbrDefinitionPosition(d))<0;
+  }
+  function abbrLateDefinitionContexts(disp,sentences,ordinary,defs,scope=null){
+    const uses=scope==null?(ordinary||[]):(ordinary||[]).filter(o=>(sentenceDefinitionScope[o.sent]||"main")===scope);
+    const ds=scope==null?(defs||[]):(defs||[]).filter(d=>(sentenceDefinitionScope[d.sent]||"main")===scope);
+    if(!uses.length||!ds.length) return [];
+    const u=uses.slice().sort((a,b)=>abbrCompareEventPosition(abbrEventPosition(a.sent,a.index),abbrEventPosition(b.sent,b.index)))[0];
+    const d=ds.slice().sort((a,b)=>abbrCompareEventPosition(abbrDefinitionPosition(a),abbrDefinitionPosition(b)))[0];
+    const out=[];
+    const uh=buildSnippet(sentences[u.sent]||"",u.raw||disp);
+    const dh=buildSnippet(sentences[d.sent]||"",d.form||disp);
+    if(uh) out.push({label:"First use",sentenceIndex:u.sent,occurrenceIndex:u.index,html:uh});
+    if(dh) out.push({label:"Definition",sentenceIndex:d.sent,occurrenceIndex:d.shortStart,html:dh});
+    return out;
+  }
 
   sentences.forEach((sent,si)=>{
     collectDefs(sent,si,addDefinition);
@@ -7072,6 +7683,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     const protectedInstrumentSpans=abbrFindProtectedInstrumentSpans(sent);
     const protectedIdentifierSpans=abbrFindProtectedIdentifierSpans(sent,designatedIdentifierForms);
     const protectedNamedTitleSpans=abbrFindProtectedNamedTitleSpans(sent);
+    const protectedChemicalFormulaSpans=abbrFindProtectedChemicalFormulaSpans(sent);
     const protectedScientific=scientificDefSpansBySentence.get(si)||[];
     acroRe.lastIndex=0; let m;
     while((m=acroRe.exec(sent))!==null){
@@ -7097,6 +7709,16 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       if(abbrOverlapsProtectedSpan(protectedIdentifierSpans,m.index,raw.length)) continue;
       if(abbrOverlapsProtectedSpan(protectedNamedTitleSpans,m.index,raw.length)) continue;
 
+      // Chemical formulae are symbolic chemical notation, not abbreviations.
+      // Protect both complete formula tokens and acronym-like fragments inside
+      // a larger formula such as OH within Ca(OH)2.
+      const formulaContainer=protectedChemicalFormulaSpans.find(sp=>m.index>=sp.start && m.index+raw.length<=sp.end);
+      if(formulaContainer){
+        const group=groups.get(key)||null;
+        if(!mcChemStrongAcronymDefinition(raw,key,group)) continue;
+      }
+      if(abbrIsProtectedChemicalFormulaToken(raw,sent,m.index,groups.get(key)||null,key)) continue;
+
       // If Word formatting flattened a compound scientific symbol such as
       // S_BET, do not let the internal BET fragment become a separate candidate.
       const sciContainer=protectedScientific.find(sp=>m.index>=sp.start && m.index+raw.length<=sp.end);
@@ -7119,7 +7741,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       // undefined abbreviations.
       if(!unitLike && numBefore){ try{unitLike=isUnitExpr(String(fullTok).toLowerCase());}catch(_e){} }
       if(unitLike && (/[a-zµμ°\/·×]/.test(fullTok) || numBefore)) continue;
-      addOccurrence(raw,key,sent,si,m.index,spans);
+      addOccurrence(raw,key,sent,si,m.index,spans,{role:abbrDefOrdinaryUseRole(sent,m.index,raw)});
     }
 
     // Scan explicitly defined scientific symbols/parameters, including Vp, qe,
@@ -7139,6 +7761,8 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           if(abbrOverlapsProtectedSpan(protectedIdentifierSpans,sm.index,raw.length)) continue;
           if(abbrOverlapsProtectedSpan(protectedInstrumentSpans,sm.index,raw.length)) continue;
           if(abbrOverlapsProtectedSpan(protectedNamedTitleSpans,sm.index,raw.length)) continue;
+          if(abbrOverlapsProtectedSpan(protectedChemicalFormulaSpans,sm.index,raw.length) &&
+             abbrIsProtectedChemicalFormulaToken(raw,sent,sm.index,groups.get(key)||null,key)) continue;
 
           const defSpan=protectedScientific.find(sp=>sp.key===key && sm.index>=sp.start && sm.index+raw.length<=sp.end);
           const defRec=(groups.get(key)?.defs||[]).find(d=>d.definitionType!=="conventional_acronym")||null;
@@ -7171,6 +7795,21 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
     .sort((a,b)=>displayForm(a).localeCompare(displayForm(b)))
     .forEach(g=>{
       const disp=displayForm(g);
+
+      // Final semantic safeguard: a confidently recognized chemical formula is
+      // not an abbreviation-report row, even if it was declared in a list.
+      // A strong acronym-style lexical expansion can still override ambiguous
+      // plain-letter chemistry morphology.
+      const representativeOcc=g.occ[0]||null;
+      if(representativeOcc &&
+         abbrIsProtectedChemicalFormulaToken(
+           disp,
+           sentences[representativeOcc.sent]||"",
+           representativeOcc.index||0,
+           g,
+           g.key
+         )) return;
+
       const std=isStd(g.key);
       const listDef=DECLARED_ABBR_MAP.get(g.key)||null;
       const declared=DECLARED_ABBRS.has(g.key)||!!listDef;
@@ -7179,35 +7818,58 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       if(!std && !defined && !declared && g.occ.every(o=>o.inParen)) return;
 
       const firstSent=Math.min(...g.occ.map(o=>o.sent));
-      const orderedDefs=defined?[...g.defs].sort((a,b)=>a.sent-b.sent):[];
+      const orderedDefs=defined?[...g.defs]
+        .filter(d=>d.validatedDefinition!==false && (d.definitionConfidence||"high")!=="low")
+        .sort((a,b)=>abbrCompareEventPosition(abbrDefinitionPosition(a),abbrDefinitionPosition(b))):[];
+
+      // Authoritative reconciliation: the abbreviation token physically inside
+      // a validated definition becomes a definition occurrence and is removed
+      // from the ordinary-use stream used for first-use ordering.
+      const reconciled=abbrReconcileDefinitionOccurrences(g,orderedDefs);
+      const ordinaryOccurrences=reconciled.ordinary;
+      const definitionOccurrences=reconciled.definitionOccurrences;
+
       const firstDef=orderedDefs[0]||null;
       const defSent=firstDef?firstDef.sent:Infinity;
       const longForm=firstDef?.long || listDef?.long || null;
-      const snippet=buildSnippet(sentences[firstSent]||"", disp);
+
+      const firstSemanticOccurrence=(ordinaryOccurrences.length?ordinaryOccurrences:g.occ)
+        .slice()
+        .sort((a,b)=>abbrCompareEventPosition(abbrEventPosition(a.sent,a.index),abbrEventPosition(b.sent,b.index)))[0]||g.occ[0];
+      const snippet=buildSnippet(sentences[firstSemanticOccurrence?.sent??firstSent]||"", firstSemanticOccurrence?.raw||disp);
+
       const rowOccurrenceInstances=g.occ.map((o,idx)=>({
         label:`Use ${idx+1}`,
         sentenceIndex:o.sent,
         occurrenceIndex:o.index,
         proseScope:sentenceDefinitionScope[o.sent]||"main",
+        occurrenceRole:o.definitionOccurrence?"definition_occurrence":(o.role||"technical_abbreviation"),
+        definitionOccurrence:!!o.definitionOccurrence,
+        definitionEventId:o.definitionEventId||null,
         html:buildSnippet(sentences[o.sent]||"",o.raw||disp)
       })).filter(x=>x.html);
       const rowDefinitionInstances=orderedDefs.map((d,idx)=>({
         label:`Definition ${idx+1}`,
         sentenceIndex:d.sent,
+        occurrenceIndex:Number.isFinite(d.shortStart)?d.shortStart:null,
         proseScope:sentenceDefinitionScope[d.sent]||"main",
+        definitionConfidence:d.definitionConfidence||"high",
+        definitionRole:d.definitionRole||d.kind||"definition",
+        definitionEventId:d.definitionEventId||null,
         html:buildSnippet(sentences[d.sent]||"",d.form||disp)
       })).filter(x=>x.html);
 
-      // Abstract and main text are independent prose scopes. These fields are
-      // retained so the document-level abbreviation convention is determined
-      // only from main-text behaviour.
+      // Abstract and main text are independent prose scopes. "Use" counts may
+      // still include definition occurrences for reporting, while first-use
+      // ordering relies only on ordinary occurrences.
       const mainOccurrences=g.occ.filter(o=>(sentenceDefinitionScope[o.sent]||"main")==="main");
       const abstractOccurrences=g.occ.filter(o=>(sentenceDefinitionScope[o.sent]||"main")==="abstract");
+      const mainOrdinaryOccurrences=ordinaryOccurrences.filter(o=>(sentenceDefinitionScope[o.sent]||"main")==="main");
+      const abstractOrdinaryOccurrences=ordinaryOccurrences.filter(o=>(sentenceDefinitionScope[o.sent]||"main")==="abstract");
       const mainDefinitions=orderedDefs.filter(d=>(sentenceDefinitionScope[d.sent]||"main")==="main");
       const abstractDefinitions=orderedDefs.filter(d=>(sentenceDefinitionScope[d.sent]||"main")==="abstract");
-      const firstMainUse=mainOccurrences.length?Math.min(...mainOccurrences.map(o=>o.sent)):Infinity;
-      const firstMainDef=mainDefinitions.length?Math.min(...mainDefinitions.map(d=>d.sent)):Infinity;
-      const mainProseFirstUseOK=mainDefinitions.length ? firstMainDef<=firstMainUse : null;
+      const mainProseFirstUseOK=mainDefinitions.length ? !abbrUseBeforeDefinition(ordinaryOccurrences,orderedDefs,"main") : null;
+      const abstractProseFirstUseOK=abstractDefinitions.length ? !abbrUseBeforeDefinition(ordinaryOccurrences,orderedDefs,"abstract") : null;
       const mainProseInstances=rowOccurrenceInstances.filter(x=>x.proseScope==="main");
       const mainProseDefinitionInstances=rowDefinitionInstances.filter(x=>x.proseScope==="main");
       const abstractInstances=rowOccurrenceInstances.filter(x=>x.proseScope==="abstract");
@@ -7271,7 +7933,7 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       // not a prose definition. It prevents the factually incorrect "not defined
       // anywhere" result, but prose first-use and repeated-definition checks remain
       // independent.
-      const usedBefore=defined && firstSent<defSent;
+      const usedBefore=defined && abbrUseBeforeDefinition(ordinaryOccurrences,orderedDefs,null);
       const firstUseOK=std || (defined && !usedBefore && !earlierLong);
       const definitionSource=std?"standard":(defined?(scientificDefinition?"scientific":"prose"):(listDef?"list":(declared?"declared":"none")));
 
@@ -7294,10 +7956,23 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           errors.push({abbr:disp, msg:`Not defined anywhere. Spell it out in full at first use, for example "full term (${disp})".`, snip:snippet});
         }else if(usedBefore){
         status="err";
+        const lateContexts=abbrLateDefinitionContexts(disp,sentences,ordinaryOccurrences,orderedDefs,null);
         if(scientificDefinition){
-          errors.push({abbr:disp, msg:`Used before it is introduced. The notation is defined later as "${longForm} (${disp})"; introduce that scientific parameter or symbol at its first use.`, snip:snippet});
+          errors.push({
+            abbr:disp,
+            msg:`Used before it is introduced. The notation is defined later as "${longForm} (${disp})"; introduce that scientific parameter or symbol at its first use.`,
+            snip:lateContexts[0]?.html||snippet,
+            contexts:lateContexts,
+            lateDefinition:true
+          });
         }else{
-          errors.push({abbr:disp, msg:`Used before it is defined. It appears in the text before its full form is given. Spell it out in full at the first use.`, snip:snippet});
+          errors.push({
+            abbr:disp,
+            msg:`Used before it is defined. It appears in the text before its full form is given. Spell it out in full at the first use.`,
+            snip:lateContexts[0]?.html||snippet,
+            contexts:lateContexts,
+            lateDefinition:true
+          });
         }
         }else if(earlierLong){
           status="err";
@@ -7312,17 +7987,21 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       // Abstract definitions do not satisfy main-text first-use requirements
       // when the manuscript is using a prose first-use convention.
       if(!std && mainOccurrences.length){
-        const mainLate=mainDefinitions.length && firstMainUse<firstMainDef;
+        const mainLate=mainDefinitions.length && mainProseFirstUseOK===false;
         const mainLateAlready=errors.some(e=>
           norm(e?.abbr||"")===norm(disp) &&
           /Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(String(e?.msg||""))
         );
         if(mainLate && !mainLateAlready){
           status="err";
+          const lateContexts=abbrLateDefinitionContexts(disp,sentences,ordinaryOccurrences,orderedDefs,"main");
           errors.push({
             abbr:disp,
             msg:`Used before it is defined in the main text. ${disp} is introduced later in the main text; define it at its first main-text use. An Abstract definition is treated independently.`,
-            snip:mainProseInstances[0]?.html||snippet
+            snip:lateContexts[0]?.html||mainProseInstances[0]?.html||snippet,
+            contexts:lateContexts,
+            lateDefinition:true,
+            definitionScope:"main"
           });
         }
 
@@ -7330,10 +8009,15 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         // definition even if the same abbreviation was defined in the Abstract.
         if(!listDef && !declared && !mainDefinitions.length && abstractDefinitions.length){
           status="err";
+          const firstMainOrdinary=mainOrdinaryOccurrences.slice().sort((a,b)=>
+            abbrCompareEventPosition(abbrEventPosition(a.sent,a.index),abbrEventPosition(b.sent,b.index))
+          )[0]||null;
+          const mainUseHtml=firstMainOrdinary?buildSnippet(sentences[firstMainOrdinary.sent]||"",firstMainOrdinary.raw||disp):(mainProseInstances[0]?.html||snippet);
           errors.push({
             abbr:disp,
             msg:`Not defined at first use in the main text. ${disp} is defined in the Abstract, but no main-text first-use definition was detected.`,
-            snip:mainProseInstances[0]?.html||snippet,
+            snip:mainUseHtml,
+            contexts:mainUseHtml?[{label:"First main-text use",html:mainUseHtml}]:[],
             independentMainScope:true
           });
         }
@@ -7359,11 +8043,10 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
       }
 
       if(!std && listDef && defined){
-        const listKey=abbrDefinitionMeaningKey(listDef.long);
-        const conflictingDefs=orderedDefs.filter(d=>{
-          const k=abbrDefinitionMeaningKey(d.long);
-          return k && listKey && k!==listKey;
-        });
+        const conflictingDefs=orderedDefs.filter(d=>
+          String(d?.long||"").trim() &&
+          !abbrDefinitionsEquivalent(listDef.long,d.long,disp)
+        );
         if(conflictingDefs.length){
           status="err";
           const proseForms=[...new Set(conflictingDefs.map(d=>String(d.long||"").trim()).filter(Boolean))];
@@ -7384,40 +8067,56 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
         }
       }
 
-      if(g.defs.length>=2 && !std){
+      if(orderedDefs.length>=2 && !std){
         // Duplicate definitions are judged within editorial scope, not across the
-        // whole manuscript. One definition in the Abstract and one in the main
-        // body is valid. Structural table-note definitions have already been
-        // removed from BODY_PROSE and therefore cannot inflate these counts.
+        // whole manuscript. Repetition is not semantic conflict. Definitions are
+        // grouped by normalized meaning before deciding which finding applies.
         const byScope=new Map();
-        g.defs.forEach(d=>{
+        orderedDefs.forEach(d=>{
           const scope=sentenceDefinitionScope[d.sent]||"main";
           if(!byScope.has(scope)) byScope.set(scope,[]);
           byScope.get(scope).push(d);
         });
+
         byScope.forEach((defs,scope)=>{
-          const ss=[...new Set(defs.map(d=>d.sent))];
-          if(ss.length<2) return;
-          status="err";
+          const orderedScopeDefs=defs.slice().sort((a,b)=>
+            abbrCompareEventPosition(abbrDefinitionPosition(a),abbrDefinitionPosition(b))
+          );
+          if(orderedScopeDefs.length<2) return;
+
           const label=scope==="abstract"?"the Abstract":"the main text";
-          const forms=[...new Set(defs.map(d=>String(d.long||"").trim()).filter(Boolean))];
-          const conflict=forms.length>1;
-          const msg=conflict
-            ?`Defined ${ss.length} times in ${label}, with different full forms (${forms.slice(0,3).map(x=>`\"${x}\"`).join("; ")}). Use one unambiguous definition at first use.`
-            :`Defined ${ss.length} times in ${label}. Define once at first use and use ${disp} thereafter.`;
-          const definitionContexts=ss.map((sentIndex,idx)=>({
+          const meaningGroups=abbrDefinitionMeaningGroups(orderedScopeDefs,disp);
+          const definitionContexts=orderedScopeDefs.map((d,idx)=>({
             label:`Definition ${idx+1}`,
-            sentenceIndex:sentIndex,
-            html:buildSnippet(sentences[sentIndex]||"",disp)
+            sentenceIndex:d.sent,
+            occurrenceIndex:Number.isFinite(d.shortStart)?d.shortStart:null,
+            definitionEventId:d.definitionEventId||null,
+            html:buildSnippet(sentences[d.sent]||"",d.form||disp)
           })).filter(x=>x.html);
-          errors.push({
-            abbr:disp,
-            msg,
-            snip:definitionContexts[0]?.html||buildSnippet(sentences[ss[0]]||"",disp),
-            contexts:definitionContexts,
-            duplicateDefinition:true,
-            definitionScope:scope
-          });
+
+          status="err";
+
+          if(meaningGroups.length>1){
+            const forms=meaningGroups.map(g=>g.representative).filter(Boolean);
+            errors.push({
+              abbr:disp,
+              msg:`Conflicting definitions. ${disp} is defined with materially different full forms in ${label}: ${forms.slice(0,3).map(x=>`"${x}"`).join("; ")}. Use one correct full form consistently.`,
+              snip:definitionContexts[0]?.html||buildSnippet(sentences[orderedScopeDefs[0].sent]||"",disp),
+              contexts:definitionContexts,
+              semanticConflict:true,
+              definitionScope:scope
+            });
+          }else{
+            errors.push({
+              abbr:disp,
+              msg:`Defined ${orderedScopeDefs.length} times in ${label}. Define once at first use and use ${disp} thereafter.`,
+              snip:definitionContexts[0]?.html||buildSnippet(sentences[orderedScopeDefs[0].sent]||"",disp),
+              contexts:definitionContexts,
+              duplicateDefinition:true,
+              definitionScope:scope,
+              equivalentDefinitions:true
+            });
+          }
         });
       }
 
@@ -7439,8 +8138,18 @@ function analyze(rawText, title, standardSet, skipRefs, skipTables){
           mainProseDefinitionInstances,
           abstractUseCount:abstractOccurrences.length,
           abstractDefinitionCount:abstractDefinitions.length,
+          abstractProseFirstUseOK,
           abstractInstances,
-          abstractDefinitionInstances
+          abstractDefinitionInstances,
+          ordinaryUseCount:ordinaryOccurrences.length,
+          definitionOccurrenceCount:definitionOccurrences.length,
+          firstDefinitionPosition:firstDef?abbrDefinitionPosition(firstDef):null,
+          firstOrdinaryUsePosition:ordinaryOccurrences.length
+            ? abbrEventPosition(
+                ordinaryOccurrences.slice().sort((a,b)=>abbrCompareEventPosition(abbrEventPosition(a.sent,a.index),abbrEventPosition(b.sent,b.index)))[0].sent,
+                ordinaryOccurrences.slice().sort((a,b)=>abbrCompareEventPosition(abbrEventPosition(a.sent,a.index),abbrEventPosition(b.sent,b.index)))[0].index
+              )
+            : null
         });
       }
     });
@@ -8157,6 +8866,7 @@ function abbrInstanceMode(row){
   const msgs=(row?.issues||[]).map(x=>String(x?.it?.msg||"")).join(" ");
   if((row?.issues||[]).some(x=>x?.it?.mixedApproach)||/Mixed abbreviation-definition approach/i.test(msgs)) return "mixed-list-approach";
   if(/Conflicting definitions|different full forms|different meanings|unambiguous throughout/i.test(msgs)) return "conflicting-definitions";
+  if((row?.issues||[]).some(x=>x?.it?.lateDefinition)||/Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(msgs)) return "late-definition";
   if((row?.issues||[]).some(x=>x?.it?.duplicateDefinition)||/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msgs)) return "duplicate-definitions";
   return "general";
 }
@@ -8172,10 +8882,29 @@ function abbrInstancePanelHtml(row,rowIndex){
       abbrInstanceGroupHtml("Defined again in text",mix.redefined||[]),
       abbrInstanceGroupHtml("Used directly from abbreviation list",mix.direct||[])
     ].filter(Boolean).join("");
+  }else if(mode==="late-definition"){
+    const seen=new Set(),ctx=[];
+    (row?.issues||[]).forEach(issue=>{
+      const it=issue?.it||{};
+      if(!it.lateDefinition && !/Used before it is (?:defined|introduced)|appears in the text before its full form/i.test(String(it.msg||""))) return;
+      (it.contexts||[]).forEach(c=>{
+        if(!c?.html)return;
+        const k=abbrContextKey(c); if(!k||seen.has(k))return;
+        seen.add(k); ctx.push(c);
+      });
+    });
+    title="First-use and definition locations";
+    note="The first ordinary use and the later definition are shown so you can verify the true manuscript order.";
+    const firstUses=ctx.filter(c=>/first use/i.test(String(c.label||"")));
+    const defs=ctx.filter(c=>/definition/i.test(String(c.label||"")));
+    groups=[
+      abbrInstanceGroupHtml("First use",firstUses),
+      abbrInstanceGroupHtml("Definition",defs)
+    ].filter(Boolean).join("");
   }else if(mode==="duplicate-definitions"){
     const defs=abbrRelevantDefinitionContexts(row);
-    title="Duplicate definition locations";
-    note="Only the repeated definition locations are shown. Ordinary uses of the abbreviation are omitted.";
+    title="Definition locations";
+    note="The same abbreviation is defined more than once in this prose scope. Ordinary uses of the abbreviation are omitted.";
     groups=abbrInstanceGroupHtml("Definitions",defs);
   }else if(mode==="conflicting-definitions"){
     const defs=abbrRelevantDefinitionContexts(row);
@@ -8321,22 +9050,96 @@ function abbrRestoreStructuredDeclarations(){
   });
 }
 
-function abbrDefinitionMeaningKey(value){
-  let s=abbrListClean(value).toLowerCase()
-    .replace(/[‐‑‒–—-]+/g," ")
+const ABBR_NONESSENTIAL_LEADING_MODIFIERS=new Set([
+  "commercial","natural","synthetic","aqueous","measured","calculated",
+  "estimated","observed","apparent","experimental","reported","nominal",
+  "interfacial"
+]);
+
+function abbrNormalizeDefinitionFullForm(value,abbr=""){
+  let raw=abbrListClean(value);
+
+  // For conventional acronyms, Schwartz-Hearst can often remove accidental
+  // leading context while retaining the lexical expansion.
+  if(abbr){
+    try{
+      const canonical=abbrCanonicalAbbreviationForm(abbr);
+      const core=validLongForm(canonical,raw);
+      if(core&&abbrDefLooksLexicalFullForm(abbr,core)) raw=core;
+    }catch(_e){}
+  }
+
+  let s=String(raw||"")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[‐‑‒–—−-]+/g," ")
+    .replace(/[“”"'‘’`]/g," ")
     .replace(/[^a-z0-9\s]/g," ")
     .replace(/\s+/g," ")
     .trim();
+
+  s=s.replace(/^(?:the|a|an)\s+/,"").trim();
   if(!s) return "";
 
-  // Treat a simple grammatical plural on the final descriptor word as
-  // equivalent: "microbial fuel cell" and "microbial fuel cells".
-  const parts=s.split(" ");
+  const parts=s.split(" ").filter(Boolean);
+
+  // Conservative final-word plural normalization.
   const last=parts[parts.length-1]||"";
-  if(last.length>4 && /s$/.test(last) && !/(?:ss|us|is)$/.test(last)){
+  if(last.length>4 && /s$/.test(last) && !/(?:ss|us|is|ics)$/.test(last)){
     parts[parts.length-1]=last.slice(0,-1);
   }
   return parts.join(" ");
+}
+
+function abbrDefinitionSemanticCore(value,abbr=""){
+  let s=abbrNormalizeDefinitionFullForm(value,abbr);
+  if(!s) return "";
+  const parts=s.split(" ");
+
+  // Contextual modifiers are ignored only when at least a two-word scientific
+  // core remains. Essential scientific modifiers are not globally stripped.
+  while(parts.length>=3 && ABBR_NONESSENTIAL_LEADING_MODIFIERS.has(parts[0])){
+    parts.shift();
+  }
+  return parts.join(" ");
+}
+
+function abbrDefinitionMeaningKey(value,abbr=""){
+  return abbrDefinitionSemanticCore(value,abbr);
+}
+
+function abbrDefinitionsEquivalent(a,b,abbr=""){
+  const ak=abbrDefinitionMeaningKey(a,abbr);
+  const bk=abbrDefinitionMeaningKey(b,abbr);
+  if(!ak||!bk) return false;
+  if(ak===bk) return true;
+
+  // A longer phrase may contain a nonessential leading modifier. The semantic
+  // core function normally handles these, but keep this conservative suffix
+  // test as a safety net for one additional descriptor token.
+  const aw=ak.split(" "), bw=bk.split(" ");
+  const longer=aw.length>=bw.length?aw:bw;
+  const shorter=aw.length>=bw.length?bw:aw;
+  if(longer.length===shorter.length+1 &&
+     ABBR_NONESSENTIAL_LEADING_MODIFIERS.has(longer[0]) &&
+     longer.slice(1).join(" ")===shorter.join(" ")) return true;
+
+  return false;
+}
+
+function abbrDefinitionMeaningGroups(defs,abbr=""){
+  const groups=[];
+  (defs||[]).forEach(d=>{
+    const long=String(d?.long||"").trim();
+    if(!long) return;
+    let g=groups.find(x=>abbrDefinitionsEquivalent(x.representative,long,abbr));
+    if(!g){
+      g={representative:long,key:abbrDefinitionMeaningKey(long,abbr),defs:[]};
+      groups.push(g);
+    }
+    g.defs.push(d);
+  });
+  return groups;
 }
 
 function abbrListDeclarationContext(def,abbr){
@@ -8456,6 +9259,7 @@ let LAST_NUM=null;
 /* ---------- Word structural extraction for Figures / Tables / Equations ---------- */
 const FTE_W_NS="http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const FTE_M_NS="http://schemas.openxmlformats.org/officeDocument/2006/math";
+const FTE_A_NS="http://schemas.openxmlformats.org/drawingml/2006/main";
 function fteXmlText(node,options={}){
   /*
     Extract only the CURRENT, main-flow Word text that the author can actually
@@ -8472,6 +9276,7 @@ function fteXmlText(node,options={}){
     needs drawing/text-box text.
   */
   const includeEmbedded=!!(options&&options.includeEmbedded);
+  const preserveSeparators=!!(options&&options.preserveSeparators);
   let out="";
 
   const wBoolOn=el=>{
@@ -8517,11 +9322,41 @@ function fteXmlText(node,options={}){
     if(ns===FTE_W_NS && (ln==="instrtext"||ln==="deltext")) return;
     if(ln==="t" && (ns===FTE_W_NS||ns===FTE_M_NS)){ out+=n.textContent||""; return; }
     if(ns===FTE_W_NS && ln==="tab") { out+="\t"; return; }
-    if(ns===FTE_W_NS && (ln==="br"||ln==="cr")) { out+=" "; return; }
+    if(ns===FTE_W_NS && (ln==="br"||ln==="cr")) { out+=preserveSeparators?"\n":" "; return; }
     [...n.childNodes].forEach(walk);
   };
   walk(node);
-  return out.replace(/[\u00A0\t ]+/g," ").replace(/\s+([,.;:!?])/g,"$1").trim();
+  out=out.replace(/[\u00A0\u202F]/g," ");
+  if(preserveSeparators){
+    return out
+      .replace(/[ ]+/g," ")
+      .replace(/ *\t */g,"\t")
+      .replace(/ *\n */g,"\n")
+      .replace(/\n{3,}/g,"\n\n")
+      .trim();
+  }
+  return out.replace(/[\t\r\n ]+/g," ").replace(/\s+([,.;:!?])/g,"$1").trim();
+}
+
+function fteNormalizeStructuralWhitespace(text){
+  return String(text||"")
+    .normalize("NFKC")
+    .replace(/[\u00A0\u202F\u2000-\u200A\u205F\u3000]/g," ")
+    .replace(/[\t\r\n]+/g," ")
+    .replace(/ +/g," ")
+    .replace(/\s+([,.;:!?])/g,"$1")
+    .trim();
+}
+
+function fteWordSeparatorMeta(node,rawStructuralText=""){
+  const raw=String(rawStructuralText||"");
+  const tabs=(raw.match(/\t/g)||[]).length;
+  const breaks=(raw.match(/\n/g)||[]).length;
+  const captionHead=String.raw`(?:supplementary\s+)?(?:figures?|figs?\.?|tables?|tabs?\.?|schemes?|plates?|charts?|graphs?|images?|photographs?|photos?|illustrations?|diagrams?|flowcharts?|algorithms?|boxes?|maps?)`;
+  const captionId=String.raw`(?:S|SI|ESI|A|B)?[.-]?\d+(?:\.\d+)*(?:\s*(?:\([A-Za-z]\)|-?[A-Za-z]))?`;
+  let captionTabAfterId=false;
+  try{ captionTabAfterId=new RegExp(String.raw`^\s*${captionHead}\s*${captionId}\s*\t`,'i').test(raw); }catch(_e){}
+  return {contentTabs:tabs,contentBreaks:breaks,captionTabAfterId,leadingTab:/^\s*\t/.test(raw)};
 }
 function ftePStyle(p){
   const ps=p.getElementsByTagNameNS(FTE_W_NS,"pStyle")[0];
@@ -9274,45 +10109,59 @@ function fteTableCaption(text){
   return null;
 }
 
-function fteCaptionEvidence(text,label,kind,style="",distance=99){
-  // Compare normalized structural text because Word may use non-breaking spaces
-  // and Unicode dash variants that differ from the normalized caption parser.
-  const t=typeof engNormStructuralText==="function"?engNormStructuralText(text):String(text||"");
-  const raw=typeof engNormStructuralText==="function"?engNormStructuralText(label?.raw||""):String(label?.raw||"");
-  const at=t.indexOf(raw);
+function fteCaptionEvidence(text,label,kind,style="",distance=99,meta={}){
+  const t=fteNormalizeStructuralWhitespace(text);
+  const raw=fteNormalizeStructuralWhitespace(label?.raw||"");
+  const at=t.toLowerCase().indexOf(raw.toLowerCase());
   const after=at>=0?t.slice(at+raw.length):"";
   const trimmed=after.trimStart();
-  const firstWord=(trimmed.match(/^["'“”‘’(\[]*([A-Za-z]+)/)||[])[1]||"";
+  const firstWord=(trimmed.match(/^["'“”‘’(\[]*([A-Za-z][A-Za-z0-9-]*)/)||[])[1]||"";
+  const capStyle=/(?:caption|figure|table)/i.test(style||"");
+  const seqEvidence=!!meta?.seqCaptionType;
+  const startsWithLabel=at===0 && !!label?.id;
+  const tabAfterId=!!meta?.separatorMeta?.captionTabAfterId || !!meta?.captionTabAfterId || /\t/.test(String(meta?.rawStructuralText||""));
+  const proseVerb=/^(?:illustrates?|shows?|showed|depicts?|presents?|demonstrates?|describes?|summari[sz]es?|compares?|provides?|indicates?|reveals?|displays?|represents?|highlights?|contains?|gives?|reports?|suggests?|confirms?|is|are|was|were|has|have|had|can|could|may|might|will|would|should)\b/i;
+  const reportingVerb=proseVerb.test(firstWord);
 
   let score=0;
-  const capStyle=/(?:caption|figure|table)/i.test(style||"");
-  if(capStyle) score+=120;
+  const reasons=[];
+  if(capStyle){ score+=120; reasons.push("caption style"); }
+  if(seqEvidence){ score+=130; reasons.push("Word SEQ caption field"); }
+  if(startsWithLabel){ score+=30; reasons.push("label and identifier at paragraph start"); }
 
-  // Punctuation immediately after Figure/Table number is strong caption evidence.
-  if(/^[.:;–—-]/.test(trimmed)) score+=45;
+  // Punctuation is strong evidence, but it is NOT required. Scientific journal
+  // captions commonly use only a tab/space after the number.
+  if(/^[.:;–—-]/.test(trimmed)){ score+=45; reasons.push("caption punctuation"); }
+  if(tabAfterId){ score+=45; reasons.push("Word tab after caption identifier"); }
 
-  if(distance===0) score+=35;
-  else if(distance===1) score+=28;
-  else if(distance===2) score+=18;
-  else if(distance===3) score+=10;
+  if(distance===0){ score+=38; reasons.push("same structural block"); }
+  else if(distance===1){ score+=32; reasons.push("adjacent object"); }
+  else if(distance===2){ score+=24; reasons.push("nearby object"); }
+  else if(distance===3){ score+=18; reasons.push("nearby object"); }
+  else if(distance===4){ score+=12; reasons.push("nearby object"); }
+  else if(distance<=6){ score+=7; reasons.push("local object proximity"); }
 
-  // "Figure 5 illustrates..." and analogous constructions are prose citations.
-  const proseVerb=/^(?:illustrates?|shows?|showed|depicts?|presents?|demonstrates?|describes?|summari[sz]es?|compares?|provides?|indicates?|reveals?|displays?|represents?|highlights?|contains?|gives?|reports?|suggests?|confirms?|is|are|was|were|has|have|had|can|could|may|might|will|would|should)\b/i;
-  if(proseVerb.test(firstWord)) score-=100;
+  // A non-empty noun/technical phrase after an initial label is ordinary caption
+  // grammar. This deliberately does not use a small whitelist, so terms such as
+  // XPS, XANES, FTIR, SEM, kinetics, adsorption, etc. remain valid caption starts.
+  if(startsWithLabel && trimmed && !reportingVerb){
+    score+=28; reasons.push("caption description after identifier");
+    if(trimmed.length>=18) score+=8;
+  }
 
-  // Modest support for common caption-like noun-phrase openings.
-  if(firstWord && !proseVerb.test(firstWord) &&
-     /^(?:effect|effects|variation|variations|comparison|comparisons|relationship|relationships|schematic|overview|distribution|distributions|profile|profiles|image|images|micrograph|micrographs|photograph|photographs|workflow|framework|mechanism|mechanisms|evolution|development|response|responses|performance|characteristics?|results?|experimental|numerical|conceptual|spatial|temporal|shear|strain|stress|model|models|system|systems|process|processes|values?|parameters?|properties|configuration|configurations)\b/i.test(firstWord))
-    score+=12;
+  // "Figure 2 shows..." is body prose even if a figure happens to be nearby.
+  if(reportingVerb && !capStyle && !seqEvidence){
+    score-=140; reasons.push("prose reporting verb");
+  }
 
-  return {score,capStyle,firstWord,after:trimmed};
+  return {score,capStyle,seqEvidence,startsWithLabel,tabAfterId,firstWord,after:trimmed,reportingVerb,reasons};
 }
 
 function fteChooseCaptionCandidate(candidates,kind,objectIndex){
   if(!candidates.length) return null;
   const scored=candidates.map(c=>{
     const distance=Math.abs(c.i-objectIndex);
-    const ev=fteCaptionEvidence(c.b.text,c.label,kind,c.b.style||"",distance);
+    const ev=fteCaptionEvidence(c.b.text,c.label,kind,c.b.style||"",distance,c.b);
     return {...c,_captionScore:ev.score,_captionEvidence:ev};
   }).sort((a,b)=>{
     if(b._captionScore!==a._captionScore) return b._captionScore-a._captionScore;
@@ -9527,6 +10376,23 @@ function fteNearbyIndex(blocks,i,pred,maxDist=2){
     const d=Math.abs(j-i); if(d<bestD){best=j;bestD=d;}
   }
   return best;
+}
+
+function fteNearbyFigureObjectIndex(blocks,i,maxDist=6){
+  const candidates=[];
+  for(let j=Math.max(0,i-maxDist);j<=Math.min(blocks.length-1,i+maxDist);j++){
+    if(j===i) continue;
+    const b=blocks[j];
+    if(!b || b.type!=="p" || !b.hasDrawing) continue;
+    const distance=Math.abs(j-i);
+    const imageEvidence=(b.imageCount||0)>0 || b.hasImage;
+    // Real image-bearing paragraphs outrank decorative lines/shapes. Within the
+    // same evidence tier, use local structural proximity only.
+    const score=(imageEvidence?100:20)-distance*5+(j<i?2:0);
+    candidates.push({j,distance,score,imageEvidence});
+  }
+  candidates.sort((a,b)=>b.score-a.score || a.distance-b.distance || a.j-b.j);
+  return candidates.length?candidates[0].j:null;
 }
 function fteRefStart(blocks){
   const candidates=[];
@@ -9794,6 +10660,39 @@ function mcExcludeStructuredIndexMaterial(text){
 }
 
 function fteSnippet(t){ t=(t||"").replace(/\s+/g," ").trim(); return t.length>220?t.slice(0,217)+"…":t; }
+
+// Cross-reference findings must show the actual citation, not simply the start
+// of a long paragraph. fteCitations() records the citation index against the
+// normalized paragraph text, so crop that same normalized text around the
+// matched citation before the generic issue snippet limit is applied.
+function fteCitationContext(text,c,maxLen=220){
+  const t=fteNormalizeCrossRefText(String(text||""));
+  if(!t) return "";
+  if(t.length<=maxLen) return t;
+
+  const idx=Math.max(0,Math.min(t.length-1,Number(c?.index)||0));
+  const matchLen=Math.max(1,String(c?.match||"").length);
+  const centre=Math.min(t.length,idx+Math.floor(matchLen/2));
+  let start=Math.max(0,centre-Math.floor(maxLen*.47));
+  let end=Math.min(t.length,start+maxLen);
+  if(end-start<maxLen) start=Math.max(0,end-maxLen);
+
+  // Prefer word boundaries without ever moving the crop away from the citation.
+  if(start>0){
+    const nextSpace=t.indexOf(" ",start);
+    if(nextSpace>start && nextSpace<idx) start=nextSpace+1;
+  }
+  if(end<t.length){
+    const prevSpace=t.lastIndexOf(" ",end);
+    if(prevSpace>idx+matchLen) end=prevSpace;
+  }
+
+  let s=t.slice(start,end).trim();
+  if(start>0) s="… "+s;
+  if(end<t.length) s=s+" …";
+  return s;
+}
+
 function fteIssue(issues,kind,id,code,msg,suggestion,context,severity="warn"){
   issues.push({kind,id,code,msg,suggestion,context:fteSnippet(context),severity});
 }
@@ -9902,10 +10801,67 @@ function ftePanelCheck(figures,issues){
     while((m=re.exec(String(text||"")))){
       const letters=expandGroup(m[1]);
       if(!letters.length) continue;
-      out.push({raw:m[0],letters,start:m.index,end:m.index+m[0].length,role:"AMBIGUOUS_PANEL_MENTION",referenceScore:0,declarationScore:0,inventoryGroup:false});
+      out.push({
+        raw:m[0],letters,start:m.index,end:m.index+m[0].length,
+        role:"AMBIGUOUS_PANEL_MENTION",referenceScore:0,declarationScore:0,
+        inventoryGroup:false,coordinatedAssignment:false,coordinatedGroupId:null
+      });
     }
     return out;
   };
+
+  // Scientific captions frequently assign one shared description to two or more
+  // panels: "(a) and (b) MSD results", "EPR spectra for (d) and (e) ...",
+  // or "(f), (g), and (h) Raman spectra". The older parser looked for a
+  // descriptor immediately after EACH token, which could misclassify one member
+  // of the coordinated group as an explanatory reference and then report a
+  // false skipped/undeclared panel. Detect these coordinated assignments before
+  // local reference scoring.
+  const coordinatorOnly=s=>/^\s*(?:(?:,\s*)?(?:and|or|&)\s*|,\s*)$/i.test(String(s||""));
+  const hasStrongCoordinatedReferenceCue=(text,occ)=>{
+    const pre=String(text||"").slice(Math.max(0,occ.start-130),occ.start).replace(/\s+/g," ").toLowerCase();
+    // These phrases are genuinely anaphoric and should remain references even
+    // when followed by "and (x)". A bare "for/of/in" is intentionally absent
+    // because captions often introduce inventories as "spectra for (d) and (e)".
+    return /\b(?:as\s+shown\s+in|shown\s+in|illustrated\s+in|presented\s+in|depicted\s+in|observed\s+in|seen\s+in|given\s+in|displayed\s+in|see)\s+(?:panels?\s*)?$/.test(pre)
+      || /\b(?:the|this|that|these|those)\s+(?:inset|image|images|curve|plot|spectrum|spectra|micrograph|micrographs|map|feature|peak|region|value|values|data|result|results)\s+(?:shown\s+)?(?:in|of|from)\s+(?:panels?\s*)?$/.test(pre)
+      || /\binset\s+(?:shown\s+)?(?:in|of|from)\s+(?:panels?\s*)?$/.test(pre);
+  };
+  const coordinatedAssignmentGroups=(text,occs)=>{
+    const x=String(text||"");
+    let groupId=0;
+    for(let i=0;i<occs.length-1;i++){
+      // Start a chain only when this occurrence is joined directly to the next
+      // by punctuation/conjunction rather than by descriptive prose.
+      if(!coordinatorOnly(x.slice(occs[i].end,occs[i+1].start))) continue;
+      const group=[occs[i]];
+      let j=i+1;
+      while(j<occs.length && coordinatorOnly(x.slice(group[group.length-1].end,occs[j].start))){
+        group.push(occs[j]);
+        j++;
+      }
+      if(group.length<2) continue;
+
+      const first=group[0],last=group[group.length-1];
+      const tailEnd=j<occs.length ? Math.min(occs[j].start,sentenceTailEnd(x,last.end)) : sentenceTailEnd(x,last.end);
+      const sharedDescriptor=x.slice(last.end,tailEnd);
+      if(!descriptorIsSubstantive(sharedDescriptor)) continue;
+
+      // Strong "shown in / inset in / see" wording is a true reference clause.
+      // Weak prepositions such as "for" and "of" do not block assignment because
+      // they are common in captions: "EPR spectra for (d) and (e) ...".
+      if(hasStrongCoordinatedReferenceCue(x,first)) continue;
+
+      groupId++;
+      group.forEach(occ=>{
+        occ.coordinatedAssignment=true;
+        occ.coordinatedGroupId=groupId;
+        occ.coordinatedDescriptor=cleanDescriptor(sharedDescriptor);
+      });
+      i=j-1;
+    }
+  };
+
   const inventoryGroups=(text,occs)=>{
     const groups=[]; let cur=[];
     occs.forEach(occ=>{
@@ -9950,6 +10906,7 @@ function ftePanelCheck(figures,issues){
     const caption=it.caption||"", occs=occurrences(caption);
     if(occs.length<2) return;
 
+    coordinatedAssignmentGroups(caption,occs);
     inventoryGroups(caption,occs);
 
     const declared=new Set(), declarationOrder=[], references=[];
@@ -9959,10 +10916,11 @@ function ftePanelCheck(figures,issues){
       const decScore=scoreDeclaration(caption,occ,declared,lastDeclared);
       occ.referenceScore=refScore; occ.declarationScore=decScore;
 
-      // Group-level inventory structure has priority over weak local grammar.
-      // This is essential for captions such as "at (c) 200 nm, (d) 50 nm,
-      // and (e) 10 nm", where the preposition scopes the full enumeration.
-      if(occ.inventoryGroup){
+      // Coordinated/shared-description groups and ordinary parallel inventory
+      // groups both take priority over weak local grammar. This covers captions
+      // such as "(a) and (b) MSD results", "spectra for (d) and (e) ...", and
+      // "at (c) 200 nm, (d) 50 nm, and (e) 10 nm".
+      if(occ.coordinatedAssignment || occ.inventoryGroup){
         occ.role="PANEL_DECLARATION";
       }else if(refScore>=6 && refScore>decScore){
         // Strong anaphoric/referential wording such as "the inset in (d)" wins.
@@ -10018,7 +10976,7 @@ function ftePanelCheck(figures,issues){
 
     const miss=recomputeMissing(declarationOrder);
     if(miss.length){
-      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} appears to skip panel label(s): ${miss.join(", ")}.`,`Check the panel labels in the caption. Parallel assignments such as "SEM images of (a) sample A, (b) sample B" or "at (c) 200 nm, (d) 50 nm, and (e) 10 nm" are treated as panel-label assignments; explanatory references to existing panels are excluded from the sequence check.`,it.caption,"warn");
+      fteIssue(issues,"figure",it.id,"FIGURE_PANEL_SEQUENCE",`${fteDisplay("figure",it.id)} appears to skip panel label(s): ${miss.join(", ")}.`,`Check the panel labels in the caption. Parallel or coordinated assignments such as "SEM images of (a) sample A, (b) sample B", "(a) and (b) MSD results", "EPR spectra for (d) and (e)", or "at (c) 200 nm, (d) 50 nm, and (e) 10 nm" are treated as panel-label assignments; explanatory references to existing panels are excluded from the sequence check.`,it.caption,"warn");
     }
 
     const undeclared=[...new Set(references.filter(x=>!declared.has(x)))];
@@ -14723,6 +15681,11 @@ window.goatcounter.path = function(){
 </script>
 
 
+<!-- Build update 2026-08-16:
+     Word caption structural matching now preserves separator metadata, accepts
+     punctuation-free/tab-separated captions, favours true embedded images over
+     decorative drawing shapes, recovers shared-panel figure citations, and
+     reports specific ambiguity reasons only after semantic matching fails. -->
 <script id="fte-structural-registry-v3">
 /* Build update 2026-08-15:
    Equation number-to-math matching is local structural matching.
@@ -14992,6 +15955,25 @@ function fteEquationSpecialCitations(text){
   return out;
 }
 
+function fteFigureSpecialCitations(text){
+  const t=fteNormalizeCrossRefText(text||"");
+  const out=[];
+  const push=(id,index,match)=>{
+    const canon=fteCanonId(id);
+    if(canon && !out.some(x=>x.id===canon&&x.index===index)) out.push({id:canon,index,match});
+  };
+  let m;
+
+  // Shared-parent panel lists/ranges: Figure 2a,b; Figure 2a and b; Figures 2a-c.
+  const shared=/\b(?:Fig(?:ure)?s?\s*\.?)\s*((?:S)?\d+(?:\.\d+)*)\s*([a-z])((?:\s*(?:,|and|&|[-–—])\s*(?:[a-z]))+)/gi;
+  while((m=shared.exec(t))) push(m[1],m.index,m[0]);
+
+  // Mixed base + supplementary shorthand used by journals: Figure 2c,d, and S4.
+  const mixed=/\b(?:Fig(?:ure)?s?\s*\.?)\s*((?:S)?\d+(?:\.\d+)*)(?:[a-z])?(?:\s*,\s*[a-z])*(?:\s*,?\s*(?:and|&)\s*|\s*,\s*)(S\d+(?:\.\d+)*(?:[a-z])?)/gi;
+  while((m=mixed.exec(t))){ push(m[1],m.index,m[0]); push(m[2],m.index,m[0]); }
+  return out;
+}
+
 fteCitations=function(text,kind){
   text=fteNormalizeCrossRefText(text||"");
   const out=[];
@@ -15015,6 +15997,10 @@ fteCitations=function(text,kind){
   const re=new RegExp('\\b'+head+'\\s*('+expr+')','gi'); let m;
   while((m=re.exec(text))){
     fteExpandIds(m[1],{keepChild}).forEach(id=>out.push({id,index:m.index,match:m[0]}));
+  }
+  if(kind==="figure"){
+    const special=fteFigureSpecialCitations(text);
+    special.forEach(c=>{if(!out.some(x=>x.id===c.id&&x.index===c.index))out.push(c);});
   }
   if(kind==="equation"){
     const special=fteEquationSpecialCitations(text);
@@ -15087,9 +16073,14 @@ extractDocxStructure=async function(buf){
   const blocks=[]; let pos=0;
 
   const paragraphBlock=(el,extra={})=>{
-    const text=fteXmlText(el),style=ftePStyle(el),seqCaptionType=fteSeqCaptionType(el);
+    const rawStructuralText=fteXmlText(el,{preserveSeparators:true});
+    const text=fteNormalizeStructuralWhitespace(rawStructuralText);
+    const style=ftePStyle(el),seqCaptionType=fteSeqCaptionType(el);
+    const separatorMeta=fteWordSeparatorMeta(el,rawStructuralText);
     const sm=styleMeta.get(style)||null;
     const hasDrawing=el.getElementsByTagNameNS(FTE_W_NS,"drawing").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"pict").length>0 || el.getElementsByTagNameNS(FTE_W_NS,"object").length>0;
+    const imageCount=el.getElementsByTagNameNS(FTE_A_NS,"blip").length;
+    const hasImage=imageCount>0;
     const mathCount=el.getElementsByTagNameNS(FTE_M_NS,"oMath").length;
     const hasMathPara=el.getElementsByTagNameNS(FTE_M_NS,"oMathPara").length>0;
     const hasMath=mathCount>0||hasMathPara;
@@ -15102,7 +16093,8 @@ extractDocxStructure=async function(buf){
     const ilvlEl=numPr?numPr.getElementsByTagNameNS(FTE_W_NS,"ilvl")[0]:null;
     const ilvlRaw=ilvlEl?(ilvlEl.getAttributeNS(FTE_W_NS,"val")||ilvlEl.getAttribute("w:val")||ilvlEl.getAttribute("val")):null;
     const ilvl=ilvlRaw!=null&&/^\d+$/.test(String(ilvlRaw))?parseInt(ilvlRaw,10):null;
-    const tabCount=el.getElementsByTagNameNS(FTE_W_NS,"tab").length;
+    const tabStopCount=(pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"tab").length:0);
+    const tabCount=separatorMeta.contentTabs;
     const jcEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"jc")[0]:null;
     const textAlign=jcEl?(jcEl.getAttributeNS(FTE_W_NS,"val")||jcEl.getAttribute("w:val")||jcEl.getAttribute("val")||""):"";
     const tabsEl=pPr?pPr.getElementsByTagNameNS(FTE_W_NS,"tabs")[0]:null;
@@ -15113,7 +16105,7 @@ extractDocxStructure=async function(buf){
     const hasPageBreak=[...el.getElementsByTagNameNS(FTE_W_NS,"br")].some(br=>/^(?:page)$/i.test(attrVal(br)));
     const sectionBreakAfter=!!(pPr&&pPr.getElementsByTagNameNS(FTE_W_NS,"sectPr").length);
     const eqBinding=fteWordParagraphEquationBinding(el,{hasMath,hasMathPara,mathCount,tabCount,textAlign,rightTabStop,style});
-    return {type:"p",pos:pos++,text,style,styleName:sm?.name||"",styleBasedOn:sm?.basedOn||"",styleChain:sm?.chain||[],seqCaptionType,hasDrawing,hasMath,hasMathPara,mathCount,outlineLvl,directOutlineLvl,hasNumbering:!!numPr,ilvl,tabCount,textAlign,rightTabStop,pageBreakBefore,hasPageBreak,sectionBreakAfter,attachedEquationId:eqBinding?.id||null,equationNumberOnlyId:eqBinding?.numberOnlyId||null,equationCoreText:eqBinding?.coreText||"",equationLabelSource:eqBinding?.source||"",...extra};
+    return {type:"p",pos:pos++,text,rawStructuralText,separatorMeta,style,styleName:sm?.name||"",styleBasedOn:sm?.basedOn||"",styleChain:sm?.chain||[],seqCaptionType,hasDrawing,hasImage,imageCount,hasMath,hasMathPara,mathCount,outlineLvl,directOutlineLvl,hasNumbering:!!numPr,ilvl,tabCount,tabStopCount,textAlign,rightTabStop,pageBreakBefore,hasPageBreak,sectionBreakAfter,attachedEquationId:eqBinding?.id||null,equationNumberOnlyId:eqBinding?.numberOnlyId||null,equationCoreText:eqBinding?.coreText||"",equationLabelSource:eqBinding?.source||"",...extra};
   };
 
   const addEmbeddedCaptionBlocks=(p,containerAnchor)=>{
@@ -15255,15 +16247,15 @@ fteAnalyze=function(blocks){
     if(fteIsGeneratedFigureTableListParagraph(b,i,generatedLists)) return;
     const fc=fteFigureCaption(b.text),tc=fteTableCaption(b.text);
     if(fc){
-      const near=fteNearbyIndex(active,i,x=>x.type==="p"&&x.hasDrawing,4);
+      const near=fteNearbyFigureObjectIndex(active,i,6);
       const styled=/(?:caption|figure)/i.test(b.style||"")||b.seqCaptionType==="figure";
-      const ev=fteCaptionEvidence(b.text,fc,"figure",b.style||"",near==null?99:Math.abs(near-i));
+      const ev=fteCaptionEvidence(b.text,fc,"figure",b.style||"",near==null?99:Math.abs(near-i),b);
       if(styled||near!=null||ev.score>=40) figCandidates.push({i,b,label:fc,draw:near,ev});
     }
     if(tc){
-      const near=fteNearbyIndex(active,i,x=>x.type==="table"&&!x.isEquationLayout,3);
+      const near=fteNearbyIndex(active,i,x=>x.type==="table"&&!x.isEquationLayout,4);
       const styled=/(?:caption|table)/i.test(b.style||"")||b.seqCaptionType==="table";
-      const ev=fteCaptionEvidence(b.text,tc,"table",b.style||"",near==null?99:Math.abs(near-i));
+      const ev=fteCaptionEvidence(b.text,tc,"table",b.style||"",near==null?99:Math.abs(near-i),b);
       if(styled||near!=null||ev.score>=40) tabCandidates.push({i,b,label:tc,table:near,ev});
     }
   });
@@ -15281,7 +16273,7 @@ fteAnalyze=function(blocks){
   // real figure even when an unsupported/floating drawing cannot be resolved.
   figCandidates.forEach(c=>{
     if(usedFigCaps.has(c.i)) return;
-    const strong=/(?:caption|figure)/i.test(c.b.style||"")||c.b.seqCaptionType==="figure"||(c.ev?.score||0)>=40;
+    const strong=/(?:caption|figure)/i.test(c.b.style||"")||c.b.seqCaptionType==="figure"||(c.ev?.score||0)>=40||!!c.ev?.tabAfterId;
     if(!strong) return;
     usedFigCaps.add(c.i); captionBlocks.add(c.i);
     figures.push({kind:"figure",id:c.label.id,panel:c.label.panel,pos:c.b.pos,caption:c.b.text,context:c.b.text,placementReliable:false,physicalAnchor:c.b.physicalAnchor||`caption:${c.i}`,captionIndex:c.i,objectResolved:false,confidence:.78});
@@ -15301,7 +16293,7 @@ fteAnalyze=function(blocks){
   });
   tabCandidates.forEach(c=>{
     if(usedTabCaps.has(c.i)) return;
-    const strong=/(?:caption|table)/i.test(c.b.style||"")||c.b.seqCaptionType==="table"||(c.ev?.score||0)>=45;
+    const strong=/(?:caption|table)/i.test(c.b.style||"")||c.b.seqCaptionType==="table"||(c.ev?.score||0)>=45||!!c.ev?.tabAfterId;
     if(!strong) return;
     usedTabCaps.add(c.i); captionBlocks.add(c.i);
     tables.push({kind:"table",id:c.label.id,pos:c.b.pos,caption:c.b.text,context:c.b.text,placementReliable:false,physicalAnchor:c.b.physicalAnchor||`table-caption:${c.i}`,captionIndex:c.i,objectResolved:false,confidence:.72});
@@ -15471,22 +16463,32 @@ fteAnalyze=function(blocks){
   const assignedFigureAnchors=new Set(figures.filter(x=>x.objectResolved!==false).map(x=>x.physicalAnchor).filter(Boolean));
   const assignedEquationAnchors=new Set(equations.map(x=>x.physicalAnchor).filter(Boolean));
   const assignedTableAnchors=new Set(tables.filter(x=>x.objectResolved!==false).map(x=>x.physicalAnchor).filter(Boolean));
-  const nearbyStructural=(kind,c)=>active.some((b,bi)=>{
-    if(Math.abs((b.pos??9999)-c.pos)>2) return false;
-    if(kind==="figure"){
-      if(!b.hasDrawing) return false;
-      const anchor=b.containerAnchor||b.physicalAnchor||`drawing:${bi}`;
-      return !assignedFigureAnchors.has(anchor);
-    }
-    if(kind==="equation"){
-      if(!(b.hasMath||b.hasMathPara||/equation/i.test(b.style||""))) return false;
-      const anchor=b.physicalAnchor||`equation:${bi}`;
-      return !assignedEquationAnchors.has(anchor);
-    }
-    if(b.type!=="table") return false;
-    const anchor=b.physicalAnchor||`table:${bi}`;
-    return !assignedTableAnchors.has(anchor);
-  });
+  const structuralAmbiguity=(kind,c)=>{
+    const radius=kind==="figure"?6:(kind==="table"?4:3);
+    const nearbyObjects=[];
+    active.forEach((b,bi)=>{
+      if(Math.abs((b.pos??9999)-c.pos)>radius) return;
+      if(kind==="figure" && b.hasDrawing){
+        const anchor=b.containerAnchor||b.physicalAnchor||`drawing:${bi}`;
+        if(!assignedFigureAnchors.has(anchor)) nearbyObjects.push({b,bi,anchor});
+      }else if(kind==="equation" && (b.hasMath||b.hasMathPara||/equation/i.test(b.style||""))){
+        const anchor=b.physicalAnchor||`equation:${bi}`;
+        if(!assignedEquationAnchors.has(anchor)) nearbyObjects.push({b,bi,anchor});
+      }else if(kind==="table" && b.type==="table"){
+        const anchor=b.physicalAnchor||`table:${bi}`;
+        if(!assignedTableAnchors.has(anchor)) nearbyObjects.push({b,bi,anchor});
+      }
+    });
+
+    const captionMatches=(kind==="figure"?figCandidates:kind==="table"?tabCandidates:[])
+      .filter(x=>x?.label?.id===c.id);
+    if(captionMatches.length>1) return {nearby:true,msg:`${fteDisplay(kind,c.id)} is cited, but more than one candidate numbered caption was detected nearby.`,suggestion:`Verify which nearby ${kind} should carry this identifier.`};
+    if(captionMatches.length===1 && nearbyObjects.length>1) return {nearby:true,msg:`${fteDisplay(kind,c.id)} is cited and its caption is detectable, but multiple nearby ${kind} objects make the physical association ambiguous.`,suggestion:`Verify which nearby ${kind} belongs to the detected caption.`};
+    if(captionMatches.length===1) return {nearby:true,msg:`${fteDisplay(kind,c.id)} is cited and a matching caption-like label was detected, but the physical object association could not be confirmed automatically.`,suggestion:`Verify the placement of the matching ${kind} caption and object.`};
+    if(nearbyObjects.length>1) return {nearby:true,msg:`${fteDisplay(kind,c.id)} is cited, but multiple nearby structural ${kind} candidates were detected and no matching numbered caption could be confirmed.`,suggestion:`Verify the numbered caption for the intended ${kind}.`};
+    if(nearbyObjects.length===1) return {nearby:true,msg:`${fteDisplay(kind,c.id)} is cited and a nearby ${kind} object is present, but no matching numbered caption could be confirmed.`,suggestion:`Verify that the nearby ${kind} has the correct numbered caption.`};
+    return {nearby:false,msg:"",suggestion:""};
+  };
 
   for(const kind of ["figure","table","equation"]){
     const prefix=kind.toUpperCase(),items=itemMap[kind];
@@ -15494,22 +16496,23 @@ fteAnalyze=function(blocks){
     citations[kind].forEach(c=>{
       if(resolves(kind,c.id,items)) return;
       if(fteIdParts(c.id)?.supp&&!suppExists) return;
-      if(nearbyStructural(kind,c)){
+      const ambiguity=structuralAmbiguity(kind,c);
+      if(ambiguity.nearby){
         fteIssue(
           issues,
           kind,
           c.id,
           `${prefix}_STRUCTURAL_MATCH_REVIEW`,
-          `${fteDisplay(kind,c.id)} is cited and nearby structural content exists, but the identifier remains genuinely ambiguous after structural matching.`,
+          ambiguity.msg,
           kind==="equation"
             ?"Check the equation number only if the displayed label is missing, duplicated, or visually separated in a way Word does not expose reliably."
-            :`Verify the numbering of the nearby ${kind}.`,
-          c.context,
+            :ambiguity.suggestion,
+          fteCitationContext(c.context,c),
           "warn"
         );
       }else{
         const code=kind==="equation"?"EQUATION_REFERENCE_WITHOUT_EQUATION":`${prefix}_CITATION_WITHOUT_${prefix}`;
-        fteIssue(issues,kind,c.id,code,`${fteDisplay(kind,c.id)} is cited in the text but no corresponding numbered ${kind} was located.`,`Verify the identifier or add the missing ${kind}.`,c.context,"err");
+        fteIssue(issues,kind,c.id,code,`${fteDisplay(kind,c.id)} is cited in the text but no corresponding numbered ${kind} was located.`,`Verify the identifier or add the missing ${kind}.`,fteCitationContext(c.context,c),"err");
       }
     });
 
@@ -15523,9 +16526,9 @@ fteAnalyze=function(blocks){
           // A citation in the immediately following explanatory paragraph is a
           // normal scientific construction and is not an error. More distant
           // first references are only a style note because journal practice varies.
-          if(first.pos>it.pos+1) fteIssue(issues,kind,it.id,"EQUATION_FIRST_CITATION_ORDER",`${fteDisplay(kind,it.id)} is first referred to after its display.`,`Check the target journal style only if equations are required to be introduced before display.`,first.context,"info");
+          if(first.pos>it.pos+1) fteIssue(issues,kind,it.id,"EQUATION_FIRST_CITATION_ORDER",`${fteDisplay(kind,it.id)} is first referred to after its display.`,`Check the target journal style only if equations are required to be introduced before display.`,fteCitationContext(first.context,first),"info");
         }else if(it.placementReliable){
-          fteIssue(issues,kind,it.id,`${prefix}_APPEARS_BEFORE_FIRST_CITATION`,`${fteDisplay(kind,it.id)} appears before its first in-text citation.`,`Move or add the first citation so it occurs before the ${kind}'s first physical appearance.`,first.context,"err");
+          fteIssue(issues,kind,it.id,`${prefix}_APPEARS_BEFORE_FIRST_CITATION`,`${fteDisplay(kind,it.id)} appears before its first in-text citation.`,`Move or add the first citation so it occurs before the ${kind}'s first physical appearance.`,fteCitationContext(first.context,first),"err");
         }
       }
     });
@@ -15539,7 +16542,7 @@ fteAnalyze=function(blocks){
         const b=matchingCitations(kind,ordered[j]).sort((x,y)=>x.pos-y.pos)[0];
         if(a&&b&&b.pos<a.pos){
           const code=kind==="equation"?"EQUATION_FIRST_CITATION_ORDER":`${prefix}_CITED_BEFORE_PREVIOUS_${prefix}`;
-          fteIssue(issues,kind,ordered[j],code,`${fteDisplay(kind,ordered[j])} is first cited before ${fteDisplay(kind,ordered[j-1])}.`,`Check the numbering or revise the first-citation order.`,b.context,"warn");
+          fteIssue(issues,kind,ordered[j],code,`${fteDisplay(kind,ordered[j])} is first cited before ${fteDisplay(kind,ordered[j-1])}.`,`Check the numbering or revise the first-citation order.`,fteCitationContext(b.context,b),"warn");
         }
       }
     }
@@ -15548,7 +16551,13 @@ fteAnalyze=function(blocks){
   const unverified=figures.filter(x=>!x.placementReliable).length;
   const seen=new Set();
   const dedup=issues.filter(x=>{const k=[x.kind,x.id,x.code,x.msg].join('|');if(seen.has(k))return false;seen.add(k);return true;});
-  return {reliable:true,issues:dedup,figures,tables,equations,citations,unverified};
+  const diagnostics={
+    captions:{
+      figures:figCandidates.map(c=>({id:c.label?.id,pos:c.b?.pos,text:c.b?.text||"",rawStructuralText:c.b?.rawStructuralText||"",style:c.b?.style||"",seqCaptionType:c.b?.seqCaptionType||"",objectIndex:c.draw,score:c.ev?.score||0,reasons:c.ev?.reasons||[],tabAfterId:!!c.ev?.tabAfterId})),
+      tables:tabCandidates.map(c=>({id:c.label?.id,pos:c.b?.pos,text:c.b?.text||"",rawStructuralText:c.b?.rawStructuralText||"",style:c.b?.style||"",seqCaptionType:c.b?.seqCaptionType||"",objectIndex:c.table,score:c.ev?.score||0,reasons:c.ev?.reasons||[],tabAfterId:!!c.ev?.tabAfterId}))
+    }
+  };
+  return {reliable:true,issues:dedup,figures,tables,equations,citations,unverified,diagnostics};
 };
 
 </script>
@@ -16751,7 +17760,7 @@ fteAnalyze=function(blocks){
       const tc=fteTableCaption(b.text);
       if(!tc) continue;
       const styled=/(?:caption|table)/i.test(b.style||"")||b.seqCaptionType==="table";
-      const ev=fteCaptionEvidence(b.text,tc,"table",b.style||"",Math.abs(d));
+      const ev=fteCaptionEvidence(b.text,tc,"table",b.style||"",Math.abs(d),b);
       if(!(styled || (ev?.score||0)>=40)) continue;
       let nearest=-1,best=Infinity;
       blocks.forEach((x,j)=>{
@@ -16827,6 +17836,25 @@ fteAnalyze=function(blocks){
      in Abstract and each chapter.
      Continuous non-thesis manuscripts: exactly one consistent approach among
      list-only, first-use-only, or list + first-use. -->
+<!-- Build update 2026-08-16:
+     Conventional abbreviation definitions now require validated lexical
+     equivalence. Measurement-associated and experimental-condition uses are
+     excluded from duplicate/conflict definition analysis. -->
+<!-- Build update 2026-08-16:
+     Abbreviation definition comparison now distinguishes repeated equivalent
+     definitions from genuinely conflicting meanings. Full-form comparison
+     normalizes harmless orthographic variation, and scientific parameter
+     extraction trims clausal lead-ins such as "reduction in" before Rct. -->
+<!-- Build update 2026-08-16:
+     Abbreviation first-use analysis now reconciles validated definition events
+     with exact occurrence offsets. A token consumed by a definition cannot also
+     be an ordinary use. Same-sentence ordering remains character-aware, and
+     duplicate-definition analysis runs independently after reconciliation. -->
+<!-- Build update 2026-08-16:
+     Chemical formulae are now protected before abbreviation evaluation using
+     element-symbol grammar, formula syntax, local chemistry evidence and a
+     conservative ambiguity policy. KOH and formula fragments inside larger
+     expressions no longer create undefined-abbreviation findings. -->
 <script id="abbr-long-document-scope-v1">
 (()=>{
   "use strict";
@@ -17132,12 +18160,19 @@ fteAnalyze=function(blocks){
       if(!map.has(key)) map.set(key,[]);
       const arr=map.get(key);
       const form=dtype==="conventional_acronym"?abbrCanonicalAbbreviationForm(sf):sf;
-      if(!arr.some(d=>d.sent===si && d.long.toLowerCase()===String(lf).toLowerCase() && d.definitionType===dtype)) arr.push({form,long:lf,sent:si,kind,definitionType:dtype,observedForm:meta.observedForm||sf,grammaticalPlural:!!meta.grammaticalPlural});
+      if(dtype==="conventional_acronym" && (meta.validatedDefinition!==true || !abbrDefLooksLexicalFullForm(sf,lf))) return;
+      if(!arr.some(d=>d.sent===si && d.long.toLowerCase()===String(lf).toLowerCase() && d.definitionType===dtype)) arr.push({
+        form,long:lf,sent:si,kind,definitionType:dtype,observedForm:meta.observedForm||sf,grammaticalPlural:!!meta.grammaticalPlural,
+        validatedDefinition:dtype!=="conventional_acronym"?true:meta.validatedDefinition===true,
+        definitionConfidence:meta.definitionConfidence||"high",
+        definitionRole:meta.definitionRole||kind
+      });
     };
     ss.forEach((s,i)=>{collectDefs(s,i,add);collectScientificDefs(s,i,add);collectReverseDefs(s,i,add);collectScientificReverseDefs(s,i,add);});
     return map;
   }
   function meaningKey(s){
+    try{return abbrDefinitionMeaningKey(s);}catch(_e){}
     return txt(s).toLowerCase().replace(/[‐‑‒–—-]+/g," ").replace(/[^a-z0-9\s]/g," ").replace(/\b([a-z]{4,})s\b/g,"$1").replace(/\s+/g," ").trim();
   }
   function issueKey(it){ return `${norm(it?.abbr||"")}|${String(it?.msg||"").replace(/\d+/g,"#").slice(0,120)}`; }
@@ -17839,7 +18874,7 @@ fteAnalyze=function(blocks){
     const remCounts={critical:0,review:0,style:0}; allIssues().forEach(i=>{if(i.classList.contains("mc-not-issue")||i.classList.contains("mc-reviewed"))return;const p=priorityOf(i);if(remCounts[p]!==undefined)remCounts[p]++}); remCounts.review+=countGroup("unit"); document.querySelectorAll('#num-findings tbody tr[data-num-review="1"]').forEach(r=>{const p=r.dataset.numPriority||"review";if(remCounts[p]!==undefined)remCounts[p]++});
     document.querySelectorAll(".overview-priority-card").forEach((card,i)=>{const key=["critical","review","style"][i];const n=card.querySelector(".n");if(n)n.textContent=String(remCounts[key]||0);if(!card.querySelector(".mc-card-action"))card.insertAdjacentHTML("beforeend",'<span class="mc-card-action">Review these →</span>');card.tabIndex=0;card.setAttribute("role","button")});
     document.querySelectorAll(".overview-module[data-overview-tab]").forEach(card=>{const g=card.dataset.overviewTab,att=card.querySelector(".overview-module-attn"),n=countGroup(g);if(att){att.textContent=n?`${n} item${n===1?"":"s"} remaining`:totalGroupFindings(g)>0?"All findings reviewed":"No findings requiring attention";att.classList.toggle("overview-module-clean",n===0)}});
-    document.querySelectorAll(".overview-module").forEach(card=>{if(!card.querySelector(".mc-card-action"))card.insertAdjacentHTML("beforeend",'<span class="mc-card-action">Open details →</span>')});
+    document.querySelectorAll(".overview-module").forEach(card=>{if(!card.querySelector(".mc-card-action"))card.insertAdjacentHTML("beforeend",'<span class="mc-card-action">Open details</span>')});
     const cards=[...document.querySelectorAll(".overview-priority-card")];cards.forEach((c,i)=>{const p=["critical","review","style"][i];const go=()=>jumpToPriority(p);c.onclick=go;c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
     mcPlaceCombinedExportAtOverviewBottom();
   }
@@ -18061,8 +19096,18 @@ fteAnalyze=function(blocks){
     let safe=e(raw);
     const label=fteItemLabel(it);
     if(label&&it?.id&&it.id!=="?"){
-      const bits=label.split(/\s+/).filter(Boolean).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"));
-      try{safe=safe.replace(new RegExp(`(${bits.join("\\s+")})`,"i"),"<mark>$1</mark>");}catch(_e){}
+      const id=String(it.id).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      let rx=null;
+      if(it.kind==="figure") rx=new RegExp(`\\b((?:Fig(?:ure)?s?)\\s*\\.?\\s*${id}\\b)`,"i");
+      else if(it.kind==="table") rx=new RegExp(`\\b((?:Tables?)\\s*\\.?\\s*${id}\\b)`,"i");
+      else if(it.kind==="equation") rx=new RegExp(`\\b((?:Eq(?:uation|n)?s?)\\s*\\.?\\s*\\(?${id}\\)?)`,"i");
+      try{
+        if(rx&&rx.test(safe)) safe=safe.replace(rx,"<mark>$1</mark>");
+        else{
+          const bits=label.split(/\s+/).filter(Boolean).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"));
+          safe=safe.replace(new RegExp(`(${bits.join("\\s+")})`,"i"),"<mark>$1</mark>");
+        }
+      }catch(_e){}
     }
     return safe;
   }
@@ -18078,7 +19123,12 @@ fteAnalyze=function(blocks){
     const view=ctx?`<button type="button" class="fte-view-instances" data-target="fte-instance-row-${i}" aria-expanded="false" aria-controls="fte-instance-row-${i}">View instances</button>`:"";
     const main=`<tr><td class="t-abbr">${e(fteItemLabel(it))}</td><td>${e(fteCheckLabel(it.code))}</td><td>${e(it.msg||"")}</td><td><span class="fte-ledger-status ${ftePriority(it)}">${e(fteStatusLabel(it))}</span></td><td>${e(it.suggestion||"Review this item in the manuscript.")}${view}</td></tr>`;
     if(!ctx) return main;
-    return main+`<tr class="fte-instance-row" id="fte-instance-row-${i}" hidden><td colspan="5"><div class="fte-instance-panel"><p class="fte-instance-panel-title">Manuscript instance</p><p class="fte-instance-panel-note">This is the manuscript context used for the structural finding.</p><div class="fte-instance-example">${ctx}</div></div></td></tr>`;
+    const citationFinding=/CITATION_WITHOUT|REFERENCE_WITHOUT|STRUCTURAL_MATCH|APPEARS_BEFORE_FIRST_CITATION|FIRST_CITATION_ORDER|CITED_BEFORE_PREVIOUS/.test(String(it.code||""));
+    const panelTitle=citationFinding?"Citation instance":"Manuscript instance";
+    const panelNote=citationFinding&&it.id&&it.id!=="?"
+      ?`Context is centred on the in-text ${fteItemLabel(it)} citation used for this finding.`
+      :"This is the manuscript context used for the structural finding.";
+    return main+`<tr class="fte-instance-row" id="fte-instance-row-${i}" hidden><td colspan="5"><div class="fte-instance-panel"><p class="fte-instance-panel-title">${e(panelTitle)}</p><p class="fte-instance-panel-note">${e(panelNote)}</p><div class="fte-instance-example">${ctx}</div></div></td></tr>`;
   }
 
   window.renderFteReport=function(res){
@@ -18759,6 +19809,904 @@ fteAnalyze=function(blocks){
       STATE.citationStyle=oldStyle;
       STATE.referenceNumbers=oldRefs;
     }
+  };
+})();
+</script>
+
+
+<script id="mc-context-aware-measurement-grouping-v1">
+/*
+  Context-aware measurement grouping
+  ----------------------------------
+  Decimal precision is compared only among measurements that represent the
+  same scientific parameter in a compatible local context. Unit notation may
+  still be checked manuscript-wide. This prevents unit-only grouping such as
+  100 h continuous operation vs 2.0 h reaction/observation time.
+*/
+(function(){
+  const BASE_UNIT_EXTRACT=unitExtractQuantities;
+  const BASE_UNIT_TABLES=unitAnalyzeTables;
+
+  const MC_TIME_UNIT=/^(?:ms|s|sec|secs|second|seconds|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|week|weeks)$/i;
+  const MC_LENGTH_UNIT=/^(?:nm|µm|μm|mm|cm|m|km)$/i;
+  const MC_PRESSURE_UNIT=/^(?:pa|kpa|mpa|bar|atm|mmhg)$/i;
+  const MC_TEMP_UNIT=/^(?:°\s*[cf]|℃|℉|k)$/i;
+  const MC_PERCENT_UNIT=/^(?:%|‰|wt\s*%)$/i;
+  // Molarity symbols are case-sensitive: µM is concentration, µm is length.
+  const MC_CONC_UNIT=/(?:^|\b)(?:mM|µM|μM|nM|M|mg\s*(?:\/|·|\s)\s*L|g\s*(?:\/|·|\s)\s*L|µg\s*(?:\/|·|\s)\s*L|μg\s*(?:\/|·|\s)\s*L|ng\s*(?:\/|·|\s)\s*L|mg\s*(?:\/|·|\s)\s*kg)(?:\b|$)/;
+  const MC_INV_TIME_UNIT=/(?:^|[·\s\/])(?:ms|s|min|h)(?:\s*(?:\^?\s*[-−]?1|⁻¹)|\s*\/\s*)/i;
+
+  const ANALYTE_PATTERNS=[
+    ["PAA",/\b(?:PAA|peracetic\s+acid)\b/i],
+    ["OFX",/\b(?:OFX|ofloxacin)\b/i],
+    ["HA",/\b(?:HA|humic\s+acid)\b/i],
+    ["Zn",/\b(?:Zn(?:2\+|²⁺)?|zinc)\b/i],
+    ["Co",/\b(?:Co(?:2\+|²⁺)?|cobalt)\b/i],
+    ["Fe",/\b(?:Fe(?:2\+|3\+|²⁺|³⁺)?|iron)\b/i],
+    ["Cu",/\b(?:Cu(?:2\+|²⁺)?|copper)\b/i],
+    ["COD",/\bCOD\b/i],["BOD",/\bBOD\b/i],["TSS",/\bTSS\b/i],["TDS",/\bTDS\b/i],
+    ["TN",/\bTN\b/i],["TP",/\bTP\b/i],["TKN",/\bTKN\b/i],["TOC",/\bTOC\b/i],
+    ["NH4-N",/\b(?:NH\s*4\s*[-–]?\s*N|ammoniacal\s+nitrogen|ammonium)\b/i],
+    ["NO3-N",/\b(?:NO\s*3\s*[-–]?\s*N|nitrate)\b/i],
+    ["NO2-N",/\b(?:NO\s*2\s*[-–]?\s*N|nitrite)\b/i],
+    ["PO4-P",/\b(?:PO\s*4\s*[-–]?\s*P|phosphate)\b/i],
+    ["NaClO4",/\bNaClO4\b/i],
+    ["K3[Fe(CN)6]",/\bK3\s*\[Fe\(CN\)6\]\b/i]
+  ];
+
+  function mcNormKey(s){
+    return String(s||"").toLowerCase().replace(/[µμ]/g,"u").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"")||"unknown";
+  }
+  function mcCleanContextText(s){
+    return String(s||"")
+      .replace(/\u00A0|\u202F/g," ")
+      .replace(/[‐‑‒–—]/g,"-")
+      .replace(/\s+/g," ")
+      .trim();
+  }
+  function mcMeasurementEnd(text,q){
+    let end=(q.index||0)+String(q.value||"").length;
+    const tail=String(text||"").slice(end,end+Math.max(20,String(q.rawUnit||"").length+12));
+    const unit=String(q.rawUnit||"").trim();
+    if(unit){
+      const i=tail.indexOf(unit);
+      if(i>=0 && i<=10) end+=i+unit.length;
+    }
+    return end;
+  }
+  function mcClauseWindow(text,start,end){
+    const s=String(text||"");
+    const leftFloor=Math.max(0,start-230),rightCeil=Math.min(s.length,end+230);
+    let left=start,right=end;
+    const leftChunk=s.slice(leftFloor,start);
+    const lm=Math.max(leftChunk.lastIndexOf(". "),leftChunk.lastIndexOf("; "),leftChunk.lastIndexOf("? "),leftChunk.lastIndexOf("! "),leftChunk.lastIndexOf("\n"));
+    if(lm>=0) left=leftFloor+lm+1; else left=leftFloor;
+    const rightChunk=s.slice(end,rightCeil);
+    const hits=[rightChunk.indexOf(". "),rightChunk.indexOf("; "),rightChunk.indexOf("? "),rightChunk.indexOf("! "),rightChunk.indexOf("\n")].filter(x=>x>=0);
+    if(hits.length) right=end+Math.min(...hits)+1; else right=rightCeil;
+    return {text:mcCleanContextText(s.slice(left,right)),start:left,end:right};
+  }
+  function mcFindAnalyte(around){
+    const s=String(around||"");
+    let best=null,bestPos=Infinity;
+    ANALYTE_PATTERNS.forEach(([label,re])=>{
+      const m=s.match(re); if(!m)return;
+      const pos=m.index??9999;
+      if(pos<bestPos){best={label,raw:m[0]};bestPos=pos;}
+    });
+    return best;
+  }
+  function mcFindNearestAnalyte(before,after){
+    const b=String(before||""),a=String(after||"");
+    let best=null,bestDist=Infinity;
+    ANALYTE_PATTERNS.forEach(([label,re0])=>{
+      const flags=re0.flags.includes("g")?re0.flags:re0.flags+"g";
+      const rb=new RegExp(re0.source,flags),ra=new RegExp(re0.source,flags);
+      let m,last=null; while((m=rb.exec(b)))last=m;
+      if(last){const d=b.length-(last.index+last[0].length);if(d<bestDist){best={label,raw:last[0]};bestDist=d;}}
+      const first=ra.exec(a); if(first){const d=(first.index||0);if(d<bestDist){best={label,raw:first[0]};bestDist=d;}}
+    });
+    return bestDist<=120?best:null;
+  }
+  function mcDimFamily(q){
+    const raw=mcCleanContextText(q?.rawUnit||"");
+    const norm=String(q?.parsed?.normalized||raw).trim();
+    if(MC_TIME_UNIT.test(raw)||MC_TIME_UNIT.test(norm)) return "time";
+    if(MC_INV_TIME_UNIT.test(raw)||MC_INV_TIME_UNIT.test(norm)) return "rate";
+    if(MC_TEMP_UNIT.test(raw)||q?.parsed?.dimKey==="Th:1") return "temperature";
+    if(MC_PRESSURE_UNIT.test(raw)) return "pressure";
+    if(MC_PERCENT_UNIT.test(raw)) return "percentage";
+    if(MC_CONC_UNIT.test(raw)||MC_CONC_UNIT.test(norm)) return "concentration";
+    if(MC_LENGTH_UNIT.test(raw)||MC_LENGTH_UNIT.test(norm)) return "length";
+    if(/(?:L|m3|m³).*(?:m-?2|m\^?-?2|m²).*(?:h-?1|h\^?-?1|h⁻¹)/i.test(norm.replace(/\s+/g,""))||/\bflux\b/i.test(q?.snippet||"")) return "flux";
+    if(/(?:mg|g|kg).*(?:cm|m)(?:2|²|\^2)/i.test(raw.replace(/\s+/g,""))) return "loading";
+    if(/\b(?:V|mV)\b/.test(raw)) return "voltage";
+    if(/\b(?:A|mA|µA|μA)\b/.test(raw)) return "current";
+    if(/\b(?:W|kW|mW)\b/.test(raw)) return "power";
+    if(/\b(?:J|kJ|Wh|kWh|eV)\b/.test(raw)) return "energy";
+    return "other";
+  }
+  function mcContextResult(parameterKey,parameter,contextKey,contextLabel,confidence,evidence=[],precisionComparable=true){
+    return {parameterKey,parameter,contextKey:contextKey||"general",contextLabel:contextLabel||"",confidence,confidenceLabel:confidence>=.90?"high":confidence>=.72?"medium":"low",evidence,precisionComparable:!!precisionComparable};
+  }
+  function mcSpecificCue(s,patterns){
+    for(const [key,label,re,ctx] of patterns){if(re.test(s))return {key,label,ctx};}
+    return null;
+  }
+  function mcClassifyTime(clause,before,after){
+    const near=(before.slice(-100)+" "+after.slice(0,100)).toLowerCase();
+    const whole=clause.toLowerCase();
+
+    if(/\b(?:hydraulic\s+retention\s+time|retention\s+time|HRT)\b/i.test(clause))
+      return mcContextResult("retention_time","Retention time","retention","Retention time",.99,["retention time"]);
+    if(/\b(?:residence\s+time)\b/i.test(clause))
+      return mcContextResult("residence_time","Residence time","residence","Residence time",.98,["residence time"]);
+    if(/\b(?:contact\s+time|contacted\s+for)\b/i.test(clause))
+      return mcContextResult("contact_time","Contact time","contact","Contact time",.97,["contact"]);
+    if(/\b(?:incubat(?:e|ed|ion)|incubation\s+time)\b/i.test(clause))
+      return mcContextResult("incubation_time","Incubation time","incubation","Incubation",.97,["incubation"]);
+    if(/\b(?:centrifug(?:e|ed|ation)|centrifugation\s+time)\b/i.test(clause))
+      return mcContextResult("centrifugation_duration","Centrifugation duration","centrifugation","Centrifugation",.98,["centrifugation"]);
+    if(/\b(?:storage|stored|shelf\s*life)\b/i.test(clause))
+      return mcContextResult("storage_duration","Storage duration","storage","Storage",.95,["storage"]);
+    if(/\b(?:exposure|exposed)\b/i.test(clause))
+      return mcContextResult("exposure_time","Exposure time","exposure","Exposure",.95,["exposure"]);
+    if(/\b(?:sampling\s+(?:time|interval)|sampled\s+(?:after|every|at)|samples?\s+(?:were\s+)?collected|aliquots?\s+(?:were\s+)?withdrawn)\b/i.test(clause))
+      return mcContextResult("sampling_time","Sampling time / interval","sampling","Sampling",.94,["sampling"]);
+
+    // Strong direct attachment to operational/stability wording wins over more
+    // distant reaction/response language in the same sentence.
+    if(/(?:operat(?:ed|ing|ion)|stability|durability|continuous\s+operation|long[- ]term)\s*(?:for|over|during|of|at)?\s*$/i.test(before.slice(-85)) ||
+       /^\s*(?:of\s+)?(?:continuous\s+)?operation\b/i.test(after) ||
+       /\b(?:after|over|during)\s+[^.;]{0,24}\b(?:of\s+)?(?:continuous\s+)?operation\b/i.test(near)){
+      return mcContextResult("operational_duration","Operational duration","stability_operation","Long-term / continuous operation",.99,["operation"]);
+    }
+    if(/\b(?:continuous\s+operation|long[- ]term\s+(?:operation|stability)|stability(?:\s+test)?|stable|durability(?:\s+test)?|operational\s+stability|performance\s+(?:decay|decline)|performance\s+(?:remained|remains|was)\s+stable)\b/i.test(clause))
+      return mcContextResult("operational_duration","Operational duration","stability_operation","Long-term / continuous operation",.95,["stability/operation"]);
+
+    if(/\b(?:calcined|annealed|heated|pyroly[sz]ed|hydrothermal|solvothermal|synthesi[sz]ed|dried)\b/i.test(clause) && /\b(?:for|during)\b/i.test(before.slice(-55)))
+      return mcContextResult("synthesis_duration","Synthesis / treatment duration","synthesis","Synthesis / thermal treatment",.93,["synthesis/treatment"]);
+
+    if(/\b(?:reaction\s+time|reaction\s+period|reacted\s+for|reaction\s+was\s+(?:continued|conducted)|degradation\s+time|oxidation\s+time)\b/i.test(clause))
+      return mcContextResult("reaction_time","Reaction time","reaction","Reaction / kinetics",.97,["reaction"]);
+
+    const analyte=mcFindNearestAnalyte(before,after)||mcFindAnalyte(clause);
+    if(/\b(?:observed|measured|monitored|recorded|decrease|increase|consumption|removal|degradation|oxidation)\b/i.test(clause) &&
+       /\b(?:within|after|at)\s*$/i.test(before.slice(-22))){
+      const c=analyte?`${analyte.label} response`:(/PAA/i.test(clause)?"PAA response":"experimental response");
+      return mcContextResult("observation_time","Reaction / observation time",mcNormKey(c),c,.90,["observed within/after",analyte?.label].filter(Boolean));
+    }
+    if(/\b(?:kinetic|kinetics|degradation|oxidation|reaction|removal)\b/i.test(clause)){
+      const c=analyte?`${analyte.label} kinetics`:"reaction kinetics";
+      return mcContextResult("reaction_time","Reaction time",mcNormKey(c),c,.82,["kinetic/reaction context",analyte?.label].filter(Boolean));
+    }
+    return mcContextResult("time_value","Time value · context not resolved","uncertain_time","Context uncertain",.48,[],false);
+  }
+  function mcClassifyLength(clause,before,after){
+    // Prefer the descriptor syntactically nearest to this particular value so
+    // one sentence can correctly contain both membrane thickness and pore size.
+    const nearBefore=before.slice(-90),nearAfter=after.slice(0,90),near=`${nearBefore} ${nearAfter}`;
+    const cues=[
+      ["membrane_thickness","Membrane thickness",/\b(?:membrane\s+)?thickness\b/i,"membrane thickness"],
+      ["pore_width","Pore width / size",/\b(?:pore\s+(?:width|size|diameter)|pore-width)\b/i,"pore structure"],
+      ["particle_size","Particle size / diameter",/\b(?:particle|nanoparticle|aggregate)\s+(?:size|diameter)\b/i,"particle size"],
+      ["bond_length","Bond length",/\bbond\s+length\b/i,"bond length"],
+      ["interlayer_spacing","Interlayer spacing",/\b(?:interlayer\s+spacing|d-spacing|spacing)\b/i,"spacing"],
+      ["wavelength","Wavelength",/\bwavelength\b/i,"wavelength"],
+      ["distance","Distance / length",/\b(?:distance|length)\b/i,"length"]
+    ];
+    let best=null,bestDist=1e9;
+    cues.forEach(([key,label,re,ctx])=>{
+      const b=[...nearBefore.matchAll(new RegExp(re.source,re.flags.includes("g")?re.flags:re.flags+"g"))];
+      if(b.length){const m=b[b.length-1],dist=nearBefore.length-(m.index+m[0].length);if(dist<bestDist){best={key,label,ctx};bestDist=dist;}}
+      const a=nearAfter.match(re);if(a){const dist=(a.index||0)+4;if(dist<bestDist){best={key,label,ctx};bestDist=dist;}}
+    });
+    if(best&&bestDist<=70)return mcContextResult(best.key,best.label,best.key,best.ctx,.97,[best.ctx]);
+    const cue=mcSpecificCue(clause,cues);
+    if(cue)return mcContextResult(cue.key,cue.label,cue.key,cue.ctx,.82,[cue.ctx]);
+    return mcContextResult("length_value","Length value · context not resolved","uncertain_length","Context uncertain",.52,[],false);
+  }
+  function mcClassifyConcentration(clause,before,after){
+    let analyte=mcFindNearestAnalyte(before.slice(-140),after.slice(0,140));
+    if(!analyte)analyte=mcFindAnalyte(clause);
+    if(analyte){
+      const label=`${analyte.label} concentration`;
+      return mcContextResult(`concentration_${mcNormKey(analyte.label)}`,label,`analyte_${mcNormKey(analyte.label)}`,label,.96,[analyte.label,"concentration"]);
+    }
+    const explicit=clause.match(/\b([A-Za-z][A-Za-z0-9+−⁺⁻-]{1,24})\s+concentration\b/i)||clause.match(/\bconcentration\s+of\s+([A-Za-z][A-Za-z0-9+−⁺⁻-]{1,24})\b/i);
+    if(explicit){
+      const a=explicit[1];
+      return mcContextResult(`concentration_${mcNormKey(a)}`,`${a} concentration`,`analyte_${mcNormKey(a)}`,`${a} concentration`,.90,[a,"concentration"]);
+    }
+    return mcContextResult("concentration_value","Concentration · context not resolved","uncertain_concentration","Context uncertain",.58,["concentration-compatible unit"],false);
+  }
+  function mcClassifyPercentage(clause){
+    const cue=mcSpecificCue(clause,[
+      ["removal_efficiency","Removal efficiency",/\b(?:removal|degradation)\s+(?:efficiency|rate)|\bremoval\b/i,"removal/degradation"],
+      ["rejection_efficiency","Rejection",/\brejection\b/i,"rejection"],
+      ["flux_decline","Flux decline",/\bflux\s+(?:declin|loss)|\bdeclined\b/i,"flux decline"],
+      ["yield","Yield",/\byield\b/i,"yield"],
+      ["recovery","Recovery",/\brecovery\b/i,"recovery"],
+      ["loading_composition","Loading / composition",/\b(?:loading|wt\s*%|composition|content)\b/i,"loading/composition"]
+    ]);
+    if(cue)return mcContextResult(cue.key,cue.label,cue.key,cue.ctx,.90,[cue.ctx]);
+    return mcContextResult("percentage_value","Percentage · context not resolved","uncertain_percentage","Context uncertain",.50,[],false);
+  }
+  function mcClassifyGeneric(q,clause,before,after){
+    const family=mcDimFamily(q);
+    if(family==="time") return mcClassifyTime(clause,before,after);
+    if(family==="length") return mcClassifyLength(clause,before,after);
+    if(family==="concentration") return mcClassifyConcentration(clause,before,after);
+    if(family==="percentage") return mcClassifyPercentage(clause);
+    if(family==="temperature"){
+      if(/\b(?:calcined|annealed|heated|pyroly[sz]ed|hydrothermal|synthesi[sz]ed|dried)\b/i.test(clause))
+        return mcContextResult("synthesis_temperature","Synthesis / treatment temperature","synthesis_temperature","Synthesis / thermal treatment",.94,["thermal treatment"]);
+      return mcContextResult("temperature","Temperature","temperature","Temperature",.88,["temperature-compatible unit"]);
+    }
+    if(family==="pressure"){
+      if(/\b(?:transmembrane\s+pressure|TMP)\b/i.test(clause))return mcContextResult("transmembrane_pressure","Transmembrane pressure","membrane_operation","Membrane operation",.98,["transmembrane pressure"]);
+      if(/\b(?:operating|operation|membrane|ultralow)\s+pressure\b/i.test(clause)||/\bpressure\b/i.test(clause)||/\boperat(?:ed|ing|ion)\b[^.;]{0,80}\bat\s*$/i.test(before.slice(-120)))return mcContextResult("operating_pressure","Operating pressure","operation","Operating conditions",.92,["operating condition"]);
+      return mcContextResult("pressure","Pressure","pressure","Pressure",.78,["pressure-compatible unit"]);
+    }
+    if(family==="flux")return mcContextResult("water_flux",/\bwater\s+flux\b/i.test(clause)?"Water flux":"Flux","flux","Membrane flux",.94,["flux"]);
+    if(family==="rate"){
+      if(/\b(?:rate\s+constant|kinetic\s+constant|first[- ]order)\b/i.test(clause))return mcContextResult("rate_constant","Rate constant","kinetics","Reaction kinetics",.97,["rate constant"]);
+      return mcContextResult("rate_value","Rate / inverse-time value","rate","Rate",.75,["inverse-time unit"]);
+    }
+    if(family==="loading"){
+      if(/\b(?:loading|catalyst|membrane)\b/i.test(clause))return mcContextResult("catalyst_loading","Catalyst / membrane loading","loading","Loading",.90,["loading"]);
+    }
+    if(family==="voltage")return mcContextResult("voltage","Voltage","electrical","Electrical measurement",.85,["voltage unit"]);
+    if(family==="current")return mcContextResult("current","Current","electrical","Electrical measurement",.85,["current unit"]);
+    if(family==="power")return mcContextResult("power","Power","energy","Energy / power",.82,["power unit"]);
+    if(family==="energy")return mcContextResult("energy","Energy","energy","Energy",.82,["energy unit"]);
+
+    // Preserve strong legacy parameter recognition when available.
+    const old=String(q?.parameter||"");
+    const oldConf=Number(q?.parameterConfidence||0);
+    if(old && old!=="Body text" && old!=="percentage" && oldConf>=.70)
+      return mcContextResult(mcNormKey(old),old,mcNormKey(old),old,Math.max(.74,oldConf),["legacy parameter cue"]);
+
+    return mcContextResult("measurement","Measurement · context not resolved","uncertain","Context uncertain",.40,[],false);
+  }
+  function mcClassifyMeasurement(text,q){
+    const start=Number(q?.index||0),end=mcMeasurementEnd(text,q);
+    const clauseObj=mcClauseWindow(text,start,end);
+    const before=mcCleanContextText(String(text||"").slice(Math.max(0,start-170),start));
+    const after=mcCleanContextText(String(text||"").slice(end,Math.min(String(text||"").length,end+170)));
+    const res=mcClassifyGeneric(q,clauseObj.text,before,after);
+    return {...res,clause:clauseObj.text,family:mcDimFamily(q),sourceStart:start,sourceEnd:end};
+  }
+  function mcHeaderContext(parameter,rawUnit){
+    const p=mcCleanContextText(parameter||"Table column");
+    const fake={rawUnit:rawUnit||"",parsed:null,parameter:p,parameterConfidence:.99,snippet:p};
+    const family=mcDimFamily(fake);
+    if(/\b(?:reaction|degradation|oxidation)\s*time\b/i.test(p))return mcContextResult("reaction_time","Reaction time","reaction","Reaction / kinetics",.99,["table header"]);
+    if(/\b(?:retention|residence)\s*time\b|\bHRT\b/i.test(p))return mcContextResult("retention_time","Retention time","retention","Retention time",.99,["table header"]);
+    if(/\b(?:operation|operating|stability)\s*(?:time|duration)?\b/i.test(p))return mcContextResult("operational_duration","Operational duration","stability_operation","Operation / stability",.99,["table header"]);
+    if(/\bthickness\b/i.test(p))return mcContextResult("membrane_thickness",/membrane/i.test(p)?"Membrane thickness":"Thickness","thickness",p,.99,["table header"]);
+    if(/\bflux\b/i.test(p))return mcContextResult("water_flux",/water/i.test(p)?"Water flux":"Flux","flux",p,.99,["table header"]);
+    if(/\bpressure\b|\bTMP\b/i.test(p))return mcContextResult("pressure","Pressure","pressure",p,.99,["table header"]);
+    if(/\bconcentration\b/i.test(p)){
+      const a=mcFindAnalyte(p);
+      if(a)return mcContextResult(`concentration_${mcNormKey(a.label)}`,`${a.label} concentration`,`analyte_${mcNormKey(a.label)}`,p,.99,["table header"]);
+      return mcContextResult(`table_${mcNormKey(p)}`,p,`table_${mcNormKey(p)}`,p,.98,["table header"]);
+    }
+    return mcContextResult(`table_${mcNormKey(p)}`,p,`table_${mcNormKey(p)}`,p,.98,["table header"]);
+  }
+  function mcApplyMeasurementContext(q,text){
+    if(!q||!q.parsed?.valid)return q;
+    const c=mcClassifyMeasurement(text,q);
+    q.measurementContext=c;
+    q.parameter=c.parameter;
+    q.parameterKey=c.parameterKey;
+    q.semanticContext=c.contextLabel;
+    q.contextKey=c.contextKey;
+    q.parameterConfidence=c.confidence;
+    q.precisionComparable=c.precisionComparable;
+    q.contextEvidence=c.evidence;
+    q.contextClause=c.clause;
+    return q;
+  }
+  function mcApplyTableContext(q){
+    if(!q||!q.parsed?.valid)return q;
+    const c=mcHeaderContext(q.parameter,q.rawUnit);
+    q.measurementContext={...c,family:mcDimFamily(q),clause:q.snippet||q.context};
+    q.parameter=c.parameter;
+    q.parameterKey=c.parameterKey;
+    q.semanticContext=c.contextLabel;
+    q.contextKey=c.contextKey;
+    q.parameterConfidence=c.confidence;
+    q.precisionComparable=true;
+    q.contextEvidence=c.evidence;
+    return q;
+  }
+
+  // Enrich every extracted quantity after the existing mature unit parser has
+  // identified the numeric value and complete unit expression.
+  unitExtractQuantities=function(text,context="body"){
+    const out=BASE_UNIT_EXTRACT(text,context);
+    out.forEach(q=>mcApplyMeasurementContext(q,text));
+    return out;
+  };
+  unitAnalyzeTables=function(tables){
+    const res=BASE_UNIT_TABLES(tables);
+    (res.quantities||[]).forEach(mcApplyTableContext);
+    return res;
+  };
+
+  function mcPrecisionGroupKey(q){
+    if(!q?.parsed?.valid)return null;
+    const unitKey=unitConsistencyKey(q); if(!unitKey)return null;
+    const scope=String(q.context||"").startsWith("Table ")?String(q.context).split(",")[0]:"Body";
+    const c=q.measurementContext||{};
+    if(q.precisionComparable!==false && Number(q.parameterConfidence||0)>=.72 && q.parameterKey)
+      return `${scope}|${q.parameterKey}|${q.contextKey||"general"}|${unitKey}`;
+    return `${scope}|uncertain|${c.family||mcDimFamily(q)}|${unitKey}`;
+  }
+  function mcDisplayContext(q){
+    const c=q?.measurementContext||{};
+    if(c.contextLabel && mcNormKey(c.contextLabel)!==mcNormKey(c.parameter) && !/^context uncertain$/i.test(c.contextLabel))
+      return `${c.parameter||q.parameter} · ${c.contextLabel}`;
+    return c.parameter||q.parameter||"Measurement";
+  }
+
+  unitPrecisionConsistency=function(qs){
+    const issues=[];
+    const groups=new Map();
+    (qs||[]).filter(q=>q.parsed?.valid&&!q.external&&q.precisionComparable!==false&&Number(q.parameterConfidence||0)>=.72).forEach(q=>{
+      const dp=unitScalarDecimals(q.value); if(dp===null)return;
+      const k=mcPrecisionGroupKey(q); if(!k)return;
+      if(!groups.has(k))groups.set(k,[]);
+      groups.get(k).push({...q,dp});
+    });
+    groups.forEach(g=>{
+      if(g.length<2)return;
+      const dpMap=new Map();
+      g.forEach(q=>{if(!dpMap.has(q.dp))dpMap.set(q.dp,[]);dpMap.get(q.dp).push(q);});
+      if(dpMap.size<=1)return;
+      const variants=[...dpMap.entries()].sort((a,b)=>b[1].length-a[1].length);
+      const dominant=variants[0],share=dominant[1].length/g.length,unit=unitRawFormatKey(g[0]);
+      const desc=variants.map(([dp,a])=>`${dp} decimal place${dp===1?"":"s"}: ${a.slice(0,3).map(q=>`${q.value} ${unit}`).join(", ")}${a.length>3?` (+${a.length-3} more)`:""}`).join(" | ");
+      issues.push({
+        code:"UNIT_PRECISION_INCONSISTENT",severity:"warn",
+        msg:`${mcDisplayContext(g[0])} values reported in the same unit (${unit}) use inconsistent numerical precision. ${desc}.`,
+        parameter:mcDisplayContext(g[0]),
+        context:String(g[0].context||"").startsWith("Table ")?String(g[0].context).split(",")[0]:"Body",
+        snippet:variants.slice(0,3).map(x=>unitShortContext(x[1][0])).filter(Boolean).join(" | "),
+        suggestion:share>=.60?`The dominant pattern uses ${dominant[0]} decimal place${dominant[0]===1?"":"s"}. Verify measurement resolution before making the other occurrences consistent.`:"No single precision pattern clearly dominates. Verify measurement resolution and choose one scientifically justified precision for this parameter/context."
+      });
+    });
+    return issues;
+  };
+
+  unitLedger=function(qs,issues){
+    const groups=new Map();
+    const valid=(qs||[]).filter(q=>q.parsed?.valid);
+    valid.forEach(q=>{
+      const scope=String(q.context||"").startsWith("Table ")?String(q.context).split(",")[0]:"Body";
+      const k=mcPrecisionGroupKey(q)||`${scope}|fallback|${unitConsistencyKey(q)}`;
+      if(!groups.has(k))groups.set(k,{
+        parameter:mcDisplayContext(q),context:scope,raws:new Map(),_formatDisplay:new Map(),normalized:q.parsed.normalized,
+        uses:0,precisions:new Map(),instances:[],status:"consistent",precisionComparable:q.precisionComparable!==false&&Number(q.parameterConfidence||0)>=.72,
+        parameterKey:q.parameterKey||"",contextKey:q.contextKey||"",unitKey:unitConsistencyKey(q),contextConfidence:Number(q.parameterConfidence||0)
+      });
+      const x=groups.get(k); x.uses++;
+      const fmtKey=unitRawFormatKey(q)||String(q.rawUnit||"");
+      if(!x._formatDisplay.has(fmtKey))x._formatDisplay.set(fmtKey,String(q.rawUnit||fmtKey));
+      const fmtDisplay=x._formatDisplay.get(fmtKey);
+      x.raws.set(fmtDisplay,(x.raws.get(fmtDisplay)||0)+1);
+      const dp=unitScalarDecimals(q.value); if(dp!==null)x.precisions.set(dp,(x.precisions.get(dp)||0)+1);
+      x.instances.push({...q,dp});
+      x.contextConfidence=Math.max(x.contextConfidence,Number(q.parameterConfidence||0));
+    });
+
+    const rows=[...groups.values()];
+    rows.forEach(r=>{
+      const rawForms=r.raws.size,precisionForms=r.precisions.size;
+      if(!r.precisionComparable){
+        if(rawForms>1)r.status="mixed format";
+        else r.status="not compared";
+      }else if(rawForms>1&&precisionForms>1)r.status="mixed format + precision";
+      else if(rawForms>1)r.status="mixed format";
+      else if(precisionForms>1)r.status="mixed precision";
+    });
+
+    // Preserve manuscript-wide notation checking. If alternate written forms
+    // occur only across different semantic contexts, add one notation-only row
+    // rather than contaminating each context-specific precision group.
+    const globalFmt=new Map();
+    valid.filter(q=>!q.external).forEach(q=>{
+      const uk=unitConsistencyKey(q); if(!uk)return;
+      if(!globalFmt.has(uk))globalFmt.set(uk,{raws:new Map(),formatDisplay:new Map(),instances:[],normalized:q.parsed.normalized,groupKeys:new Set()});
+      const g=globalFmt.get(uk),fmt=unitRawFormatKey(q)||String(q.rawUnit||"");
+      if(!g.formatDisplay.has(fmt))g.formatDisplay.set(fmt,String(q.rawUnit||fmt));
+      const display=g.formatDisplay.get(fmt); g.raws.set(display,(g.raws.get(display)||0)+1);g.instances.push({...q,dp:unitScalarDecimals(q.value)});g.groupKeys.add(mcPrecisionGroupKey(q));
+    });
+    globalFmt.forEach((g,uk)=>{
+      if(g.raws.size<=1||g.groupKeys.size<=1)return;
+      const locallyFlagged=rows.some(r=>r.unitKey===uk&&r.raws.size>1);
+      if(locallyFlagged)return;
+      rows.push({parameter:`Unit notation · ${g.normalized}`,context:"Multiple contexts",raws:g.raws,normalized:g.normalized,uses:g.instances.length,precisions:new Map(),instances:g.instances,status:"mixed format",precisionComparable:false,unitKey:uk,notationOnly:true});
+    });
+
+    return rows.sort((a,b)=>String(a.parameter).localeCompare(String(b.parameter))||String(a.context).localeCompare(String(b.context)));
+  };
+
+  unitStatusClass=function(s){
+    s=String(s||"").toLowerCase();
+    if(s==="not compared")return "opt";
+    return /mixed/.test(s)?"na":"y";
+  };
+  unitStatusAction=function(status,row){
+    status=String(status||"").toLowerCase();
+    const p=String(row?.parameter||"this parameter/context").replace(/\s*·\s*.+$/," ").trim();
+    if(status==="consistent")return "No action needed.";
+    if(status==="not compared")return "No precision comparison was made because the reporting context could not be identified confidently.";
+    if(status.includes("format")&&status.includes("precision"))return `Use one unit notation consistently and check whether ${p} values should use consistent decimal places.`;
+    if(status.includes("mixed format"))return "Use one unit notation consistently.";
+    if(status.includes("mixed precision"))return `Check whether ${p} values should use consistent decimal places.`;
+    return "Review this group in context.";
+  };
+
+  // Keep the measurement and nearby scientific descriptor visible instead of
+  // trimming every context from the beginning of a fixed-width window.
+  unitShortContext=function(q){
+    const s=mcCleanContextText(q?.snippet||q?.contextClause||q?.context||"");
+    if(!s)return "";
+    const value=String(q?.value||"").trim(),unit=String(q?.rawUnit||"").trim();
+    let hit=-1;
+    for(const needle of [`${value} ${unit}`.trim(),`${value}${unit}`.trim(),value]){if(!needle)continue;const i=s.indexOf(needle);if(i>=0){hit=i;break;}}
+    if(hit<0)return s.length>210?s.slice(0,207)+"…":s;
+    const left=Math.max(0,hit-105),right=Math.min(s.length,hit+Math.max(35,value.length+unit.length)+115);
+    return `${left>0?"…":""}${s.slice(left,right).trim()}${right<s.length?"…":""}`;
+  };
+
+  // Instance panel wording now makes the semantic grouping explicit.
+  const BASE_INSTANCE_PANEL=unitInstancePanelHtml;
+  unitInstancePanelHtml=function(r,rowIndex){
+    const html=BASE_INSTANCE_PANEL(r,rowIndex);
+    const reason=r?.notationOnly?"These instances are grouped only to compare unit notation across the manuscript.":r?.precisionComparable!==false?`These values were grouped because they describe ${escapeHtml(String(r.parameter||"the same parameter/context"))}. The reported value and unit are highlighted for comparison.`:"The reporting context could not be resolved confidently, so decimal precision was not compared.";
+    return html.replace("The reported value and unit are highlighted so you can compare the inconsistent forms in their original manuscript context.",reason);
+  };
+
+  // Small development surface for regression tests and future maintenance.
+  window.MC_MEASUREMENT_CONTEXT={
+    classifyExample(text,index,value,rawUnit,parsed={valid:true,normalized:rawUnit,dimKey:""}){
+      const q={value,rawUnit,parsed,index,parameter:"Body text",parameterConfidence:.35,snippet:text};
+      return mcClassifyMeasurement(text,q);
+    },
+    classifyQuantity:mcClassifyMeasurement,
+    precisionGroupKey:mcPrecisionGroupKey,
+    displayContext:mcDisplayContext
+  };
+})();
+</script>
+
+
+<script id="mc-context-aware-measurement-grouping-v2">
+/*
+  Context-aware measurement grouping v2
+  --------------------------------------
+  1. Strengthens parameter inference for scientific units that remained
+     under-resolved in v1, including Å/pm, cm^-1, amount units, capacitance,
+     specific capacitance, resistance and volumetric production/loading rates.
+  2. Uses conservative manuscript-pattern reinforcement only when the same unit
+     has one unambiguous resolved parameter family and the unresolved instance
+     contains compatible scientific cues.
+  3. Low-confidence unresolved groups remain available internally but are
+     omitted from the visible Unit ledger. Genuine unit-notation inconsistencies
+     remain visible even when parameter context is unresolved.
+*/
+(function(){
+  const BASE_EXTRACT_V2=unitExtractQuantities;
+  const BASE_TABLES_V2=unitAnalyzeTables;
+  const BASE_LEDGER_V2=unitLedger;
+  const BASE_RENDER_V2=renderUnitReport;
+
+  function mc2Clean(s){
+    return String(s||"")
+      .replace(/\u00A0|\u202F/g," ")
+      .replace(/[‐‑‒–—−]/g,"-")
+      .replace(/\s+/g," ")
+      .trim();
+  }
+  function mc2AsciiUnit(s){
+    return mc2Clean(s)
+      .replace(/µ|μ/g,"u")
+      .replace(/⁻¹/g,"-1").replace(/⁻²/g,"-2").replace(/⁻³/g,"-3")
+      .replace(/¹/g,"1").replace(/²/g,"2").replace(/³/g,"3")
+      .replace(/\^\s*/g,"")
+      .replace(/\s+/g," ")
+      .trim();
+  }
+  function mc2Key(s){
+    return String(s||"").toLowerCase().replace(/µ|μ/g,"u").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"")||"unknown";
+  }
+  function mc2Result(parameterKey,parameter,contextKey,contextLabel,confidence,evidence=[],precisionComparable=true,family=""){
+    return {
+      parameterKey,parameter,contextKey:contextKey||"general",contextLabel:contextLabel||"",
+      confidence,confidenceLabel:confidence>=.90?"high":confidence>=.72?"medium":"low",
+      evidence,precisionComparable:!!precisionComparable,family
+    };
+  }
+  function mc2Unresolved(q){
+    const c=q?.measurementContext||{};
+    return q?.precisionComparable===false ||
+      Number(q?.parameterConfidence||0)<.72 ||
+      !q?.parameterKey ||
+      /context\s+(?:not\s+resolved|uncertain)|(?:time|length|concentration|percentage)\s+value\s*·\s*context/i.test(String(q?.parameter||"")) ||
+      /^measurement\s*·/i.test(String(q?.parameter||"")) ||
+      /^uncertain/i.test(String(c.contextKey||""));
+  }
+  function mc2Clause(q){
+    return mc2Clean(q?.measurementContext?.clause||q?.contextClause||q?.snippet||q?.context||"");
+  }
+  function mc2Around(q){
+    const s=mc2Clause(q);
+    const val=String(q?.value||"").trim();
+    const unit=String(q?.rawUnit||"").trim();
+    let i=-1;
+    for(const n of [`${val} ${unit}`.trim(),`${val}${unit}`.trim(),val]){
+      if(!n)continue;
+      i=s.indexOf(n); if(i>=0)break;
+    }
+    if(i<0)return {before:s.slice(0,160),after:s.slice(160,320),clause:s};
+    return {before:s.slice(Math.max(0,i-180),i),after:s.slice(i+Math.max(1,val.length),Math.min(s.length,i+Math.max(1,val.length)+190)),clause:s};
+  }
+  function mc2UnitFamily(q){
+    const raw=mc2AsciiUnit(q?.rawUnit||q?.parsed?.normalized||"");
+    const compact=raw.replace(/\s+/g,"").toLowerCase();
+
+    if(/^(?:a|å)$/.test(String(q?.rawUnit||"").trim().toLowerCase()) || /^(?:pm|nm|um|mm|cm|m|km)$/i.test(raw))
+      return "length";
+    if(/^cm(?:-?1)$/i.test(compact) || /^cm\/?1$/i.test(compact))
+      return "wavenumber";
+    if(/^(?:mol|mmol|umol|nmol|pmol)$/i.test(compact))
+      return "amount";
+    if(/^(?:pf|nf|uf|mf|f)$/i.test(compact))
+      return "capacitance";
+    if(/^(?:pf|nf|uf|mf|f)(?:\/(?:g|kg)|(?:g|kg)-1)$/i.test(compact))
+      return "specific_capacitance";
+    if(/^(?:ohm|ω|Ω|kohm|kω|kΩ|mohm|mω|mΩ)$/i.test(String(q?.rawUnit||"").replace(/\s+/g,"")))
+      return "resistance";
+    if(/^(?:m3\/m3\/(?:d|day)|m3m-3(?:d|day)-1)$/i.test(compact))
+      return "volumetric_rate";
+
+    // Generalized equivalents with separators/superscripts retained.
+    if(/(?:^|\/|\s)(?:f|mf|uf|nf|pf)\s*(?:\/|\s)*(?:g|kg)\s*(?:-1)?$/i.test(raw))
+      return "specific_capacitance";
+    if(/(?:^|\s)(?:k?m?Ω|ohm)\b/i.test(String(q?.rawUnit||"")))
+      return "resistance";
+    if(/\bm3\s*\/\s*m3\s*\/\s*(?:d|day)\b/i.test(raw))
+      return "volumetric_rate";
+
+    return String(q?.measurementContext?.family||"other");
+  }
+  function mc2NearestEntity(s){
+    const patterns=[
+      ["H₂",/\b(?:H2|H₂|hydrogen)\b/i],
+      ["O₂",/\b(?:O2|O₂|oxygen)\b/i],
+      ["CH₄",/\b(?:CH4|CH₄|methane)\b/i],
+      ["CO₂",/\b(?:CO2|CO₂|carbon\s+dioxide)\b/i],
+      ["PAA",/\b(?:PAA|peracetic\s+acid)\b/i],
+      ["OFX",/\b(?:OFX|ofloxacin)\b/i],
+      ["HA",/\b(?:HA|humic\s+acid)\b/i],
+      ["Zn",/\b(?:Zn(?:2\+|²⁺)?|zinc)\b/i],
+      ["Co",/\b(?:Co(?:2\+|²⁺)?|cobalt)\b/i],
+      ["Fe",/\b(?:Fe(?:2\+|3\+|²⁺|³⁺)?|iron)\b/i],
+      ["Cu",/\b(?:Cu(?:2\+|²⁺)?|copper)\b/i]
+    ];
+    let best=null,bestPos=1e9;
+    for(const [label,re] of patterns){
+      const m=String(s||"").match(re);
+      if(m && (m.index??9999)<bestPos){best={label,raw:m[0]};bestPos=m.index??9999;}
+    }
+    return best;
+  }
+  function mc2ClassifyLength(q,ctx){
+    const s=ctx.clause;
+    const unit=String(q?.rawUnit||"");
+    const atomicUnit=/Å|\bpm\b/i.test(unit);
+
+    if(/\b(?:bond\s+(?:length|distance)|interatomic\s+(?:distance|spacing)|nearest[- ]neighbou?r\s+distance|coordination\s+(?:distance|shell)|metal[-– ](?:N|O|S|C)\s+(?:bond|distance))\b/i.test(s))
+      return mc2Result("bond_distance","Bond / coordination distance","atomic_structure","Atomic / coordination structure",.99,["bond/interatomic distance"],true,"length");
+
+    if(/\b(?:EXAFS|XANES|XAFS|R[- ]space|coordination\s+(?:number|environment)|Zn[-– ]N|Fe[-– ]N|Co[-– ]N|Cu[-– ]N)\b/i.test(s) &&
+       (atomicUnit || /\b(?:peak|shell|distance|radius)\b/i.test(s)))
+      return mc2Result("coordination_distance","Coordination distance","xas_structure","EXAFS / local coordination",.94,["XAS/EXAFS local structure"],true,"length");
+
+    if(/\b(?:d[- ]spacing|interlayer\s+spacing|interplanar\s+(?:distance|spacing)|lattice\s+(?:spacing|parameter)|crystal(?:line)?\s+spacing)\b/i.test(s))
+      return mc2Result("lattice_spacing","Lattice / interlayer spacing","crystal_structure","Crystal structure",.98,["lattice/interlayer spacing"],true,"length");
+
+    if(/\b(?:pore\s+(?:width|size|diameter|radius)|pore[- ]size)\b/i.test(s))
+      return mc2Result("pore_size","Pore size / width","pore_structure","Pore structure",.97,["pore size"],true,"length");
+
+    if(/\b(?:particle|nanoparticle|grain|crystallite)\s+(?:size|diameter|radius)\b/i.test(s))
+      return mc2Result("particle_size","Particle / crystallite size","particle_structure","Particle structure",.96,["particle/crystallite size"],true,"length");
+
+    if(/\b(?:membrane|film|layer|coating|nanosheet)\s+thickness\b|\bthickness\b/i.test(s))
+      return mc2Result("thickness","Thickness","thickness","Thickness",.92,["thickness"],true,"length");
+
+    if(/\b(?:wavelength|lambda|λ)\b/i.test(s))
+      return mc2Result("wavelength","Wavelength","wavelength","Wavelength",.95,["wavelength"],true,"length");
+
+    if(atomicUnit && /\b(?:atomic|crystal|structure|coordination|bond|distance)\b/i.test(s))
+      return mc2Result("atomic_distance","Atomic / structural distance","atomic_structure","Atomic structure",.82,["atomic-scale length unit + structural context"],true,"length");
+
+    return null;
+  }
+  function mc2ClassifyWavenumber(q,ctx){
+    const s=ctx.clause;
+    if(/\b(?:absorption|attenuation)\s+coefficient\b/i.test(s))
+      return mc2Result("absorption_coefficient","Absorption / attenuation coefficient","optical_absorption","Optical absorption",.95,["absorption coefficient"],true,"wavenumber");
+
+    if(/\b(?:Raman|Raman\s+shift|in[- ]situ\s+Raman)\b/i.test(s))
+      return mc2Result("raman_shift","Raman shift / wavenumber","raman","Raman spectroscopy",.99,["Raman"],true,"wavenumber");
+
+    if(/\b(?:FTIR|FT-IR|infrared|IR\s+(?:spectrum|spectra|band))\b/i.test(s))
+      return mc2Result("ftir_wavenumber","FTIR wavenumber","ftir","Infrared spectroscopy",.99,["FTIR/infrared"],true,"wavenumber");
+
+    if(/\b(?:wavenumber|vibrational|spectrum|spectra|spectral|peak|band)\b/i.test(s))
+      return mc2Result("spectral_wavenumber","Spectral wavenumber","spectroscopy","Spectroscopy",.84,["spectral peak/band"],true,"wavenumber");
+
+    return null;
+  }
+  function mc2ClassifyAmount(q,ctx){
+    const s=ctx.clause;
+    const entity=mc2NearestEntity(s);
+    const gas=/\b(?:gas|hydrogen|H2|H₂|oxygen|O2|O₂|methane|CH4|CH₄|carbon\s+dioxide|CO2|CO₂)\b/i.test(s);
+    if(/\b(?:evolution|evolved|production|produced|generation|generated|yield|released)\b/i.test(s) && (gas||entity)){
+      const label=entity?`${entity.label} amount / production`:"Gas amount / production";
+      return mc2Result(`amount_${mc2Key(entity?.label||"gas")}`,label,"production_amount","Production / evolution",.94,[entity?.label||"gas","production/evolution"],true,"amount");
+    }
+    if(/\b(?:adsorption|adsorbed|uptake|desorption|desorbed)\b/i.test(s)){
+      const label=entity?`${entity.label} adsorbed amount`:"Adsorbed amount";
+      return mc2Result(`adsorbed_amount_${mc2Key(entity?.label||"material")}`,label,"adsorption_amount","Adsorption / uptake",.90,["adsorption/uptake",entity?.label].filter(Boolean),true,"amount");
+    }
+    if(/\b(?:amount|moles?|quantity|dose|dosage)\b/i.test(s)){
+      const label=entity?`${entity.label} amount`:"Amount of substance";
+      return mc2Result(`amount_${mc2Key(entity?.label||"substance")}`,label,"amount","Amount / dose",.86,["amount/dose",entity?.label].filter(Boolean),true,"amount");
+    }
+    return null;
+  }
+  function mc2ClassifyCapacitance(q,ctx,specific=false){
+    const s=ctx.clause;
+    if(specific || /\bspecific\s+capacitance\b/i.test(s))
+      return mc2Result("specific_capacitance","Specific capacitance","electrochemical_capacitance","Electrochemical capacitance",.99,["F per mass / specific capacitance"],true,"specific_capacitance");
+
+    if(/\b(?:double[- ]layer\s+capacitance|C\s*dl|Cdl)\b/i.test(s))
+      return mc2Result("double_layer_capacitance","Double-layer capacitance","electrochemical_capacitance","Electrochemical interface",.99,["double-layer capacitance"],true,"capacitance");
+
+    if(/\b(?:capacitance|capacitor|supercapacitor)\b/i.test(s))
+      return mc2Result("capacitance","Capacitance","capacitance","Capacitance",.90,["capacitance"],true,"capacitance");
+
+    return null;
+  }
+  function mc2ClassifyResistance(q,ctx){
+    const s=ctx.clause;
+    if(/\b(?:charge[- ]transfer\s+resistance|R\s*[_₍(]?\s*ct\s*[₎)]?|Rct)\b/i.test(s))
+      return mc2Result("charge_transfer_resistance","Charge-transfer resistance","eis_charge_transfer","Electrochemical impedance",.99,["charge-transfer resistance / Rct"],true,"resistance");
+
+    if(/\b(?:equivalent\s+series\s+resistance|series\s+resistance|ESR)\b/i.test(s))
+      return mc2Result("series_resistance","Equivalent series resistance","series_resistance","Electrical / electrochemical resistance",.98,["series resistance"],true,"resistance");
+
+    if(/\b(?:solution\s+resistance|electrolyte\s+resistance|R\s*[_₍(]?\s*s\s*[₎)]?|Rs)\b/i.test(s))
+      return mc2Result("solution_resistance","Solution / electrolyte resistance","eis_solution","Electrochemical impedance",.96,["solution resistance"],true,"resistance");
+
+    if(/\b(?:internal\s+resistance)\b/i.test(s))
+      return mc2Result("internal_resistance","Internal resistance","internal_resistance","Electrical resistance",.96,["internal resistance"],true,"resistance");
+
+    if(/\b(?:polarization\s+resistance|polarisation\s+resistance|R\s*p\b)\b/i.test(s))
+      return mc2Result("polarization_resistance","Polarization resistance","polarization_resistance","Electrochemical resistance",.96,["polarization resistance"],true,"resistance");
+
+    if(/\b(?:impedance\s+(?:magnitude|modulus)|\|Z\||Nyquist|EIS)\b/i.test(s) && !/\bresistance\b/i.test(s))
+      return mc2Result("impedance_magnitude","Impedance magnitude","impedance","Electrochemical impedance",.83,["impedance/EIS"],true,"resistance");
+
+    if(/\bresistance\b/i.test(s))
+      return mc2Result("electrical_resistance","Electrical resistance","resistance","Resistance",.76,["resistance"],true,"resistance");
+
+    return null;
+  }
+  function mc2ClassifyVolumetricRate(q,ctx){
+    const s=ctx.clause;
+    const entity=mc2NearestEntity(s);
+
+    if(/\b(?:hydraulic\s+loading|hydraulic\s+loading\s+rate|HLR)\b/i.test(s))
+      return mc2Result("hydraulic_loading_rate","Hydraulic loading rate","hydraulic_loading","Hydraulic loading",.98,["hydraulic loading"],true,"volumetric_rate");
+
+    if(/\b(?:volumetric\s+(?:gas\s+)?production\s+rate|gas\s+production|biogas\s+production|methane\s+production|hydrogen\s+production|gas\s+yield|biogas\s+yield|evolution\s+rate)\b/i.test(s) ||
+       (/\b(?:production|produced|generation|generated|yield|evolution)\b/i.test(s) && /\b(?:gas|biogas|methane|hydrogen|H2|H₂|CH4|CH₄)\b/i.test(s))){
+      const name=entity?.label&&/^(?:H₂|CH₄|CO₂)$/u.test(entity.label)?entity.label:(/\bmethane\b/i.test(s)?"CH₄":/\bhydrogen\b/i.test(s)?"H₂":"Gas");
+      return mc2Result(`volumetric_${mc2Key(name)}_production_rate`,`Volumetric ${name} production rate`,`gas_production_rate`,"Gas production",.96,[name,"volumetric production"],true,"volumetric_rate");
+    }
+
+    if(/\b(?:volumetric\s+loading\s+rate|loading\s+rate)\b/i.test(s))
+      return mc2Result("volumetric_loading_rate","Volumetric loading rate","volumetric_loading","Volumetric loading",.88,["loading rate"],true,"volumetric_rate");
+
+    return null;
+  }
+  function mc2ClassifyUnresolved(q){
+    if(!q?.parsed?.valid || !mc2Unresolved(q)) return null;
+    const ctx=mc2Around(q);
+    const family=mc2UnitFamily(q);
+
+    if(family==="length") return mc2ClassifyLength(q,ctx);
+    if(family==="wavenumber") return mc2ClassifyWavenumber(q,ctx);
+    if(family==="amount") return mc2ClassifyAmount(q,ctx);
+    if(family==="specific_capacitance") return mc2ClassifyCapacitance(q,ctx,true);
+    if(family==="capacitance") return mc2ClassifyCapacitance(q,ctx,false);
+    if(family==="resistance") return mc2ClassifyResistance(q,ctx);
+    if(family==="volumetric_rate") return mc2ClassifyVolumetricRate(q,ctx);
+
+    return null;
+  }
+  function mc2Apply(q,c){
+    if(!q||!c)return q;
+    q.measurementContext={...(q.measurementContext||{}),...c,clause:mc2Clause(q),family:c.family||mc2UnitFamily(q)};
+    q.parameter=c.parameter;
+    q.parameterKey=c.parameterKey;
+    q.semanticContext=c.contextLabel;
+    q.contextKey=c.contextKey;
+    q.parameterConfidence=c.confidence;
+    q.precisionComparable=c.precisionComparable!==false;
+    q.contextEvidence=[...(q.contextEvidence||[]),...(c.evidence||[])];
+    return q;
+  }
+  function mc2FamilyAnchor(family,s){
+    s=String(s||"");
+    if(family==="length")return /\b(?:bond|distance|spacing|thickness|diameter|pore|wavelength|EXAFS|XANES|XRD|coordination)\b/i.test(s);
+    if(family==="wavenumber")return /\b(?:Raman|FTIR|infrared|wavenumber|spectrum|spectra|peak|band|vibrational)\b/i.test(s);
+    if(family==="amount")return /\b(?:amount|moles?|quantity|yield|production|evolution|generated|adsorbed|uptake|dose)\b/i.test(s);
+    if(family==="capacitance"||family==="specific_capacitance")return /\b(?:capacitance|capacitor|supercapacitor|Cdl)\b/i.test(s);
+    if(family==="resistance")return /\b(?:resistance|Rct|ESR|EIS|impedance)\b/i.test(s);
+    if(family==="volumetric_rate")return /\b(?:gas|biogas|methane|hydrogen|production|yield|loading|rate)\b/i.test(s);
+    return false;
+  }
+  function mc2Reinforce(qs){
+    const registry=new Map();
+    (qs||[]).forEach(q=>{
+      if(!q?.parsed?.valid || mc2Unresolved(q) || q.external)return;
+      const uk=unitConsistencyKey(q); if(!uk)return;
+      const fam=mc2UnitFamily(q);
+      if(!registry.has(uk))registry.set(uk,{family:fam,groups:new Map()});
+      const r=registry.get(uk);
+      const pk=`${q.parameterKey}|${q.contextKey||"general"}`;
+      if(!r.groups.has(pk))r.groups.set(pk,{count:0,template:q});
+      r.groups.get(pk).count++;
+    });
+
+    (qs||[]).forEach(q=>{
+      if(!q?.parsed?.valid || !mc2Unresolved(q) || q.external)return;
+      const uk=unitConsistencyKey(q),r=registry.get(uk);
+      if(!r || r.groups.size!==1)return;
+      const only=[...r.groups.values()][0];
+      const s=mc2Clause(q);
+      const fam=mc2UnitFamily(q);
+      if(only.count<2 || fam!==r.family || !mc2FamilyAnchor(fam,s))return;
+
+      const t=only.template;
+      mc2Apply(q,mc2Result(
+        t.parameterKey,t.parameter,t.contextKey,t.semanticContext||t.measurementContext?.contextLabel||"",
+        .78,[`reinforced from ${only.count} matching manuscript instance${only.count===1?"":"s"}`],true,fam
+      ));
+    });
+  }
+  function mc2EnrichList(qs){
+    (qs||[]).forEach(q=>{
+      const c=mc2ClassifyUnresolved(q);
+      if(c)mc2Apply(q,c);
+    });
+    mc2Reinforce(qs);
+    return qs;
+  }
+
+  unitExtractQuantities=function(text,context="body"){
+    const out=BASE_EXTRACT_V2(text,context);
+    return mc2EnrichList(out);
+  };
+
+  unitAnalyzeTables=function(tables){
+    const res=BASE_TABLES_V2(tables);
+    mc2EnrichList(res.quantities||[]);
+    return res;
+  };
+
+  /*
+    Hide non-actionable unresolved groups from the visible ledger. If the same
+    unresolved unit appears in multiple notational forms, convert that row to an
+    actionable notation-only row instead of discarding the formatting issue.
+  */
+  unitLedger=function(qs,issues){
+    const original=BASE_LEDGER_V2(qs,issues);
+    const visible=[];
+    const hidden=[];
+
+    for(const r of original){
+      const unresolved=!r?.notationOnly && (
+        r.precisionComparable===false ||
+        Number(r.contextConfidence||0)<.72 ||
+        /context\s+(?:not\s+resolved|uncertain)/i.test(String(r.parameter||"")) ||
+        /^(?:measurement|time value|length value|concentration|percentage)\s*·/i.test(String(r.parameter||""))
+      );
+
+      if(!unresolved){
+        visible.push(r);
+        continue;
+      }
+
+      hidden.push(r);
+
+      // Unit-format consistency does not depend on identifying the scientific
+      // parameter, so retain a notation-only issue when multiple forms exist.
+      if(r.raws instanceof Map && r.raws.size>1){
+        visible.push({
+          ...r,
+          parameter:`Unit notation · ${r.normalized||[...r.raws.keys()][0]||"unit"}`,
+          context:"Unresolved scientific contexts",
+          status:"mixed format",
+          precisions:new Map(),
+          precisionComparable:false,
+          notationOnly:true
+        });
+      }
+    }
+
+    // Merge duplicate notation-only rows for the same normalized unit.
+    const merged=[],notation=new Map();
+    for(const r of visible){
+      if(!r.notationOnly){merged.push(r);continue;}
+      const k=r.unitKey||String(r.normalized||r.parameter);
+      if(!notation.has(k)){
+        notation.set(k,{...r,raws:new Map(r.raws||[]),instances:[...(r.instances||[])],uses:Number(r.uses||0)});
+        continue;
+      }
+      const g=notation.get(k);
+      (r.raws||new Map()).forEach((n,f)=>g.raws.set(f,(g.raws.get(f)||0)+n));
+      g.instances.push(...(r.instances||[]));
+      g.uses+=Number(r.uses||0);
+    }
+    merged.push(...notation.values());
+
+    merged.sort((a,b)=>String(a.parameter).localeCompare(String(b.parameter))||String(a.context).localeCompare(String(b.context)));
+
+    Object.defineProperty(merged,"mcHiddenUnresolvedCount",{value:hidden.length,writable:true,configurable:true,enumerable:false});
+    Object.defineProperty(merged,"mcHiddenUnresolvedRows",{value:hidden,writable:true,configurable:true,enumerable:false});
+    return merged;
+  };
+
+  renderUnitReport=function(res){
+    BASE_RENDER_V2(res);
+
+    const hidden=Number(res?.ledger?.mcHiddenUnresolvedCount||0);
+    if(hidden){
+      const sub=document.getElementById("unit-report-sub");
+      if(sub){
+        const suffix=` · ${hidden} low-confidence context group${hidden===1?"":"s"} omitted from the ledger`;
+        if(!sub.textContent.includes("low-confidence context group"))sub.textContent+=suffix;
+      }
+    }
+
+    const help=document.getElementById("unit-ledger-help");
+    if(help){
+      help.innerHTML=help.innerHTML
+        .replace(
+          /<b>Status<\/b><span>[\s\S]*?<\/span>/,
+          `<b>Status</b><span><b>consistent</b> means one pattern is followed within the inferred parameter/context. <b>mixed precision</b> means contextually comparable values use different decimal-place patterns. <b>mixed format</b> means equivalent units are written in different notation styles. Measurements whose scientific context cannot be identified confidently are omitted from this ledger rather than reported as non-actionable “not compared” rows.</span>`
+        );
+      if(!/low-confidence context groups are omitted/i.test(help.textContent||"")){
+        help.insertAdjacentHTML("beforeend",`<b>Low-confidence contexts</b><span>Manuscript Check first applies unit-aware scientific context rules and conservative manuscript-pattern reinforcement. If the parameter still cannot be resolved confidently, that group is hidden from this table. The underlying measurement remains available internally, and a genuine unit-notation inconsistency can still be shown.</span>`);
+      }
+    }
+  };
+
+  window.MC_MEASUREMENT_CONTEXT_V2={
+    classifyQuantity(q){
+      return mc2ClassifyUnresolved(q);
+    },
+    unitFamily:mc2UnitFamily,
+    enrichList:mc2EnrichList,
+    isUnresolved:mc2Unresolved
   };
 })();
 </script>
