@@ -27,6 +27,14 @@ https://github.com/anilkdhanda18/manuscriptchecker/
 <link rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" />
 <title>Manuscript Check — Manuscript Proofing</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" defer></script>
+<script id="mc-universal-ledger-sticky-init-v1">
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",setupUniversalLedgerStickyHeaders,{once:true});
+}else{
+  setupUniversalLedgerStickyHeaders();
+}
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 <style>
   :root{
@@ -2344,6 +2352,410 @@ https://github.com/anilkdhanda18/manuscriptchecker/
   .mc-modal .mc-help-lede{font-size:17.5px}
   .mc-help-step p,
   .mc-help-note{font-size:16.25px}
+}
+</style>
+
+
+<style id="mc-how-to-use-feature-icons-v1">
+/* Representative review-module icons inside the How to use guide. */
+@media screen {
+  .mc-help-review-step{
+    padding-bottom:14px;
+  }
+
+  .mc-help-feature-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+  }
+
+  .mc-help-feature{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    min-height:34px;
+    padding:5px 9px 5px 6px;
+    border:1px solid #d9e2f1;
+    border-radius:9px;
+    background:#f8faff;
+    color:#314760;
+    line-height:1.15;
+  }
+
+  .mc-help-feature i{
+    display:grid;
+    place-items:center;
+    min-width:25px;
+    height:25px;
+    padding:0 4px;
+    border-radius:7px;
+    background:#e9f0fb;
+    color:#214d91;
+    font-style:normal;
+    font-weight:800;
+    font-size:12px;
+    letter-spacing:-.01em;
+  }
+
+  .mc-help-feature em{
+    font-style:normal;
+    font-weight:650;
+    font-size:13.25px;
+    white-space:nowrap;
+  }
+}
+
+@media screen and (min-width:1400px){
+  .mc-help-feature-row{
+    gap:9px;
+    margin-top:13px;
+  }
+  .mc-help-feature{
+    min-height:38px;
+    padding:6px 10px 6px 7px;
+  }
+  .mc-help-feature i{
+    min-width:28px;
+    height:28px;
+    font-size:13px;
+  }
+  .mc-help-feature em{
+    font-size:14.25px;
+  }
+}
+
+@media screen and (min-width:1800px){
+  .mc-help-feature em{
+    font-size:14.75px;
+  }
+  .mc-help-feature i{
+    font-size:13.5px;
+  }
+}
+
+@media screen and (max-width:599px){
+  .mc-help-feature-row{
+    gap:6px;
+  }
+  .mc-help-feature{
+    min-height:32px;
+    padding:4px 7px 4px 5px;
+  }
+  .mc-help-feature i{
+    min-width:23px;
+    height:23px;
+    font-size:11.5px;
+  }
+  .mc-help-feature em{
+    font-size:12.5px;
+  }
+}
+</style>
+
+
+<style id="mc-how-to-step-two-compact-v2">
+@media screen and (min-width:700px){
+  .mc-help-step-two > div > b{
+    display:block;
+    white-space:nowrap;
+  }
+  .mc-help-step-two > div > p{
+    margin-top:6px;
+    white-space:normal;
+  }
+  .mc-help-step-two .mc-step2-line1,
+  .mc-help-step-two .mc-step2-line2{
+    display:inline-block;
+    white-space:nowrap;
+  }
+  .mc-help-step-two .mc-step2-break{
+    display:block;
+    content:"";
+  }
+}
+@media screen and (max-width:699px){
+  .mc-help-step-two > div > b,
+  .mc-help-step-two > div > p,
+  .mc-help-step-two .mc-step2-line1,
+  .mc-help-step-two .mc-step2-line2{
+    white-space:normal;
+  }
+  .mc-help-step-two .mc-step2-line1,
+  .mc-help-step-two .mc-step2-line2{
+    display:inline;
+  }
+  .mc-help-step-two .mc-step2-break{
+    display:none;
+  }
+}
+</style>
+
+
+<style id="mc-how-to-step-two-inline-bold-fix-v1">
+/*
+  Step 2 uses bold phrases inside its instruction sentence.
+  The generic modal rule .mc-help-step b { display:block } is correct for
+  step headings, but must not apply to bold phrases nested inside Step 2 text.
+*/
+@media screen and (min-width:700px){
+  .mc-help-step-two p b{
+    display:inline !important;
+    font-size:inherit !important;
+    line-height:inherit !important;
+    white-space:nowrap;
+  }
+
+  .mc-help-step-two .mc-step2-line1,
+  .mc-help-step-two .mc-step2-line2{
+    display:block;
+    width:max-content;
+    max-width:100%;
+    white-space:nowrap;
+  }
+
+  .mc-help-step-two .mc-step2-break{
+    display:none;
+  }
+}
+
+@media screen and (max-width:699px){
+  .mc-help-step-two p b{
+    display:inline !important;
+    font-size:inherit !important;
+    line-height:inherit !important;
+  }
+}
+</style>
+
+
+<style id="mc-how-to-feature-single-row-v1">
+/* Keep the Step 3 review-section chips on one compact row on desktop. */
+@media screen and (min-width:700px){
+  .mc-help-feature-row{
+    flex-wrap:nowrap !important;
+    gap:6px !important;
+    width:100%;
+  }
+
+  .mc-help-feature{
+    flex:0 0 auto;
+    min-height:32px !important;
+    padding:4px 7px 4px 5px !important;
+    gap:5px !important;
+  }
+
+  .mc-help-feature i{
+    min-width:24px !important;
+    height:24px !important;
+    padding:0 3px !important;
+    font-size:11.5px !important;
+    border-radius:6px !important;
+  }
+
+  .mc-help-feature em{
+    font-size:12.5px !important;
+    white-space:nowrap !important;
+  }
+}
+
+/* Mobile remains responsive rather than forcing horizontal overflow. */
+@media screen and (max-width:699px){
+  .mc-help-feature-row{
+    flex-wrap:wrap !important;
+  }
+}
+</style>
+
+
+<style id="mc-how-to-no-scroll-fit-v1">
+/*
+  The How to use guide must be fully visible as one compact card.
+  It therefore has no internal scrollbar. Width and vertical spacing are
+  adjusted to reduce wrapping; JS applies a small fit scale only when the
+  browser viewport is unusually short.
+*/
+@media screen {
+  .mc-modal[data-help-kind="how"]{
+    padding:12px !important;
+    overflow:hidden;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-modal-panel{
+    width:min(760px,calc(100vw - 24px)) !important;
+    max-height:none !important;
+    overflow:visible !important;
+    padding:20px 22px 16px !important;
+    transform:scale(var(--mc-how-fit-scale,1));
+    transform-origin:center center;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-steps{
+    gap:8px;
+    margin:11px 0 10px;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-step{
+    padding:9px 11px;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-review-step{
+    padding-bottom:10px;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-feature-row{
+    margin-top:8px !important;
+    gap:7px !important;
+    flex-wrap:nowrap !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-preference{
+    margin-top:10px;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-modal-actions{
+    margin-top:10px;
+  }
+}
+
+/* Compact vertically before any scaling is needed. */
+@media screen and (max-height:760px){
+  .mc-modal[data-help-kind="how"] .mc-modal-panel{
+    padding:15px 18px 13px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-eyebrow{
+    margin-bottom:3px;
+  }
+
+  .mc-modal[data-help-kind="how"] h2{
+    margin-bottom:4px;
+    font-size:25px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-steps{
+    gap:6px;
+    margin:8px 0;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-step{
+    padding:7px 9px;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-step p{
+    line-height:1.35;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-feature-row{
+    margin-top:6px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-preference,
+  .mc-modal[data-help-kind="how"] .mc-modal-actions{
+    margin-top:7px;
+  }
+}
+
+@media screen and (max-width:699px){
+  .mc-modal[data-help-kind="how"]{
+    padding:8px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-modal-panel{
+    width:calc(100vw - 16px) !important;
+    padding:14px 14px 12px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-feature-row{
+    flex-wrap:nowrap !important;
+    gap:5px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-feature{
+    min-height:30px !important;
+    padding:3px 6px 3px 4px !important;
+    gap:4px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-feature i{
+    min-width:22px !important;
+    height:22px !important;
+    font-size:11px !important;
+  }
+
+  .mc-modal[data-help-kind="how"] .mc-help-feature em{
+    font-size:12px !important;
+  }
+}
+</style>
+
+
+<style id="mc-universal-ledger-sticky-headers-v1">
+/*
+  Universal ledger header
+  -----------------------
+  Every visible .ledger-scroll > table.ledger gets the same fixed column header
+  while the corresponding table is passing beneath the top of the viewport.
+  This works even though ledger wrappers retain horizontal scrolling.
+*/
+@media screen {
+  /* Retire the older References-only floating header. */
+  .reference-ledger-floating{
+    display:none !important;
+  }
+
+  .mc-ledger-sticky-header{
+    display:none;
+    position:fixed;
+    top:8px;
+    z-index:48;
+    overflow:hidden;
+    pointer-events:none;
+    background:#fff;
+    border:1px solid var(--hair);
+    border-radius:8px 8px 0 0;
+    box-shadow:0 8px 20px -15px rgba(20,29,44,.38);
+  }
+
+  .mc-ledger-sticky-header.is-active{
+    display:block;
+  }
+
+  .mc-ledger-sticky-track{
+    position:relative;
+    width:max-content;
+    min-width:100%;
+    will-change:transform;
+  }
+
+  .mc-ledger-sticky-header table.ledger{
+    margin:0 !important;
+    background:#fff;
+  }
+
+  .mc-ledger-sticky-header table.ledger thead{
+    background:#fff;
+  }
+
+  .mc-ledger-sticky-header table.ledger th{
+    box-sizing:border-box;
+    background:#fff !important;
+    padding-top:10px !important;
+    padding-bottom:10px !important;
+    border-bottom:2px solid var(--ink) !important;
+  }
+
+  /* Prevent cloned headers from inheriting any accidental sticky behavior. */
+  .mc-ledger-sticky-header table.ledger th{
+    position:static !important;
+    top:auto !important;
+  }
+}
+
+@media print{
+  .mc-ledger-sticky-header{
+    display:none !important;
+  }
 }
 </style>
 
@@ -7219,23 +7631,205 @@ function scheduleReferenceLedgerFloatingHeader(){
 }
 
 function setupReferenceLedgerFloatingHeader(){
-  const block=document.querySelector(".reference-ledger-block");
-  if(!block) return;
-  const bodyScroll=block.querySelector(".reference-ledger-scroll");
-  const floatingScroll=block.querySelector(".reference-ledger-floating-scroll");
-  if(bodyScroll&&!bodyScroll.dataset.refFloatBound){
-    bodyScroll.dataset.refFloatBound="1";
-    bodyScroll.addEventListener("scroll",()=>{
-      if(floatingScroll) floatingScroll.scrollLeft=bodyScroll.scrollLeft;
-      scheduleReferenceLedgerFloatingHeader();
+  // Kept as a compatibility no-op. References now use the same universal
+  // sticky ledger header as every other report table.
+  setupUniversalLedgerStickyHeaders();
+}
+
+/* ---------- Universal fixed ledger headers ---------- */
+let MC_LEDGER_STICKY_RAF=0;
+let MC_LEDGER_STICKY_BOUND=false;
+let MC_LEDGER_STICKY_ACTIVE=null;
+
+function mcLedgerStickyTop(){
+  return 8;
+}
+
+function mcEnsureLedgerStickyNode(){
+  let floating=document.getElementById("mc-ledger-sticky-header");
+  if(floating) return floating;
+
+  floating=document.createElement("div");
+  floating.id="mc-ledger-sticky-header";
+  floating.className="mc-ledger-sticky-header";
+  floating.setAttribute("aria-hidden","true");
+
+  const track=document.createElement("div");
+  track.className="mc-ledger-sticky-track";
+  floating.appendChild(track);
+  document.body.appendChild(floating);
+  return floating;
+}
+
+function mcVisibleLedgerCandidates(){
+  return [...document.querySelectorAll(".ledger-scroll > table.ledger")].filter(table=>{
+    if(table.closest(".mc-ledger-sticky-header")) return false;
+    const wrap=table.parentElement;
+    if(!wrap || wrap.offsetParent===null) return false;
+
+    const report=table.closest(".result-group");
+    if(report && report.hidden) return false;
+
+    const style=getComputedStyle(table);
+    if(style.display==="none" || style.visibility==="hidden") return false;
+    return true;
+  });
+}
+
+function mcLedgerAtViewportTop(){
+  const top=mcLedgerStickyTop();
+  const candidates=mcVisibleLedgerCandidates();
+
+  // A table qualifies only while its normal header has scrolled above the
+  // sticky position and the table body still extends below it.
+  const eligible=[];
+  candidates.forEach(table=>{
+    const wrap=table.parentElement;
+    const thead=table.tHead;
+    if(!wrap||!thead) return;
+
+    const wrapRect=wrap.getBoundingClientRect();
+    const headRect=thead.getBoundingClientRect();
+    const tableRect=table.getBoundingClientRect();
+
+    const visibleHorizontally=wrapRect.right>0 && wrapRect.left<window.innerWidth;
+    const passingTop=headRect.top<top && tableRect.bottom>top+Math.max(30,headRect.height);
+    if(visibleHorizontally && passingTop){
+      eligible.push({table,wrap,headRect,tableRect,wrapRect});
+    }
+  });
+
+  if(!eligible.length) return null;
+
+  // If more than one ledger technically overlaps the top boundary, use the
+  // table whose bottom is nearest below the viewport top.
+  eligible.sort((a,b)=>a.tableRect.bottom-b.tableRect.bottom);
+  return eligible[0];
+}
+
+function mcBuildLedgerStickyClone(info){
+  const {table,wrap}=info;
+  const floating=mcEnsureLedgerStickyNode();
+  const track=floating.querySelector(".mc-ledger-sticky-track");
+  if(!track) return;
+
+  track.innerHTML="";
+
+  const clone=document.createElement("table");
+  clone.className=table.className;
+  clone.classList.add("mc-ledger-sticky-clone");
+  clone.removeAttribute("id");
+  clone.setAttribute("aria-hidden","true");
+
+  const colgroup=table.querySelector(":scope > colgroup");
+  if(colgroup) clone.appendChild(colgroup.cloneNode(true));
+
+  const head=table.tHead?.cloneNode(true);
+  if(!head) return;
+  clone.appendChild(head);
+  track.appendChild(clone);
+
+  // Match the live table column geometry exactly. Explicit pixel widths avoid
+  // header drift in auto-layout tables and in the dense Reference ledger.
+  const sourceHeads=[...table.tHead.querySelectorAll("th")];
+  const cloneHeads=[...head.querySelectorAll("th")];
+  sourceHeads.forEach((th,i)=>{
+    const target=cloneHeads[i];
+    if(!target) return;
+    const w=th.getBoundingClientRect().width;
+    target.style.width=`${w}px`;
+    target.style.minWidth=`${w}px`;
+    target.style.maxWidth=`${w}px`;
+  });
+
+  const tableWidth=Math.max(table.scrollWidth,table.getBoundingClientRect().width);
+  clone.style.width=`${tableWidth}px`;
+  clone.style.minWidth=`${tableWidth}px`;
+  clone.style.tableLayout="fixed";
+
+  MC_LEDGER_STICKY_ACTIVE={table,wrap,floating,track,clone};
+}
+
+function mcPositionLedgerSticky(info){
+  if(!info) return;
+  if(!MC_LEDGER_STICKY_ACTIVE || MC_LEDGER_STICKY_ACTIVE.table!==info.table){
+    mcBuildLedgerStickyClone(info);
+  }
+
+  const active=MC_LEDGER_STICKY_ACTIVE;
+  if(!active) return;
+
+  const {wrapRect}=info;
+  const visibleLeft=Math.max(0,wrapRect.left);
+  const visibleRight=Math.min(window.innerWidth,wrapRect.right);
+  const visibleWidth=Math.max(0,visibleRight-visibleLeft);
+
+  if(visibleWidth<40){
+    active.floating.classList.remove("is-active");
+    return;
+  }
+
+  active.floating.style.top=`${mcLedgerStickyTop()}px`;
+  active.floating.style.left=`${visibleLeft}px`;
+  active.floating.style.width=`${visibleWidth}px`;
+
+  // Horizontal body scrolling is mirrored by shifting the clone track.
+  // Include clipping if the ledger itself begins outside the left viewport.
+  const clippedLeft=visibleLeft-wrapRect.left;
+  active.track.style.transform=`translateX(${-active.wrap.scrollLeft-clippedLeft}px)`;
+  active.floating.classList.add("is-active");
+}
+
+function updateUniversalLedgerStickyHeaders(){
+  MC_LEDGER_STICKY_RAF=0;
+  const info=mcLedgerAtViewportTop();
+  const floating=mcEnsureLedgerStickyNode();
+
+  if(!info){
+    floating.classList.remove("is-active");
+    MC_LEDGER_STICKY_ACTIVE=null;
+    const track=floating.querySelector(".mc-ledger-sticky-track");
+    if(track) track.innerHTML="";
+    return;
+  }
+
+  mcPositionLedgerSticky(info);
+}
+
+function scheduleUniversalLedgerStickyHeaders(){
+  if(MC_LEDGER_STICKY_RAF) return;
+  MC_LEDGER_STICKY_RAF=requestAnimationFrame(updateUniversalLedgerStickyHeaders);
+}
+
+function setupUniversalLedgerStickyHeaders(){
+  // Bind horizontal-scroll listeners to every current ledger wrapper.
+  document.querySelectorAll(".ledger-scroll").forEach(wrap=>{
+    if(wrap.dataset.mcStickyLedgerBound) return;
+    wrap.dataset.mcStickyLedgerBound="1";
+    wrap.addEventListener("scroll",scheduleUniversalLedgerStickyHeaders,{passive:true});
+  });
+
+  if(!MC_LEDGER_STICKY_BOUND){
+    MC_LEDGER_STICKY_BOUND=true;
+    window.addEventListener("scroll",scheduleUniversalLedgerStickyHeaders,{passive:true});
+    window.addEventListener("resize",()=>{
+      // Rebuild widths after responsive layout changes.
+      MC_LEDGER_STICKY_ACTIVE=null;
+      scheduleUniversalLedgerStickyHeaders();
     },{passive:true});
+
+    // Results tables are rendered dynamically. Observe the document so newly
+    // inserted ledgers automatically receive the same behavior.
+    const observer=new MutationObserver(mutations=>{
+      if(mutations.some(m=>m.addedNodes?.length)){
+        setupUniversalLedgerStickyHeaders();
+        scheduleUniversalLedgerStickyHeaders();
+      }
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
   }
-  if(!REF_LEDGER_FLOAT_GLOBAL_BOUND){
-    REF_LEDGER_FLOAT_GLOBAL_BOUND=true;
-    window.addEventListener("scroll",scheduleReferenceLedgerFloatingHeader,{passive:true});
-    window.addEventListener("resize",scheduleReferenceLedgerFloatingHeader,{passive:true});
-  }
-  scheduleReferenceLedgerFloatingHeader();
+
+  scheduleUniversalLedgerStickyHeaders();
 }
 
 /* ---------- Rendering ---------- */
@@ -13910,12 +14504,16 @@ function renderManuscriptOverview(){
 
 function mcHelpMarkup(kind){
   if(kind==="privacy") return `<p class="mc-help-eyebrow">Privacy</p><h2 id="mc-help-title">Your manuscript stays on your device</h2><p class="mc-help-lede">Manuscript analysis runs locally in your browser. The uploaded manuscript text, filename, analysis results, and generated reports are not sent to GoatCounter site analytics.</p><div class="mc-help-note"><b>What does use the network?</b> The page may download generic software libraries and static resources required by the checker. Those requests do not contain your manuscript text.</div><div class="mc-modal-actions"><button type="button" class="btn btn-primary" data-close-help>Got it</button></div>`;
-  return `<p class="mc-help-eyebrow">Using Manuscript Check</p><h2 id="mc-help-title">Four steps from upload to revision</h2><p class="mc-help-lede">Start by uploading your DOCX manuscript. The tool will organise the findings and guide you through the items that may need attention.</p><div class="mc-help-steps">
-    <div class="mc-help-step"><span>1</span><div><b>Upload</b><p>Drop or choose a complete Microsoft Word DOCX manuscript.</p></div></div>
-    <div class="mc-help-step"><span>2</span><div><b>Run the check</b><p>Default settings are suitable for a general scientific manuscript. Advanced settings are optional.</p></div></div>
-    <div class="mc-help-step"><span>3</span><div><b>Start with Overview</b><p>Review Critical errors first, then Review items. Editorial notes are lower priority.</p></div></div>
-    <div class="mc-help-step"><span>4</span><div><b>Inspect, revise, recheck</b><p>Each finding shows the manuscript evidence and a suggested action. Apply it only when appropriate for the science and target journal.</p></div></div>
-  </div><div class="mc-help-note"><b>Remember:</b> a highlighted item is something worth checking, not proof that the manuscript is wrong. Journal instructions and scientific meaning take priority.</div><label class="mc-help-preference"><input type="checkbox" id="mc-help-dont-show"><span>Don't show this guide automatically again</span></label><div class="mc-modal-actions"><button type="button" class="btn btn-primary" data-close-help data-scroll-upload>Go to upload</button></div>`;
+  return `<p class="mc-help-eyebrow">Using Manuscript Check</p><h2 id="mc-help-title">Four steps from upload to revision</h2><div class="mc-help-steps">
+    <div class="mc-help-step"><span>1</span><div><b>Upload your manuscript</b><p>Drop or choose a complete Microsoft Word DOCX manuscript.</p></div></div>
+    <div class="mc-help-step mc-help-step-two"><span>2</span><div><b>Click Check manuscript</b><p><span class="mc-step2-line1">Use the default settings for a general scientific manuscript.</span><br class="mc-step2-break"><span class="mc-step2-line2">Change <b>Advanced settings</b> only if required, then click <b>Check manuscript</b>.</span></p></div></div>
+    <div class="mc-help-step mc-help-review-step"><span>3</span><div><b>Open the checks you want to review</b><p>Start with Overview for a quick summary, then click the review sections to inspect the corresponding findings.</p><div class="mc-help-feature-row" aria-label="Examples of review sections">
+      <span class="mc-help-feature"><i aria-hidden="true">Ab</i><em>Abbreviations</em></span>
+      <span class="mc-help-feature"><i aria-hidden="true">[1]</i><em>References</em></span>
+      <span class="mc-help-feature"><i aria-hidden="true">123</i><em>Numbers &amp; units</em></span>
+    </div></div></div>
+    <div class="mc-help-step"><span>4</span><div><b>Inspect, revise and recheck</b><p>Open the relevant findings, review the manuscript context and recommendation, revise where appropriate, and run the check again.</p></div></div>
+  </div><label class="mc-help-preference"><input type="checkbox" id="mc-help-dont-show"><span>Don't show this guide automatically again</span></label><div class="mc-modal-actions"><button type="button" class="btn btn-primary" data-close-help data-scroll-upload>Go to upload</button></div>`;
 }
 const MC_HELP_PREF_KEY="manuscriptCheckHideHowToGuide";
 function mcHelpAutoHidden(){try{return localStorage.getItem(MC_HELP_PREF_KEY)==="1";}catch(e){return false;}}
@@ -13924,11 +14522,29 @@ function mcSaveHelpPreference(){
   if(!box)return;
   try{ if(box.checked)localStorage.setItem(MC_HELP_PREF_KEY,"1"); else localStorage.removeItem(MC_HELP_PREF_KEY); }catch(e){}
 }
+function mcFitHowHelpModal(){
+  const modal=$("mc-help-modal");
+  const panel=modal?.querySelector(".mc-modal-panel");
+  if(!modal||!panel||modal.hidden||modal.dataset.helpKind!=="how") return;
+
+  // Measure at natural size first.
+  panel.style.setProperty("--mc-how-fit-scale","1");
+  requestAnimationFrame(()=>{
+    if(modal.hidden||modal.dataset.helpKind!=="how") return;
+    const naturalW=Math.max(panel.scrollWidth,panel.offsetWidth);
+    const naturalH=Math.max(panel.scrollHeight,panel.offsetHeight);
+    const availableW=Math.max(1,window.innerWidth-20);
+    const availableH=Math.max(1,window.innerHeight-20);
+    const scale=Math.min(1,availableW/naturalW,availableH/naturalH);
+    panel.style.setProperty("--mc-how-fit-scale",String(Math.max(0.01,scale)));
+  });
+}
 function mcOpenHelp(kind="how") {
   const modal=$("mc-help-modal"),content=$("mc-help-content"); if(!modal||!content)return;
   content.innerHTML=mcHelpMarkup(kind);
   if(kind==="how"){const box=$("mc-help-dont-show");if(box)box.checked=mcHelpAutoHidden();}
   modal.dataset.helpKind=kind; modal.hidden=false; document.body.classList.add("mc-modal-open");
+  if(kind==="how") mcFitHowHelpModal();
   const close=modal.querySelector(".mc-modal-close"); if(close) close.focus();
 }
 function mcCloseHelp(){const modal=$("mc-help-modal");if(!modal)return;if(modal.dataset.helpKind==="how")mcSaveHelpPreference();modal.hidden=true;delete modal.dataset.helpKind;document.body.classList.remove("mc-modal-open");}
@@ -13937,6 +14553,7 @@ function mcCloseHelp(){const modal=$("mc-help-modal");if(!modal)return;if(modal.
   $("privacy-btn")?.addEventListener("click",()=>mcOpenHelp("privacy"));
   $("mc-help-modal")?.addEventListener("click",e=>{if(e.target.closest("[data-close-help]")){const scroll=!!e.target.closest("[data-scroll-upload]");mcCloseHelp();if(scroll)setTimeout(()=>$("input-card")?.scrollIntoView({behavior:"smooth",block:"start"}),50);}});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("mc-help-modal")?.hidden)mcCloseHelp();});
+  window.addEventListener("resize",()=>{if(!$("mc-help-modal")?.hidden && $("mc-help-modal")?.dataset.helpKind==="how") mcFitHowHelpModal();});
   // Show the short usage guide automatically unless the user has explicitly
   // opted out. The permanent "How to use?" button always remains available,
   // and reopening the guide lets the user change this preference again.
