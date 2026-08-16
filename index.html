@@ -2708,13 +2708,13 @@ if(document.readyState==="loading"){
     display:none;
     position:fixed;
     top:8px;
-    z-index:48;
+    z-index:165;
     overflow:hidden;
     pointer-events:none;
-    background:#fff;
-    border:1px solid var(--hair);
-    border-radius:8px 8px 0 0;
-    box-shadow:0 8px 20px -15px rgba(20,29,44,.38);
+    background:#f6f7f9;
+    border:1px solid var(--mc-border, #d9dee5);
+    border-radius:4px 4px 0 0;
+    box-shadow:0 4px 12px rgba(27,36,48,.08);
   }
 
   .mc-ledger-sticky-header.is-active{
@@ -2739,10 +2739,10 @@ if(document.readyState==="loading"){
 
   .mc-ledger-sticky-header table.ledger th{
     box-sizing:border-box;
-    background:#fff !important;
+    background:#f6f7f9 !important;
     padding-top:10px !important;
     padding-bottom:10px !important;
-    border-bottom:2px solid var(--ink) !important;
+    border-bottom:1px solid var(--mc-border-strong, #c8cfd8) !important;
   }
 
   /* Prevent cloned headers from inheriting any accidental sticky behavior. */
@@ -3109,30 +3109,1565 @@ if(document.readyState==="loading"){
 }
 </style>
 
+
+<style id="mc-editorial-workbench-redesign-v1">
+@media screen {
+  :root{
+    --mc-bg:#f4f6f8;
+    --mc-surface:#ffffff;
+    --mc-surface-2:#f8f9fb;
+    --mc-text:#1b2430;
+    --mc-muted:#667384;
+    --mc-faint:#8792a0;
+    --mc-border:#d9dee5;
+    --mc-border-strong:#c8cfd8;
+    --mc-navy:#173b63;
+    --mc-navy-soft:#eef2f6;
+    --mc-teal:#2a6870;
+    --mc-critical:#a33b38;
+    --mc-review:#8a6415;
+    --mc-note:#526b86;
+    --mc-ok:#32724f;
+    --mc-sidebar:224px;
+  }
+
+  html{background:var(--mc-bg)}
+  body{
+    margin:0!important;
+    background:var(--mc-bg)!important;
+    color:var(--mc-text)!important;
+    font-family:"Segoe UI","Aptos","Helvetica Neue",Arial,sans-serif!important;
+    font-size:15px;
+    line-height:1.5;
+  }
+  .wrap{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0 0 44px!important;
+  }
+
+  /* Application header */
+  .masthead{
+    position:sticky!important;
+    top:0;
+    z-index:180;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0 28px!important;
+    box-sizing:border-box;
+    background:rgba(255,255,255,.98)!important;
+    border:0!important;
+    border-bottom:1px solid var(--mc-border)!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+  }
+  .masthead-main{
+    width:min(1600px,100%);
+    min-height:64px;
+    margin:0 auto!important;
+    padding:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(230px,auto) minmax(220px,1fr) auto!important;
+    align-items:center!important;
+    gap:24px!important;
+  }
+  .mc-brand-block{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    min-width:0;
+  }
+  .masthead h1{
+    margin:0!important;
+    font:700 20px/1.1 "Segoe UI","Aptos",Arial,sans-serif!important;
+    letter-spacing:-.015em;
+  }
+  .home-title-link{
+    color:var(--mc-navy)!important;
+    text-decoration:none!important;
+  }
+  .mc-product-type{
+    padding-left:12px;
+    border-left:1px solid var(--mc-border-strong);
+    color:var(--mc-muted);
+    font-size:12px;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .masthead-tagline,.masthead .lede,.workflow-strip,.rule{display:none!important}
+
+  .mc-header-document{
+    min-width:0;
+    justify-self:center;
+    text-align:center;
+    line-height:1.2;
+  }
+  .mc-header-document-name{
+    display:block;
+    max-width:520px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#354253;
+    font-size:13px;
+    font-weight:700;
+  }
+  .masthead-actions{
+    display:flex!important;
+    align-items:center;
+    justify-content:flex-end!important;
+    gap:3px!important;
+    margin:0!important;
+  }
+  .header-help-btn{
+    min-height:34px!important;
+    padding:6px 10px!important;
+    border:1px solid transparent!important;
+    border-radius:4px!important;
+    background:transparent!important;
+    color:#48586c!important;
+    box-shadow:none!important;
+    font:650 12.5px/1 "Segoe UI","Aptos",Arial,sans-serif!important;
+  }
+  .header-help-btn:hover{
+    background:#f3f5f7!important;
+    border-color:var(--mc-border)!important;
+    color:var(--mc-navy)!important;
+  }
+  .mc-header-work-btn{display:none!important}
+  body.mc-has-results .mc-header-work-btn{display:inline-flex!important}
+
+  /* Upload / setup screen */
+  #input-card{
+    width:min(1120px,calc(100% - 48px))!important;
+    margin:38px auto 0!important;
+    padding:28px 30px 30px!important;
+    box-sizing:border-box;
+    background:var(--mc-surface)!important;
+    border:1px solid var(--mc-border)!important;
+    border-radius:6px!important;
+    box-shadow:none!important;
+  }
+  #input-card>h2{
+    margin:0 0 5px!important;
+    color:#202b38!important;
+    font:700 24px/1.25 "Segoe UI","Aptos",Arial,sans-serif!important;
+    letter-spacing:-.01em;
+  }
+  #input-card>.sub{
+    max-width:none!important;
+    margin:0 0 24px!important;
+    color:var(--mc-muted)!important;
+    font-size:14px!important;
+  }
+  .mc-entry-columns{
+    gap:22px!important;
+    align-items:stretch!important;
+  }
+  .panel{
+    border:1px solid var(--mc-border)!important;
+    border-radius:5px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+  .drop{
+    min-height:190px!important;
+    display:flex!important;
+    flex-direction:column;
+    justify-content:center;
+    border:1px dashed #aeb8c4!important;
+    border-radius:5px!important;
+    background:#fafbfc!important;
+    box-shadow:none!important;
+  }
+  .drop:hover,.drop:focus{
+    border-color:#70839a!important;
+    background:#f7f9fb!important;
+  }
+  .drop .big{
+    color:#263548!important;
+    font-size:17px!important;
+    font-weight:700!important;
+  }
+  .drop .small,.drop .formats{color:var(--mc-muted)!important}
+  .filechip{
+    border-radius:3px!important;
+    background:#eef2f6!important;
+    color:#304258!important;
+  }
+  label.fld,.manuscript-type-label{color:#49596b!important}
+  select,input,textarea{
+    border-color:var(--mc-border-strong)!important;
+    border-radius:4px!important;
+    box-shadow:none!important;
+  }
+  select:focus,input:focus,textarea:focus{
+    border-color:#6b8199!important;
+    outline:2px solid rgba(23,59,99,.10)!important;
+  }
+  .check-scope{
+    gap:6px!important;
+    margin:18px 0!important;
+  }
+  .check-scope span{
+    padding:3px 0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    color:#657283!important;
+  }
+  .check-scope span:not(:last-child)::after{
+    content:" ·";
+    color:#a0a8b2;
+    margin-left:6px;
+  }
+  details.advanced-settings{
+    border:1px solid var(--mc-border)!important;
+    border-radius:5px!important;
+    background:#fafbfc!important;
+  }
+  details.advanced-settings>summary{
+    padding:13px 15px!important;
+    color:#314155!important;
+    background:transparent!important;
+  }
+  details.advanced-settings[open]>summary{
+    border-bottom:1px solid var(--mc-border)!important;
+  }
+  .advanced-settings-body{padding:18px!important}
+  details.adv{
+    border:0!important;
+    border-top:1px solid #e4e8ed!important;
+    border-radius:0!important;
+    background:transparent!important;
+  }
+  details.adv>summary{padding:12px 0!important}
+  .advanced-settings-cue{color:#8792a0!important;font-weight:500!important}
+
+  .btn{
+    min-height:38px!important;
+    border-radius:4px!important;
+    box-shadow:none!important;
+    font-weight:700!important;
+  }
+  .btn-primary{
+    border-color:var(--mc-navy)!important;
+    background:var(--mc-navy)!important;
+    color:white!important;
+  }
+  .btn-primary:hover{background:#102f51!important}
+  .btn-ghost{
+    border-color:var(--mc-border-strong)!important;
+    background:#fff!important;
+    color:#405166!important;
+  }
+
+  /* Once review results exist, the setup screen gets out of the way. */
+  body.mc-has-results:not(.mc-settings-open) #input-card{display:none!important}
+  body.mc-settings-open #input-card{
+    display:block!important;
+    margin-top:22px!important;
+    box-shadow:0 10px 26px rgba(28,44,64,.05)!important;
+  }
+
+  /* Main editorial workbench */
+  .mc-workbench{
+    display:none;
+    width:min(1600px,100%);
+    margin:22px auto 0;
+    padding:0 24px;
+    box-sizing:border-box;
+    grid-template-columns:var(--mc-sidebar) minmax(0,1fr);
+    gap:22px;
+    align-items:start;
+  }
+  .mc-workbench.is-active{display:grid!important}
+
+  #results-tabs.rtabs{
+    grid-column:1;
+    position:sticky!important;
+    top:86px;
+    z-index:70;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:2px!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:7px!important;
+    box-sizing:border-box;
+    overflow:visible!important;
+    border:1px solid var(--mc-border)!important;
+    border-radius:5px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+  #results-tabs.rtabs[hidden]{display:none!important}
+  .rtab{
+    position:relative;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:8px;
+    width:100%!important;
+    min-width:0!important;
+    min-height:39px!important;
+    padding:8px 10px!important;
+    border:0!important;
+    border-radius:3px!important;
+    background:transparent!important;
+    color:#566577!important;
+    box-shadow:none!important;
+    text-align:left!important;
+    font-weight:650!important;
+  }
+  .rtab:hover{background:#f5f7f9!important;color:#263a50!important}
+  .rtab.active{
+    background:var(--mc-navy-soft)!important;
+    color:var(--mc-navy)!important;
+    box-shadow:inset 3px 0 0 var(--mc-navy)!important;
+  }
+  .rtab::after{display:none!important}
+  .rtab-label{
+    font-size:13.5px!important;
+    color:inherit!important;
+  }
+  .rtab-count{
+    min-width:23px!important;
+    height:21px!important;
+    padding:0 5px!important;
+    display:inline-flex!important;
+    align-items:center;
+    justify-content:center;
+    border:0!important;
+    border-radius:10px!important;
+    background:#eef1f4!important;
+    color:#5e6b7b!important;
+    font-size:11px!important;
+    font-weight:750!important;
+  }
+  .rtab.active .rtab-count{background:#dce5ee!important;color:var(--mc-navy)!important}
+  .rtab.is-clean .rtab-count{color:var(--mc-ok)!important}
+  #results-tabs::after{
+    content:"Manuscript processed locally in this browser";
+    display:block;
+    margin:10px 8px 4px;
+    padding-top:10px;
+    border-top:1px solid #e8ebef;
+    color:#8a949f;
+    font-size:10.5px;
+    line-height:1.4;
+  }
+
+  .result-group{
+    grid-column:2;
+    min-width:0;
+    width:100%;
+  }
+  .result-group>.card{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:26px 28px 30px!important;
+    box-sizing:border-box;
+    border:1px solid var(--mc-border)!important;
+    border-radius:5px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+  .result-group>.card>h2,
+  .overview-report>h2{
+    margin:0 0 5px!important;
+    color:#1f2b38!important;
+    font:700 24px/1.25 "Segoe UI","Aptos",Arial,sans-serif!important;
+    letter-spacing:-.012em;
+  }
+  .overview-kicker,
+  .sec-label{
+    color:#758293!important;
+    font-family:"Segoe UI","Aptos",Arial,sans-serif!important;
+    font-size:11px!important;
+    font-weight:800!important;
+    letter-spacing:.085em!important;
+    text-transform:uppercase!important;
+  }
+  .sub,.overview-lede{
+    color:var(--mc-muted)!important;
+    font-size:14px!important;
+  }
+
+  /* Explanatory surfaces: information, not colourful cards */
+  .section-help,.section-help.auto-section-help,.ledger-help,.abbr-scope-note,
+  .dev-note,.disclaimer,.legal-note,.mc-settings-passive{
+    width:100%!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+    margin:10px 0!important;
+    padding:10px 12px!important;
+    border:0!important;
+    border-left:3px solid #c8d1db!important;
+    border-radius:0!important;
+    background:#f8f9fb!important;
+    color:#5c6979!important;
+    box-shadow:none!important;
+  }
+  .info-help{
+    border:1px solid var(--mc-border)!important;
+    border-radius:50%!important;
+    background:#fff!important;
+    color:#607086!important;
+    box-shadow:none!important;
+  }
+
+  /* Overview becomes a report index instead of a card gallery */
+  .overview-recommendation,.how-read-results,.overview-caution{
+    border:0!important;
+    border-top:1px solid #e3e7eb!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    padding:14px 0!important;
+  }
+  .overview-modules{
+    display:block!important;
+    border-top:1px solid var(--mc-border)!important;
+  }
+  .overview-module{
+    width:100%!important;
+    min-height:0!important;
+    display:block!important;
+    padding:13px 4px!important;
+    border:0!important;
+    border-bottom:1px solid #e5e9ed!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  .overview-module:hover{
+    padding-left:8px!important;
+    background:#fafbfc!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  .overview-module-title{
+    color:#2c3b4d!important;
+    font-size:14px!important;
+  }
+  .overview-module-meta{
+    margin-top:3px!important;
+    color:#738092!important;
+    font-size:12.5px!important;
+  }
+  .overview-module-attn{
+    margin-top:3px!important;
+    color:var(--mc-review)!important;
+    font-size:11.5px!important;
+  }
+  .overview-priorities{gap:8px!important}
+  .overview-priority-card{
+    border:1px solid var(--mc-border)!important;
+    border-radius:4px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+  .priority-tag{
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    font-weight:750!important;
+  }
+  .priority-tag.critical{color:var(--mc-critical)!important}
+  .priority-tag.review{color:var(--mc-review)!important}
+  .priority-tag.style{color:var(--mc-note)!important}
+  .how-read-grid{gap:18px!important}
+  .how-read-grid>div{
+    padding:0 0 0 12px!important;
+    border-left:2px solid #d9dee5!important;
+    background:transparent!important;
+  }
+
+  /* Ledgers are the primary visual language */
+  .ledger-scroll{
+    margin-top:10px!important;
+    border:1px solid var(--mc-border)!important;
+    border-radius:4px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+  table.ledger{
+    width:100%!important;
+    border-collapse:separate!important;
+    border-spacing:0!important;
+    background:#fff!important;
+  }
+  table.ledger thead th{
+    padding:10px 11px!important;
+    border-bottom:1px solid var(--mc-border-strong)!important;
+    background:#f6f7f9!important;
+    color:#566477!important;
+    font-family:"Segoe UI","Aptos",Arial,sans-serif!important;
+    font-size:11px!important;
+    font-weight:800!important;
+    letter-spacing:.045em!important;
+    text-transform:uppercase!important;
+    box-shadow:none!important;
+  }
+  table.ledger tbody td{
+    padding:11px!important;
+    border-bottom:1px solid #e8ebef!important;
+    background:#fff!important;
+    color:#293747!important;
+    font-size:13.5px!important;
+    line-height:1.45!important;
+  }
+  table.ledger tbody tr:hover>td{background:#fafbfc!important}
+  table.ledger tbody tr:last-child>td{border-bottom:0!important}
+  table.ledger code{font-size:.95em}
+
+  .yn,.abbr-ledger-status,.unit-ledger-status,.num-ledger-status,.eng-ledger-status,.fte-ledger-status{
+    display:inline!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    font-weight:750!important;
+  }
+  .yn.y,.yn.ok,.abbr-ledger-status.ok{color:var(--mc-ok)!important}
+  .yn.n,.yn.err,.abbr-ledger-status.err{color:var(--mc-critical)!important}
+  .yn.na{color:#8b949f!important}
+  .yn.review,.abbr-ledger-status.warn,.unit-ledger-status.review,.num-ledger-status.review{color:var(--mc-review)!important}
+
+  /* One consistent details action across ledgers */
+  .abbr-view-instances,.unit-view-instances,.num-view-instances,.eng-view-instances,.fte-view-instances{
+    margin-top:8px!important;
+    min-height:34px!important;
+    padding:6px 11px!important;
+    border:1px solid #afbac6!important;
+    border-radius:4px!important;
+    background:#fff!important;
+    color:var(--mc-navy)!important;
+    box-shadow:none!important;
+    font-size:12.5px!important;
+    font-weight:750!important;
+  }
+  .abbr-view-instances:hover,.unit-view-instances:hover,.num-view-instances:hover,.eng-view-instances:hover,.fte-view-instances:hover{
+    border-color:#71869d!important;
+    background:#f6f8fa!important;
+  }
+  .abbr-view-instances::after,.unit-view-instances::after,.num-view-instances::after,.eng-view-instances::after,.fte-view-instances::after{
+    display:none!important;
+  }
+  .mc-detail-source-active{
+    border-color:var(--mc-navy)!important;
+    background:var(--mc-navy-soft)!important;
+  }
+
+  /* Manuscript excerpts read like manuscript content */
+  .abbr-instance-example,.unit-instance-example,.num-instance-example,
+  .eng-instance-example,.fte-instance-example,.finding-context,
+  .mc-inspector .context,.mc-inspector blockquote{
+    font-family:Georgia,"Times New Roman",serif!important;
+    font-size:14.5px!important;
+    line-height:1.58!important;
+    color:#26303b!important;
+  }
+  mark{
+    padding:0 2px!important;
+    border-radius:1px!important;
+    background:#fff1a8!important;
+    color:#1f2730!important;
+  }
+
+  /* Right-side inspection drawer */
+  .mc-inspector{
+    position:fixed;
+    z-index:260;
+    top:64px;
+    right:0;
+    bottom:0;
+    width:min(500px,42vw);
+    display:flex;
+    flex-direction:column;
+    box-sizing:border-box;
+    background:#fff;
+    border-left:1px solid var(--mc-border-strong);
+    box-shadow:-16px 0 34px rgba(32,45,60,.12);
+  }
+  .mc-inspector[hidden]{display:none!important}
+  .mc-inspector-head{
+    min-height:76px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    padding:17px 19px 13px;
+    box-sizing:border-box;
+    border-bottom:1px solid var(--mc-border);
+    background:#fafbfc;
+  }
+  .mc-inspector-kicker{
+    margin-bottom:3px;
+    color:#7b8795;
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+  }
+  .mc-inspector-head h2{
+    margin:0!important;
+    color:#213044!important;
+    font:700 18px/1.25 "Segoe UI","Aptos",Arial,sans-serif!important;
+  }
+  .mc-inspector-close{
+    width:34px;
+    height:34px;
+    flex:0 0 auto;
+    border:1px solid var(--mc-border);
+    border-radius:4px;
+    background:#fff;
+    color:#516174;
+    font-size:23px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .mc-inspector-close:hover{background:#f1f3f5;color:#20354d}
+  .mc-inspector-body{
+    flex:1;
+    min-height:0;
+    overflow:auto;
+    padding:18px;
+  }
+  .mc-inspector-body .unit-instance-panel,
+  .mc-inspector-body .num-instance-panel,
+  .mc-inspector-body .abbr-instance-panel,
+  .mc-inspector-body .eng-instance-panel,
+  .mc-inspector-body .fte-instance-panel{
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+  .mc-inspector-body details{border:0!important;background:transparent!important}
+  .mc-inspector-body details>summary{color:var(--mc-navy)!important}
+  .mc-inspector-backdrop{
+    position:fixed;
+    z-index:250;
+    inset:64px 0 0 0;
+    background:rgba(20,29,40,.12);
+  }
+  .mc-inspector-backdrop[hidden]{display:none!important}
+  body.mc-inspector-open{overflow:hidden}
+
+  /* Modals and footer */
+  .mc-modal-panel{
+    border:1px solid var(--mc-border)!important;
+    border-radius:6px!important;
+    background:#fff!important;
+    box-shadow:0 24px 60px rgba(20,30,43,.18)!important;
+  }
+  footer{
+    width:min(1600px,calc(100% - 48px))!important;
+    margin:32px auto 0!important;
+    padding:18px 0 0!important;
+    border-top:1px solid var(--mc-border)!important;
+    color:#768291!important;
+  }
+  .credit-name{color:#435165!important}
+
+  /* Suppress legacy AI-dashboard decoration */
+  [class*="gradient"],.results-coachmark{box-shadow:none!important}
+  .analysis-progress{
+    border:1px solid var(--mc-border)!important;
+    border-radius:4px!important;
+    background:#fafbfc!important;
+  }
+  .analysis-progress-steps span{
+    border-radius:0!important;
+    background:transparent!important;
+  }
+
+  @media (max-width:1100px){
+    :root{--mc-sidebar:190px}
+    .masthead-main{grid-template-columns:auto 1fr auto!important;gap:12px!important}
+    .mc-product-type{display:none}
+    .mc-header-document-name{max-width:300px}
+    .mc-workbench{padding:0 14px;gap:14px}
+  }
+  @media (max-width:820px){
+    .masthead{padding:0 12px!important}
+    .masthead-main{
+      min-height:58px;
+      grid-template-columns:1fr auto!important;
+    }
+    .mc-header-document{display:none}
+    .header-help-btn{padding:5px 7px!important}
+    .mc-workbench{
+      display:none;
+      grid-template-columns:1fr;
+      padding:0 10px;
+      margin-top:12px;
+    }
+    .mc-workbench.is-active{display:block!important}
+    #results-tabs.rtabs{
+      position:sticky!important;
+      top:58px;
+      display:flex!important;
+      flex-direction:row!important;
+      overflow-x:auto!important;
+      width:100%!important;
+      margin-bottom:10px!important;
+      border-radius:4px!important;
+    }
+    #results-tabs.rtabs[hidden]{display:none!important}
+    .rtab{
+      flex:0 0 auto!important;
+      width:auto!important;
+      padding:8px 11px!important;
+    }
+    #results-tabs::after{display:none}
+    .result-group{width:100%}
+    .result-group>.card{padding:20px 16px 24px!important}
+    .mc-inspector{
+      top:58px;
+      width:min(620px,94vw);
+    }
+    .mc-inspector-backdrop{inset:58px 0 0}
+    #input-card{width:calc(100% - 20px)!important;margin-top:18px!important;padding:20px 16px!important}
+  }
+  @media (max-width:560px){
+    .masthead h1{font-size:18px!important}
+    .mc-header-work-btn{display:none!important}
+    .masthead-actions{gap:0!important}
+    .header-help-btn{font-size:11.5px!important}
+    .overview-priorities,.how-read-grid{grid-template-columns:1fr!important}
+    .mc-inspector{width:100vw}
+  }
+}
+@media print{
+  .mc-inspector,.mc-inspector-backdrop{display:none!important}
+}
+</style>
+
+
+<style id="mc-editorial-workbench-refinement-v2">
+@media screen {
+  :root{
+    --mc-sidebar:276px;
+  }
+
+  /* ---------- Application header refinement ---------- */
+  .masthead{
+    padding-left:30px!important;
+    padding-right:30px!important;
+  }
+  .masthead-main{
+    min-height:68px!important;
+    grid-template-columns:minmax(270px,auto) minmax(250px,1fr) auto!important;
+    gap:28px!important;
+  }
+  .masthead-actions{
+    gap:7px!important;
+    padding:0!important;
+  }
+  .header-help-btn{
+    min-height:38px!important;
+    padding:7px 12px!important;
+    border-radius:4px!important;
+    font-size:13px!important;
+    font-weight:700!important;
+    white-space:nowrap;
+  }
+  #mc-header-new,
+  #mc-header-settings{
+    border-color:#bcc6d1!important;
+    background:#fff!important;
+    color:#31465f!important;
+  }
+  #mc-header-new{
+    border-color:var(--mc-navy)!important;
+    background:var(--mc-navy)!important;
+    color:#fff!important;
+  }
+  #mc-header-new:hover{
+    background:#102f51!important;
+    color:#fff!important;
+  }
+  #mc-header-settings:hover{
+    border-color:#7f90a3!important;
+    background:#f7f9fb!important;
+  }
+  #how-to-use-btn,
+  #privacy-btn{
+    padding-left:9px!important;
+    padding-right:9px!important;
+  }
+  #how-to-use-btn::before,
+  #privacy-btn::before{
+    content:"";
+    display:inline-block;
+    width:1px;
+    height:18px;
+    margin-right:9px;
+    vertical-align:middle;
+    background:#d8dde3;
+  }
+
+  /* ---------- Larger, full-height left review navigation ---------- */
+  .mc-workbench{
+    width:min(1720px,100%)!important;
+    grid-template-columns:var(--mc-sidebar) minmax(0,1fr)!important;
+    gap:26px!important;
+    padding-left:26px!important;
+    padding-right:26px!important;
+  }
+  #results-tabs.rtabs{
+    top:90px!important;
+    min-height:calc(100vh - 116px)!important;
+    padding:10px!important;
+    border-color:#d3d9e0!important;
+    border-radius:6px!important;
+  }
+  #results-tabs::before{
+    content:"Review sections";
+    display:block;
+    padding:6px 10px 11px;
+    color:#7a8796;
+    font-size:10.5px;
+    line-height:1.2;
+    font-weight:800;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+  }
+  .rtab{
+    min-height:45px!important;
+    padding:10px 12px!important;
+    border-radius:4px!important;
+  }
+  .rtab-label{
+    font-size:14.5px!important;
+    font-weight:700!important;
+  }
+  .rtab-count{
+    min-width:29px!important;
+    height:24px!important;
+    padding:0 7px!important;
+    border-radius:4px!important;
+    background:#edf1f4!important;
+    color:#5b6a7b!important;
+    font-size:12px!important;
+    font-weight:800!important;
+    font-variant-numeric:tabular-nums;
+  }
+  .rtab.active .rtab-count{
+    background:#dce6ef!important;
+    color:#173b63!important;
+  }
+  #results-tabs::after{
+    margin:18px 10px 5px!important;
+    margin-top:auto!important;
+    padding-top:14px!important;
+    color:#7e8996!important;
+    font-size:11.5px!important;
+    line-height:1.45!important;
+  }
+
+  /* ---------- Ledger structure ---------- */
+  .ledger-scroll{
+    overflow:auto!important;
+  }
+  table.ledger tbody td{
+    vertical-align:top!important;
+  }
+  .abbr-reporting-table{
+    table-layout:fixed!important;
+    min-width:980px;
+  }
+  .abbr-reporting-table th:nth-child(1){width:13%!important}
+  .abbr-reporting-table th:nth-child(2){width:24%!important}
+  .abbr-reporting-table th:nth-child(3){width:7%!important}
+  .abbr-reporting-table th:nth-child(4){width:22%!important}
+  .abbr-reporting-table th:nth-child(5){width:34%!important}
+  .abbr-reporting-table td{
+    overflow-wrap:break-word;
+    word-break:normal;
+  }
+  .abbr-reporting-table .t-num{
+    text-align:center!important;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* Statuses are separate editorial findings, never run-on text. */
+  .abbr-status-cell{
+    line-height:1.38!important;
+  }
+  .abbr-status-stack{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    gap:6px!important;
+    width:100%;
+  }
+  .abbr-ledger-status{
+    display:block!important;
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    font-size:13.5px!important;
+    font-weight:780!important;
+    line-height:1.35!important;
+  }
+  .abbr-ledger-status.critical{color:var(--mc-critical)!important}
+  .abbr-ledger-status.review{color:var(--mc-review)!important}
+  .abbr-ledger-status.style{color:var(--mc-note)!important}
+  .abbr-ledger-status.clean{color:var(--mc-ok)!important}
+
+  /* Preserve the same stacked treatment if other ledgers contain multiple
+     status labels in one cell. */
+  .eng-ledger-status,
+  .fte-ledger-status,
+  .unit-ledger-status,
+  .num-ledger-status{
+    display:block!important;
+    margin:0 0 5px!important;
+    padding:0!important;
+    background:transparent!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    line-height:1.35!important;
+  }
+  .eng-ledger-status:last-child,
+  .fte-ledger-status:last-child,
+  .unit-ledger-status:last-child,
+  .num-ledger-status:last-child{
+    margin-bottom:0!important;
+  }
+
+  /* Recommendations should read as discrete actions rather than one paragraph. */
+  .abbr-recommendation{
+    line-height:1.48!important;
+  }
+  .abbr-recommendations{
+    display:block;
+    width:100%;
+  }
+  .abbr-recommendation-line{
+    position:relative;
+    margin:0 0 8px!important;
+    padding:0!important;
+    color:#334357;
+    line-height:1.48!important;
+  }
+  .abbr-recommendation-line:last-child{
+    margin-bottom:0!important;
+  }
+  .abbr-recommendations.is-multiple .abbr-recommendation-line{
+    padding-left:15px!important;
+  }
+  .abbr-recommendations.is-multiple .abbr-recommendation-line::before{
+    content:"";
+    position:absolute;
+    left:1px;
+    top:.66em;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:#8b97a5;
+  }
+  .abbr-view-instances{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin-top:11px!important;
+  }
+
+  /* Subtle row emphasis without large coloured cards. */
+  .abbr-ledger-review-row[data-abbr-priority="critical"]>td:first-child{
+    box-shadow:inset 3px 0 0 #b85a55;
+  }
+  .abbr-ledger-review-row[data-abbr-priority="review"]>td:first-child{
+    box-shadow:inset 3px 0 0 #b38a36;
+  }
+  .abbr-ledger-review-row[data-abbr-priority="style"]>td:first-child{
+    box-shadow:inset 3px 0 0 #75889f;
+  }
+
+  /* ---------- Larger right-hand details inspector ---------- */
+  .mc-inspector{
+    top:68px!important;
+    width:min(690px,52vw)!important;
+  }
+  .mc-inspector-backdrop{
+    inset:68px 0 0!important;
+  }
+  .mc-inspector-head{
+    min-height:82px!important;
+    padding:19px 22px 15px!important;
+  }
+  .mc-inspector-head h2{
+    font-size:19px!important;
+  }
+  .mc-inspector-body{
+    padding:22px!important;
+  }
+  .mc-inspector-body .abbr-instance-example,
+  .mc-inspector-body .unit-instance-example,
+  .mc-inspector-body .num-instance-example,
+  .mc-inspector-body .eng-instance-example,
+  .mc-inspector-body .fte-instance-example{
+    padding:13px 14px!important;
+    margin-bottom:10px!important;
+    border-left:2px solid #c9d2dc!important;
+    background:#fafbfc!important;
+  }
+
+  /* Corrective actions are shown in the same details drawer as the evidence.
+     They are copied from the active ledger row, never regenerated separately. */
+  .mc-inspector-actions{
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid var(--mc-border);
+  }
+  .mc-inspector-actions-kicker{
+    margin:0 0 4px;
+    color:#7b8795;
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+  }
+  .mc-inspector-actions-title{
+    margin:0 0 6px;
+    color:#233247;
+    font:700 16px/1.3 "Segoe UI","Aptos",Arial,sans-serif;
+  }
+  .mc-inspector-actions-note{
+    margin:0 0 12px;
+    color:#6a7787;
+    font-size:12.5px;
+    line-height:1.45;
+  }
+  .mc-inspector-action-list{
+    display:grid;
+    gap:9px;
+    margin:0;
+    padding:0;
+    list-style:none;
+    counter-reset:mc-action;
+  }
+  .mc-inspector-action{
+    position:relative;
+    margin:0;
+    padding:11px 12px 11px 42px;
+    border:1px solid #d7dee6;
+    border-radius:4px;
+    background:#f8fafc;
+    color:#304154;
+    font:500 13.5px/1.5 "Segoe UI","Aptos",Arial,sans-serif;
+    counter-increment:mc-action;
+  }
+  .mc-inspector-action::before{
+    content:counter(mc-action);
+    position:absolute;
+    left:12px;
+    top:11px;
+    width:20px;
+    height:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:#e5ebf1;
+    color:#294765;
+    font-size:11px;
+    font-weight:800;
+  }
+  .mc-inspector-action-list.is-single .mc-inspector-action{
+    padding-left:14px;
+    border-left:3px solid #7c91a8;
+  }
+  .mc-inspector-action-list.is-single .mc-inspector-action::before{
+    display:none;
+  }
+
+
+  /* ---------- General readability ---------- */
+  .result-group>.card{
+    padding:28px 30px 32px!important;
+  }
+  table.ledger thead th{
+    font-size:11.5px!important;
+  }
+  table.ledger tbody td{
+    font-size:13.7px!important;
+  }
+
+  @media (max-width:1280px){
+    :root{--mc-sidebar:244px}
+    .mc-workbench{gap:18px!important;padding-left:18px!important;padding-right:18px!important}
+    .rtab-label{font-size:13.8px!important}
+    .mc-inspector{width:min(620px,55vw)!important}
+    .masthead-main{grid-template-columns:minmax(230px,auto) minmax(180px,1fr) auto!important;gap:18px!important}
+  }
+
+  @media (max-width:960px){
+    .mc-header-document{display:none!important}
+    .masthead-main{grid-template-columns:1fr auto!important}
+    .mc-workbench{padding-left:12px!important;padding-right:12px!important}
+  }
+
+  @media (max-width:820px){
+    :root{--mc-sidebar:100%}
+    #results-tabs.rtabs{
+      min-height:0!important;
+      top:58px!important;
+    }
+    #results-tabs::before{display:none!important}
+    .mc-inspector{
+      top:58px!important;
+      width:min(700px,96vw)!important;
+    }
+    .mc-inspector-backdrop{inset:58px 0 0!important}
+    .masthead-actions{gap:3px!important}
+    #how-to-use-btn::before,
+    #privacy-btn::before{display:none!important}
+  }
+
+  @media (max-width:560px){
+    #mc-header-new,
+    #mc-header-settings{display:none!important}
+    .header-help-btn{min-height:34px!important;padding:5px 8px!important}
+    .mc-inspector{width:100vw!important}
+  }
+}
+</style>
+
+
+<style id="mc-concise-structural-recommendations-v1">
+@media screen {
+  .fte-recommendation-text{
+    display:block;
+    max-width:62ch;
+    line-height:1.45;
+    color:#334357;
+  }
+  .fte-view-instances{
+    display:flex!important;
+    width:max-content;
+    margin-top:10px!important;
+  }
+}
+</style>
+
+
+<style id="mc-sticky-ledger-header-restoration-v2">
+@media screen {
+  .mc-ledger-sticky-header{
+    pointer-events:none!important;
+  }
+  .mc-ledger-sticky-header table.ledger thead th{
+    background:#f6f7f9!important;
+    color:#566477!important;
+    font-family:"Segoe UI","Aptos",Arial,sans-serif!important;
+    font-size:11.5px!important;
+    font-weight:800!important;
+    letter-spacing:.045em!important;
+    text-transform:uppercase!important;
+  }
+}
+@media print{
+  .mc-ledger-sticky-header{display:none!important}
+}
+</style>
+
+
+<style id="mc-page-background-v1">
+@media screen {
+  :root{
+    --mc-page-bg:#EDF1EC;
+  }
+
+  html,
+  body,
+  .wrap{
+    background:var(--mc-page-bg)!important;
+  }
+
+  /* Keep the application surfaces crisp against the page background. */
+  .masthead,
+  #input-card,
+  #results-tabs.rtabs,
+  .result-group>.card,
+  .mc-inspector,
+  .mc-modal-panel{
+    background:#fff!important;
+  }
+
+  /* Slightly differentiate passive utility regions without using pastel cards. */
+  footer{
+    background:transparent!important;
+  }
+}
+</style>
+
+
+<style id="mc-sticky-ledger-geometry-v3">
+@media screen {
+  .mc-ledger-sticky-header{
+    box-sizing:border-box!important;
+  }
+
+  .mc-ledger-sticky-track{
+    position:relative!important;
+    min-width:0!important;
+    transform-origin:left top;
+  }
+
+  .mc-ledger-sticky-grid{
+    position:relative;
+    box-sizing:border-box;
+    background:#f6f7f9;
+  }
+
+  .mc-ledger-sticky-cell{
+    position:absolute;
+    display:flex;
+    align-items:center;
+    box-sizing:border-box;
+    overflow:hidden;
+    background:#f6f7f9;
+    color:#566477;
+    border-bottom:1px solid var(--mc-border-strong,#c8cfd8);
+    font-family:"Segoe UI","Aptos",Arial,sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+  }
+
+  /* Preserve the source alignment of centered/right-aligned headers. */
+  .mc-ledger-sticky-cell[style*="text-align: center"]{
+    justify-content:center;
+  }
+  .mc-ledger-sticky-cell[style*="text-align: right"]{
+    justify-content:flex-end;
+  }
+
+  /* The geometry overlay supersedes the old cloned-table presentation. */
+  .mc-ledger-sticky-header table.mc-ledger-sticky-clone{
+    display:none!important;
+  }
+}
+@media print{
+  .mc-ledger-sticky-grid{display:none!important}
+}
+</style>
+
+
+<style id="mc-consistent-details-placement-v1">
+@media screen {
+  /*
+    All evidence/detail actions use the same vertical pattern:
+      recommendation/action text
+      [Open details]
+
+    Never allow the button to sit on the same line as the recommendation.
+  */
+  .abbr-view-instances,
+  .unit-view-instances,
+  .num-view-instances,
+  .eng-view-instances,
+  .fte-view-instances{
+    display:flex!important;
+    width:max-content!important;
+    max-width:100%;
+    clear:both!important;
+    margin-top:10px!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+  }
+
+  .abbr-recommendation,
+  .unit-action,
+  .num-recommendation,
+  .fte-recommendation-text{
+    vertical-align:top!important;
+  }
+
+  /* Keep recommendation text and its action visually distinct. */
+  .unit-action,
+  .num-recommendation,
+  .abbr-recommendation{
+    line-height:1.48!important;
+  }
+}
+@media (max-width:560px){
+  .abbr-view-instances,
+  .unit-view-instances,
+  .num-view-instances,
+  .eng-view-instances,
+  .fte-view-instances{
+    white-space:normal!important;
+  }
+}
+</style>
+
+
+<style id="mc-reference-missing-delimiter-review-v1">
+@media screen {
+  .ref-delimiter-review{
+    margin-top:6px;
+    padding:6px 8px;
+    border-left:2px solid #b28a3a;
+    background:#faf8f2;
+    color:#665329;
+    font-size:11.5px;
+    line-height:1.4;
+  }
+  .ref-delimiter-review b{
+    color:#755a20;
+    font-weight:800;
+  }
+  .ref-row-format-review>td:first-child{
+    box-shadow:inset 3px 0 0 #b28a3a;
+  }
+}
+</style>
+
+
+<style id="mc-abbreviation-paired-finding-alignment-v1">
+@media screen {
+  .abbr-status-stack,
+  .abbr-recommendations{
+    display:block!important;
+    width:100%!important;
+  }
+
+  .abbr-finding-pair{
+    box-sizing:border-box!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0 0 9px!important;
+    line-height:1.45!important;
+  }
+
+  .abbr-finding-pair:last-child{
+    padding-bottom:0!important;
+  }
+
+  .abbr-status-pair{
+    display:flex!important;
+    align-items:flex-start!important;
+  }
+
+  .abbr-recommendation-line{
+    display:block!important;
+    position:relative!important;
+    padding-left:0!important;
+  }
+
+  /* Status and recommendation rows are paired directly. Bullets would shift
+     the recommendation text away from the shared alignment axis. */
+  .abbr-recommendations.is-multiple .abbr-recommendation-line{
+    padding-left:0!important;
+  }
+  .abbr-recommendations.is-multiple .abbr-recommendation-line::before{
+    content:none!important;
+    display:none!important;
+  }
+
+  .abbr-ledger-status{
+    margin:0!important;
+    line-height:1.45!important;
+  }
+
+  .abbr-view-instances{
+    margin-top:11px!important;
+  }
+}
+</style>
+
+
+<style id="mc-abbreviation-true-finding-rows-v1">
+@media screen {
+  .abbr-reporting-table{
+    table-layout:fixed!important;
+  }
+
+  .abbr-reporting-table th:nth-child(1){width:13%!important}
+  .abbr-reporting-table th:nth-child(2){width:25%!important}
+  .abbr-reporting-table th:nth-child(3){width:7%!important}
+  .abbr-reporting-table th:nth-child(4){width:22%!important}
+  .abbr-reporting-table th:nth-child(5){width:33%!important}
+
+  /* Each finding is a real table row, so descriptor, status, and
+     recommendation share exactly the same vertical coordinates. */
+  .abbr-reporting-table .abbr-finding-row>td{
+    padding-top:10px!important;
+    padding-bottom:10px!important;
+    vertical-align:top!important;
+    border-bottom:1px solid #edf0f3!important;
+  }
+
+  .abbr-reporting-table .abbr-finding-row:not(.abbr-group-first)>td{
+    background:#fcfcfd!important;
+  }
+
+  .abbr-group-cell{
+    vertical-align:top!important;
+    background:#fff!important;
+    border-bottom:1px solid #dfe4e9!important;
+  }
+
+  .abbr-group-cell.t-abbr{
+    font-weight:800!important;
+    color:#1e2f43!important;
+  }
+
+  .abbr-descriptor-cell{
+    color:#435366!important;
+    line-height:1.45!important;
+    overflow-wrap:anywhere;
+  }
+
+  .abbr-status-cell{
+    line-height:1.45!important;
+  }
+
+  .abbr-ledger-status{
+    display:block!important;
+    margin:0!important;
+    padding:0!important;
+    line-height:1.45!important;
+  }
+
+  .abbr-recommendation{
+    line-height:1.45!important;
+  }
+
+  .abbr-recommendation-line{
+    margin:0!important;
+    padding:0!important;
+    line-height:1.45!important;
+    color:#334357!important;
+  }
+
+  .abbr-action-row>td{
+    padding-top:7px!important;
+    padding-bottom:12px!important;
+    background:#fff!important;
+    border-bottom:1px solid #dfe4e9!important;
+  }
+
+  .abbr-action-row .abbr-view-instances{
+    margin:0!important;
+  }
+
+  /* Group severity marker appears only once at the beginning of the group. */
+  .abbr-group-first[data-abbr-priority="critical"]>.t-abbr{
+    box-shadow:inset 3px 0 0 #b85a55!important;
+  }
+  .abbr-group-first[data-abbr-priority="review"]>.t-abbr{
+    box-shadow:inset 3px 0 0 #b38a36!important;
+  }
+  .abbr-group-first[data-abbr-priority="style"]>.t-abbr{
+    box-shadow:inset 3px 0 0 #75889f!important;
+  }
+
+  /* Retire the old stacked-pair decoration. */
+  .abbr-status-stack,
+  .abbr-recommendations,
+  .abbr-finding-pair{
+    display:contents!important;
+  }
+  .abbr-recommendations.is-multiple .abbr-recommendation-line::before{
+    content:none!important;
+    display:none!important;
+  }
+}
+</style>
+
+
+<style id="mc-abbreviation-details-attached-v1">
+@media screen {
+  .abbr-group-identity{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+    min-width:0;
+  }
+
+  .abbr-group-name{
+    display:block;
+    font-weight:800;
+    color:#1e2f43;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+  }
+
+  .abbr-group-details{
+    display:flex!important;
+    width:max-content!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:6px 9px!important;
+    min-height:32px!important;
+    font-size:12px!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+  }
+
+  /* The details control belongs to the abbreviation group, not to any one
+     recommendation. The previous detached action row is no longer used. */
+  .abbr-action-row{
+    display:none!important;
+  }
+
+  .abbr-group-cell.t-abbr{
+    padding-top:12px!important;
+  }
+}
+@media (max-width:700px){
+  .abbr-group-details{
+    white-space:normal!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
 
   <header class="masthead">
     <div class="masthead-main">
-      <div>
-        <h1><a href="#" id="home-title-link" class="home-title-link" aria-label="Return to Manuscript Check home and start a fresh submission" title="Start a fresh manuscript check">Manuscript Check</a><span class="rule"></span></h1>
-        <p class="masthead-tagline">Review smartly. Submit with confidence.</p>
-        <p class="lede">Review your manuscript for consistency, clarity, and submission readiness.</p>
+      <div class="mc-brand-block">
+        <h1><a href="#" id="home-title-link" class="home-title-link" aria-label="Return to Manuscript Check home and start a fresh submission" title="Start a fresh manuscript check">Manuscript Check</a></h1>
+        <span class="mc-product-type">Scientific editorial QA</span>
       </div>
-      <div class="masthead-actions" aria-label="Help and privacy">
-        <button type="button" class="header-help-btn" id="how-to-use-btn">How to use?</button>
+
+      <div class="mc-header-document" id="mc-header-document" aria-live="polite">
+        <span class="mc-header-document-name" id="mc-header-document-name">No manuscript loaded</span>
+      </div>
+
+      <div class="masthead-actions" aria-label="Application actions">
+        <button type="button" class="header-help-btn mc-header-work-btn" id="mc-header-new">New manuscript</button>
+        <button type="button" class="header-help-btn mc-header-work-btn" id="mc-header-settings">Settings</button>
+        <button type="button" class="header-help-btn" id="how-to-use-btn">Help</button>
         <button type="button" class="header-help-btn" id="privacy-btn">Privacy</button>
       </div>
-    </div>
-    <div class="workflow-strip" aria-label="How Manuscript Check works">
-      <div class="workflow-step"><span>1</span><b>Upload</b><small>Add your DOCX</small></div>
-      <div class="workflow-arrow" aria-hidden="true">›</div>
-      <div class="workflow-step"><span>2</span><b>Check</b><small>Automatic screening</small></div>
-      <div class="workflow-arrow" aria-hidden="true">›</div>
-      <div class="workflow-step"><span>3</span><b>Review</b><small>Inspect findings</small></div>
-      <div class="workflow-arrow" aria-hidden="true">›</div>
-      <div class="workflow-step"><span>4</span><b>Fix</b><small>Revise and recheck</small></div>
     </div>
   </header>
 
@@ -3298,6 +4833,7 @@ if(document.readyState==="loading"){
     </div>
   </section>
 
+  <div class="mc-workbench" id="mc-workbench">
   <div class="rtabs" id="results-tabs" role="tablist" aria-label="Results" hidden>
     <button class="rtab active" data-tab="overview" role="tab" aria-selected="true" title="Manuscript overview"><span class="rtab-label">Overview</span></button>
     <button class="rtab" data-tab="abbr" role="tab" aria-selected="false" title="Abbreviations"><span class="rtab-label">Abbreviations</span></button>
@@ -3507,6 +5043,20 @@ if(document.readyState==="loading"){
     </ol>
   </details>
   </div><!-- /group fte -->
+
+  </div><!-- /mc-workbench -->
+
+  <aside class="mc-inspector" id="mc-inspector" hidden aria-labelledby="mc-inspector-title">
+    <div class="mc-inspector-head">
+      <div>
+        <div class="mc-inspector-kicker">Finding details</div>
+        <h2 id="mc-inspector-title">Manuscript context</h2>
+      </div>
+      <button type="button" class="mc-inspector-close" id="mc-inspector-close" aria-label="Close finding details">×</button>
+    </div>
+    <div class="mc-inspector-body" id="mc-inspector-body"></div>
+  </aside>
+  <div class="mc-inspector-backdrop" id="mc-inspector-backdrop" hidden></div>
 
   <div class="mc-modal" id="mc-help-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mc-help-title">
     <div class="mc-modal-backdrop" data-close-help></div>
@@ -9114,6 +10664,18 @@ let MC_LEDGER_STICKY_BOUND=false;
 let MC_LEDGER_STICKY_ACTIVE=null;
 
 function mcLedgerStickyTop(){
+  /*
+    The editorial-workbench masthead is itself sticky. The universal ledger
+    header must sit immediately below that live application header rather than
+    at viewport top, otherwise the cloned column header is hidden behind it.
+  */
+  const masthead=document.querySelector(".masthead");
+  if(masthead){
+    const rect=masthead.getBoundingClientRect();
+    if(rect.height>0 && rect.bottom>0){
+      return Math.max(8,Math.round(rect.bottom)+6);
+    }
+  }
   return 8;
 }
 
@@ -9183,43 +10745,94 @@ function mcBuildLedgerStickyClone(info){
   const {table,wrap}=info;
   const floating=mcEnsureLedgerStickyNode();
   const track=floating.querySelector(".mc-ledger-sticky-track");
-  if(!track) return;
+  const thead=table.tHead;
+  if(!track || !thead) return;
 
   track.innerHTML="";
 
-  const clone=document.createElement("table");
-  clone.className=table.className;
-  clone.classList.add("mc-ledger-sticky-clone");
-  clone.removeAttribute("id");
-  clone.setAttribute("aria-hidden","true");
+  /*
+    Geometry-based floating header
+    ------------------------------
+    Do not create a second HTML table. A cloned table can independently
+    recalculate colgroup percentages, fixed-layout widths, and responsive
+    reference-ledger rules, which can collapse or shift columns while scrolling.
 
-  const colgroup=table.querySelector(":scope > colgroup");
-  if(colgroup) clone.appendChild(colgroup.cloneNode(true));
+    Instead, reproduce the exact rendered geometry of every source <th> using
+    absolutely positioned cells. Colspan, fixed-layout, auto-layout, and dense
+    Reference ledger widths are therefore inherited from the real table rather
+    than recomputed.
+  */
+  const tableRect=table.getBoundingClientRect();
+  const headRect=thead.getBoundingClientRect();
+  const sourceHeads=[...thead.querySelectorAll("th")];
 
-  const head=table.tHead?.cloneNode(true);
-  if(!head) return;
-  clone.appendChild(head);
-  track.appendChild(clone);
+  if(!sourceHeads.length || headRect.width<=0 || headRect.height<=0) return;
 
-  // Match the live table column geometry exactly. Explicit pixel widths avoid
-  // header drift in auto-layout tables and in the dense Reference ledger.
-  const sourceHeads=[...table.tHead.querySelectorAll("th")];
-  const cloneHeads=[...head.querySelectorAll("th")];
+  const tableWidth=Math.max(
+    table.scrollWidth||0,
+    tableRect.width||0,
+    wrap.scrollWidth||0
+  );
+
+  const grid=document.createElement("div");
+  grid.className="mc-ledger-sticky-grid";
+  grid.setAttribute("aria-hidden","true");
+  grid.style.width=`${tableWidth}px`;
+  grid.style.height=`${Math.ceil(headRect.height)}px`;
+
   sourceHeads.forEach((th,i)=>{
-    const target=cloneHeads[i];
-    if(!target) return;
-    const w=th.getBoundingClientRect().width;
-    target.style.width=`${w}px`;
-    target.style.minWidth=`${w}px`;
-    target.style.maxWidth=`${w}px`;
+    const rect=th.getBoundingClientRect();
+    if(rect.width<=0 || rect.height<=0) return;
+
+    const cell=document.createElement("div");
+    cell.className="mc-ledger-sticky-cell";
+    cell.dataset.mcStickyColumn=String(i);
+    cell.innerHTML=th.innerHTML;
+
+    // Remove identifiers/interactive references from the visual-only copy.
+    cell.querySelectorAll("[id]").forEach(el=>el.removeAttribute("id"));
+    cell.querySelectorAll("[aria-controls]").forEach(el=>el.removeAttribute("aria-controls"));
+    cell.querySelectorAll("button,a,input,select,textarea").forEach(el=>{
+      el.setAttribute("tabindex","-1");
+      el.setAttribute("aria-hidden","true");
+    });
+
+    const cs=getComputedStyle(th);
+    const left=rect.left-tableRect.left;
+    const top=rect.top-headRect.top;
+
+    cell.style.left=`${left}px`;
+    cell.style.top=`${top}px`;
+    cell.style.width=`${rect.width}px`;
+    cell.style.height=`${rect.height}px`;
+    cell.style.paddingTop=cs.paddingTop;
+    cell.style.paddingRight=cs.paddingRight;
+    cell.style.paddingBottom=cs.paddingBottom;
+    cell.style.paddingLeft=cs.paddingLeft;
+    cell.style.textAlign=cs.textAlign;
+    cell.style.whiteSpace=cs.whiteSpace;
+    cell.style.fontFamily=cs.fontFamily;
+    cell.style.fontSize=cs.fontSize;
+    cell.style.fontWeight=cs.fontWeight;
+    cell.style.letterSpacing=cs.letterSpacing;
+    cell.style.textTransform=cs.textTransform;
+    cell.style.lineHeight=cs.lineHeight;
+    cell.style.color=cs.color;
+
+    grid.appendChild(cell);
   });
 
-  const tableWidth=Math.max(table.scrollWidth,table.getBoundingClientRect().width);
-  clone.style.width=`${tableWidth}px`;
-  clone.style.minWidth=`${tableWidth}px`;
-  clone.style.tableLayout="fixed";
+  track.style.width=`${tableWidth}px`;
+  track.style.height=`${Math.ceil(headRect.height)}px`;
+  track.appendChild(grid);
 
-  MC_LEDGER_STICKY_ACTIVE={table,wrap,floating,track,clone};
+  floating.style.height=`${Math.ceil(headRect.height)}px`;
+
+  MC_LEDGER_STICKY_ACTIVE={
+    table,wrap,floating,track,grid,
+    headerHeight:Math.ceil(headRect.height),
+    sourceHeaderCount:sourceHeads.length
+  };
 }
 
 function mcPositionLedgerSticky(info){
@@ -9290,10 +10903,24 @@ function setupUniversalLedgerStickyHeaders(){
       scheduleUniversalLedgerStickyHeaders();
     },{passive:true});
 
+    // The masthead height can change independently of viewport size when
+    // controls wrap or typography changes. Track it explicitly.
+    const masthead=document.querySelector(".masthead");
+    if(masthead && typeof ResizeObserver!=="undefined"){
+      const mastheadObserver=new ResizeObserver(()=>{
+        MC_LEDGER_STICKY_ACTIVE=null;
+        scheduleUniversalLedgerStickyHeaders();
+      });
+      mastheadObserver.observe(masthead);
+    }
+
     // Results tables are rendered dynamically. Observe the document so newly
     // inserted ledgers automatically receive the same behavior.
     const observer=new MutationObserver(mutations=>{
-      if(mutations.some(m=>m.addedNodes?.length)){
+      if(mutations.some(m=>m.addedNodes?.length || m.removedNodes?.length)){
+        // Column geometry can change when a ledger is re-rendered. Force the
+        // visual header to be rebuilt from the new live cells.
+        MC_LEDGER_STICKY_ACTIVE=null;
         setupUniversalLedgerStickyHeaders();
         scheduleUniversalLedgerStickyHeaders();
       }
@@ -9466,6 +11093,91 @@ function abbrRecommendationExpansion(row,it,a){
   if(!full || full.toLowerCase()===String(a||"").toLowerCase()) return String(a||"abbreviation");
   return `${full} (${a})`;
 }
+function abbrLocalStructuralScope(it,msg,type){
+  const wanted=String(type||"").toLowerCase();
+  const direct=String(it?.localScopeLabel||"").replace(/\s+/g," ").trim();
+
+  if(direct){
+    if(wanted==="figure" && /^Figure\b/i.test(direct)) return direct;
+    if(wanted==="table" && /^Table\b/i.test(direct)) return direct;
+  }
+
+  const source=String(msg||"").replace(/\s+/g," ");
+  try{
+    const re=wanted==="figure"
+      ?/\b(Figure\s+(?:S?\d+(?:[A-Za-z])?|[IVXLC]+))\b/i
+      :/\b(Table\s+(?:S?\d+(?:[A-Za-z])?|[IVXLC]+))\b/i;
+    const m=source.match(re);
+    if(m?.[1]) return m[1];
+  }catch(_e){}
+
+  return "";
+}
+
+function abbrFindingDescriptor(it,row,label=""){
+  const msg=String(it?.msg||"").replace(/\s+/g," ").trim();
+  const local=String(it?.localScopeLabel||"").replace(/\s+/g," ").trim();
+
+  // Local structural scopes are the clearest descriptors.
+  if(local && /^(?:Table|Figure)\b/i.test(local)) return local;
+
+  let m;
+  if((m=msg.match(/\b(Table\s+(?:S?\d+(?:\.\d+)*(?:[A-Za-z])?|[IVXLC]+))\b/i)))
+    return m[1];
+  if((m=msg.match(/\b(Figure\s+(?:S?\d+(?:\.\d+)*(?:[A-Za-z])?|[IVXLC]+))\b/i)))
+    return m[1];
+
+  // Thesis/dissertation first-use findings are much easier to scan when the
+  // affected chapter/section is placed in the descriptor column rather than
+  // repeated inside a long status label.
+  if((m=msg.match(/Not defined at first use in\s+(.+?)(?:\.|$)/i)))
+    return m[1].trim();
+
+  if(it?.mainTextScopeMissing || /main text without (?:a |being )?defined|main-text definition/i.test(msg))
+    return "Main text";
+
+  if(/List of Abbreviations|abbreviation list/i.test(msg))
+    return "Abbreviation list / main text";
+
+  if(/Used before it is (?:defined|introduced)|appears in the text before its full form|Defined after first use/i.test(label))
+    return row?.longForm||it?.rowLongForm||"Main text";
+
+  if(/Conflicting definitions|different full forms|different meanings/i.test(msg))
+    return row?.longForm||it?.rowLongForm||"Definition forms";
+
+  if(/Defined\s+\d+\s+times|defined\s+\d+\s+times within/i.test(msg))
+    return row?.longForm||it?.rowLongForm||"Definition locations";
+
+  if(/Used only\s+\d+\s+time/i.test(msg))
+    return row?.longForm||it?.rowLongForm||"Main text";
+
+  if(/Begins a sentence|sentence does not open with an abbreviation/i.test(msg))
+    return "Sentence-level use";
+
+  if(/plural/i.test(msg))
+    return "Plural form";
+
+  if(/inferred from the earlier definition|combined term|distinct technical concept/i.test(msg))
+    return row?.longForm||it?.rowLongForm||"Definition";
+
+  return row?.longForm||it?.rowLongForm||it?.longForm||"Manuscript use";
+}
+
+function abbrCompactStatusForDescriptor(label,descriptor){
+  const s=String(label||"").trim();
+  const d=String(descriptor||"").trim();
+
+  // Avoid repeating a long chapter title in both Descriptor and Status.
+  if(d && /^Chapter\b/i.test(d) && /^Not defined at first use in\b/i.test(s))
+    return "Not defined at first use";
+
+  // The descriptor already identifies the structural object.
+  if(/^(?:Table|Figure)\b/i.test(d) && s==="Local definition review")
+    return "Local definition review";
+
+  return s;
+}
+
 function abbrRecommendationForIssue(it,priority,row=null){
   const a=String(it?.abbr||row?.base||"abbreviation").trim();
   const msg=String(it?.msg||"");
@@ -9473,10 +11185,18 @@ function abbrRecommendationForIssue(it,priority,row=null){
   let m;
   if(/List of Abbreviations not detected/i.test(msg))
     return "Add a List of Abbreviations for the abbreviations used in the thesis.";
-  if(/used in Table .*without a local definition|local table definition/i.test(msg))
-    return `${a} is used in this table without a local definition. If the target journal requires tables to be self-contained, define ${expansion} in the table caption or note.`;
-  if(/used in Figure .*without a local definition|local figure definition/i.test(msg))
-    return `${a} is used in this figure without a local definition. If the target journal requires figures to be self-contained, define ${expansion} in the figure caption or legend.`;
+  if(/used in Table .*without a local definition|local table definition/i.test(msg)){
+    const scope=abbrLocalStructuralScope(it,msg,"table");
+    if(scope)
+      return `${a} is used in ${scope} without a local definition. If the target journal requires tables to be self-contained, define ${expansion} in the caption or note for ${scope}.`;
+    return `${a} is used in a table without a local definition. If the target journal requires tables to be self-contained, define ${expansion} in the associated table caption or note.`;
+  }
+  if(/used in Figure .*without a local definition|local figure definition/i.test(msg)){
+    const scope=abbrLocalStructuralScope(it,msg,"figure");
+    if(scope)
+      return `${a} is used in ${scope} without a local definition. If the target journal requires figures to be self-contained, define ${expansion} in the caption or legend for ${scope}.`;
+    return `${a} is used in a figure caption or legend without a local definition. If the target journal requires figures to be self-contained, define ${expansion} in the associated figure caption or legend.`;
+  }
 
   // Local structural definitions and main-text definitions are independent.
   // When a valid table/figure definition already exists, acknowledge it clearly
@@ -9609,19 +11329,41 @@ function abbrBuildReportingRows(r){
       review:row.issues.filter(x=>x.priority==="review").length,
       style:row.issues.filter(x=>x.priority==="style").length
     };
-    const statuses=[];
+    const findingPairs=[];
     row.issues.forEach(x=>{
       const label=abbrIssueStatusLabel(x.it?.msg,x.priority,x.it,row);
-      if(label&&!statuses.some(s=>s.label===label))statuses.push({label,priority:x.priority});
+      const recommendation=abbrRecommendationForIssue(x.it,x.priority,row);
+      if(!label && !recommendation) return;
+
+      const descriptor=abbrFindingDescriptor(x.it,row,label);
+      const displayLabel=abbrCompactStatusForDescriptor(label||"Review item",descriptor);
+      const pair={
+        label:displayLabel,
+        fullLabel:label||"Review item",
+        descriptor,
+        priority:x.priority,
+        recommendation:recommendation||"Review this finding in context.",
+        sourceIssue:x.it||null
+      };
+      const key=`${pair.priority}|${pair.label}|${pair.recommendation}`;
+      if(!findingPairs.some(p=>p.key===key)) findingPairs.push({...pair,key});
     });
-    if(!statuses.length)statuses.push({label:abbrDefinitionStatusText(row),priority:"clean"});
-    row.statuses=statuses;
-    const recs=[];
-    row.issues.forEach(x=>{
-      const rec=abbrRecommendationForIssue(x.it,x.priority,row);
-      if(rec&&!recs.includes(rec))recs.push(rec);
-    });
-    row.recommendations=recs.length?recs:["No action needed."];
+
+    if(!findingPairs.length){
+      findingPairs.push({
+        label:abbrDefinitionStatusText(row),
+        fullLabel:abbrDefinitionStatusText(row),
+        descriptor:row.longForm||"Definition",
+        priority:"clean",
+        recommendation:"No action needed.",
+        sourceIssue:null,
+        key:"clean"
+      });
+    }
+
+    row.findingPairs=findingPairs;
+    row.statuses=findingPairs.map(({label,priority})=>({label,priority}));
+    row.recommendations=findingPairs.map(x=>x.recommendation);
 
     // Remove duplicates within each context group. Uses and definitions remain
     // separate even when the definition sentence is also an abbreviation use.
@@ -9747,6 +11489,44 @@ function abbrInstancePanelHtml(row,rowIndex){
   }
   return `<tr class="abbr-instance-row" id="abbr-instance-row-${rowIndex}" hidden><td colspan="5"><div class="abbr-instance-panel"><p class="abbr-instance-panel-title">${escapeHtml(title)}</p><p class="abbr-instance-panel-note">${escapeHtml(note)}</p>${groups||'<div class="abbr-instance-example">No manuscript context is available for this item.</div>'}</div></td></tr>`;
 }
+let MC_ABBR_PAIR_ALIGN_RAF=0;
+function mcAlignAbbreviationFindingPairs(){
+  const table=document.getElementById("abbr-reporting-table");
+  if(!table) return;
+
+  table.querySelectorAll("tbody tr.abbr-ledger-row").forEach(row=>{
+    const statuses=[...row.querySelectorAll(".abbr-status-pair")];
+    const recommendations=[...row.querySelectorAll(".abbr-recommendation-line[data-abbr-pair]")];
+
+    [...statuses,...recommendations].forEach(el=>{
+      el.style.minHeight="";
+      el.style.height="";
+    });
+
+    const count=Math.max(statuses.length,recommendations.length);
+    for(let i=0;i<count;i++){
+      const s=statuses.find(el=>Number(el.dataset.abbrPair)===i);
+      const r=recommendations.find(el=>Number(el.dataset.abbrPair)===i);
+      if(!s || !r) continue;
+
+      const h=Math.ceil(Math.max(
+        s.getBoundingClientRect().height,
+        r.getBoundingClientRect().height
+      ));
+      s.style.minHeight=`${h}px`;
+      r.style.minHeight=`${h}px`;
+    }
+  });
+}
+
+function mcScheduleAbbreviationFindingPairAlignment(){
+  cancelAnimationFrame(MC_ABBR_PAIR_ALIGN_RAF);
+  MC_ABBR_PAIR_ALIGN_RAF=requestAnimationFrame(()=>{
+    mcAlignAbbreviationFindingPairs();
+    requestAnimationFrame(mcAlignAbbreviationFindingPairs);
+  });
+}
+
 function bindAbbrInstanceToggles(){
   document.querySelectorAll("#ledger-wrap .abbr-view-instances").forEach(btn=>{
     btn.addEventListener("click",()=>{
@@ -9757,6 +11537,11 @@ function bindAbbrInstanceToggles(){
     });
   });
 }
+if(!window.__MC_ABBR_PAIR_ALIGNMENT_BOUND__){
+  window.__MC_ABBR_PAIR_ALIGNMENT_BOUND__=true;
+  window.addEventListener("resize",mcScheduleAbbreviationFindingPairAlignment,{passive:true});
+}
+
 function abbrGeneralNotesHtml(notes){
   if(!notes?.length)return "";
   return `<div class="abbr-report-notes"><b>Report notes</b>${notes.map(x=>`<p>${escapeHtml(x.it?.msg||"")}</p>`).join("")}</div>`;
@@ -9770,24 +11555,51 @@ function abbrReportingLedger(r){
       : (instanceMode==="duplicate-definitions"||instanceMode==="conflicting-definitions"
         ? abbrRelevantDefinitionContexts(x).length>0
         : (x.instances?.length||0)+(x.definitionInstances?.length||0)+(x.extraContexts?.length||0)>0);
-    const statusHtml=x.statuses.map(s=>`<span class="abbr-ledger-status ${s.priority}">${escapeHtml(s.label)}</span>`).join("");
-    const recHtml=x.recommendations.map(rec=>`<div class="abbr-recommendation-line">${escapeHtml(rec)}</div>`).join("");
-    const view=hasContexts?`<button type="button" class="abbr-view-instances" data-target="abbr-instance-row-${i}" aria-expanded="false" aria-controls="abbr-instance-row-${i}">View instances</button>`:"";
+    const pairs=x.findingPairs?.length
+      ?x.findingPairs
+      :x.statuses.map((s,idx)=>({
+          label:s.label,
+          fullLabel:s.label,
+          descriptor:x.longForm||"Manuscript use",
+          priority:s.priority,
+          recommendation:x.recommendations?.[idx]||x.recommendations?.[0]||"Review this finding in context."
+        }));
+
+    const view=hasContexts
+      ?`<button type="button" class="abbr-view-instances abbr-group-details" data-target="abbr-instance-row-${i}" aria-expanded="false" aria-controls="abbr-instance-row-${i}">Open details</button>`
+      :"";
+
     const priorities=["critical","review","style"].filter(p=>(x.priorityCounts?.[p]||0)>0).join(" ");
     const review=(x.priorityCounts?.critical||0)+(x.priorityCounts?.review||0)+(x.priorityCounts?.style||0)>0;
-    const main=`<tr class="abbr-ledger-row${review?" abbr-ledger-review-row":""}" data-abbr-review="${review?"1":"0"}" data-abbr-priority="${escapeHtml(x.priority)}" data-abbr-priorities="${escapeHtml(priorities)}" data-abbr-critical-count="${x.priorityCounts?.critical||0}" data-abbr-review-count="${x.priorityCounts?.review||0}" data-abbr-style-count="${x.priorityCounts?.style||0}"><td class="t-abbr">${escapeHtml(x.base||"")}</td><td>${x.longForm?escapeHtml(x.longForm):'<span class="t-long none">not defined</span>'}${x.scopeAware&&x.scopeSummary?`<div class="abbr-scope-mini">${escapeHtml(x.scopeSummary)}</div>`:""}</td><td class="t-num">${Number.isFinite(Number(x.count))&&Number(x.count)>0?Number(x.count):"—"}</td><td class="abbr-status-cell">${statusHtml}</td><td class="abbr-recommendation">${recHtml}${view}</td></tr>`;
-    return main+(hasContexts?abbrInstancePanelHtml(x,i):"");
+    const groupRows=pairs.length;
+    const useText=Number.isFinite(Number(x.count))&&Number(x.count)>0?Number(x.count):"—";
+
+    const commonAttrs=`data-abbr-review="${review?"1":"0"}" data-abbr-priority="${escapeHtml(x.priority)}" data-abbr-priorities="${escapeHtml(priorities)}" data-abbr-critical-count="${x.priorityCounts?.critical||0}" data-abbr-review-count="${x.priorityCounts?.review||0}" data-abbr-style-count="${x.priorityCounts?.style||0}"`;
+
+    const findingRows=pairs.map((p,idx)=>{
+      const first=idx===0;
+      const descriptor=p.descriptor||x.longForm||"Main text";
+      return `<tr class="abbr-ledger-row abbr-finding-row${review?" abbr-ledger-review-row":""}${first?" abbr-group-first":""}" ${commonAttrs} data-abbr-group="${i}" data-abbr-finding="${idx}">
+        ${first?`<td class="t-abbr abbr-group-cell" rowspan="${groupRows}"><div class="abbr-group-identity"><span class="abbr-group-name">${escapeHtml(x.base||"")}</span>${view}</div></td>`:""}
+        <td class="abbr-descriptor-cell">${escapeHtml(descriptor)}</td>
+        ${first?`<td class="t-num abbr-group-cell" rowspan="${groupRows}">${useText}</td>`:""}
+        <td class="abbr-status-cell"><span class="abbr-ledger-status ${p.priority}" title="${escapeHtml(p.fullLabel||p.label||"")}">${escapeHtml(p.label||"Review item")}</span></td>
+        <td class="abbr-recommendation"><div class="abbr-recommendation-line">${escapeHtml(p.recommendation||"Review this finding in context.")}</div></td>
+      </tr>`;
+    }).join("");
+
+    return findingRows+(hasContexts?abbrInstancePanelHtml(x,i):"");
   }).join("");
   return `${abbrGeneralNotesHtml(built.generalNotes)}
     <p class="sec-label">Abbreviation reporting ledger <button type="button" class="info-help" id="abbr-ledger-info" aria-label="Explain the abbreviation reporting ledger" aria-expanded="false" title="What do these columns mean?">i</button></p>
     <div class="ledger-help abbr-ledger-help" id="abbr-ledger-help" hidden><div class="ledger-help-grid">
       <b>Abbreviation / notation</b><span>The detected non-standard abbreviation or explicitly introduced scientific notation.</span>
-      <b>Full form / descriptor</b><span>The detected full form, scientific descriptor, or declaration associated with the abbreviation.</span>
+      <b>Descriptor / scope</b><span>The full form, scientific descriptor, or manuscript scope associated with the specific finding on that row.</span>
       <b>Uses</b><span>The number of eligible prose occurrences assessed by the abbreviation checker.</span>
       <b>Status</b><span>States exactly what was detected, using direct wording and counts where available. When a List of Abbreviations is present, either consistent list-based use or consistent redefinition in text is accepted; only a mixed approach is flagged.</span>
       <b>Recommendation</b><span>A concise next step. Select <b>View instances</b> to inspect only the manuscript context relevant to that finding. For duplicate or conflicting definitions, only the definition locations are shown.</span>
     </div></div>
-    <div class="ledger-scroll"><table class="ledger abbr-reporting-table" id="abbr-reporting-table"><thead><tr><th>Abbreviation / notation</th><th>Full form / descriptor</th><th>Uses</th><th>Status</th><th>Recommendation</th></tr></thead><tbody>${body||'<tr><td colspan="5">No non-standard abbreviations or notation items were detected.</td></tr>'}</tbody></table></div>`;
+    <div class="ledger-scroll"><table class="ledger abbr-reporting-table" id="abbr-reporting-table"><thead><tr><th>Abbreviation / notation</th><th>Descriptor / scope</th><th>Uses</th><th>Status</th><th>Recommendation</th></tr></thead><tbody>${body||'<tr><td colspan="5">No non-standard abbreviations or notation items were detected.</td></tr>'}</tbody></table></div>`;
 }
 
 /* ---------- Export ---------- */
@@ -15776,6 +17588,210 @@ function refFEFindLocalValueSpan(region,value){
   if(!region || value==null) return null;
   return refFEFindValueSpan(region.raw,String(value),0,region.raw.length);
 }
+
+function refFEOrderedYearFirstJournalTail(meta,expectedYear=null){
+  /*
+    Ordered journal metadata family
+    -------------------------------
+    Recognises bibliographic tails whose semantic order is:
+
+      YEAR, VOLUME
+      YEAR, VOLUME, PAGES
+      YEAR, VOLUME, ARTICLE_NUMBER
+      YEAR, VOLUME(ISSUE), LOCATOR
+
+    Examples:
+      2020, 712.
+      2017, 309, 489-502.
+      2024, 489, 151323.
+      2024, 96, e10989.
+
+    The position of a numeric field within a complete bibliographic tail is
+    stronger evidence than its numeric shape alone. Therefore a range such as
+    1875-1880 is accepted as pages when it follows YEAR, VOLUME, even though
+    the endpoints could also resemble calendar years.
+
+    This parser is deliberately anchored to the complete metadata tail. It
+    cannot promote arbitrary numbers from titles or prose.
+  */
+  const s=String(meta||"")
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+  if(!s) return null;
+
+  const volumeSrc=String.raw`\d{1,6}(?:\s*[-–—]\s*\d{1,6})?`;
+  const issueSrc=String.raw`(?:\s*\(\s*([^()]{1,30})\s*\))?`;
+  const locatorSrc=String.raw`([A-Za-z]?\d{1,12}(?:\s*[-–—]\s*[A-Za-z]?\d{1,12})?)`;
+
+  let re;
+  try{
+    re=new RegExp(
+      String.raw`^[\s,;:.]*((?:19|20)\d{2}[a-z]?)\s*[,;]\s*(${volumeSrc})${issueSrc}(?:\s*[,;:]\s*${locatorSrc})?\s*[.]?\s*$`,
+      "iu"
+    );
+  }catch(_e){ return null; }
+
+  const m=s.match(re);
+  if(!m) return null;
+
+  const year=String(m[1]||"").trim();
+  const yearCore=year.replace(/[a-z]$/i,"");
+  const expectedCore=expectedYear?String(expectedYear).replace(/[a-z]$/i,""):null;
+  if(expectedCore && yearCore!==expectedCore) return null;
+
+  const volume=String(m[2]||"").replace(/\s*[-–—]\s*/g,"-").trim();
+  const issue=String(m[3]||"").trim()||null;
+  const locatorRaw=String(m[4]||"").trim();
+  const locator=locatorRaw
+    ? locatorRaw.replace(/\s*[-–—]\s*/g,match=>match.includes("–")?"–":match.includes("—")?"—":"-")
+    : null;
+
+  let locatorKind=null;
+  if(locator){
+    if(/[-–—]/.test(locator)) locatorKind="pages";
+    else if(/^[eE]\d+/i.test(locator)) locatorKind="article";
+    else if(/^\d{5,12}$/.test(locator)) locatorKind="article";
+    else locatorKind="pages";
+  }
+
+  return {
+    family:"year-volume-locator",
+    year,
+    volume,
+    issue,
+    locator,
+    locatorKind,
+    hasLocator:!!locator,
+    confidence:0.995,
+    evidence:[
+      "complete year-first journal metadata tail",
+      "ordered YEAR -> VOLUME -> LOCATOR grammar",
+      locator ? "locator follows resolved volume" : "terminal field after year is volume"
+    ]
+  };
+}
+
+
+function refFERecoverMissingJournalDelimiter(meta,expectedYear=null){
+  /*
+    Recover-but-flag malformed journal metadata
+    --------------------------------------------
+    Authors sometimes omit punctuation between otherwise clear bibliographic
+    fields, for example:
+
+      2025, 9 100224.
+      2019, 5 1116-1136.
+
+    The intended fields can be recovered with high confidence because the final
+    token is structurally strong: a page range, prefixed e-locator, or long
+    article number. The malformed punctuation is still retained as a formatting
+    finding and is never silently normalised.
+
+    Short standalone numbers are intentionally NOT recovered from whitespace
+    alone because "5 2" could mean volume/issue, volume/page, or other metadata.
+  */
+  let s=String(meta||"")
+    .replace(/\u00a0/g," ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+
+  if(!s) return null;
+
+  // DOI/URL content is external to the core year-volume-locator tail.
+  try{s=refStripDoiUrl(s).replace(/[\s,;:]+$/,"").trim();}catch(_e){}
+
+  const yearSrc=String.raw`((?:19|20)\d{2}[a-z]?)`;
+  const volumeSrc=String.raw`(\d{1,6})`;
+  const issueSrc=String.raw`(?:\s*\(\s*([^()]{1,30})\s*\))?`;
+
+  // Strong locator only. This is the main false-positive guard.
+  const strongLocatorSrc=String.raw`((?:[A-Za-z]?\d{1,10}\s*[-–—]\s*[A-Za-z]?\d{1,10})|(?:[eE]\d{3,12})|(?:\d{5,12}))`;
+
+  const expectedCore=expectedYear
+    ?String(expectedYear).replace(/[a-z]$/i,"")
+    :null;
+
+  const finish=(m,missingBetween)=>{
+    if(!m) return null;
+
+    const year=String(m[1]||"").trim();
+    const yearCore=year.replace(/[a-z]$/i,"");
+    if(expectedCore && yearCore!==expectedCore) return null;
+
+    const volume=String(m[2]||"").trim();
+    const issue=String(m[3]||"").trim()||null;
+    const locator=String(m[4]||"")
+      .replace(/\s*[-–—]\s*/g,match=>match.includes("–")?"–":match.includes("—")?"—":"-")
+      .trim();
+
+    if(!volume || !locator) return null;
+
+    let locatorKind="pages";
+    if(!/[-–—]/.test(locator) && (/^[eE]\d+/i.test(locator)||/^\d{5,12}$/.test(locator)))
+      locatorKind="article";
+
+    const leftLabel=missingBetween==="year-volume"
+      ?`year ${year}`
+      :`volume ${volume}${issue?`(${issue})`:""}`;
+    const rightLabel=missingBetween==="year-volume"
+      ?`volume ${volume}`
+      :(locatorKind==="article"?`article number ${locator}`:`pages ${locator}`);
+
+    return {
+      family:"year-volume-locator-missing-delimiter",
+      year,
+      volume,
+      issue,
+      locator,
+      locatorKind,
+      hasLocator:true,
+      confidence:0.94,
+      malformedDelimiter:true,
+      delimiterReview:{
+        kind:"missing-delimiter",
+        missingBetween,
+        leftLabel,
+        rightLabel,
+        message:`Possible missing delimiter between ${leftLabel} and ${rightLabel}.`,
+        recommendation:`Add a separator between ${leftLabel} and ${rightLabel}.`
+      },
+      evidence:[
+        "complete ordered journal metadata tail",
+        "strong terminal page/article locator",
+        `missing delimiter between ${missingBetween==="year-volume"?"year and volume":"volume and locator"}`
+      ]
+    };
+  };
+
+  let re=null,m=null;
+
+  // Most common malformed form: YEAR, VOLUME LOCATOR
+  try{
+    re=new RegExp(
+      String.raw`^[\s,;:.]*${yearSrc}\s*[,;]\s*${volumeSrc}${issueSrc}\s+${strongLocatorSrc}\s*[.]?\s*$`,
+      "iu"
+    );
+    m=s.match(re);
+    if(m) return finish(m,"volume-locator");
+  }catch(_e){}
+
+  // Also recover YEAR VOLUME, LOCATOR when the delimiter between year and
+  // volume is omitted but the terminal locator is strong.
+  try{
+    re=new RegExp(
+      String.raw`^[\s,;:.]*${yearSrc}\s+${volumeSrc}${issueSrc}\s*[,;:]\s*${strongLocatorSrc}\s*[.]?\s*$`,
+      "iu"
+    );
+    m=s.match(re);
+    if(m) return finish(m,"year-volume");
+  }catch(_e){}
+
+  return null;
+}
+
 function refFEJournalMetadata(reg,legacy){
   const region=refFEDefineMetadataRegion(reg,legacy);
   if(!region) return null;
@@ -15793,10 +17809,21 @@ function refFEJournalMetadata(reg,legacy){
       localYear={year:pubYear,index:ym.index,length:ym[0].length,score:99};
   }
 
+  const orderedYearFirst=refFEOrderedYearFirstJournalTail(
+    meta,
+    pubYear||localYear?.year||null
+  );
   const loc=refParseLocatorFields(meta,localYear);
-  let volume=loc?.volume||null;
-  let issue=loc?.issue||null;
-  let pages=null,articleNumber=null,locatorKind=null;
+
+  // A complete ordered tail outranks generic numeric pairing. This prevents
+  // YEAR,VOLUME from becoming a false VOLUME,PAGE pair.
+  let volume=orderedYearFirst?.volume||loc?.volume||null;
+  let issue=orderedYearFirst?.issue||loc?.issue||null;
+  let pages=orderedYearFirst?.locatorKind==="pages"
+    ?orderedYearFirst.locator:null;
+  let articleNumber=orderedYearFirst?.locatorKind==="article"
+    ?orderedYearFirst.locator:null;
+  let locatorKind=orderedYearFirst?.locatorKind||null;
 
   /*
     Article-number-only journal tails
@@ -15864,7 +17891,7 @@ function refFEJournalMetadata(reg,legacy){
 
   // Reuse the established structural locator grammar, but only after the
   // source/container boundary. This is the main architectural fix.
-  if(!pages && !articleNumber && loc?.locator){
+  if(!pages && !articleNumber && !orderedYearFirst && loc?.locator){
     const lsp=refFEFindLocalValueSpan(region,loc.locator);
     const localStart=lsp?.start||0,localEnd=lsp?.end||0;
     if(loc.locatorKind==="pages" || /[-–—]/.test(loc.locator)){
@@ -15917,6 +17944,12 @@ function refFEJournalMetadata(reg,legacy){
   if(volume && pubYear && String(volume).replace(/\s+/g,"")===pubYear.replace(/[a-z]$/i,""))
     volume=null;
 
+  // A complete YEAR -> VOLUME -> [LOCATOR] tail is intrinsically strong
+  // bibliographic evidence. It can safely reconcile the numeric fields even
+  // when the source/container text itself has lower lexical confidence.
+  const metadataAuthoritative=
+    authoritative || !!(orderedYearFirst && orderedYearFirst.confidence>=0.99);
+
   // Record the reconciled metadata fields and their spans.
   const recordMeta=(fieldType,value,confidence,rule)=>{
     if(value==null) return null;
@@ -15932,19 +17965,44 @@ function refFEJournalMetadata(reg,legacy){
     );
   };
 
-  const vf=recordMeta("volume",volume,authoritative?0.96:0.78,"metadata-volume");
-  const inf=recordMeta("issue",issue,authoritative?0.95:0.76,"metadata-issue");
-  const pf=recordMeta("pages",pages,authoritative?0.97:0.80,"metadata-pages");
-  const af=recordMeta("article_number",articleNumber,authoritative?0.97:0.80,"metadata-article-number");
+  const vf=recordMeta(
+    "volume",volume,
+    orderedYearFirst?0.995:(metadataAuthoritative?0.96:0.78),
+    orderedYearFirst?"ordered-year-first-volume":"metadata-volume"
+  );
+  const inf=recordMeta(
+    "issue",issue,
+    orderedYearFirst?0.992:(metadataAuthoritative?0.95:0.76),
+    orderedYearFirst?"ordered-year-first-issue":"metadata-issue"
+  );
+  const pf=recordMeta(
+    "pages",pages,
+    orderedYearFirst?0.995:(metadataAuthoritative?0.97:0.80),
+    orderedYearFirst?"ordered-year-first-pages":"metadata-pages"
+  );
+  const af=recordMeta(
+    "article_number",articleNumber,
+    orderedYearFirst?0.995:(metadataAuthoritative?0.97:0.80),
+    orderedYearFirst?"ordered-year-first-article-number":"metadata-article-number"
+  );
 
   reg.final.volume=vf?volume:null;
   reg.final.issue=inf?issue:null;
   reg.final.pages=pf?pages:null;
   reg.final.articleNumber=af?articleNumber:null;
   reg.final.locatorKind=pf?"pages":(af?"article":null);
-  reg.authoritativeJournalMetadata=authoritative;
+  reg.authoritativeJournalMetadata=metadataAuthoritative;
+  reg.orderedJournalTail=orderedYearFirst||null;
 
-  return {region,volume:reg.final.volume,issue:reg.final.issue,pages:reg.final.pages,articleNumber:reg.final.articleNumber,authoritative};
+  return {
+    region,
+    volume:reg.final.volume,
+    issue:reg.final.issue,
+    pages:reg.final.pages,
+    articleNumber:reg.final.articleNumber,
+    authoritative:metadataAuthoritative,
+    orderedJournalTail:orderedYearFirst||null
+  };
 }
 function refFERecordRejectedNumericRanges(reg){
   const raw=reg.raw;
@@ -15953,6 +18011,15 @@ function refFERecordRejectedNumericRanges(reg){
 
   for(const m of raw.matchAll(/\b(\d{1,8})\s*([-–—])\s*(\d{1,8})\b/gu)){
     const start=m.index,end=start+m[0].length;
+
+    // A range already accepted as the protected publication-pages field by a
+    // complete bibliographic tail is not a rejected calendar-range candidate.
+    const acceptedPage=(reg.fields||[]).some(f=>
+      f.fieldType==="pages" &&
+      start>=f.start && end<=f.end
+    );
+    if(acceptedPage) continue;
+
     const reasons=[];
     if(title && refFEContains(title,start,end)) reasons.push("inside protected title span");
     if(doiAndUrl.some(sp=>refFEContains(sp,start,end))) reasons.push("inside protected DOI/URL span");
@@ -16924,7 +18991,19 @@ function refSBFinalReconcile(parsed,reg){
     coreBibliographicCluster:reg.coreBibliographicCluster||null,
     ancillaryBibliographicText:reg.ancillaryBibliographicText||[],
     articleNumberWithoutVolume:
-      !!(reg.final.articleNumber && !reg.final.volume)
+      !!(reg.final.articleNumber && !reg.final.volume),
+    orderedJournalTail:
+      reg.orderedJournalTail
+        ?{
+            family:reg.orderedJournalTail.family,
+            year:reg.orderedJournalTail.year,
+            volume:reg.orderedJournalTail.volume,
+            issue:reg.orderedJournalTail.issue,
+            locator:reg.orderedJournalTail.locator,
+            locatorKind:reg.orderedJournalTail.locatorKind,
+            confidence:reg.orderedJournalTail.confidence
+          }
+        :null
   };
   parsed.semanticBlocks=reg.semanticBlocks||[];
   parsed.semanticLocator=reg.semanticLocator||null;
@@ -16967,11 +19046,147 @@ function refSBApplySourcePatternLearning(parsedList){
   }
 }
 
+function refFEApplyOrderedRawTail(parsed,reg){
+  if(!parsed?.raw || !reg || parsed.type!=="journal article" || parsed.nonJournal)
+    return parsed;
+
+  const stripped=refStripDoiUrl(parsed.raw);
+  const yearField=refFEField(reg,"year");
+
+  // The ordered parser is intentionally anchored to a metadata tail. Start at
+  // the validated publication-year span rather than at the beginning of the
+  // whole reference, which may contain authors/title/source before the year.
+  const tailText=yearField
+    ?String(parsed.raw||"").slice(yearField.start)
+    :stripped;
+
+  const strictTail=refFEOrderedYearFirstJournalTail(tailText,parsed.year||null);
+  const recoveredTail=!strictTail
+    ?refFERecoverMissingJournalDelimiter(tailText,parsed.year||null)
+    :null;
+  const tail=strictTail||recoveredTail;
+  if(!tail) return parsed;
+
+  const from=yearField?.end||0;
+
+  const locateAfterYear=value=>{
+    if(value==null) return null;
+    const clean=String(value);
+    const direct=refFEFindValueSpan(reg.raw,clean,from,reg.raw.length);
+    if(direct) return direct;
+
+    // Allow normalized dash variants for ranges.
+    const norm=clean.replace(/[–—]/g,"-");
+    const candidates=[...reg.raw.matchAll(/\b[A-Za-z]?\d{1,12}(?:\s*[-–—]\s*[A-Za-z]?\d{1,12})?\b/gu)]
+      .filter(m=>m.index>=from)
+      .map(m=>({
+        start:m.index,
+        end:m.index+m[0].length,
+        raw:m[0],
+        normalized:m[0].replace(/\s+/g,"").replace(/[–—]/g,"-")
+      }));
+    return candidates.find(x=>x.normalized===norm.replace(/\s+/g,""))||null;
+  };
+
+  const volumeSpan=locateAfterYear(tail.volume);
+  const locatorSpan=tail.locator?locateAfterYear(tail.locator):null;
+
+  // Rebuild only the mutually dependent publication-metadata fields. Author,
+  // year, title, source, DOI and URL evidence remain untouched.
+  reg.fields=(reg.fields||[]).filter(f=>!["volume","issue","pages","article_number"].includes(f.fieldType));
+  reg.protectedSpans=(reg.protectedSpans||[]).filter(f=>!["volume","issue","pages","article_number"].includes(f.fieldType));
+
+  if(volumeSpan){
+    refFEAddField(
+      reg,"volume",tail.volume,
+      volumeSpan.start,volumeSpan.end,
+      tail.malformedDelimiter?0.94:0.995,
+      tail.malformedDelimiter
+        ?["complete raw journal tail","recovered despite missing bibliographic delimiter",...(tail.evidence||[])]
+        :["complete raw journal tail","ordered YEAR -> VOLUME -> LOCATOR grammar"],
+      {rule:tail.malformedDelimiter?"ordered-raw-tail-volume-recovered":"ordered-raw-tail-volume",protected:true}
+    );
+  }
+
+  let issueSpan=null;
+  if(tail.issue){
+    issueSpan=locateAfterYear(tail.issue);
+    if(issueSpan){
+      refFEAddField(
+        reg,"issue",tail.issue,
+        issueSpan.start,issueSpan.end,
+        tail.malformedDelimiter?0.93:0.99,
+        tail.malformedDelimiter
+          ?["complete raw journal tail","recovered issue within malformed metadata tail"]
+          :["complete raw journal tail","parenthesized issue after volume"],
+        {rule:tail.malformedDelimiter?"ordered-raw-tail-issue-recovered":"ordered-raw-tail-issue",protected:true}
+      );
+    }
+  }
+
+  if(locatorSpan && tail.locator){
+    const fieldType=tail.locatorKind==="article"?"article_number":"pages";
+    refFEAddField(
+      reg,fieldType,tail.locator,
+      locatorSpan.start,locatorSpan.end,
+      tail.malformedDelimiter?0.94:0.995,
+      tail.malformedDelimiter
+        ?["complete raw journal tail","strong locator recovered across missing delimiter",...(tail.evidence||[])]
+        :["complete raw journal tail","locator follows resolved volume"],
+      {rule:tail.malformedDelimiter?`ordered-raw-tail-${fieldType}-recovered`:`ordered-raw-tail-${fieldType}`,protected:true}
+    );
+  }
+
+  reg.final.volume=tail.volume||null;
+  reg.final.issue=tail.issue||null;
+  reg.final.pages=tail.locatorKind==="pages"?tail.locator:null;
+  reg.final.articleNumber=tail.locatorKind==="article"?tail.locator:null;
+  reg.final.locatorKind=tail.locatorKind||null;
+  reg.authoritativeJournalMetadata=true;
+  reg.orderedJournalTail=tail;
+  reg.referenceDelimiterReview=tail.delimiterReview||null;
+
+  parsed.referenceDelimiterReview=tail.delimiterReview||null;
+  parsed.hasVolume=!!tail.volume;
+  parsed.hasIssue=!!tail.issue;
+  parsed.hasPages=!!tail.locator;
+  parsed.hasArticleNo=tail.locatorKind==="article";
+
+  parsed.structured=parsed.structured||{};
+  parsed.structured.volume=tail.volume||null;
+  parsed.structured.issue=tail.issue||null;
+  parsed.structured.locator=tail.locator||null;
+  parsed.structured.locatorKind=tail.locatorKind||null;
+
+  // Do not claim a source/container was detected merely because the numerical
+  // tail is structurally clear.
+  parsed.referenceFieldRegistry=reg;
+
+  reg.diagnostics={
+    ...(reg.diagnostics||{}),
+    orderedJournalTail:{
+      family:tail.family,
+      year:tail.year,
+      volume:tail.volume,
+      issue:tail.issue,
+      locator:tail.locator,
+      locatorKind:tail.locatorKind,
+      confidence:tail.confidence,
+      reconciliation:tail.malformedDelimiter?"raw-tail delimiter recovery":"raw-tail fallback",
+      malformedDelimiter:!!tail.malformedDelimiter,
+      delimiterReview:tail.delimiterReview||null
+    }
+  };
+
+  return parsed;
+}
+
 function refFEFinalReconcile(parsed){
   if(!parsed?.raw) return parsed;
   const reg=refFEBuildRegistry(parsed.raw,parsed);
   refFEApplyRegistryToParsed(parsed,reg);
-  return refSBFinalReconcile(parsed,reg);
+  const reconciled=refSBFinalReconcile(parsed,reg);
+  return refFEApplyOrderedRawTail(reconciled,reg);
 }
 
 /* Wrap the mature parser rather than replacing it. Every downstream consumer
@@ -17185,6 +19400,19 @@ function refApplyFormattingHints(parsed, raw, hints){
    publication year, e.g. "Journal, 121044 (2023)", is interpreted as an
    article/e-location number rather than recycled as journal volume. Normal
    VOLUME, LOCATOR (YEAR) and VOLUME (YEAR) forms remain unchanged.
+*/
+/* Ordered journal-tail reconciliation 2026-08-16:
+   Complete YEAR, VOLUME[, LOCATOR] tails are parsed as an ordered bibliographic
+   structure before generic numeric inference. This preserves volume-only RSC
+   references such as "2020, 712" and accepts positionally unambiguous page
+   ranges such as "44, 1875-1880" even when their endpoints resemble years.
+   The rule is journal-agnostic and anchored to the complete metadata tail.
+*/
+/* Missing bibliographic delimiter recovery 2026-08-16:
+   Strong malformed tails such as "2025, 9 100224" and
+   "2019, 5 1116-1136" are interpreted as YEAR, VOLUME, LOCATOR while the
+   absent punctuation remains a visible formatting review. Weak/ambiguous
+   whitespace-only numeric pairs are not forced into fields.
 */
 
 /* Reference-likelihood of a single entry, from several independent signals */
@@ -17490,6 +19718,20 @@ function refCheck(refText, bodyText, presegmentedEntries=null){
       // Ancillary text is evaluated separately from core-field detection.
       // It never converts a valid volume/page field into a missing field.
       refCAApplyAncillaryReview(p,issues,i,L);
+
+      if(p.referenceDelimiterReview){
+        const d=p.referenceDelimiterReview;
+        issues.push({
+          level:"warn",
+          idx:i,
+          label:L,
+          code:"REFERENCE_MISSING_FIELD_DELIMITER",
+          msg:d.message,
+          suggestion:d.recommendation,
+          referenceFormatting:true,
+          delimiterReview:true
+        });
+      }
     }
 
     // New non-journal references are validated against their own type schema.
@@ -17576,7 +19818,10 @@ function refLedger(parsed){
     const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
     const tag=p.type!=="journal article"?`<span class="rtype">${escapeHtml(p.nonJournal?refNJTypeLabel(p.type):p.type)}</span> `:"";
     const snip=escapeHtml(p.raw.length>58?p.raw.slice(0,58)+"…":p.raw);
-    return `<tr><td class="t-abbr">${label}</td><td class="t-long">${tag}${snip}</td>`+
+    const delimiterReview=p.referenceDelimiterReview
+      ?`<div class="ref-delimiter-review"><b>Delimiter review:</b> ${escapeHtml(p.referenceDelimiterReview.recommendation)}</div>`
+      :"";
+    return `<tr class="${p.referenceDelimiterReview?"ref-row-format-review":""}"><td class="t-abbr">${label}</td><td class="t-long">${tag}${snip}${delimiterReview}</td>`+
       `<td>${cell(p._authorState)}</td><td>${cell(p._yearState)}</td><td>${cell(p._titleState)}</td>`+
       `<td>${cell(p._sourceState)}</td><td>${cell(p._pagesState)}</td><td>${cell(p._volState)}</td><td>${cell(p.nonJournal?(p._identifierState||p._doiState):p._doiState)}</td></tr>`;
   }).join("");
@@ -17602,6 +19847,8 @@ function refReportText(res, cross){
     const label=p.num!=null?`[${p.num}]`:`#${i+1}`;
     const entry=(p.type!=="journal article"?`[${p.nonJournal?refNJTypeLabel(p.type):p.type}] `:"")+p.raw.replace(/\s+/g," ").trim();
     L.push(`${label} | ${entry} | ${state(p._authorState)} | ${state(p._yearState)} | ${state(p._titleState)} | ${state(p._sourceState)} | ${state(p._pagesState)} | ${state(p._volState)} | ${state(p.nonJournal?(p._identifierState||p._doiState):p._doiState)}`);
+    if(p.referenceDelimiterReview)
+      L.push(`  Formatting review: ${p.referenceDelimiterReview.recommendation}`);
   });
   return L.join("\n");
 }
@@ -18406,7 +20653,11 @@ function mcReportPriorityCounts(reportId){
   return out;
 }
 function mcReferenceMissingFieldCount(){
-  const wrap=$("ref-ledger-wrap"); return wrap ? wrap.querySelectorAll("tbody .yn.n").length : 0;
+  const wrap=$("ref-ledger-wrap");
+  if(!wrap) return 0;
+  const missing=wrap.querySelectorAll("tbody .yn.n").length;
+  const delimiterReviews=wrap.querySelectorAll("tbody .ref-delimiter-review").length;
+  return missing+delimiterReviews;
 }
 function mcModuleSummary(tab,title,detected,reportId,extraAttention,attentionNoun="item"){
   const c=mcReportPriorityCounts(reportId);
@@ -22246,7 +24497,7 @@ fteAnalyze=function(blocks){
     const active=Object.keys(GROUP_REPORT).reduce((n,g)=>n+countGroup(g),0); const lede=$u("overview-lede"); if(lede)lede.textContent=active?`${active} item${active===1?"":"s"} may need your attention. Open the sections below to review the findings and manuscript instances.`:"No issues requiring attention were detected. You can still inspect each section and its ledger for completeness.";
     const remCounts={critical:0,review:0,style:0}; allIssues().forEach(i=>{if(i.classList.contains("mc-not-issue")||i.classList.contains("mc-reviewed"))return;const p=priorityOf(i);if(remCounts[p]!==undefined)remCounts[p]++}); remCounts.review+=countGroup("unit"); document.querySelectorAll('#num-findings tbody tr[data-num-review="1"]').forEach(r=>{const p=r.dataset.numPriority||"review";if(remCounts[p]!==undefined)remCounts[p]++});
     document.querySelectorAll(".overview-priority-card").forEach((card,i)=>{const key=["critical","review","style"][i];const n=card.querySelector(".n");if(n)n.textContent=String(remCounts[key]||0);if(!card.querySelector(".mc-card-action"))card.insertAdjacentHTML("beforeend",'<span class="mc-card-action">Review these →</span>');card.tabIndex=0;card.setAttribute("role","button")});
-    document.querySelectorAll(".overview-module[data-overview-tab]").forEach(card=>{const g=card.dataset.overviewTab,att=card.querySelector(".overview-module-attn"),n=countGroup(g);if(att){att.textContent=n?`${n} item${n===1?"":"s"} remaining`:totalGroupFindings(g)>0?"All findings reviewed":"No findings requiring attention";att.classList.toggle("overview-module-clean",n===0)}});
+    document.querySelectorAll(".overview-module[data-overview-tab]").forEach(card=>{const g=card.dataset.overviewTab,att=card.querySelector(".overview-module-attn"),n=countGroup(g);if(att){att.textContent=n?`${n} finding${n===1?"":"s"} to review`:totalGroupFindings(g)>0?"All findings reviewed":"No findings requiring attention";att.classList.toggle("overview-module-clean",n===0)}});
     document.querySelectorAll(".overview-module").forEach(card=>{if(!card.querySelector(".mc-card-action"))card.insertAdjacentHTML("beforeend",'<span class="mc-card-action">Open details</span>')});
     const cards=[...document.querySelectorAll(".overview-priority-card")];cards.forEach((c,i)=>{const p=["critical","review","style"][i];const go=()=>jumpToPriority(p);c.onclick=go;c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
     mcPlaceCombinedExportAtOverviewBottom();
@@ -22261,7 +24512,7 @@ fteAnalyze=function(blocks){
   function openGuided(){UX_GUIDED_ITEMS=allIssues().filter(i=>!i.classList.contains("mc-not-issue")&&!i.classList.contains("mc-reviewed")).sort((a,b)=>({critical:0,review:1,style:2}[priorityOf(a)]??3)-({critical:0,review:1,style:2}[priorityOf(b)]??3));UX_GUIDED_INDEX=0;ensureGuided();$u("mc-guided").hidden=false;document.body.style.overflow="hidden";renderGuided()}
   function closeGuided(){if($u("mc-guided"))$u("mc-guided").hidden=true;document.body.style.overflow=""}
   function guidedMove(d){if(!UX_GUIDED_ITEMS.length)return;UX_GUIDED_INDEX=Math.max(0,Math.min(UX_GUIDED_ITEMS.length-1,UX_GUIDED_INDEX+d));renderGuided()}
-  function renderGuided(){const host=$u("mc-guided-content");if(!host)return;if(!UX_GUIDED_ITEMS.length){host.innerHTML='<div class="mc-module-clean-banner">✓ No remaining findings in the guided review.</div>';return}const x=UX_GUIDED_ITEMS[UX_GUIDED_INDEX],msg=x.querySelector(".msg")?.textContent?.replace(/\s+/g," ").trim()||"Finding",contextNodes=[...x.querySelectorAll(".duplicate-definition-context")],contextHtml=contextNodes.length?contextNodes.map((n,idx)=>{const lab=n.querySelector(".duplicate-definition-context-label")?.textContent?.trim()||`Definition ${idx+1}`;const txt=n.querySelector(".snip")?.textContent?.replace(/\s+/g," ").trim()||"";return txt?`<div class="mc-guided-context-item"><b>${escapeHtml(lab)}</b>${escapeHtml(txt)}</div>`:""}).join(""):`<div class="mc-guided-context-item">${escapeHtml(x.querySelector(".snip")?.textContent?.trim()||"No manuscript excerpt was attached to this finding.")}</div>`,sug=x.querySelector(".std-note")?.textContent?.replace(/^(?:Suggested|Recommendation):\s*/i,"").trim()||"Review the manuscript context and apply a change only when appropriate.";host.innerHTML=`<div class="mc-guided-meta">${UX_GUIDED_INDEX+1} of ${UX_GUIDED_ITEMS.length} · ${escapeHtml(GROUP_LABEL[groupFor(x)]||"")} · ${escapeHtml(priorityOf(x))}</div><div class="mc-guided-problem"><b>Finding</b>${escapeHtml(msg)}</div><div class="mc-guided-evidence"><b>Manuscript context</b>${contextHtml}</div><div class="mc-guided-action"><b>Recommendation</b>${escapeHtml(sug)}</div>`;const panel=$u("mc-guided")?.querySelector(".mc-guided-panel");if(panel)panel.scrollTop=0}
+  function renderGuided(){const host=$u("mc-guided-content");if(!host)return;if(!UX_GUIDED_ITEMS.length){host.innerHTML='<div class="mc-module-clean-banner">✓ No findings currently awaiting review.</div>';return}const x=UX_GUIDED_ITEMS[UX_GUIDED_INDEX],msg=x.querySelector(".msg")?.textContent?.replace(/\s+/g," ").trim()||"Finding",contextNodes=[...x.querySelectorAll(".duplicate-definition-context")],contextHtml=contextNodes.length?contextNodes.map((n,idx)=>{const lab=n.querySelector(".duplicate-definition-context-label")?.textContent?.trim()||`Definition ${idx+1}`;const txt=n.querySelector(".snip")?.textContent?.replace(/\s+/g," ").trim()||"";return txt?`<div class="mc-guided-context-item"><b>${escapeHtml(lab)}</b>${escapeHtml(txt)}</div>`:""}).join(""):`<div class="mc-guided-context-item">${escapeHtml(x.querySelector(".snip")?.textContent?.trim()||"No manuscript excerpt was attached to this finding.")}</div>`,sug=x.querySelector(".std-note")?.textContent?.replace(/^(?:Suggested|Recommendation):\s*/i,"").trim()||"Review the manuscript context and apply a change only when appropriate.";host.innerHTML=`<div class="mc-guided-meta">${UX_GUIDED_INDEX+1} of ${UX_GUIDED_ITEMS.length} · ${escapeHtml(GROUP_LABEL[groupFor(x)]||"")} · ${escapeHtml(priorityOf(x))}</div><div class="mc-guided-problem"><b>Finding</b>${escapeHtml(msg)}</div><div class="mc-guided-evidence"><b>Manuscript context</b>${contextHtml}</div><div class="mc-guided-action"><b>Recommendation</b>${escapeHtml(sug)}</div>`;const panel=$u("mc-guided")?.querySelector(".mc-guided-panel");if(panel)panel.scrollTop=0}
 
   function enhanceAll(){
     if(UX_ENHANCING)return;UX_ENHANCING=true;try{Object.keys(GROUP_REPORT).forEach(g=>{allIssues(g).forEach(enhanceIssue);ensureToolbar(g);applyFilters(g)});updateTabs();addCleanBanners();updateOverviewUX();ensureResultsTools();$u("analysis-progress")?.classList.add("mc-auto-collapsed");updateFloating()}finally{UX_ENHANCING=false}
@@ -22491,10 +24742,75 @@ fteAnalyze=function(blocks){
     return `<div class="issue"><span class="badge ${cls}">${sym}</span><div class="body"><p class="msg"><span class="abbr">${e(humanIssueCode(it.code||""))}</span> <b>${e(fteItemLabel(it))}</b> · ${e(it.msg||"")}</p>${it.context?`<div class="snip">${e(it.context)}</div>`:""}${it.suggestion?`<p class="std-note"><b>Recommendation:</b> ${e(it.suggestion)}</p>`:""}</div></div>`;
   }
 
+  function fteConciseRecommendation(it){
+    const code=String(it?.code||"");
+    const msg=String(it?.msg||"");
+    const item=fteItemLabel(it);
+
+    // Keep the ledger action-oriented. Diagnostic explanations belong in the
+    // Finding column and Open details panel, not in the Recommendation column.
+    if(code==="FIGURE_PANEL_SEQUENCE"){
+      if(/duplicat/i.test(msg))
+        return "Correct the duplicated panel labels in the figure caption.";
+      if(/skip|missing/i.test(msg))
+        return "Correct the panel lettering so the sequence is complete and in order.";
+      return "Check and correct the panel lettering in the figure caption.";
+    }
+
+    if(code==="FIGURE_PANEL_REFERENCE_UNDECLARED")
+      return "Check the caption and add or correct the missing panel label(s).";
+
+    if(/_DUPLICATE_NUMBER$/.test(code))
+      return "Renumber the duplicated item and update its cross-references.";
+
+    if(/_OUT_OF_ORDER$/.test(code))
+      return "Correct the numbering or item order.";
+
+    if(/_MISSING_NUMBER$/.test(code))
+      return "Check the numbering sequence and restore the missing identifier if needed.";
+
+    if(code==="EQUATION_CHILD_SEQUENCE")
+      return "Correct the sub-equation lettering sequence.";
+
+    if(code==="TABLE_MISSING_NUMBER")
+      return "Add or verify the numbered table caption.";
+
+    if(/CITATION_WITHOUT|REFERENCE_WITHOUT/.test(code))
+      return "Correct the citation identifier or add the missing item.";
+
+    if(code==="EQUATION_NOT_REFERENCED")
+      return "Reference this equation in the text if required by the target journal.";
+
+    if(/FIGURE_NOT_CITED|TABLE_NOT_CITED/.test(code))
+      return `Cite ${item} in the manuscript text before it appears.`;
+
+    if(/APPEARS_BEFORE_FIRST_CITATION/.test(code))
+      return "Move or add the first citation so it appears before this item.";
+
+    if(/FIRST_CITATION_ORDER|CITED_BEFORE_PREVIOUS/.test(code))
+      return "Correct the first-citation order or numbering.";
+
+    if(/STRUCTURAL_MATCH/.test(code))
+      return "Verify this item against the Word document structure.";
+
+    const original=String(it?.suggestion||"").replace(/\s+/g," ").trim();
+    if(!original) return "Review and correct this item in the manuscript.";
+
+    // Existing recommendations are usually concise. If a legacy recommendation
+    // contains an explanatory second sentence, retain only the first action.
+    const first=original.match(/^(.+?[.!?])(?:\s|$)/);
+    if(first && first[1].length<=150) return first[1];
+
+    return original.length<=150
+      ?original
+      :original.slice(0,147).replace(/\s+\S*$/,"")+"…";
+  }
+
   function fteFindingRow(it,i){
     const ctx=fteHighlightContext(it);
     const view=ctx?`<button type="button" class="fte-view-instances" data-target="fte-instance-row-${i}" aria-expanded="false" aria-controls="fte-instance-row-${i}">View instances</button>`:"";
-    const main=`<tr><td class="t-abbr">${e(fteItemLabel(it))}</td><td>${e(fteCheckLabel(it.code))}</td><td>${e(it.msg||"")}</td><td><span class="fte-ledger-status ${ftePriority(it)}">${e(fteStatusLabel(it))}</span></td><td>${e(it.suggestion||"Review this item in the manuscript.")}${view}</td></tr>`;
+    const recommendation=fteConciseRecommendation(it);
+    const main=`<tr><td class="t-abbr">${e(fteItemLabel(it))}</td><td>${e(fteCheckLabel(it.code))}</td><td>${e(it.msg||"")}</td><td><span class="fte-ledger-status ${ftePriority(it)}">${e(fteStatusLabel(it))}</span></td><td><div class="fte-recommendation-text">${e(recommendation)}</div>${view}</td></tr>`;
     if(!ctx) return main;
     const citationFinding=/CITATION_WITHOUT|REFERENCE_WITHOUT|STRUCTURAL_MATCH|APPEARS_BEFORE_FIRST_CITATION|FIRST_CITATION_ORDER|CITED_BEFORE_PREVIOUS/.test(String(it.code||""));
     const panelTitle=citationFinding?"Citation instance":"Manuscript instance";
@@ -24764,6 +27080,327 @@ async function mcCslInitUi(){
   await mcCslRenderSelectedProfile();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>mcCslInitUi());else mcCslInitUi();
+</script>
+
+
+<!-- Inspector corrective-actions integration 2026-08-16:
+     recommendation text is copied from the selected ledger row and displayed
+     beneath its manuscript evidence, so the drawer and ledger remain synchronized. -->
+<script id="mc-editorial-workbench-redesign-v1">
+(()=>{
+  "use strict";
+
+  const detailSelector=[
+    ".abbr-view-instances",
+    ".unit-view-instances",
+    ".num-view-instances",
+    ".eng-view-instances",
+    ".fte-view-instances"
+  ].join(",");
+
+  function qs(sel,root=document){return root.querySelector(sel);}
+  function qsa(sel,root=document){return Array.from(root.querySelectorAll(sel));}
+
+  const tabs=qs("#results-tabs");
+  const workbench=qs("#mc-workbench");
+  const inspector=qs("#mc-inspector");
+  const inspectorBody=qs("#mc-inspector-body");
+  const inspectorTitle=qs("#mc-inspector-title");
+  const inspectorClose=qs("#mc-inspector-close");
+  const inspectorBackdrop=qs("#mc-inspector-backdrop");
+  const headerName=qs("#mc-header-document-name");
+  const newBtn=qs("#mc-header-new");
+  const settingsBtn=qs("#mc-header-settings");
+  const fileInput=qs("#file");
+  const fileChip=qs("#filechip");
+
+  function syncWorkbench(){
+    const active=!!tabs && !tabs.hidden;
+    if(workbench) workbench.classList.toggle("is-active",active);
+    document.body.classList.toggle("mc-has-results",active);
+    if(!active){
+      closeInspector();
+      document.body.classList.remove("mc-settings-open");
+      if(settingsBtn) settingsBtn.textContent="Settings";
+    }
+    updateHeaderDocument();
+  }
+
+  if(tabs){
+    new MutationObserver(syncWorkbench).observe(tabs,{attributes:true,attributeFilter:["hidden"]});
+    syncWorkbench();
+  }
+
+  function cleanFileName(value){
+    return String(value||"").replace(/^.*[\\/]/,"").trim();
+  }
+  function updateHeaderDocument(){
+    let name="";
+    if(fileInput?.files?.[0]?.name) name=fileInput.files[0].name;
+    if(!name && fileChip){
+      const raw=(fileChip.textContent||"").replace(/\s+/g," ").trim();
+      const m=raw.match(/([^\s]+\.docx)\b/i);
+      name=m?m[1]:raw;
+    }
+    name=cleanFileName(name);
+    if(headerName) headerName.textContent=name||"No manuscript loaded";
+  }
+  fileInput?.addEventListener("change",()=>setTimeout(updateHeaderDocument,0));
+  if(fileChip){
+    new MutationObserver(updateHeaderDocument).observe(fileChip,{childList:true,subtree:true,characterData:true,attributes:true});
+  }
+  updateHeaderDocument();
+
+  newBtn?.addEventListener("click",()=>{
+    const home=qs("#home-title-link");
+    if(home) home.click();
+    document.body.classList.remove("mc-settings-open");
+    closeInspector();
+    setTimeout(updateHeaderDocument,0);
+  });
+
+  settingsBtn?.addEventListener("click",()=>{
+    const opening=!document.body.classList.contains("mc-settings-open");
+    document.body.classList.toggle("mc-settings-open",opening);
+    if(opening){
+      const adv=qs("#advanced-settings");
+      if(adv) adv.open=true;
+      qs("#input-card")?.scrollIntoView({behavior:"smooth",block:"start"});
+      settingsBtn.textContent="Close settings";
+    }else{
+      settingsBtn.textContent="Settings";
+      workbench?.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+  });
+
+  function normalizeDetailButtons(root=document){
+    qsa(detailSelector,root).forEach(btn=>{
+      if(!btn.dataset.mcEditorialLabel){
+        btn.dataset.mcEditorialLabel="1";
+        btn.textContent="Open details";
+        btn.setAttribute("aria-expanded","false");
+      }
+    });
+  }
+  normalizeDetailButtons();
+
+  const buttonObserver=new MutationObserver(muts=>{
+    let needed=false;
+    for(const m of muts){
+      if(m.type==="childList" && m.addedNodes.length){needed=true;break;}
+    }
+    if(needed) normalizeDetailButtons();
+  });
+  buttonObserver.observe(document.body,{childList:true,subtree:true});
+
+  function detailTitleFromButton(btn){
+    const row=btn.closest("tr");
+    if(row){
+      const cells=Array.from(row.children).filter(x=>x.tagName==="TD");
+      const parts=[];
+      if(cells[0]?.textContent.trim()) parts.push(cells[0].textContent.trim());
+      if(cells[1]?.textContent.trim() && parts.join(" ").length<80) parts.push(cells[1].textContent.trim());
+      const joined=parts.join(" · ").replace(/\s+/g," ").trim();
+      if(joined) return joined.slice(0,150);
+    }
+    const card=btn.closest(".card");
+    const heading=card?.querySelector("h2");
+    return heading?.textContent?.replace(/\s+/g," ").trim()||"Manuscript context";
+  }
+
+  function sourcePanel(target){
+    if(!target) return null;
+    return target.querySelector(
+      ".abbr-instance-panel,.unit-instance-panel,.num-instance-panel,.eng-instance-panel,.fte-instance-panel"
+    ) || target.querySelector("td>div") || target.querySelector("td") || target;
+  }
+
+  function mcInspectorNormalizeAction(text){
+    return String(text||"")
+      .replace(/\b(?:Open details|Details open|View instances|Hide instances)\b/gi," ")
+      .replace(/\s+/g," ")
+      .trim();
+  }
+
+  function mcInspectorActionTexts(btn){
+    const row=btn?.closest("tr");
+    if(!row) return [];
+
+    let actions=[];
+
+    // Abbreviations can legitimately have several independent recommendations.
+    if(btn.matches(".abbr-view-instances")){
+      actions=qsa(".abbr-recommendation-line",row)
+        .map(el=>mcInspectorNormalizeAction(el.textContent))
+        .filter(Boolean);
+    }
+
+    // Other ledgers currently expose one concise action in their final/action
+    // cell. Keep class-specific selectors where available, then fall back to
+    // the last cell so future ledgers inherit the same drawer behaviour.
+    if(!actions.length && btn.matches(".num-view-instances")){
+      const el=qs(".num-recommendation",row);
+      if(el){
+        const clone=el.cloneNode(true);
+        qsa("button",clone).forEach(x=>x.remove());
+        actions=[mcInspectorNormalizeAction(clone.textContent)].filter(Boolean);
+      }
+    }
+    if(!actions.length && btn.matches(".unit-view-instances")){
+      const el=qs(".unit-action",row);
+      if(el){
+        const clone=el.cloneNode(true);
+        qsa("button",clone).forEach(x=>x.remove());
+        actions=[mcInspectorNormalizeAction(clone.textContent)].filter(Boolean);
+      }
+    }
+
+    if(!actions.length){
+      const cells=Array.from(row.children).filter(x=>x.tagName==="TD");
+      const last=cells[cells.length-1];
+      if(last){
+        const clone=last.cloneNode(true);
+        qsa("button",clone).forEach(x=>x.remove());
+        qsa("[hidden]",clone).forEach(x=>x.remove());
+        const value=mcInspectorNormalizeAction(clone.textContent);
+        if(value) actions=[value];
+      }
+    }
+
+    // Dedupe without changing author-facing wording or order.
+    const seen=new Set();
+    return actions.filter(action=>{
+      const key=action.toLocaleLowerCase();
+      if(!action || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function mcInspectorCorrectiveActions(btn){
+    const actions=mcInspectorActionTexts(btn);
+    if(!actions.length) return null;
+
+    const section=document.createElement("section");
+    section.className="mc-inspector-actions";
+
+    const kicker=document.createElement("p");
+    kicker.className="mc-inspector-actions-kicker";
+    kicker.textContent="Corrective actions";
+
+    const title=document.createElement("h3");
+    title.className="mc-inspector-actions-title";
+    title.textContent=actions.length===1?"Recommended action":"Recommended actions";
+
+    const note=document.createElement("p");
+    note.className="mc-inspector-actions-note";
+    note.textContent="Review the manuscript evidence above before applying the recommendation.";
+
+    const list=document.createElement("ol");
+    list.className="mc-inspector-action-list"+(actions.length===1?" is-single":"");
+
+    actions.forEach(action=>{
+      const li=document.createElement("li");
+      li.className="mc-inspector-action";
+      li.textContent=action;
+      list.appendChild(li);
+    });
+
+    section.append(kicker,title,note,list);
+    return section;
+  }
+
+  function closeInspector(){
+    if(!inspector) return;
+    inspector.hidden=true;
+    if(inspectorBackdrop) inspectorBackdrop.hidden=true;
+    document.body.classList.remove("mc-inspector-open");
+    qsa(detailSelector).forEach(btn=>{
+      btn.classList.remove("mc-detail-source-active");
+      if(btn.dataset.mcEditorialLabel){
+        btn.textContent="Open details";
+        btn.setAttribute("aria-expanded","false");
+      }
+    });
+  }
+
+  function openInspector(btn){
+    const targetId=btn.dataset.target||btn.getAttribute("aria-controls")||"";
+    const target=targetId?document.getElementById(targetId):null;
+    if(!target || !inspectorBody || !inspector) return false;
+    const panel=sourcePanel(target);
+    if(!panel) return false;
+
+    qsa(detailSelector).forEach(x=>x.classList.remove("mc-detail-source-active"));
+    btn.classList.add("mc-detail-source-active");
+    btn.setAttribute("aria-expanded","true");
+    btn.textContent="Details open";
+
+    const clone=panel.cloneNode(true);
+    clone.removeAttribute?.("hidden");
+
+    // The source remains in the ledger for print/PDF generation. Remove DOM
+    // identifiers from the inspector copy so the live page never contains
+    // duplicate IDs or duplicate aria-control targets.
+    qsa("[id]",clone).forEach(el=>el.removeAttribute("id"));
+    qsa("[aria-controls]",clone).forEach(el=>el.removeAttribute("aria-controls"));
+    qsa("[data-target]",clone).forEach(el=>el.removeAttribute("data-target"));
+
+    inspectorBody.replaceChildren(clone);
+
+    const correctiveActions=mcInspectorCorrectiveActions(btn);
+    if(correctiveActions) inspectorBody.appendChild(correctiveActions);
+
+    qsa("details",inspectorBody).forEach(d=>d.open=true);
+    if(inspectorTitle) inspectorTitle.textContent=detailTitleFromButton(btn);
+
+    inspector.hidden=false;
+    if(inspectorBackdrop) inspectorBackdrop.hidden=false;
+    document.body.classList.add("mc-inspector-open");
+    inspectorBody.scrollTop=0;
+    return true;
+  }
+
+  // Capture before legacy inline expand/collapse handlers. The original hidden
+  // rows are retained for print/PDF generation; interactive review uses the
+  // dedicated inspector instead.
+  document.addEventListener("click",e=>{
+    const btn=e.target.closest?.(detailSelector);
+    if(!btn) return;
+    if(openInspector(btn)){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  },true);
+
+  inspectorClose?.addEventListener("click",closeInspector);
+  inspectorBackdrop?.addEventListener("click",closeInspector);
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape" && inspector && !inspector.hidden) closeInspector();
+  });
+
+  // Changing sections closes the old item's details and restores the content
+  // workspace to a clean state.
+  tabs?.addEventListener("click",e=>{
+    if(e.target.closest(".rtab")) closeInspector();
+  });
+
+  // The old results guidance bubble no longer fits the professional workbench.
+  // Keep its logic available but suppress any visible instance.
+  function suppressLegacyCoachmark(){
+    const c=document.getElementById("results-coachmark");
+    if(c) c.hidden=true;
+  }
+  suppressLegacyCoachmark();
+  new MutationObserver(suppressLegacyCoachmark).observe(document.body,{childList:true,subtree:true});
+
+  window.mcEditorialWorkbench={
+    closeInspector,
+    openInspector,
+    syncWorkbench,
+    updateHeaderDocument
+  };
+})();
 </script>
 
 </body>
