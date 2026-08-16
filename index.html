@@ -5558,6 +5558,120 @@ if(document.readyState==="loading"){
 }
 </style>
 
+
+
+<!-- Manuscript Check: Abbreviations ledger always-fit width correction -->
+<style id="mc-abbr-fit-available-width-v2">
+@media screen {
+  /* Never force the Abbreviations ledger wider than its report panel. */
+  #abbr-reporting-table{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    table-layout:fixed!important;
+  }
+
+  /* Compact data columns; reserve most width for status and recommendation. */
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(1){width:8%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(2){width:18%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(3){width:5%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(4){width:21%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(5){width:38%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(6){width:10%!important}
+
+  #abbr-reporting-table th,
+  #abbr-reporting-table td{
+    min-width:0!important;
+    max-width:none!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+  }
+
+  /* Keep the compact columns genuinely compact. */
+  #abbr-reporting-table > thead > tr > th:nth-child(1),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(1),
+  #abbr-reporting-table > thead > tr > th:nth-child(2),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(2){
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  #abbr-reporting-table > thead > tr > th:nth-child(3),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(3){
+    padding-left:5px!important;
+    padding-right:5px!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+  }
+  #abbr-reporting-table > thead > tr > th:nth-child(4),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(4){
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  #abbr-reporting-table > thead > tr > th:nth-child(5),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(5){
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+  #abbr-reporting-table > thead > tr > th:nth-child(6),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(6){
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+
+  /* The action must shrink/wrap inside the Details column instead of enlarging it. */
+  #abbr-reporting-table .abbr-details-cell .abbr-group-details{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    padding:7px 6px!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    line-height:1.2!important;
+  }
+
+  /* Expanded evidence is full-row content and must not create table overflow. */
+  #abbr-reporting-table .abbr-instance-row > td,
+  #abbr-reporting-table .abbr-instance-panel{
+    min-width:0!important;
+    max-width:100%!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  /* Override all older responsive min-width rules that caused horizontal scrolling. */
+  .ledger-scroll:has(> #abbr-reporting-table){
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:clip!important;
+  }
+}
+
+@media screen and (max-width:1050px){
+  #abbr-reporting-table{min-width:0!important}
+  #abbr-reporting-table th{font-size:9.5px!important;letter-spacing:.055em!important}
+  #abbr-reporting-table td{font-size:13px!important}
+  #abbr-reporting-table .abbr-details-cell .abbr-group-details{font-size:11.5px!important}
+}
+
+@media screen and (max-width:760px){
+  #abbr-reporting-table{min-width:0!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(1){width:9%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(2){width:17%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(3){width:5%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(4){width:21%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(5){width:37%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(6){width:11%!important}
+}
+
+@media print {
+  #abbr-reporting-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(1){width:8%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(2){width:18%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(3){width:5%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(4){width:21%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(5){width:38%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(6){width:10%!important}
+}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -5625,10 +5739,6 @@ if(document.readyState==="loading"){
     <div class="local-note mc-entry-privacy"><span class="local-note-icon" aria-hidden="true">✓</span><span><b>Private by default.</b> Manuscript checking runs in your browser; the uploaded manuscript text is not sent to the site analytics service.</span></div>
 
       </div>
-    </div>
-
-    <div class="check-scope mc-entry-scope" aria-label="Checks included">
-      <span>References</span><span>Abbreviations</span><span>Figures, tables &amp; equations</span><span>Units &amp; numbers</span><span>Readability</span><span>Terminology</span>
     </div>
 
     <details class="advanced-settings mc-full-width-advanced" id="advanced-settings">
@@ -28759,8 +28869,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       quick.setAttribute("aria-label","Quick start");
       quick.innerHTML=`
         <div class="mc-entry-step"><span>1</span><div><b>Add the DOCX</b><small>Upload the manuscript you want to review</small></div></div>
-        <div class="mc-entry-step"><span>2</span><div><b>Keep defaults or adjust</b><small>Automatic manuscript type is recommended</small></div></div>
-        <div class="mc-entry-step"><span>3</span><div><b>Check manuscript</b><small>Review each finding in its dedicated section</small></div></div>`;
+        <div class="mc-entry-step"><span>2</span><div><b>Use the default settings</b><small>Change Advanced settings only if required</small></div></div>
+        <div class="mc-entry-step"><span>3</span><div><b>Run the manuscript check</b><small>Click Check manuscript to analyse the uploaded DOCX</small></div></div>`;
       if(sub) sub.insertAdjacentElement("afterend",quick);
     }
   }
@@ -28850,11 +28960,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     box-sizing:border-box!important;
   }
 
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(1){width:13%!important}
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(2){width:22%!important}
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(3){width:7%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(1){width:10%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(2){width:20%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(3){width:5%!important}
   #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(4){width:20%!important}
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(5){width:28%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(5){width:35%!important}
   #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(6){width:10%!important}
 
   #abbr-reporting-table th,
@@ -28889,6 +28999,23 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     width:auto!important;
     max-width:none!important;
   }
+
+  /* Compact the information-dense left side and spend the recovered width on advice. */
+  #abbr-reporting-table > thead > tr > th:nth-child(-n+3),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(-n+3){
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  #abbr-reporting-table > thead > tr > th:nth-child(3),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(3){
+    text-align:center!important;
+    white-space:nowrap!important;
+  }
+  #abbr-reporting-table > thead > tr > th:nth-child(5),
+  #abbr-reporting-table > tbody > tr:not(.abbr-instance-row) > td:nth-child(5){
+    padding-left:14px!important;
+    padding-right:14px!important;
+  }
 }
 
 /* Preserve a readable table on smaller screens without enlarging the page itself. */
@@ -28902,11 +29029,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     table-layout:fixed!important;
   }
   #abbr-reporting-table > thead > tr > th{width:auto!important}
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(1){width:13%!important}
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(2){width:22%!important}
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(3){width:7%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(1){width:10%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(2){width:20%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(3){width:5%!important}
   #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(4){width:20%!important}
-  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(5){width:28%!important}
+  #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(5){width:35%!important}
   #abbr-reporting-table > colgroup.mc-abbr-fixed-cols > col:nth-child(6){width:10%!important}
 }
 </style>
